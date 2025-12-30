@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import useAuth from "../auth/useAuth";
 
 import Login from "../pages/Login";
-import Dashboard from  "../pages/Dashboard";
+import Dashboard from "../pages/Dashboard";
 import Clientes from "../pages/Clientes";
 import Productos from "../pages/Productos";
 import Cotizaciones from "../pages/Cotizaciones";
@@ -16,55 +16,73 @@ import ProtectedRoute from "./ProtectedRoute";
 export default function AppRouter() {
   const { user } = useAuth();
 
-  if (!user) {
-    return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/login" />} />
-      </Routes>
-    );
-  }
-
   return (
     <Routes>
+      {/* LOGIN */}
+      <Route path="/login" element={<Login />} />
+
+      {/* REDIRECCIÓN INICIAL SEGÚN ROL */}
+      <Route
+        path="/"
+        element={
+          user ? (
+            user.role === "ADMIN" ? (
+              <Navigate to="/admin" />
+            ) : user.role === "VENTAS" ? (
+              <Navigate to="/ventas" />
+            ) : (
+              <Navigate to="/cliente" />
+            )
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+
       {/* ADMIN */}
       <Route
+        path="/admin"
         element={
           <ProtectedRoute roles={["ADMIN"]}>
             <AdminLayout />
           </ProtectedRoute>
         }
       >
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/clientes" element={<Clientes />} />
-        <Route path="/productos" element={<Productos />} />
-        <Route path="/cotizaciones" element={<Cotizaciones />} />
+        <Route index element={<Dashboard />} />
+        <Route path="clientes" element={<Clientes />} />
+        <Route path="productos" element={<Productos />} />
+        <Route path="cotizaciones" element={<Cotizaciones />} />
       </Route>
 
       {/* VENTAS */}
       <Route
+        path="/ventas"
         element={
           <ProtectedRoute roles={["VENTAS"]}>
             <VentasLayout />
           </ProtectedRoute>
         }
       >
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/clientes" element={<Clientes />} />
-        <Route path="/productos" element={<Productos />} />
-        <Route path="/cotizaciones" element={<Cotizaciones />} />
+        <Route index element={<Dashboard />} />
+        <Route path="clientes" element={<Clientes />} />
+        <Route path="productos" element={<Productos />} />
+        <Route path="cotizaciones" element={<Cotizaciones />} />
       </Route>
 
       {/* CLIENTE */}
       <Route
+        path="/cliente"
         element={
           <ProtectedRoute roles={["CLIENTE"]}>
             <ClienteLayout />
           </ProtectedRoute>
         }
       >
-        <Route path="/mi-cotizacion" element={<MiCotizacion />} />
+        <Route index element={<MiCotizacion />} />
       </Route>
+
+      {/* FALLBACK */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }

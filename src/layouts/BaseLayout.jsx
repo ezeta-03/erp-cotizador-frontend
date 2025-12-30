@@ -1,26 +1,31 @@
-import { Outlet, Link } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import useAuth from "../auth/useAuth";
 
 export default function BaseLayout({ menu }) {
   const { logout, user } = useAuth();
 
   return (
-    <div>
-      <header style={{ display: "flex", gap: 20 }}>
-        <strong>{user.role}</strong>
+    <div style={{ display: "flex", minHeight: "100vh" }}>
+      {/* SIDEBAR */}
+      <aside style={{ width: 220, padding: 20, background: "#f4f4f4" }}>
+        <h3>{user.role}</h3>
 
-        {menu.map((item) => (
-          <Link key={item.path} to={item.path}>
-            {item.label}
-          </Link>
-        ))}
+        <nav>
+          {menu.map((item) => (
+            <div key={item.path}>
+              <NavLink to={item.path}>{item.label}</NavLink>
+            </div>
+          ))}
+        </nav>
 
-        <button onClick={logout}>Salir</button>
-      </header>
+        <hr />
+        <button onClick={logout}>Cerrar sesión</button>
+      </aside>
 
-      <hr />
-
-      <Outlet />
+      {/* CONTENIDO */}
+      <main style={{ flex: 1, padding: 20 }}>
+        <Outlet />
+      </main>
     </div>
   );
 }

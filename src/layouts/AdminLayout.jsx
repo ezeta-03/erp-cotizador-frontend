@@ -5,7 +5,7 @@ export default function AdminLayout() {
     { path: "/", label: "Dashboard" },
     { path: "/clientes", label: "Clientes" },
     { path: "/productos", label: "Productos" },
-    { path: "/cotizaciones", label: "Cotizaciones" }
+    { path: "/cotizaciones", label: "Cotizaciones" },
   ];
 
   return <BaseLayout menu={menu} />;

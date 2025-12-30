@@ -1,6 +1,12 @@
 import api from "./axios";
 
-export const crearCotizacion = async (data) => {
-  const res = await api.post("/cotizaciones", data);
-  return res.data;
-};
+// ADMIN / VENTAS
+export const crearCotizacion = (data) =>
+  api.post("/cotizaciones", data).then(res => res.data);
+
+export const getCotizaciones = () =>
+  api.get("/cotizaciones").then(res => res.data);
+
+// CLIENTE → última cotización
+export const getMiUltimaCotizacion = () =>
+  api.get("/cotizaciones/mi-ultima").then(res => res.data);
