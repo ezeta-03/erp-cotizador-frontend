@@ -1,0 +1,42 @@
+@import "../styles/variables";
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 230px;
+  background: $white;
+  border-right: 1px solid $gray-200;
+  padding: 20px;
+}
+
+.sidebar h3 {
+  color: $primary;
+  margin-bottom: 20px;
+}
+
+.nav a {
+  display: block;
+  padding: 10px 14px;
+  border-radius: $radius;
+  color: $gray-600;
+  margin-bottom: 6px;
+  transition: $transition;
+}
+
+.nav a.active {
+  background: rgba($primary, .1);
+  color: $primary;
+  font-weight: 600;
+}
+
+.nav a:hover {
+  background: $gray-100;
+}
+
+.main {
+  flex: 1;
+  padding: 30px;
+}

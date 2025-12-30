@@ -1,0 +1,31 @@
+@import "./variables";
+
+.btn {
+  padding: 10px 16px;
+  border-radius: $radius;
+  border: none;
+  font-weight: 600;
+  transition: $transition;
+}
+
+.btn-primary {
+  @extend .btn;
+  background: $primary;
+  color: $white;
+  width: 100%;
+
+  &:hover {
+    opacity: .9;
+  }
+}
+
+.btn-outline {
+  @extend .btn;
+  background: transparent;
+  border: 1px solid $gray-200;
+  color: $gray-600;
+
+  &:hover {
+    background: $gray-100;
+  }
+}

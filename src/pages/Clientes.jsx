@@ -6,6 +6,9 @@ import {
   updateCliente,
   deleteCliente,
 } from "../api/clientes";
+import "../styles/_table.scss"
+import "../styles/_forms.scss"
+import "../styles/_buttons.scss"
 
 export default function Clientes() {
   const { user } = useAuth();
@@ -112,7 +115,7 @@ export default function Clientes() {
             onChange={(e) => setForm({ ...form, direccion: e.target.value })}
           />
 
-          <button>{editId ? "Actualizar" : "Crear"}</button>
+          <button className="btn-primary">{editId ? "Actualizar" : "Crear"}</button>
         </form>
       )}
 

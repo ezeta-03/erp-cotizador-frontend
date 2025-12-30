@@ -1,0 +1,26 @@
+@import "./variables";
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: $white;
+  border-radius: $radius;
+  overflow: hidden;
+  box-shadow: $shadow;
+}
+
+th {
+  background: $gray-100;
+  text-align: left;
+  padding: 12px;
+  font-size: 14px;
+}
+
+td {
+  padding: 12px;
+  border-top: 1px solid $gray-200;
+}
+
+tr:hover {
+  background: $gray-50;
+}

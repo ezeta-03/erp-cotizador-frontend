@@ -104,7 +104,7 @@ export default function Productos() {
             required
           />
 
-          <button>{editId ? "Actualizar" : "Crear"}</button>
+         <button className="btn-primary">{editId ? "Actualizar" : "Crear"}</button>
         </form>
       )}
 

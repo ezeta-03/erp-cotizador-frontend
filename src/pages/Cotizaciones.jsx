@@ -99,6 +99,7 @@ export default function Cotizaciones() {
         ))}
       </select>
       <button
+        className="btn-primary"
         onClick={() => {
           const producto = productos.find(
             (p) => p.id === Number(productoSeleccionado)
@@ -155,7 +156,9 @@ export default function Cotizaciones() {
       />
       % margen
       <h3>Total: {total.toFixed(2)}</h3>
-      <button onClick={guardarCotizacion}>Guardar y PDF</button>
+      <button className="btn-primary" onClick={guardarCotizacion}>
+        Guardar y PDF
+      </button>
     </div>
   );
 }

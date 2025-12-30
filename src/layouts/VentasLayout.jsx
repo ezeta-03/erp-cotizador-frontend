@@ -2,10 +2,10 @@ import BaseLayout from "./BaseLayout";
 
 export default function VentasLayout() {
   const menu = [
-    { path: "/", label: "Dashboard" },
-    { path: "/clientes", label: "Clientes" },
-    { path: "/productos", label: "Productos" },
-    { path: "/cotizaciones", label: "Cotizar" }
+    { path: "/ventas", label: "Dashboard" },
+    { path: "/ventas/clientes", label: "Clientes" },
+    { path: "/ventas/productos", label: "Productos" },
+    { path: "/ventas/cotizaciones", label: "Cotizar" },
   ];
 
   return <BaseLayout menu={menu} />;

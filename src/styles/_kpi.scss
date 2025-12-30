@@ -1,0 +1,23 @@
+@import "./variables";
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.kpi {
+  background: $white;
+  padding: 20px;
+  border-radius: $radius;
+  box-shadow: $shadow;
+}
+
+.kpi span {
+  font-size: 13px;
+  color: $gray-400;
+}
+
+.kpi h2 {
+  margin: 10px 0 0;
+}

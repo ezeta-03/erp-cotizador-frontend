@@ -16,30 +16,18 @@ import ProtectedRoute from "./ProtectedRoute";
 export default function AppRouter() {
   const { user } = useAuth();
 
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    );
+  }
+
   return (
     <Routes>
-      {/* LOGIN */}
-      <Route path="/login" element={<Login />} />
-
-      {/* REDIRECCIÓN INICIAL SEGÚN ROL */}
-      <Route
-        path="/"
-        element={
-          user ? (
-            user.role === "ADMIN" ? (
-              <Navigate to="/admin" />
-            ) : user.role === "VENTAS" ? (
-              <Navigate to="/ventas" />
-            ) : (
-              <Navigate to="/cliente" />
-            )
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-
-      {/* ADMIN */}
+      {/* ================= ADMIN ================= */}
       <Route
         path="/admin"
         element={
@@ -54,7 +42,7 @@ export default function AppRouter() {
         <Route path="cotizaciones" element={<Cotizaciones />} />
       </Route>
 
-      {/* VENTAS */}
+      {/* ================= VENTAS ================= */}
       <Route
         path="/ventas"
         element={
@@ -69,7 +57,7 @@ export default function AppRouter() {
         <Route path="cotizaciones" element={<Cotizaciones />} />
       </Route>
 
-      {/* CLIENTE */}
+      {/* ================= CLIENTE ================= */}
       <Route
         path="/cliente"
         element={
@@ -78,11 +66,11 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<MiCotizacion />} />
+        <Route path="mi-ultima" element={<MiCotizacion />} />
       </Route>
 
-      {/* FALLBACK */}
-      <Route path="*" element={<Navigate to="/" />} />
+      {/* fallback */}
+      <Route path="*" element={<Navigate to={`/${user.role.toLowerCase()}`} />} />
     </Routes>
   );
 }
