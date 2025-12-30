@@ -1,0 +1,30 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "./AuthContext";
+
+export default function AuthProvider({ children }) {
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(() => {
+    const token = localStorage.getItem("token");
+    return token ? JSON.parse(atob(token.split(".")[1])) : null;
+  });
+
+  const login = (token) => {
+    localStorage.setItem("token", token);
+    setUser(JSON.parse(atob(token.split(".")[1])));
+    navigate("/");
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    navigate("/login");
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
