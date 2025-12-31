@@ -15,7 +15,7 @@
   width: 100%;
 
   &:hover {
-    opacity: .9;
+    opacity: 0.9;
   }
 }
 
@@ -27,5 +27,45 @@
 
   &:hover {
     background: $gray-100;
+  }
+}
+
+.btn-approve {
+  @extend .btn;
+  background: $green;
+  color: $white;
+  width: 100%;
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.btn-reject {
+  @extend .btn;
+  background: #ef4444;
+  color: $white;
+  width: 100%;
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.btn-edit {
+  @extend .btn;
+  background: $blue;
+  color: $white;
+  width: 40%;
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.btn-delete {
+  @extend .btn;
+  background: $gray-800;
+  color: $white;
+  width: 40%;
+  &:hover {
+    opacity: 0.9;
   }
 }

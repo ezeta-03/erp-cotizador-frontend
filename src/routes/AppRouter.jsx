@@ -4,9 +4,10 @@ import useAuth from "../auth/useAuth";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Clientes from "../pages/Clientes";
+import Usuarios from "../pages/Usuarios"
 import Productos from "../pages/Productos";
 import Cotizaciones from "../pages/Cotizaciones";
-import CotizacionesHistorial from "../pages/CotizacionesHistorial"
+import CotizacionesHistorial from "../pages/CotizacionesHistorial";
 import MiCotizacion from "../pages/MiCotizacion";
 
 import AdminLayout from "../layouts/AdminLayout";
@@ -41,6 +42,9 @@ export default function AppRouter() {
         <Route path="clientes" element={<Clientes />} />
         <Route path="productos" element={<Productos />} />
         <Route path="cotizaciones" element={<Cotizaciones />} />
+        <Route path="usuarios" element={<Usuarios />} />
+        <Route path="historial" element={<CotizacionesHistorial />} />
+
       </Route>
 
       {/* ================= VENTAS ================= */}
@@ -72,7 +76,10 @@ export default function AppRouter() {
       </Route>
 
       {/* fallback */}
-      <Route path="*" element={<Navigate to={`/${user.role.toLowerCase()}`} />} />
+      <Route
+        path="*"
+        element={<Navigate to={`/${user.role.toLowerCase()}`} />}
+      />
     </Routes>
   );
 }

@@ -4,6 +4,8 @@ import api from "../api/axios";
 export default function MiCotizacion() {
   const [cotizacion, setCotizacion] = useState(null);
   const [comentario, setComentario] = useState("");
+  const token = localStorage.getItem("token");
+
 
   useEffect(() => {
     api.get("/cotizaciones/mia").then(res => setCotizacion(res.data));
@@ -53,8 +55,15 @@ export default function MiCotizacion() {
 
       <br />
 
-      <a
+      {/* <a
         href={`${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacion.id}/pdf`}
+        target="_blank"
+      >
+        Descargar PDF
+      </a> */}
+
+      <a
+        href={`${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacion.id}/pdf?token=${token}`}
         target="_blank"
       >
         Descargar PDF

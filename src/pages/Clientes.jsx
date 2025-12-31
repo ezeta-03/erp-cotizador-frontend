@@ -6,9 +6,9 @@ import {
   updateCliente,
   deleteCliente,
 } from "../api/clientes";
-import "../styles/_table.scss"
-import "../styles/_forms.scss"
-import "../styles/_buttons.scss"
+import "../styles/_table.scss";
+import "../styles/_forms.scss";
+import "../styles/_buttons.scss";
 
 export default function Clientes() {
   const { user } = useAuth();
@@ -115,7 +115,9 @@ export default function Clientes() {
             onChange={(e) => setForm({ ...form, direccion: e.target.value })}
           />
 
-          <button className="btn-primary">{editId ? "Actualizar" : "Crear"}</button>
+          <button className="btn-primary">
+            {editId ? "Actualizar" : "Crear"}
+          </button>
         </form>
       )}
 
@@ -136,13 +138,18 @@ export default function Clientes() {
           {clientes.map((c) => (
             <tr key={c.id}>
               <td>{c.nombre}</td>
-              <td>{c.correo}</td>
+              <td>{c.email}</td>
               <td>{c.telefono}</td>
               {(user.role === "ADMIN" || user.role === "VENTAS") && (
                 <td>
-                  <button onClick={() => handleEdit(c)}>Editar</button>
+                  <button className="btn-edit" onClick={() => handleEdit(c)}>
+                    Editar
+                  </button>
                   {user.role === "ADMIN" && (
-                    <button onClick={() => handleDelete(c.id)}>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDelete(c.id)}
+                    >
                       Eliminar
                     </button>
                   )}

@@ -4,7 +4,7 @@ import {
   getUsuarios,
   createUsuario,
   updateUsuario,
-  deleteUsuario
+  deleteUsuario,
 } from "../api/usuarios";
 
 export default function Usuarios() {
@@ -15,16 +15,16 @@ export default function Usuarios() {
     nombre: "",
     email: "",
     password: "",
-    role: "VENTAS"
+    role: "VENTAS",
   });
   const [editId, setEditId] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const cargarUsuarios = async () => {
-    setLoading(true);
+    // setLoading(true);
     const data = await getUsuarios();
     setUsuarios(data);
-    setLoading(false);
+    // setLoading(false);
   };
 
   useEffect(() => {
@@ -34,17 +34,24 @@ export default function Usuarios() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const payload = {
+      nombre: form.nombre,
+      email: Number(form.email),
+      password: "",
+      role: form.role,
+    };
+
     if (editId) {
-      await updateUsuario(editId, form);
+      await updateUsuario(editId, payload);
     } else {
-      await createUsuario(form);
+      await createUsuario(payload);
     }
 
     setForm({
       nombre: "",
       email: "",
       password: "",
-      role: "VENTAS"
+      role: "VENTAS",
     });
     setEditId(null);
     cargarUsuarios();
@@ -55,7 +62,7 @@ export default function Usuarios() {
       nombre: u.nombre,
       email: u.email,
       password: "",
-      role: u.role
+      role: u.role,
     });
     setEditId(u.id);
   };
@@ -75,76 +82,77 @@ export default function Usuarios() {
       <h2>Gestión de Usuarios</h2>
 
       {/* FORM */}
-      <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
-        <input
-          placeholder="Nombre"
-          value={form.nombre}
-          onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-          required
-        />
-
-        <input
-          placeholder="Email"
-          type="email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          required
-        />
-
-        {!editId && (
+      {user.role === "ADMIN" && (
+        <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
           <input
-            placeholder="Contraseña temporal"
-            type="password"
-            value={form.password}
-            onChange={(e) =>
-              setForm({ ...form, password: e.target.value })
-            }
+            placeholder="Nombre"
+            value={form.nombre}
+            onChange={(e) => setForm({ ...form, nombre: e.target.value })}
             required
           />
-        )}
 
-        <select
-          value={form.role}
-          onChange={(e) => setForm({ ...form, role: e.target.value })}
-        >
-          <option value="ADMIN">Administrador</option>
-          <option value="VENTAS">Ventas</option>
-          <option value="CLIENTE">Cliente</option>
-        </select>
+          <input
+            placeholder="Email"
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            required
+          />
 
-        <button>{editId ? "Actualizar" : "Crear Usuario"}</button>
-      </form>
+          {!editId && (
+            <input
+              placeholder="Contraseña temporal"
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+            />
+          )}
 
+          <select
+            value={form.role}
+            onChange={(e) => setForm({ ...form, role: e.target.value })}
+          >
+            <option value="ADMIN">Administrador</option>
+            <option value="VENTAS">Ventas</option>
+            <option value="CLIENTE">Cliente</option>
+          </select>
+
+          <button className="btn-primary">
+            {editId ? "Actualizar" : "Crear Usuario"}
+          </button>
+        </form>
+      )}
       {/* LISTADO */}
-      {loading ? (
+      {/* {loading ? (
         <p>Cargando...</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Rol</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuarios.map((u) => (
-              <tr key={u.id}>
-                <td>{u.nombre}</td>
-                <td>{u.email}</td>
-                <td>{u.role}</td>
+      ) : ( */}
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            {user.role === "ADMIN" && <th>Acciones</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {usuarios.map((u) => (
+            <tr key={u.id}>
+              <td>{u.nombre}</td>
+              <td>{u.email}</td>
+              <td>{u.role}</td>
+              {user.role === "ADMIN" && (
                 <td>
                   <button onClick={() => handleEdit(u)}>Editar</button>
-                  <button onClick={() => handleDelete(u.id)}>
-                    Eliminar
-                  </button>
+                  <button onClick={() => handleDelete(u.id)}>Eliminar</button>
                 </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {/* )} */}
     </div>
   );
 }
