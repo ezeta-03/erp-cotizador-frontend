@@ -16,30 +16,59 @@ export default function Usuarios() {
     email: "",
     password: "",
     role: "VENTAS",
+    clienteId: ""
   });
   const [editId, setEditId] = useState(null);
   // const [loading, setLoading] = useState(false);
 
   const cargarUsuarios = async () => {
-    // setLoading(true);
-    const data = await getUsuarios();
-    setUsuarios(data);
-    // setLoading(false);
+    try {
+      // setLoading(true);
+      const data = await getUsuarios();
+      setUsuarios(data);
+      // setLoading(false);
+    } catch (error) {
+      console.error("Error cargando usuarios", error);
+      setUsuarios([]);
+    }
   };
 
   useEffect(() => {
-    cargarUsuarios();
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await getUsuarios();
+        if (mounted) setUsuarios(data);
+      } catch (error) {
+        console.error("Error cargando usuarios", error);
+        if (mounted) setUsuarios([]);
+      }
+    })();
+    return () => (mounted = false);
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const payload = {
+    // Construir payload correctamente
+    const base = {
       nombre: form.nombre,
-      email: Number(form.email),
-      password: "",
+      email: form.email,
       role: form.role,
     };
+
+    if (form.role === "CLIENTE" && form.clienteId) {
+      base.clienteId = Number(form.clienteId);
+    }
+
+    const payload = { ...base };
+
+    // En creación siempre enviar password (requerido); en edición enviar solo si se proporcionó
+    if (!editId) {
+      payload.password = form.password;
+    } else if (form.password) {
+      payload.password = form.password;
+    }
 
     if (editId) {
       await updateUsuario(editId, payload);
@@ -52,6 +81,7 @@ export default function Usuarios() {
       email: "",
       password: "",
       role: "VENTAS",
+      clienteId: "",
     });
     setEditId(null);
     cargarUsuarios();
@@ -63,6 +93,7 @@ export default function Usuarios() {
       email: u.email,
       password: "",
       role: u.role,
+      clienteId: u.clienteId || "",
     });
     setEditId(u.id);
   };

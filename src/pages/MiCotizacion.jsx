@@ -79,11 +79,11 @@ export default function MiCotizacion() {
           />
 
           <br />
-          <button onClick={() => responder("APROBADA")}>
+          <button className="btn-approve" onClick={() => responder("APROBADA")}>
             Aprobar
           </button>
 
-          <button onClick={() => responder("RECHAZADA")}>
+          <button className="btn-reject" onClick={() => responder("RECHAZADA")}>
             Rechazar
           </button>
         </>
