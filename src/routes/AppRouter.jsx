@@ -6,6 +6,7 @@ import Dashboard from "../pages/Dashboard";
 import Clientes from "../pages/Clientes";
 import Productos from "../pages/Productos";
 import Cotizaciones from "../pages/Cotizaciones";
+import CotizacionesHistorial from "../pages/CotizacionesHistorial"
 import MiCotizacion from "../pages/MiCotizacion";
 
 import AdminLayout from "../layouts/AdminLayout";
@@ -55,6 +56,7 @@ export default function AppRouter() {
         <Route path="clientes" element={<Clientes />} />
         <Route path="productos" element={<Productos />} />
         <Route path="cotizaciones" element={<Cotizaciones />} />
+        <Route path="historial" element={<CotizacionesHistorial />} />
       </Route>
 
       {/* ================= CLIENTE ================= */}
