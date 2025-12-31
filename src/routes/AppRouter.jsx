@@ -66,7 +66,7 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       >
-        <Route path="mi-ultima" element={<MiCotizacion />} />
+        <Route path="mia" element={<MiCotizacion />} />
       </Route>
 
       {/* fallback */}

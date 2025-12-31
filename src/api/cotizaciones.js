@@ -9,4 +9,4 @@ export const getCotizaciones = () =>
 
 // CLIENTE → última cotización
 export const getMiUltimaCotizacion = () =>
-  api.get("/cotizaciones/mi-ultima").then(res => res.data);
+  api.get("/cotizaciones/mia").then(res => res.data);
