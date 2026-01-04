@@ -18,7 +18,7 @@ export default function Clientes() {
     nombre: "",
     documento: "",
     telefono: "",
-    correo: "",
+    email: "",
     direccion: "",
   });
   const [editId, setEditId] = useState(null);
@@ -40,7 +40,7 @@ export default function Clientes() {
       nombre: form.nombre,
       documento: form.documento || null,
       telefono: form.telefono || null,
-      correo: form.correo || null,
+      email: form.email || null,
       direccion: form.direccion || null,
     };
 
@@ -54,7 +54,7 @@ export default function Clientes() {
       nombre: "",
       documento: "",
       telefono: "",
-      correo: "",
+      email: "",
       direccion: "",
     });
     setEditId(null);
@@ -66,7 +66,7 @@ export default function Clientes() {
       nombre: cliente.nombre,
       documento: cliente.documento || "",
       telefono: cliente.telefono || "",
-      correo: cliente.correo || "",
+      email: cliente.email || "",
       direccion: cliente.direccion || "",
     });
     setEditId(cliente.id);
@@ -105,8 +105,8 @@ export default function Clientes() {
 
           <input
             placeholder="Correo"
-            value={form.correo}
-            onChange={(e) => setForm({ ...form, correo: e.target.value })}
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
 
           <input

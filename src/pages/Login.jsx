@@ -2,7 +2,7 @@ import { useState } from "react";
 import api from "../api/axios";
 import useAuth from "../auth/useAuth";
 import styles from "./login.module.scss";
-import logo from '/favicon.png';
+import logo from "/favicon.png";
 
 export default function Login() {
   const { login } = useAuth();
@@ -11,8 +11,12 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await api.post("/auth/login", { email, password });
-    login(res.data.token);
+    try {
+      const res = await api.post("/auth/login", { email, password });
+      login(res.data.token);
+    } catch (err) {
+      alert(err.response?.data?.message || "Error al iniciar sesión");
+    }
   };
 
   return (
