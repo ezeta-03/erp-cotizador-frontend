@@ -4,7 +4,8 @@ import useAuth from "../auth/useAuth";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Clientes from "../pages/Clientes";
-import Usuarios from "../pages/Usuarios"
+import ActivarCuenta from "../pages/ActivarCuenta";
+import Usuarios from "../pages/Usuarios";
 import Productos from "../pages/Productos";
 import Cotizaciones from "../pages/Cotizaciones";
 import CotizacionesHistorial from "../pages/CotizacionesHistorial";
@@ -18,68 +19,70 @@ import ProtectedRoute from "./ProtectedRoute";
 export default function AppRouter() {
   const { user } = useAuth();
 
-  if (!user) {
-    return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/login" />} />
-      </Routes>
-    );
-  }
-
   return (
     <Routes>
-      {/* ================= ADMIN ================= */}
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute roles={["ADMIN"]}>
-            <AdminLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="clientes" element={<Clientes />} />
-        <Route path="productos" element={<Productos />} />
-        <Route path="cotizaciones" element={<Cotizaciones />} />
-        <Route path="usuarios" element={<Usuarios />} />
-        <Route path="historial" element={<CotizacionesHistorial />} />
+      {/* ================= PUBLICAS ================= */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/activar" element={<ActivarCuenta />} />
 
-      </Route>
+      {/* ================= PROTEGIDAS ================= */}
+      {user && (
+        <>
+          {/* ================= ADMIN ================= */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute roles={["ADMIN"]}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="clientes" element={<Clientes />} />
+            <Route path="productos" element={<Productos />} />
+            <Route path="cotizaciones" element={<Cotizaciones />} />
+            <Route path="usuarios" element={<Usuarios />} />
+            <Route path="historial" element={<CotizacionesHistorial />} />
+          </Route>
 
-      {/* ================= VENTAS ================= */}
-      <Route
-        path="/ventas"
-        element={
-          <ProtectedRoute roles={["VENTAS"]}>
-            <VentasLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="clientes" element={<Clientes />} />
-        <Route path="productos" element={<Productos />} />
-        <Route path="cotizaciones" element={<Cotizaciones />} />
-        <Route path="historial" element={<CotizacionesHistorial />} />
-      </Route>
+          {/* ================= VENTAS ================= */}
+          <Route
+            path="/ventas"
+            element={
+              <ProtectedRoute roles={["VENTAS"]}>
+                <VentasLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="clientes" element={<Clientes />} />
+            <Route path="productos" element={<Productos />} />
+            <Route path="cotizaciones" element={<Cotizaciones />} />
+            <Route path="historial" element={<CotizacionesHistorial />} />
+          </Route>
 
-      {/* ================= CLIENTE ================= */}
-      <Route
-        path="/cliente"
-        element={
-          <ProtectedRoute roles={["CLIENTE"]}>
-            <ClienteLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="mia" element={<MiCotizacion />} />
-      </Route>
+          {/* ================= CLIENTE ================= */}
+          <Route
+            path="/cliente"
+            element={
+              <ProtectedRoute roles={["CLIENTE"]}>
+                <ClienteLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="mia" element={<MiCotizacion />} />
+          </Route>
 
-      {/* fallback */}
-      <Route
-        path="*"
-        element={<Navigate to={`/${user.role.toLowerCase()}`} />}
-      />
+          {/* fallback logueado */}
+          <Route
+            path="*"
+            element={<Navigate to={`/${user.role.toLowerCase()}`} />}
+          />
+        </>
+      )}
+
+      {/* fallback NO logueado */}
+      {!user && <Route path="*" element={<Navigate to="/login" />} />}
     </Routes>
   );
 }

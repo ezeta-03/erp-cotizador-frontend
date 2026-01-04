@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../api/axios";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
@@ -8,14 +8,31 @@ export default function ActivarCuenta() {
   const navigate = useNavigate();
 
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // 🔥 limpiar sesión previa (admin, ventas, etc)
+  useEffect(() => {
+    localStorage.removeItem("token");
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    await api.post("/auth/activar", { token, password });
-    alert("Cuenta activada correctamente");
-    navigate("/login");
+    try {
+      await api.post("/auth/activar", { token, password });
+      alert("Cuenta activada correctamente");
+      navigate("/login");
+    } catch (err) {
+      alert(err.response?.data?.message || "Error activando cuenta");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (!token) {
+    return <p>Token inválido</p>;
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -26,7 +43,9 @@ export default function ActivarCuenta() {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-      <button>Activar cuenta</button>
+      <button disabled={loading}>
+        {loading ? "Activando..." : "Activar cuenta"}
+      </button>
     </form>
   );
 }
