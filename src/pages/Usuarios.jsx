@@ -104,6 +104,17 @@ export default function Usuarios() {
     cargarUsuarios();
   };
 
+  const handleCancel = () => {
+    setForm({
+      nombre: "",
+      email: "",
+      password: "",
+      role: "",
+      clienteId: "",
+    });
+    setEditId(null);
+  };
+
   if (user.role !== "ADMIN") {
     return <p>No autorizado</p>;
   }
@@ -152,6 +163,17 @@ export default function Usuarios() {
           <button className="btn-primary">
             {editId ? "Actualizar" : "Crear Usuario"}
           </button>
+
+          
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleCancel}
+            >
+              {" "}
+              Cancelar{" "}
+            </button>
+        
         </form>
       )}
       {/* LISTADO */}

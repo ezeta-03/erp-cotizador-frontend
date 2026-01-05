@@ -17,7 +17,7 @@ export default function Clientes() {
   const { user } = useAuth();
   const [clientes, setClientes] = useState([]);
   const [form, setForm] = useState({
-    nombre: "",
+    nombreComercial: "",
     documento: "",
     telefono: "",
     email: "",
@@ -44,7 +44,7 @@ export default function Clientes() {
     e.preventDefault();
 
     const payload = {
-      nombre: form.nombre,
+      nombreComercial: form.nombreComercial,
       documento: form.documento || null,
       telefono: form.telefono || null,
       email: form.email || null,
@@ -58,7 +58,7 @@ export default function Clientes() {
     }
 
     setForm({
-      nombre: "",
+      nombreComercial: "",
       documento: "",
       telefono: "",
       email: "",
@@ -70,13 +70,24 @@ export default function Clientes() {
 
   const handleEdit = (cliente) => {
     setForm({
-      nombre: cliente.nombre,
+      nombreComercial: cliente.nombreComercial,
       documento: cliente.documento || "",
       telefono: cliente.telefono || "",
       email: cliente.email || "",
       direccion: cliente.direccion || "",
     });
     setEditId(cliente.id);
+  };
+
+  const handleCancel = () => {
+    setForm({
+      nombreComercial: "",
+      documento: "",
+      telefono: "",
+      email: "",
+      direccion: "",
+    });
+    setEditId(null);
   };
 
   const handleDelete = async (id) => {
@@ -118,7 +129,6 @@ export default function Clientes() {
                 <th>Fecha</th>
                 <th>Total</th>
                 <th>Estado</th>
-
               </tr>
             </thead>
             <tbody>
@@ -143,8 +153,10 @@ export default function Clientes() {
         <form onSubmit={handleSubmit}>
           <input
             placeholder="Nombre"
-            value={form.nombre}
-            onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+            value={form.nombreComercial}
+            onChange={(e) =>
+              setForm({ ...form, nombreComercial: e.target.value })
+            }
             required
           />
 
@@ -175,6 +187,17 @@ export default function Clientes() {
           <button className="btn-primary">
             {editId ? "Actualizar" : "Crear"}
           </button>
+
+          {editId && (
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleCancel}
+            >
+              {" "}
+              Cancelar{" "}
+            </button>
+          )}
         </form>
       )}
 
