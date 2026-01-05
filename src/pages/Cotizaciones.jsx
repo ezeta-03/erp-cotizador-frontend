@@ -2,15 +2,17 @@ import { useEffect, useState } from "react";
 import { getClientes } from "../api/clientes";
 import { getProductos } from "../api/productos";
 import { crearCotizacion } from "../api/cotizaciones";
+import useAuth from "../auth/useAuth";
 
 export default function Cotizaciones() {
+  const { user } = useAuth(); // aquí tienes el usuario logueado
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
   const [clienteId, setClienteId] = useState("");
   const [items, setItems] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
   const token = localStorage.getItem("token");
-
+  const [numeroCotizacion] = useState(() => `COT-${Date.now()}`);
   // margen fijo oculto
   // const margen = 30;
 
@@ -49,25 +51,32 @@ export default function Cotizaciones() {
       alert("Selecciona cliente y productos");
       return;
     }
-
+    // const numero = `COT-${new Date().getTime()}`;
     const data = {
-      numero: `COT-${Date.now()}`,
+      numero: numeroCotizacion,
       clienteId,
-      // margen,
+      usuarioId: user.id,
+      total,
       items: items.map((i) => ({
         productoId: i.productoId,
         cantidad: i.cantidad,
         precio: i.precio,
+        subtotal: i.subtotal,
       })),
     };
-
-    const cotizacion = await crearCotizacion(data);
-    alert("Cotización creada");
-
-    window.open(
-      `${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacion.id}/pdf?token=${token}`,
-      "_blank"
-    );
+    try {
+      const cotizacion = await crearCotizacion(data);
+      alert("Cotización creada");
+      window.open(
+        `${import.meta.env.VITE_API_URL}/cotizaciones/${
+          cotizacion.id
+        }/pdf?token=${token}`,
+        "_blank"
+      );
+    } catch (error) {
+      console.error("Error creando cotización:", error);
+      alert("Error creando cotización");
+    }
   };
 
   return (
@@ -79,7 +88,9 @@ export default function Cotizaciones() {
         list="clientes"
         placeholder="Selecciona o escribe cliente"
         onChange={(e) => {
-          const cliente = clientes.find((c) => c.nombreComercial === e.target.value);
+          const cliente = clientes.find(
+            (c) => c.nombreComercial === e.target.value
+          );
           if (cliente) setClienteId(cliente.id);
         }}
       />
@@ -105,7 +116,9 @@ export default function Cotizaciones() {
       <button
         className="btn-primary"
         onClick={() => {
-          const producto = productos.find((p) => p.material === productoSeleccionado);
+          const producto = productos.find(
+            (p) => p.material === productoSeleccionado
+          );
           if (producto) agregarProducto(producto);
           setProductoSeleccionado("");
         }}
@@ -144,7 +157,9 @@ export default function Cotizaciones() {
                 <input
                   type="tel"
                   value={i.cantidad}
-                  onChange={(e) => actualizarItem(idx, "cantidad", e.target.value)}
+                  onChange={(e) =>
+                    actualizarItem(idx, "cantidad", e.target.value)
+                  }
                 />
               </td>
               <td>{i.subtotal.toFixed(2)}</td>

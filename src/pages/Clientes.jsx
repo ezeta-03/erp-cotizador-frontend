@@ -117,6 +117,8 @@ export default function Clientes() {
                 <th>Productos</th>
                 <th>Fecha</th>
                 <th>Total</th>
+                <th>Estado</th>
+
               </tr>
             </thead>
             <tbody>
@@ -129,6 +131,7 @@ export default function Clientes() {
                   <td>{c.items.map((i) => i.producto.material).join(", ")}</td>
                   <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                   <td>S/. {c.total.toFixed(2)}</td>
+                  <td>{c.numero}</td>
                 </tr>
               ))}
             </tbody>
