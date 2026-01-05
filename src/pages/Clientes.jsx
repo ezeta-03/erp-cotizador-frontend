@@ -179,6 +179,9 @@ export default function Clientes() {
         <thead>
           <tr>
             <th>Nombre</th>
+            <th>RUC / DNI</th>
+            <th>Contacto</th>
+            <th>Dirección</th>
             <th>Correo</th>
             <th>Teléfono</th>
             {(user.role === "ADMIN" || user.role === "VENTAS") && (
@@ -189,28 +192,21 @@ export default function Clientes() {
         <tbody>
           {clientes.map((c) => (
             <tr key={c.id}>
-              <td>{c.nombre}</td>
+              <td>{c.nombreComercial}</td>
+              <td>{c.documento}</td>
+              <td>{c.nombreContacto}</td>
+              <td>{c.direccion}</td>
               <td>{c.email}</td>
               <td>{c.telefono}</td>
               {(user.role === "ADMIN" || user.role === "VENTAS") && (
                 <td>
-                  <button className="btn-edit" onClick={() => handleEdit(c)}>
-                    Editar
-                  </button>
+                  <button onClick={() => handleEdit(c)}>Editar</button>
                   {user.role === "ADMIN" && (
                     <>
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDelete(c.id)}
-                      >
+                      <button onClick={() => handleDelete(c.id)}>
                         Eliminar
                       </button>
-                      <button
-                        className="btn-secondary"
-                        onClick={() => handleInvitar(c)}
-                      >
-                        Invitar
-                      </button>
+                      <button onClick={() => handleInvitar(c)}>Invitar</button>
                     </>
                   )}
                 </td>

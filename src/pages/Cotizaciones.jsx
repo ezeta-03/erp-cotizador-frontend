@@ -8,9 +8,11 @@ export default function Cotizaciones() {
   const [productos, setProductos] = useState([]);
   const [clienteId, setClienteId] = useState("");
   const [items, setItems] = useState([]);
-  const [margen, setMargen] = useState(30);
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
   const token = localStorage.getItem("token");
+
+  // margen fijo oculto
+  // const margen = 30;
 
   // Cargar clientes y productos
   useEffect(() => {
@@ -19,32 +21,28 @@ export default function Cotizaciones() {
   }, []);
 
   const agregarProducto = (producto) => {
-    const precioUnitario =
-      Number(producto.precio_material) + Number(producto.precio_mano_obra);
-
     setItems((prev) => [
       ...prev,
       {
         productoId: producto.id,
-        nombre: producto.nombre,
+        categoria: producto.categoria,
+        unidad: producto.unidad,
+        material: producto.material,
+        precio: producto.precio_final,
         cantidad: 1,
-        precio: precioUnitario,
-        subtotal: precioUnitario * 1,
+        subtotal: producto.precio_final * 1,
       },
     ]);
   };
 
   const actualizarItem = (index, field, value) => {
     const nuevos = [...items];
-
     nuevos[index][field] = Number(value);
     nuevos[index].subtotal = nuevos[index].cantidad * nuevos[index].precio;
-
     setItems(nuevos);
   };
 
-  const subtotal = items.reduce((s, i) => s + i.subtotal, 0);
-  const total = subtotal + subtotal * (margen / 100);
+  const total = items.reduce((s, i) => s + i.subtotal, 0);
 
   const guardarCotizacion = async () => {
     if (!clienteId || items.length === 0) {
@@ -55,7 +53,7 @@ export default function Cotizaciones() {
     const data = {
       numero: `COT-${Date.now()}`,
       clienteId,
-      margen,
+      // margen,
       items: items.map((i) => ({
         productoId: i.productoId,
         cantidad: i.cantidad,
@@ -67,9 +65,7 @@ export default function Cotizaciones() {
     alert("Cotización creada");
 
     window.open(
-      `${import.meta.env.VITE_API_URL}/cotizaciones/${
-        cotizacion.id
-      }/pdf?token=${token}`,
+      `${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacion.id}/pdf?token=${token}`,
       "_blank"
     );
   };
@@ -77,69 +73,78 @@ export default function Cotizaciones() {
   return (
     <div>
       <h2>Nueva Cotización</h2>
-      {/* Cliente */}
-      <select onChange={(e) => setClienteId(e.target.value)}>
-        <option value="">Selecciona cliente</option>
+
+      {/* Cliente con búsqueda */}
+      <input
+        list="clientes"
+        placeholder="Selecciona o escribe cliente"
+        onChange={(e) => {
+          const cliente = clientes.find((c) => c.nombreComercial === e.target.value);
+          if (cliente) setClienteId(cliente.id);
+        }}
+      />
+      <datalist id="clientes">
         {clientes.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.nombre}
-          </option>
+          <option key={c.id} value={c.nombreComercial} />
         ))}
-      </select>
-      {/* Productos */}
-      <select
+      </datalist>
+
+      {/* Producto con búsqueda */}
+      <input
+        list="productos"
+        placeholder="Selecciona o escribe producto"
         value={productoSeleccionado}
         onChange={(e) => setProductoSeleccionado(e.target.value)}
-      >
-        <option value="">Selecciona producto</option>
+      />
+      <datalist id="productos">
         {productos.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.nombre}
-          </option>
+          <option key={p.id} value={p.material} />
         ))}
-      </select>
+      </datalist>
+
       <button
         className="btn-primary"
         onClick={() => {
-          const producto = productos.find(
-            (p) => p.id === Number(productoSeleccionado)
-          );
+          const producto = productos.find((p) => p.material === productoSeleccionado);
           if (producto) agregarProducto(producto);
           setProductoSeleccionado("");
         }}
       >
         Agregar producto
       </button>
+
       {/* Tabla */}
       <table>
         <thead>
           <tr>
-            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Unidad</th>
+            <th>Material</th>
+            <th>Precio Final</th>
             <th>Cant.</th>
-            <th>Precio</th>
             <th>Subtotal</th>
           </tr>
         </thead>
         <tbody>
           {items.map((i, idx) => (
             <tr key={idx}>
-              <td>{i.nombre}</td>
               <td>
-                <input
-                  type="number"
-                  value={i.cantidad}
-                  onChange={(e) =>
-                    actualizarItem(idx, "cantidad", e.target.value)
-                  }
-                />
+                <input type="text" value={i.categoria} disabled />
+              </td>
+              <td>
+                <input type="text" value={i.unidad || ""} disabled />
+              </td>
+              <td>
+                <input type="text" value={i.material} disabled />
+              </td>
+              <td>
+                <input type="number" value={i.precio.toFixed(2)} disabled />
               </td>
               <td>
                 <input
-                  type="number"
-                  value={i.precio}
-                  onChange={(e) =>
-                    actualizarItem(idx, "precio", e.target.value)
-                  }
+                  type="tel"
+                  value={i.cantidad}
+                  onChange={(e) => actualizarItem(idx, "cantidad", e.target.value)}
                 />
               </td>
               <td>{i.subtotal.toFixed(2)}</td>
@@ -147,15 +152,10 @@ export default function Cotizaciones() {
           ))}
         </tbody>
       </table>
+
       {/* Totales */}
-      <p>Subtotal: {subtotal.toFixed(2)}</p>
-      <input
-        type="number"
-        value={margen}
-        onChange={(e) => setMargen(Number(e.target.value))}
-      />
-      % margen
-      <h3>Total: {total.toFixed(2)}</h3>
+      <h3>Total: S/ {total.toFixed(2)}</h3>
+
       <button className="btn-primary" onClick={guardarCotizacion}>
         Guardar y PDF
       </button>
