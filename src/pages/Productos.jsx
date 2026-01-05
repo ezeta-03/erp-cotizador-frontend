@@ -6,6 +6,7 @@ import {
   updateProducto,
   deleteProducto,
 } from "../api/productos";
+import ConfiguracionForm from "../coomponents/ConfiguracionForm";
 
 export default function Productos() {
   const { user } = useAuth();
@@ -20,13 +21,11 @@ export default function Productos() {
 
   const [editId, setEditId] = useState(null);
 
-  // ✅ función normal (NO useCallback)
   const cargarProductos = async () => {
     const data = await getProductos();
     setProductos(data);
   };
 
-  // ✅ effect correcto
   useEffect(() => {
     cargarProductos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,9 +49,11 @@ export default function Productos() {
     }
 
     setForm({
-      nombre: "",
-      precio_material: "",
-      precio_mano_obra: "",
+      categoria: "",
+      servicio: "",
+      material: "",
+      unidad: "",
+      costo_material: "",
     });
     setEditId(null);
     cargarProductos();
@@ -60,9 +61,11 @@ export default function Productos() {
 
   const handleEdit = (producto) => {
     setForm({
-      nombre: producto.nombre,
-      precio_material: producto.precio_material,
-      precio_mano_obra: producto.precio_mano_obra,
+      categoria: producto.categoria,
+      servicio: producto.servicio,
+      material: producto.material,
+      unidad: producto.unidad,
+      costo_material: producto.costo_material,
     });
     setEditId(producto.id);
   };
@@ -88,33 +91,48 @@ export default function Productos() {
     <div>
       <h2>Productos</h2>
       <input type="file" accept=".xlsx,.xls" onChange={handleImportExcel} />
+
+      {user.role === "ADMIN" && (
+        <ConfiguracionForm onRecalcular={cargarProductos} />
+      )}
+
       {(user.role === "ADMIN" || user.role === "VENTAS") && (
         <form onSubmit={handleSubmit}>
           <input
-            placeholder="Nombre"
-            value={form.nombre}
-            onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+            placeholder="Categoría"
+            value={form.categoria}
+            onChange={(e) => setForm({ ...form, categoria: e.target.value })}
             required
           />
 
           <input
-            placeholder="Precio"
-            type="number"
-            step="0.01"
-            value={form.precio_material}
-            onChange={(e) =>
-              setForm({ ...form, precio_material: e.target.value })
-            }
+            placeholder="Servicio"
+            value={form.servicio}
+            onChange={(e) => setForm({ ...form, servicio: e.target.value })}
             required
           />
 
           <input
-            placeholder="Precio Mano de Obra"
+            placeholder="Material"
+            value={form.material}
+            onChange={(e) => setForm({ ...form, material: e.target.value })}
+            required
+          />
+
+          <input
+            placeholder="Unidad"
+            value={form.unidad}
+            onChange={(e) => setForm({ ...form, unidad: e.target.value })}
+            required
+          />
+
+          <input
+            placeholder="Costo Material"
             type="number"
             step="0.01"
-            value={form.precio_mano_obra}
+            value={form.costo_material}
             onChange={(e) =>
-              setForm({ ...form, precio_mano_obra: e.target.value })
+              setForm({ ...form, costo_material: e.target.value })
             }
             required
           />
