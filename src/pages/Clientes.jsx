@@ -114,7 +114,7 @@ export default function Clientes() {
               <tr>
                 <th>Cliente</th>
                 <th>N° Cotización</th>
-                <th>Producto</th>
+                <th>Productos</th>
                 <th>Fecha</th>
                 <th>Total</th>
               </tr>
@@ -122,9 +122,11 @@ export default function Clientes() {
             <tbody>
               {actividad.map((c) => (
                 <tr key={c.id}>
-                  <td>{c.cliente.nombre}</td>
+                  {/* Cliente ahora usa nombreComercial */}
+                  <td>{c.cliente?.nombreComercial}</td>
                   <td>{c.numero}</td>
-                  <td>{c.items.map((i) => i.producto.nombre).join(", ")}</td>
+                  {/* Productos ahora muestran material */}
+                  <td>{c.items.map((i) => i.producto.material).join(", ")}</td>
                   <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                   <td>S/. {c.total.toFixed(2)}</td>
                 </tr>
