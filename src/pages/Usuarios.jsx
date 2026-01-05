@@ -16,7 +16,7 @@ export default function Usuarios() {
     email: "",
     password: "",
     role: "VENTAS",
-    clienteId: ""
+    clienteId: "",
   });
   const [editId, setEditId] = useState(null);
   // const [loading, setLoading] = useState(false);
@@ -163,6 +163,7 @@ export default function Usuarios() {
           <tr>
             <th>Nombre</th>
             <th>Email</th>
+            <th>Estado</th>
             <th>Rol</th>
             {user.role === "ADMIN" && <th>Acciones</th>}
           </tr>
@@ -172,10 +173,13 @@ export default function Usuarios() {
             <tr key={u.id}>
               <td>{u.nombre}</td>
               <td>{u.email}</td>
+              <td>{u.activo ? "✅ Activo" : "⏳ Invitado"}</td>
               <td>{u.role}</td>
               {user.role === "ADMIN" && (
                 <td>
-                  <button onClick={() => handleEdit(u)}>Editar</button>
+                  {u.activo && (
+                    <button onClick={() => handleEdit(u)}>Editar</button>
+                  )}
                   <button onClick={() => handleDelete(u.id)}>Eliminar</button>
                 </td>
               )}
