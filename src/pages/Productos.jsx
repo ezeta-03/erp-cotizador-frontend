@@ -9,13 +9,15 @@ import {
 
 export default function Productos() {
   const { user } = useAuth();
-
   const [productos, setProductos] = useState([]);
   const [form, setForm] = useState({
-    nombre: "",
-    precio_material: "",
-    precio_mano_obra: "",
+    categoria: "",
+    servicio: "",
+    material: "",
+    unidad: "",
+    costo_material: "",
   });
+
   const [editId, setEditId] = useState(null);
 
   // ✅ función normal (NO useCallback)
@@ -34,9 +36,11 @@ export default function Productos() {
     e.preventDefault();
 
     const payload = {
-      nombre: form.nombre,
-      precio_material: Number(form.precio_material),
-      precio_mano_obra: Number(form.precio_mano_obra),
+      categoria: form.categoria,
+      servicio: form.servicio,
+      material: form.material,
+      unidad: form.unidad,
+      costo_material: Number(form.costo_material),
     };
 
     if (editId) {
@@ -69,10 +73,21 @@ export default function Productos() {
     cargarProductos();
   };
 
+  const handleImportExcel = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    await fetch("/api/productos/import-excel", {
+      method: "POST",
+      body: formData,
+    });
+    cargarProductos();
+  };
+
   return (
     <div>
       <h2>Productos</h2>
-
+      <input type="file" accept=".xlsx,.xls" onChange={handleImportExcel} />
       {(user.role === "ADMIN" || user.role === "VENTAS") && (
         <form onSubmit={handleSubmit}>
           <input
@@ -104,7 +119,9 @@ export default function Productos() {
             required
           />
 
-         <button className="btn-primary">{editId ? "Actualizar" : "Crear"}</button>
+          <button className="btn-primary">
+            {editId ? "Actualizar" : "Crear"}
+          </button>
         </form>
       )}
 
@@ -113,10 +130,15 @@ export default function Productos() {
       <table>
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Precio Material</th>
-            <th>Precio Mano de Obra</th>
-
+            <th>Categoría</th>
+            <th>Servicio</th>
+            <th>Material</th>
+            <th>Unidad</th>
+            <th>Costo Material (S/.)</th>
+            <th>Costo Parcial 1</th>
+            <th>Costo Parcial 2</th>
+            <th>Precio Final</th>
+            <th>Margen</th>
             {(user.role === "ADMIN" || user.role === "VENTAS") && (
               <th>Acciones</th>
             )}
@@ -125,14 +147,18 @@ export default function Productos() {
         <tbody>
           {productos.map((p) => (
             <tr key={p.id}>
-              <td>{p.nombre}</td>
-              <td>{Number(p.precio_material).toFixed(2)}</td>
-              <td>{Number(p.precio_mano_obra).toFixed(2)}</td>
-
+              <td>{p.categoria}</td>
+              <td>{p.servicio}</td>
+              <td>{p.material}</td>
+              <td>{p.unidad}</td>
+              <td>{p.costo_material.toFixed(2)}</td>
+              <td>{p.costo_parcial_1.toFixed(2)}</td>
+              <td>{p.costo_parcial_2.toFixed(2)}</td>
+              <td>{p.precio_final.toFixed(2)}</td>
+              <td>{p.margen.toFixed(2)}</td>
               {(user.role === "ADMIN" || user.role === "VENTAS") && (
                 <td>
                   <button onClick={() => handleEdit(p)}>Editar</button>
-
                   {user.role === "ADMIN" && (
                     <button onClick={() => handleDelete(p.id)}>Eliminar</button>
                   )}
