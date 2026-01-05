@@ -4,7 +4,9 @@ import {
   getUsuarios,
   createUsuario,
   updateUsuario,
-  deleteUsuario,
+  // deleteUsuario,
+  cambiarEstadoUsuario,
+  reinvitarUsuario,
 } from "../api/usuarios";
 
 export default function Usuarios() {
@@ -98,11 +100,11 @@ export default function Usuarios() {
     setEditId(u.id);
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("¿Eliminar usuario?")) return;
-    await deleteUsuario(id);
-    cargarUsuarios();
-  };
+  // const handleDelete = async (id) => {
+  //   if (!confirm("¿Eliminar usuario?")) return;
+  //   await deleteUsuario(id);
+  //   cargarUsuarios();
+  // };
 
   const handleCancel = () => {
     setForm({
@@ -113,6 +115,37 @@ export default function Usuarios() {
       clienteId: "",
     });
     setEditId(null);
+  };
+
+  const handleToggleEstado = async (id, activo) => {
+    if (
+      !confirm(
+        `¿Seguro que quieres ${activo ? "activar" : "desactivar"} este usuario?`
+      )
+    )
+      return;
+    try {
+      await cambiarEstadoUsuario(id, activo);
+      cargarUsuarios();
+    } catch (error) {
+      console.error("Error cambiando estado de usuario", error);
+      alert("Error cambiando estado de usuario");
+    }
+  };
+
+  const handleReinvitar = async (usuario) => {
+    const email = prompt(
+      `Email para reinvitar a ${usuario.nombre}:`,
+      usuario.email || ""
+    );
+    if (!email) return;
+    try {
+      await reinvitarUsuario(usuario.id, email);
+      alert("📧 Invitación reenviada correctamente");
+    } catch (error) {
+      console.error("Error reinvitando usuario:", error);
+      alert(error.response?.data?.message || "Error reinvitando usuario");
+    }
   };
 
   if (user.role !== "ADMIN") {
@@ -164,16 +197,14 @@ export default function Usuarios() {
             {editId ? "Actualizar" : "Crear Usuario"}
           </button>
 
-          
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={handleCancel}
-            >
-              {" "}
-              Cancelar{" "}
-            </button>
-        
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={handleCancel}
+          >
+            {" "}
+            Cancelar{" "}
+          </button>
         </form>
       )}
       {/* LISTADO */}
@@ -198,12 +229,33 @@ export default function Usuarios() {
               <td>{u.activo ? "✅ Activo" : "⏳ Invitado"}</td>
               <td>{u.role}</td>
               {user.role === "ADMIN" && (
-                <td>
-                  {u.activo && (
-                    <button onClick={() => handleEdit(u)}>Editar</button>
+                <>
+              
+                  {user.role === "ADMIN" && (
+                    <td>
+                      {u.activo && (
+                      <button onClick={() => handleEdit(u)}>Editar</button>
+                    )}
+                     
+                      {u.activo ? (
+                        <button onClick={() => handleToggleEstado(u.id, false)}>
+                          Desactivar
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleToggleEstado(u.id, true)}
+                          >
+                            Activar
+                          </button>
+                          <button onClick={() => handleReinvitar(u)}>
+                            Reinvitar
+                          </button>
+                        </>
+                      )}
+                    </td>
                   )}
-                  <button onClick={() => handleDelete(u.id)}>Eliminar</button>
-                </td>
+                </>
               )}
             </tr>
           ))}
