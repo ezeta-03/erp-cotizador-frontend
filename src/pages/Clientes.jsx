@@ -19,6 +19,7 @@ export default function Clientes() {
   const [form, setForm] = useState({
     nombreComercial: "",
     documento: "",
+    nombreContacto: "",
     telefono: "",
     email: "",
     direccion: "",
@@ -46,6 +47,7 @@ export default function Clientes() {
     const payload = {
       nombreComercial: form.nombreComercial,
       documento: form.documento || null,
+      nombreContacto: form.nombreContacto || null,
       telefono: form.telefono || null,
       email: form.email || null,
       direccion: form.direccion || null,
@@ -60,6 +62,7 @@ export default function Clientes() {
     setForm({
       nombreComercial: "",
       documento: "",
+      nombreContacto: "",
       telefono: "",
       email: "",
       direccion: "",
@@ -72,6 +75,7 @@ export default function Clientes() {
     setForm({
       nombreComercial: cliente.nombreComercial,
       documento: cliente.documento || "",
+      nombreContacto: cliente.nombreContacto || "",
       telefono: cliente.telefono || "",
       email: cliente.email || "",
       direccion: cliente.direccion || "",
@@ -83,6 +87,7 @@ export default function Clientes() {
     setForm({
       nombreComercial: "",
       documento: "",
+      nombreContacto: "",
       telefono: "",
       email: "",
       direccion: "",
@@ -98,7 +103,7 @@ export default function Clientes() {
 
   const handleInvitar = async (cliente) => {
     const email = prompt(
-      `Email para invitar a ${cliente.nombre}:`,
+      `Email para invitar a ${cliente.nombreComercial}:`,
       cliente.email || ""
     );
 
@@ -156,6 +161,15 @@ export default function Clientes() {
             value={form.nombreComercial}
             onChange={(e) =>
               setForm({ ...form, nombreComercial: e.target.value })
+            }
+            required
+          />
+
+          <input
+            placeholder="Nombre de Contacto"
+            value={form.nombreContacto}
+            onChange={(e) =>
+              setForm({ ...form, nombreContacto: e.target.value })
             }
             required
           />
