@@ -44,7 +44,7 @@ export default function MiCotizacion() {
         <tbody>
           {cotizacion.items.map(i => (
             <tr key={i.id}>
-              <td>{i.producto.nombre}</td>
+              <td>{i.descripcion}</td> {/* 👈 glosa completa */}
               <td>{i.cantidad}</td>
               <td>{i.precio.toFixed(2)}</td>
               <td>{i.subtotal.toFixed(2)}</td>

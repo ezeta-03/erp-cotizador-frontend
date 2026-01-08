@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import styles from "../styles/configuracionForm.module.scss";
 
 export default function ConfiguracionForm({ onRecalcular }) {
   const [config, setConfig] = useState({
-    costo_indirecto: 0.10,
+    costo_indirecto: 0.1,
     porcentaje_administrativo: 0.17,
-    rentabilidad: 0.20,
+    rentabilidad: 0.3,
   });
 
   useEffect(() => {
@@ -14,7 +15,16 @@ export default function ConfiguracionForm({ onRecalcular }) {
   }, []);
 
   const handleChange = (e) => {
-    setConfig({ ...config, [e.target.name]: parseFloat(e.target.value) });
+    const { name, value } = e.target;
+    let numeric = parseFloat(value);
+
+    if (isNaN(numeric)) return;
+
+    if (name === "rentabilidad" && numeric < 0.3) {
+      numeric = 0.3;
+    }
+
+    setConfig({ ...config, [name]: numeric });
   };
 
   const handleSave = async () => {
@@ -24,59 +34,67 @@ export default function ConfiguracionForm({ onRecalcular }) {
       body: JSON.stringify(config),
     });
     const updated = await res.json();
-    setConfig(updated); // refresca el estado con lo que guardó el backend
+    setConfig(updated);
     alert("Configuración actualizada");
   };
 
   const handleRecalcular = async () => {
     await fetch("/api/configuracion/recalcular", { method: "POST" });
     alert("Productos recalculados con nueva configuración");
-    if (onRecalcular) onRecalcular(); // refresca la tabla de productos
+    if (onRecalcular) onRecalcular();
   };
 
   return (
     <div>
       <h3>Configuración de porcentajes</h3>
-      <form>
-        <label>
-          Costos indirectos (%):
-          <input
-            type="number"
-            step="0.01"
-            name="costo_indirecto"
-            value={config.costo_indirecto}
-            onChange={handleChange}
-          />
-        </label>
-        <br />
-        <label>
-          Porcentaje administrativo (%):
-          <input
-            type="number"
-            step="0.01"
-            name="porcentaje_administrativo"
-            value={config.porcentaje_administrativo}
-            onChange={handleChange}
-          />
-        </label>
-        <br />
-        <label>
-          Rentabilidad (%):
-          <input
-            type="number"
-            step="0.01"
-            name="rentabilidad"
-            value={config.rentabilidad}
-            onChange={handleChange}
-          />
-        </label>
-        <br />
-        <button type="button" onClick={handleSave}>
-          Guardar configuración
-        </button>
-        <button type="button" onClick={handleRecalcular}>
-          Recalcular precios
-        </button>
+
+      <form className={styles.form}>
+        <div className={styles.inputsRow}>
+          <div className={styles.field}>
+            <label>Costos indirectos (%)</label>
+            <input
+              type="tel"
+              step="0.01"
+              name="costo_indirecto"
+              value={config.costo_indirecto}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label>Porcentaje administrativo (%)</label>
+            <input
+              type="tel"
+              step="0.01"
+              name="porcentaje_administrativo"
+              value={config.porcentaje_administrativo}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label>Rentabilidad (%)</label>
+            <input
+              type="tel"
+              name="rentabilidad"
+              step="0.03"
+              value={config.rentabilidad}
+              readOnly
+              // className={styles.readOnly}
+              onChange={handleChange}
+
+            />
+          </div>
+        </div>
+
+        <div className={styles.actions}>
+          <button type="button" onClick={handleSave}>
+            Guardar configuración
+          </button>
+          <button type="button" onClick={handleRecalcular}>
+            Recalcular precios
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -33,6 +33,13 @@ export default function Cotizaciones() {
         precio: producto.precio_final,
         cantidad: 1,
         subtotal: producto.precio_final * 1,
+        adicionales:
+          producto.adicionales?.map((a) => ({
+            id: a.id,
+            nombre: a.nombre,
+            seleccionado: false,
+            precio: a.precio,
+          })) || [],
       },
     ]);
   };
@@ -62,6 +69,11 @@ export default function Cotizaciones() {
         cantidad: i.cantidad,
         precio: i.precio,
         subtotal: i.subtotal,
+        material: i.material,
+        adicionales: i.adicionales.map((a) => ({
+          id: a.id,
+          seleccionado: a.seleccionado,
+        })),
       })),
     };
     try {
@@ -136,6 +148,8 @@ export default function Cotizaciones() {
             <th>Precio Final</th>
             <th>Cant.</th>
             <th>Subtotal</th>
+            <th>Descripción</th>
+            <th>Adicionales</th>
           </tr>
         </thead>
         <tbody>
@@ -163,6 +177,31 @@ export default function Cotizaciones() {
                 />
               </td>
               <td>{i.subtotal.toFixed(2)}</td>
+              <td>
+                {/* Glosa compacta */}
+                {i.material}{" "}
+                {i.adicionales.map((a) =>
+                  a.seleccionado ? `con ${a.nombre} ` : `sin ${a.nombre} `
+                )}
+              </td>
+              <td>
+                {/* Checkboxes de adicionales */}
+                {i.adicionales.map((a, j) => (
+                  <label key={a.id} style={{ display: "block" }}>
+                    <input
+                      type="checkbox"
+                      checked={a.seleccionado}
+                      onChange={(e) => {
+                        const nuevos = [...items];
+                        nuevos[idx].adicionales[j].seleccionado =
+                          e.target.checked;
+                        setItems(nuevos);
+                      }}
+                    />
+                    {a.nombre}
+                  </label>
+                ))}
+              </td>
             </tr>
           ))}
         </tbody>
