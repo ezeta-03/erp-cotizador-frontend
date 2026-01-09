@@ -7,6 +7,8 @@ export default function VentasLayout() {
     { path: "/ventas/productos", label: "Productos" },
     { path: "/ventas/cotizaciones", label: "Cotizar" },
     { path: "/ventas/historial", label: "Mis Cotizaciones" },
+    { path: "/ventas/cotizaciones-ventas", label: "Facturar" },
+
   ];
 
   return <BaseLayout menu={menu} />;

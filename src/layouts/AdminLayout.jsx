@@ -8,6 +8,7 @@ export default function AdminLayout() {
     { path: "/admin/productos", label: "Productos" },
     { path: "/admin/cotizaciones", label: "Cotizador" },
     { path: "/admin/historial", label: "Historial" },
+    { path: "/admin/cotizaciones-ventas", label: "Facturar" },
   ];
 
   return <BaseLayout menu={menu} />;

@@ -10,6 +10,7 @@ import Productos from "../pages/Productos";
 import Cotizaciones from "../pages/Cotizaciones";
 import CotizacionesHistorial from "../pages/CotizacionesHistorial";
 import MiCotizacion from "../pages/MiCotizacion";
+import CotizacionesVentas from "../coomponents/CotizacionesVentas";
 
 import AdminLayout from "../layouts/AdminLayout";
 import VentasLayout from "../layouts/VentasLayout";
@@ -43,6 +44,9 @@ export default function AppRouter() {
             <Route path="cotizaciones" element={<Cotizaciones />} />
             <Route path="usuarios" element={<Usuarios />} />
             <Route path="historial" element={<CotizacionesHistorial />} />
+            <Route path="cotizaciones" element={<CotizacionesVentas />} />
+            <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
+
           </Route>
 
           {/* ================= VENTAS ================= */}
@@ -59,6 +63,8 @@ export default function AppRouter() {
             <Route path="productos" element={<Productos />} />
             <Route path="cotizaciones" element={<Cotizaciones />} />
             <Route path="historial" element={<CotizacionesHistorial />} />
+            <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
+
           </Route>
 
           {/* ================= CLIENTE ================= */}
