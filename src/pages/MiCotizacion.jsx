@@ -6,9 +6,8 @@ export default function MiCotizacion() {
   const [comentario, setComentario] = useState("");
   const token = localStorage.getItem("token");
 
-
   useEffect(() => {
-    api.get("/cotizaciones/mia").then(res => setCotizacion(res.data));
+    api.get("/cotizaciones/mia").then((res) => setCotizacion(res.data));
   }, []);
 
   if (!cotizacion) {
@@ -16,10 +15,11 @@ export default function MiCotizacion() {
   }
 
   const responder = async (estado) => {
-    await api.post(`/cotizaciones/${cotizacion.id}/responder`, {
-      estado,
-      comentario
-    });
+    await api.post(
+      `/cotizaciones/${cotizacion.id}/responder`,
+      { estado, comentario },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
     alert("Respuesta enviada");
     window.location.reload();
   };
@@ -28,9 +28,15 @@ export default function MiCotizacion() {
     <div>
       <h2>Mi última cotización</h2>
 
-      <p><b>Número:</b> {cotizacion.numero}</p>
-      <p><b>Estado:</b> {cotizacion.estado}</p>
-      <p><b>Total:</b> S/. {cotizacion.total.toFixed(2)}</p>
+      <p>
+        <b>Número:</b> {cotizacion.numero}
+      </p>
+      <p>
+        <b>Estado:</b> {cotizacion.estado}
+      </p>
+      <p>
+        <b>Total:</b> S/. {cotizacion.total.toFixed(2)}
+      </p>
 
       <table>
         <thead>
@@ -42,9 +48,9 @@ export default function MiCotizacion() {
           </tr>
         </thead>
         <tbody>
-          {cotizacion.items.map(i => (
+          {cotizacion.items.map((i) => (
             <tr key={i.id}>
-              <td>{i.descripcion}</td> {/* 👈 glosa completa */}
+              <td>{i.descripcion}</td>
               <td>{i.cantidad}</td>
               <td>{i.precio.toFixed(2)}</td>
               <td>{i.subtotal.toFixed(2)}</td>
@@ -63,7 +69,9 @@ export default function MiCotizacion() {
       </a> */}
 
       <a
-        href={`${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacion.id}/pdf?token=${token}`}
+        href={`${import.meta.env.VITE_API_URL}/cotizaciones/${
+          cotizacion.id
+        }/pdf?token=${token}`}
         target="_blank"
       >
         Descargar PDF
@@ -71,11 +79,12 @@ export default function MiCotizacion() {
 
       {cotizacion.estado === "PENDIENTE" && (
         <>
-          <br /><br />
+          <br />
+          <br />
           <textarea
             placeholder="Comentario (opcional)"
             value={comentario}
-            onChange={e => setComentario(e.target.value)}
+            onChange={(e) => setComentario(e.target.value)}
           />
 
           <br />
