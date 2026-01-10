@@ -1,0 +1,41 @@
+/* Botón principal de facturación */
+.btnFacturar {
+  background-color: #28a745; /* verde éxito */
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover: más oscuro y ligero zoom */
+.btnFacturar:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+/* Botón deshabilitado */
+.btnFacturar:disabled {
+  background-color: #6c757d; /* gris */
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Tabla más limpia */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #f8f9fa;
+}
