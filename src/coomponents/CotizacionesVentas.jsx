@@ -6,7 +6,7 @@ export default function CotizacionesVentas() {
   const [cotizaciones, setCotizaciones] = useState([]);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role"); // "ADMIN" o "VENTAS"
+  // const role = localStorage.getItem("role"); // "ADMIN" o "VENTAS"
 
   useEffect(() => {
     api

@@ -59,9 +59,9 @@ export default function Usuarios() {
       role: form.role,
     };
 
-    if (form.role === "CLIENTE" && form.clienteId) {
-      base.clienteId = Number(form.clienteId);
-    }
+    // if (form.role === "CLIENTE" && form.clienteId) {
+    //   base.clienteId = Number(form.clienteId);
+    // }
 
     const payload = { ...base };
 
@@ -190,7 +190,7 @@ export default function Usuarios() {
           >
             <option value="ADMIN">Administrador</option>
             <option value="VENTAS">Ventas</option>
-            <option value="CLIENTE">Cliente</option>
+            {/* <option value="CLIENTE">Cliente</option> */}
           </select>
 
           <button className="btn-primary">
@@ -199,7 +199,7 @@ export default function Usuarios() {
 
           <button
             type="button"
-            className="btn-secondary"
+            className="btn-delete"
             onClick={handleCancel}
           >
             {" "}

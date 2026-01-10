@@ -119,7 +119,7 @@ export default function Clientes() {
 
   return (
     <div>
-      <h2>Clientes</h2>
+      <h2>Gestión de Clientes</h2>
       <FiltrosClientes onBuscar={buscarActividad} />
 
       {actividad.length > 0 && (
@@ -146,7 +146,7 @@ export default function Clientes() {
                   <td>{c.items.map((i) => i.producto.material).join(", ")}</td>
                   <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                   <td>S/. {c.total.toFixed(2)}</td>
-                  <td>{c.numero}</td>
+                  <td>{c.estado}</td>
                 </tr>
               ))}
             </tbody>
@@ -199,19 +199,13 @@ export default function Clientes() {
           />
 
           <button className="btn-primary">
-            {editId ? "Actualizar" : "Crear"}
+            {editId ? "Actualizar" : "Crear Cliente"}
           </button>
 
-          {editId && (
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={handleCancel}
-            >
-              {" "}
-              Cancelar{" "}
-            </button>
-          )}
+          <button type="button" className="btn-delete" onClick={handleCancel}>
+            {" "}
+            Cancelar{" "}
+          </button>
         </form>
       )}
 

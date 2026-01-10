@@ -54,7 +54,7 @@
   @extend .btn;
   background: $blue;
   color: $white;
-  width: 40%;
+  // width: 40%;
   &:hover {
     opacity: 0.9;
   }
@@ -64,7 +64,7 @@
   @extend .btn;
   background: $gray-800;
   color: $white;
-  width: 40%;
+  // width: 40%;
   &:hover {
     opacity: 0.9;
   }
