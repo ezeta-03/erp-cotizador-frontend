@@ -1,74 +1,149 @@
+@import "../styles/variables";
+
 .container {
-  max-width: 900px;
-  margin: auto;
+  padding: 20px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #fd6113;
 }
 
 .filtros {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 15px;
 
   button {
-    background: #fff;
-    border: 1px solid #ddd;
-    padding: 6px 12px;
-    cursor: pointer;
+    padding: 8px 14px;
+    border: none;
     border-radius: 6px;
+    background: #eee;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #fd6113;
+      color: #fff;
+    }
   }
 
   .active {
     background: #fd6113;
-    color: white;
-    border-color: #fd6113;
+    color: #fff;
+    font-weight: bold;
+  }
+}
+
+.filtrosAvanzados {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
   }
 }
 
 .lista {
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
 }
 
 .card {
-  border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 16px;
   background: #fff;
-}
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
 
-.header {
-  display: flex;
-  justify-content: space-between;
-}
+  &:hover {
+    transform: translateY(-4px);
+  }
 
-.numero {
-  font-weight: bold;
-}
+  .header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    // background-color: red;
 
-.estado {
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 12px;
-}
+    .numero {
+      width: 80%;
+      font-weight: bold;
+      color: #333;
+    }
 
-.PENDIENTE {
-  background: #facc15;
-}
+    .estado {
+      width: 20%;
 
-.FACTURADA {
-  background: #10b981;
-  color: white;
-}
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 5px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
 
-.RECHAZADA {
-  background: #ef4444;
-  color: white;
-}
+    .PENDIENTE {
+      background: #facc15;
+      color: #000;
+    }
 
-.cliente {
-  font-weight: 500;
-}
+    .FACTURADA {
+      background: #10b981;
+      color: #fff;
+    }
 
-.total {
-  font-size: 18px;
-  font-weight: bold;
+    .RECHAZADA {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .APROBADA {
+      background: #3b82f6;
+      color: #fff;
+    }
+  }
+
+  .cliente {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .total {
+    font-size: 16px;
+    color: #10b981;
+    margin-bottom: 5px;
+  }
+
+  .fecha {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 5px;
+  }
+
+  .vendedor {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 10px;
+  }
+
+  .btnPreview {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background: btn-outline;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #e85c0d;
+    }
+  }
 }

@@ -9,7 +9,7 @@ import {
 import "../styles/_table.scss";
 import "../styles/_forms.scss";
 import "../styles/_buttons.scss";
-import FiltrosClientes from "..//coomponents/FiltrosClientes";
+import FiltrosClientes from "../coomponents/FiltrosClientes";
 import { getActividadClientes } from "../api/clientes";
 import { invitarCliente } from "../api/clientes";
 
