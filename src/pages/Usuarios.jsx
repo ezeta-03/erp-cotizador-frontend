@@ -4,14 +4,14 @@ import {
   getUsuarios,
   createUsuario,
   updateUsuario,
-  // deleteUsuario,
   cambiarEstadoUsuario,
   reinvitarUsuario,
 } from "../api/usuarios";
+import styles from "./usuarios.module.scss";
+import UsuarioFormModal from "../pages/UsuarioFormModal";
 
 export default function Usuarios() {
   const { user } = useAuth();
-
   const [usuarios, setUsuarios] = useState([]);
   const [form, setForm] = useState({
     nombre: "",
@@ -21,14 +21,12 @@ export default function Usuarios() {
     clienteId: "",
   });
   const [editId, setEditId] = useState(null);
-  // const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const cargarUsuarios = async () => {
     try {
-      // setLoading(true);
       const data = await getUsuarios();
       setUsuarios(data);
-      // setLoading(false);
     } catch (error) {
       console.error("Error cargando usuarios", error);
       setUsuarios([]);
@@ -36,56 +34,26 @@ export default function Usuarios() {
   };
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const data = await getUsuarios();
-        if (mounted) setUsuarios(data);
-      } catch (error) {
-        console.error("Error cargando usuarios", error);
-        if (mounted) setUsuarios([]);
-      }
-    })();
-    return () => (mounted = false);
+    cargarUsuarios();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Construir payload correctamente
-    const base = {
+    const payload = {
       nombre: form.nombre,
       email: form.email,
       role: form.role,
     };
-
-    // if (form.role === "CLIENTE" && form.clienteId) {
-    //   base.clienteId = Number(form.clienteId);
-    // }
-
-    const payload = { ...base };
-
-    // En creación siempre enviar password (requerido); en edición enviar solo si se proporcionó
     if (!editId) {
       payload.password = form.password;
-    } else if (form.password) {
-      payload.password = form.password;
-    }
-
-    if (editId) {
-      await updateUsuario(editId, payload);
-    } else {
       await createUsuario(payload);
+    } else {
+      if (form.password) payload.password = form.password;
+      await updateUsuario(editId, payload);
     }
-
-    setForm({
-      nombre: "",
-      email: "",
-      password: "",
-      role: "VENTAS",
-      clienteId: "",
-    });
+    setForm({ nombre: "", email: "", password: "", role: "VENTAS", clienteId: "" });
     setEditId(null);
+    setShowModal(false);
     cargarUsuarios();
   };
 
@@ -98,54 +66,20 @@ export default function Usuarios() {
       clienteId: u.clienteId || "",
     });
     setEditId(u.id);
-  };
-
-  // const handleDelete = async (id) => {
-  //   if (!confirm("¿Eliminar usuario?")) return;
-  //   await deleteUsuario(id);
-  //   cargarUsuarios();
-  // };
-
-  const handleCancel = () => {
-    setForm({
-      nombre: "",
-      email: "",
-      password: "",
-      role: "",
-      clienteId: "",
-    });
-    setEditId(null);
+    setShowModal(true);
   };
 
   const handleToggleEstado = async (id, activo) => {
-    if (
-      !confirm(
-        `¿Seguro que quieres ${activo ? "activar" : "desactivar"} este usuario?`
-      )
-    )
-      return;
-    try {
-      await cambiarEstadoUsuario(id, activo);
-      cargarUsuarios();
-    } catch (error) {
-      console.error("Error cambiando estado de usuario", error);
-      alert("Error cambiando estado de usuario");
-    }
+    if (!confirm(`¿Seguro que quieres ${activo ? "activar" : "desactivar"} este usuario?`)) return;
+    await cambiarEstadoUsuario(id, activo);
+    cargarUsuarios();
   };
 
   const handleReinvitar = async (usuario) => {
-    const email = prompt(
-      `Email para reinvitar a ${usuario.nombre}:`,
-      usuario.email || ""
-    );
+    const email = prompt(`Email para reinvitar a ${usuario.nombre}:`, usuario.email || "");
     if (!email) return;
-    try {
-      await reinvitarUsuario(usuario.id, email);
-      alert("📧 Invitación reenviada correctamente");
-    } catch (error) {
-      console.error("Error reinvitando usuario:", error);
-      alert(error.response?.data?.message || "Error reinvitando usuario");
-    }
+    await reinvitarUsuario(usuario.id, email);
+    alert("📧 Invitación reenviada correctamente");
   };
 
   if (user.role !== "ADMIN") {
@@ -153,115 +87,57 @@ export default function Usuarios() {
   }
 
   return (
-    <div>
+    <div className={styles.container}>
       <h2>Gestión de Usuarios</h2>
 
-      {/* FORM */}
-      {user.role === "ADMIN" && (
-        <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
-          <input
-            placeholder="Nombre"
-            value={form.nombre}
-            onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-            required
-          />
+      <button className={styles.btnAdd} onClick={() => setShowModal(true)}>
+        ➕ Crear Usuario
+      </button>
 
-          <input
-            placeholder="Email"
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
-          />
+      <div className={styles.lista}>
+        {usuarios.map((u) => (
+          <div key={u.id} className={styles.card}>
+            <div className={styles.header}>
+              <span className={styles.nombre}>{u.nombre}</span>
+              <span className={`${styles.estado} ${u.activo ? styles.activo : styles.invitado}`}>
+                {u.activo ? "Activo" : "Invitado"}
+              </span>
+            </div>
+            <p className={styles.email}>{u.email}</p>
+            <p className={styles.role}>Rol: {u.role}</p>
 
-          {!editId && (
-            <input
-              placeholder="Contraseña temporal"
-              type="password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              required
-            />
-          )}
-
-          <select
-            value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-          >
-            <option value="ADMIN">Administrador</option>
-            <option value="VENTAS">Ventas</option>
-            {/* <option value="CLIENTE">Cliente</option> */}
-          </select>
-
-          <button className="btn-primary">
-            {editId ? "Actualizar" : "Crear Usuario"}
-          </button>
-
-          <button
-            type="button"
-            className="btn-delete"
-            onClick={handleCancel}
-          >
-            {" "}
-            Cancelar{" "}
-          </button>
-        </form>
-      )}
-      {/* LISTADO */}
-      {/* {loading ? (
-        <p>Cargando...</p>
-      ) : ( */}
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Estado</th>
-            <th>Rol</th>
-            {user.role === "ADMIN" && <th>Acciones</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map((u) => (
-            <tr key={u.id}>
-              <td>{u.nombre}</td>
-              <td>{u.email}</td>
-              <td>{u.activo ? "✅ Activo" : "⏳ Invitado"}</td>
-              <td>{u.role}</td>
-              {user.role === "ADMIN" && (
+            <div className={styles.actions}>
+              {u.activo && (
+                <button className={styles.btnEdit} onClick={() => handleEdit(u)}>Editar</button>
+              )}
+              {u.activo ? (
+                <button className={styles.btnToggle} onClick={() => handleToggleEstado(u.id, false)}>
+                  Desactivar
+                </button>
+              ) : (
                 <>
-              
-                  {user.role === "ADMIN" && (
-                    <td>
-                      {u.activo && (
-                      <button onClick={() => handleEdit(u)}>Editar</button>
-                    )}
-                     
-                      {u.activo ? (
-                        <button onClick={() => handleToggleEstado(u.id, false)}>
-                          Desactivar
-                        </button>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => handleToggleEstado(u.id, true)}
-                          >
-                            Activar
-                          </button>
-                          <button onClick={() => handleReinvitar(u)}>
-                            Reinvitar
-                          </button>
-                        </>
-                      )}
-                    </td>
-                  )}
+                  <button className={styles.btnToggle} onClick={() => handleToggleEstado(u.id, true)}>
+                    Activar
+                  </button>
+                  <button className={styles.btnReinvite} onClick={() => handleReinvitar(u)}>
+                    Reinvitar
+                  </button>
                 </>
               )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {/* )} */}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {showModal && (
+        <UsuarioFormModal
+          form={form}
+          setForm={setForm}
+          editId={editId}
+          onSubmit={handleSubmit}
+          onCancel={() => { setShowModal(false); setEditId(null); }}
+        />
+      )}
     </div>
   );
 }

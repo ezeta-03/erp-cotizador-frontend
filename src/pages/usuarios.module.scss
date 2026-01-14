@@ -1,0 +1,110 @@
+.container {
+  padding: 20px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #fd6113;
+}
+
+.btnAdd {
+  background: #fd6113;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 20px;
+
+  &:hover {
+    background: #e85c0d;
+  }
+}
+
+.lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+
+    .nombre {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .estado {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .activo {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .invitado {
+      background: #facc15;
+      color: #000;
+    }
+  }
+
+  .email {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #555;
+  }
+
+  .role {
+    font-size: 13px;
+    margin-bottom: 10px;
+    color: #777;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    button {
+      flex: 1;
+      padding: 6px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btnEdit {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .btnToggle {
+      background: #fd6113;
+      color: #fff;
+    }
+
+    .btnReinvite {
+      background: #facc15;
+      color: #000;
+    }
+  }
+}

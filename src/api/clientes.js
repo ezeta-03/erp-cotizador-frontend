@@ -38,3 +38,11 @@ export const getActividadClientes = async (filtros) => {
   });
   return res.data;
 };
+
+export const actividadesClientes = async (clienteId) => {
+  const token = localStorage.getItem("token");
+  const res = await api.get(`/clientes/${clienteId}/actividad`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+};

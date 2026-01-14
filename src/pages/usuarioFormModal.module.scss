@@ -1,0 +1,90 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+
+  .modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 420px;
+    max-width: 95%;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    animation: fadeIn 0.3s ease;
+
+    h2 {
+      margin-bottom: 24px;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      color: #333;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      input, select {
+        padding: 10px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+
+        &:focus {
+          outline: none;
+          border-color: #fd6113;
+          box-shadow: 0 0 0 2px rgba(253,97,19,0.15);
+        }
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+
+        .btnPrimary {
+          flex: 1;
+          background: #fd6113;
+          color: #fff;
+          border: none;
+          padding: 10px;
+          border-radius: 8px;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background 0.2s;
+
+          &:hover {
+            background: #e85c0d;
+          }
+        }
+
+        .btnSecondary {
+          flex: 1;
+          background: #f5f5f5;
+          color: #333;
+          border: none;
+          padding: 10px;
+          border-radius: 8px;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background 0.2s;
+
+          &:hover {
+            background: #e0e0e0;
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

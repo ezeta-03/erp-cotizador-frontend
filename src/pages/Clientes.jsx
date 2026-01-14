@@ -5,13 +5,12 @@ import {
   createCliente,
   updateCliente,
   deleteCliente,
+  invitarCliente,
+  getActividadClientes,
 } from "../api/clientes";
-import "../styles/_table.scss";
-import "../styles/_forms.scss";
-import "../styles/_buttons.scss";
-import FiltrosClientes from "../coomponents/FiltrosClientes";
-import { getActividadClientes } from "../api/clientes";
-import { invitarCliente } from "../api/clientes";
+import styles from "./clientes.module.scss";
+import ClienteFormModal from "../pages/ClienteFormModal";
+import ActividadClienteModal from "../pages/ActividadClienteModal";
 
 export default function Clientes() {
   const { user } = useAuth();
@@ -25,40 +24,27 @@ export default function Clientes() {
     direccion: "",
   });
   const [editId, setEditId] = useState(null);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [selectedCliente, setSelectedCliente] = useState(null);
+  const [actividad, setActividad] = useState([]);
 
-  // ✅ cargar clientes (sin warnings)
   const cargarClientes = useCallback(async () => {
     const data = await getClientes();
     setClientes(data);
   }, []);
 
-  const [actividad, setActividad] = useState([]);
-  const buscarActividad = async (filtros) => {
-    const data = await getActividadClientes(filtros);
-    setActividad(data);
-  };
   useEffect(() => {
     cargarClientes();
   }, [cargarClientes]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const payload = {
-      nombreComercial: form.nombreComercial,
-      documento: form.documento || null,
-      nombreContacto: form.nombreContacto || null,
-      telefono: form.telefono || null,
-      email: form.email || null,
-      direccion: form.direccion || null,
-    };
-
+    const payload = { ...form };
     if (editId) {
       await updateCliente(editId, payload);
     } else {
       await createCliente(payload);
     }
-
     setForm({
       nombreComercial: "",
       documento: "",
@@ -68,6 +54,7 @@ export default function Clientes() {
       direccion: "",
     });
     setEditId(null);
+    setShowFormModal(false);
     cargarClientes();
   };
 
@@ -81,18 +68,7 @@ export default function Clientes() {
       direccion: cliente.direccion || "",
     });
     setEditId(cliente.id);
-  };
-
-  const handleCancel = () => {
-    setForm({
-      nombreComercial: "",
-      documento: "",
-      nombreContacto: "",
-      telefono: "",
-      email: "",
-      direccion: "",
-    });
-    setEditId(null);
+    setShowFormModal(true);
   };
 
   const handleDelete = async (id) => {
@@ -102,122 +78,78 @@ export default function Clientes() {
   };
 
   const handleInvitar = async (cliente) => {
-    const email = prompt(
-      `Email para invitar a ${cliente.nombreComercial}:`,
-      cliente.email || ""
-    );
-
+    const email = prompt(`Email para invitar a ${cliente.nombreComercial}:`, cliente.email || "");
     if (!email) return;
+    await invitarCliente(cliente.id, email);
+    alert("📧 Invitación enviada correctamente");
+  };
 
-    try {
-      await invitarCliente(cliente.id, email);
-      alert("📧 Invitación enviada correctamente");
-    } catch (error) {
-      alert(error.response?.data?.message || "Error enviando invitación");
-    }
+  const handleActividad = async (cliente) => {
+    const data = await getActividadClientes({ clienteId: cliente.id });
+    setActividad(data);
+    setSelectedCliente(cliente);
   };
 
   return (
-    <div>
+    <div className={styles.container}>
       <h2>Gestión de Clientes</h2>
 
       {(user.role === "ADMIN" || user.role === "VENTAS") && (
-        <form onSubmit={handleSubmit}>
-          <input
-            placeholder="Nombre"
-            value={form.nombreComercial}
-            onChange={(e) =>
-              setForm({ ...form, nombreComercial: e.target.value })
-            }
-            required
-          />
-
-          <input
-            placeholder="Nombre de Contacto"
-            value={form.nombreContacto}
-            onChange={(e) =>
-              setForm({ ...form, nombreContacto: e.target.value })
-            }
-            required
-          />
-
-          <input
-            placeholder="Documento"
-            value={form.documento}
-            onChange={(e) => setForm({ ...form, documento: e.target.value })}
-          />
-
-          <input
-            placeholder="Teléfono"
-            value={form.telefono}
-            onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-          />
-
-          <input
-            placeholder="Correo"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-
-          <input
-            placeholder="Dirección"
-            value={form.direccion}
-            onChange={(e) => setForm({ ...form, direccion: e.target.value })}
-          />
-
-          <button className="btn-primary">
-            {editId ? "Actualizar" : "Crear Cliente"}
-          </button>
-
-          <button type="button" className="btn-delete" onClick={handleCancel}>
-            {" "}
-            Cancelar{" "}
-          </button>
-        </form>
+        <button className={styles.btnAdd} onClick={() => setShowFormModal(true)}>
+          ➕ Crear Cliente
+        </button>
       )}
 
-      <hr />
+      <div className={styles.lista}>
+        {clientes.map((c) => (
+          <div key={c.id} className={styles.card} onClick={() => handleActividad(c)}>
+            <div className={styles.header}>
+              <span className={styles.nombre}>{c.nombreComercial}</span>
+              <span className={styles.documento}>{c.documento}</span>
+            </div>
+            <p className={styles.contacto}>{c.nombreContacto}</p>
+            <p className={styles.email}>{c.email}</p>
+            <p className={styles.telefono}> {c.telefono}</p>
+            <p className={styles.direccion}> {c.direccion}</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>RUC / DNI</th>
-            <th>Contacto</th>
-            <th>Dirección</th>
-            <th>Correo</th>
-            <th>Teléfono</th>
             {(user.role === "ADMIN" || user.role === "VENTAS") && (
-              <th>Acciones</th>
+              <div className={styles.actions}>
+                <button className={styles.btnEdit} onClick={(e) => { e.stopPropagation(); handleEdit(c); }}>
+                  Editar
+                </button>
+                {user.role === "ADMIN" && (
+                  <>
+                    <button className={styles.btnDelete} onClick={(e) => { e.stopPropagation(); handleDelete(c.id); }}>
+                      Eliminar
+                    </button>
+                    <button className={styles.btnInvite} onClick={(e) => { e.stopPropagation(); handleInvitar(c); }}>
+                      Invitar
+                    </button>
+                  </>
+                )}
+              </div>
             )}
-          </tr>
-        </thead>
-        <tbody>
-          {clientes.map((c) => (
-            <tr key={c.id}>
-              <td>{c.nombreComercial}</td>
-              <td>{c.documento}</td>
-              <td>{c.nombreContacto}</td>
-              <td>{c.direccion}</td>
-              <td>{c.email}</td>
-              <td>{c.telefono}</td>
-              {(user.role === "ADMIN" || user.role === "VENTAS") && (
-                <td>
-                  <button onClick={() => handleEdit(c)}>Editar</button>
-                  {user.role === "ADMIN" && (
-                    <>
-                      <button onClick={() => handleDelete(c.id)}>
-                        Eliminar
-                      </button>
-                      <button onClick={() => handleInvitar(c)}>Invitar</button>
-                    </>
-                  )}
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          </div>
+        ))}
+      </div>
+
+      {showFormModal && (
+        <ClienteFormModal
+          form={form}
+          setForm={setForm}
+          editId={editId}
+          onSubmit={handleSubmit}
+          onCancel={() => { setShowFormModal(false); setEditId(null); }}
+        />
+      )}
+
+      {selectedCliente && (
+        <ActividadClienteModal
+          cliente={selectedCliente}
+          actividad={actividad}
+          onClose={() => setSelectedCliente(null)}
+        />
+      )}
     </div>
   );
 }
