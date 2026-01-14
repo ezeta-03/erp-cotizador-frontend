@@ -10,9 +10,11 @@ export default function AuthProvider({ children }) {
     return token ? JSON.parse(atob(token.split(".")[1])) : null;
   });
 
-  const login = (token) => {
+  const login = (token, user) => {
     localStorage.setItem("token", token);
-    setUser(JSON.parse(atob(token.split(".")[1])));
+    localStorage.setItem("role", user.role);
+    localStorage.setItem("nombre", user.nombre);
+    setUser(user);
     navigate("/");
   };
 

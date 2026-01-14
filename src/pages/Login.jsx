@@ -13,7 +13,7 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await api.post("/auth/login", { email, password });
-      login(res.data.token);
+      login(res.data.token, res.data.user);
     } catch (err) {
       alert(err.response?.data?.message || "Error al iniciar sesión");
     }

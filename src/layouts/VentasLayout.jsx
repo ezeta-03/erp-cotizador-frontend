@@ -8,6 +8,8 @@ export default function VentasLayout() {
     { path: "/ventas/cotizaciones", label: "Cotizar" },
     { path: "/ventas/historial", label: "Mis Cotizaciones" },
     { path: "/ventas/cotizaciones-ventas", label: "Facturar" },
+    { path: "/ventas/actividad", label: "Actividad Cliente" },
+
 
   ];
 

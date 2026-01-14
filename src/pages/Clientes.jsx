@@ -120,39 +120,6 @@ export default function Clientes() {
   return (
     <div>
       <h2>Gestión de Clientes</h2>
-      <FiltrosClientes onBuscar={buscarActividad} />
-
-      {actividad.length > 0 && (
-        <>
-          <h3>Actividad de Clientes</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>N° Cotización</th>
-                <th>Productos</th>
-                <th>Fecha</th>
-                <th>Total</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {actividad.map((c) => (
-                <tr key={c.id}>
-                  {/* Cliente ahora usa nombreComercial */}
-                  <td>{c.cliente?.nombreComercial}</td>
-                  <td>{c.numero}</td>
-                  {/* Productos ahora muestran material */}
-                  <td>{c.items.map((i) => i.producto.material).join(", ")}</td>
-                  <td>{new Date(c.createdAt).toLocaleDateString()}</td>
-                  <td>S/. {c.total.toFixed(2)}</td>
-                  <td>{c.estado}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      )}
 
       {(user.role === "ADMIN" || user.role === "VENTAS") && (
         <form onSubmit={handleSubmit}>

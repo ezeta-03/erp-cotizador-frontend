@@ -11,7 +11,7 @@ import Cotizaciones from "../pages/Cotizaciones";
 import CotizacionesHistorial from "../pages/CotizacionesHistorial";
 import MiCotizacion from "../pages/MiCotizacion";
 import CotizacionesVentas from "../coomponents/CotizacionesVentas";
-
+import ActividadClientes from "../coomponents/ActividadClientes";
 import AdminLayout from "../layouts/AdminLayout";
 import VentasLayout from "../layouts/VentasLayout";
 import ClienteLayout from "../layouts/ClienteLayout";
@@ -46,6 +46,8 @@ export default function AppRouter() {
             <Route path="historial" element={<CotizacionesHistorial />} />
             <Route path="cotizaciones" element={<CotizacionesVentas />} />
             <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
+            <Route path="actividad" element={<ActividadClientes />} />
+
 
           </Route>
 
@@ -64,6 +66,7 @@ export default function AppRouter() {
             <Route path="cotizaciones" element={<Cotizaciones />} />
             <Route path="historial" element={<CotizacionesHistorial />} />
             <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
+            <Route path="actividad" element={<ActividadClientes />} />
 
           </Route>
 
