@@ -11,7 +11,10 @@ export const createProducto = async (data) => {
 };
 
 export const updateProducto = async (id, data) => {
-  const res = await api.put(`/productos/${id}`, data);
+  const token = localStorage.getItem("token");
+  const res = await api.put(`/productos/${id}`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data;
 };
 

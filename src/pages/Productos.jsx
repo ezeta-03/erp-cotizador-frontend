@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./productoModal.module.scss";
 import useAuth from "../auth/useAuth";
 import {
   getProductos,
@@ -7,8 +8,11 @@ import {
   deleteProducto,
 } from "../api/productos";
 import ConfiguracionForm from "../coomponents/ConfiguracionForm";
-
+import "./productos.module.scss";
+import ProductoModal from "./ProductoModal";
 export default function Productos() {
+  const [showModal, setShowModal] = useState(false);
+  const [editProducto, setEditProducto] = useState(null);
   const { user } = useAuth();
   const [productos, setProductos] = useState([]);
   const [form, setForm] = useState({
@@ -30,6 +34,16 @@ export default function Productos() {
     cargarProductos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const handleSave = async (producto) => {
+    if (editProducto) {
+      await updateProducto(editProducto.id, producto);
+    } else {
+      await createProducto(producto);
+    }
+    setShowModal(false);
+    setEditProducto(null);
+    cargarProductos();
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,14 +74,8 @@ export default function Productos() {
   };
 
   const handleEdit = (producto) => {
-    setForm({
-      categoria: producto.categoria,
-      servicio: producto.servicio,
-      material: producto.material,
-      unidad: producto.unidad,
-      costo_material: producto.costo_material,
-    });
-    setEditId(producto.id);
+    setEditProducto(producto);
+    setShowModal(true);
   };
 
   const handleDelete = async (id) => {
@@ -76,27 +84,39 @@ export default function Productos() {
     cargarProductos();
   };
 
-  const handleImportExcel = async (e) => {
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    await fetch("/api/productos/import-excel", {
-      method: "POST",
-      body: formData,
-    });
-    cargarProductos();
-  };
+  // const handleImportExcel = async (e) => {
+  //   const file = e.target.files[0];
+  //   const formData = new FormData();
+  //   formData.append("file", file);
+  //   await fetch("/api/productos/import-excel", {
+  //     method: "POST",
+  //     body: formData,
+  //   });
+  //   cargarProductos();
+  // };
 
   return (
     <div>
       <h2>Productos</h2>
-      <input type="file" accept=".xlsx,.xls" onChange={handleImportExcel} />
+     <button onClick={() => setShowModal(true)}>+ Nuevo Producto</button>
+
+      {/* <input type="file" accept=".xlsx,.xls" onChange={handleImportExcel} /> */}
+      {showModal && (
+        <ProductoModal
+          producto={editProducto}
+          onSave={handleSave}
+          onClose={() => {
+            setShowModal(false);
+            setEditProducto(null);
+          }}
+        />
+      )}
 
       {user.role === "ADMIN" && (
         <ConfiguracionForm onRecalcular={cargarProductos} />
       )}
 
-      {(user.role === "ADMIN" || user.role === "VENTAS") && (
+      {/* {(user.role === "ADMIN" || user.role === "VENTAS") && (
         <form onSubmit={handleSubmit}>
           <input
             placeholder="Categoría"
@@ -141,7 +161,7 @@ export default function Productos() {
             {editId ? "Actualizar" : "Crear"}
           </button>
         </form>
-      )}
+      )} */}
 
       <hr />
 

@@ -1,0 +1,67 @@
+.container {
+  padding: 20px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #fd6113;
+}
+
+.lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  .detalle {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 6px;
+  }
+
+  .precio {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fd6113;
+    margin-top: 10px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+
+    button {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btnEdit { background: #3b82f6; color: #fff; }
+    .btnDelete { background: #ef4444; color: #fff; }
+  }
+}
