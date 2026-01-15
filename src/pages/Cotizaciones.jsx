@@ -3,9 +3,12 @@ import { getClientes } from "../api/clientes";
 import { getProductos } from "../api/productos";
 import { crearCotizacion } from "../api/cotizaciones";
 import useAuth from "../auth/useAuth";
+import { getConfiguracion } from "../api/configuracion";
+import VistaPreviaCotizacion from "../coomponents/VistaPreviaCotizacion";
 
 export default function Cotizaciones() {
-  const { user } = useAuth(); // aquí tienes el usuario logueado
+  const [configuracion, setConfiguracion] = useState(null);
+  const { user } = useAuth();
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
   const [clienteId, setClienteId] = useState("");
@@ -13,8 +16,37 @@ export default function Cotizaciones() {
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
   const token = localStorage.getItem("token");
   const [numeroCotizacion] = useState(() => `COT-${Date.now()}`);
+  const [showPreview, setShowPreview] = useState(false);
+  const [cotizacionPreview, setCotizacionPreview] = useState(null);
+
   // margen fijo oculto
   // const margen = 30;
+  useEffect(() => {
+    getClientes().then(setClientes);
+    getProductos().then(setProductos);
+    getConfiguracion().then(setConfiguracion);
+  }, []);
+
+  // Recibe: costo_material del producto, lista de adicionales, y la configuración global
+  const calcularPrecio = (costo_material, adicionales, configuracion) => {
+    // Paso 1: aplicar costo indirecto
+    const costoParcial1 = costo_material * (1 + configuracion.costo_indirecto);
+
+    // Paso 2: aplicar porcentaje administrativo
+    const costoParcial2 =
+      costoParcial1 * (1 + configuracion.porcentaje_administrativo);
+
+    // Paso 3: aplicar rentabilidad
+    const precioBase = costoParcial2 * (1 + configuracion.rentabilidad);
+
+    // Paso 4: sumar adicionales seleccionados
+    const sumaAdicionales = adicionales
+      .filter((a) => a.seleccionado)
+      .reduce((acc, a) => acc + Number(a.precio || 0), 0);
+
+    // Precio final
+    return precioBase + sumaAdicionales;
+  };
 
   // Cargar clientes y productos
   useEffect(() => {
@@ -30,9 +62,11 @@ export default function Cotizaciones() {
         categoria: producto.categoria,
         unidad: producto.unidad,
         material: producto.material,
+        productoBase: producto.precio_final,
+        costo_material: producto.costo_material,
         precio: producto.precio_final,
         cantidad: 1,
-        subtotal: producto.precio_final * 1,
+        subtotal: producto.precio_final,
         adicionales:
           producto.adicionales?.map((a) => ({
             id: a.id,
@@ -60,20 +94,15 @@ export default function Cotizaciones() {
     }
     // const numero = `COT-${new Date().getTime()}`;
     const data = {
-      numero: numeroCotizacion,
       clienteId,
       usuarioId: user.id,
-      total,
       items: items.map((i) => ({
         productoId: i.productoId,
         cantidad: i.cantidad,
-        precio: i.precio,
-        subtotal: i.subtotal,
-        material: i.material,
-        adicionales: i.adicionales.map((a) => ({
-          id: a.id,
-          seleccionado: a.seleccionado,
-        })),
+        costo_material: i.costo_material,
+        adicionales: i.adicionales
+          .filter((a) => a.seleccionado)
+          .map((a) => ({ id: a.id, precio: a.precio, seleccionado: true })),
       })),
     };
     try {
@@ -91,10 +120,63 @@ export default function Cotizaciones() {
     }
   };
 
+  const toggleAdicional = (idx, j, checked) => {
+    const nuevos = [...items];
+    nuevos[idx].adicionales[j].seleccionado = checked;
+    const adicionalesSeleccionados = nuevos[idx].adicionales
+      .filter((a) => a.seleccionado)
+      .reduce((acc, a) => acc + Number(a.precio), 0);
+    nuevos[idx].precio = nuevos[idx].productoBase + adicionalesSeleccionados;
+    nuevos[idx].subtotal = nuevos[idx].precio * nuevos[idx].cantidad;
+    setItems(nuevos);
+  };
+
+  const itemsPreview = items.map((i) => {
+    const precioFinal = calcularPrecio(
+      i.costo_material,
+      i.adicionales,
+      configuracion
+    );
+    const subtotal = precioFinal * i.cantidad;
+    return { ...i, precio: precioFinal, subtotal };
+  });
+
+  const abrirVistaPrevia = () => {
+    if (!clienteId || items.length === 0) {
+      alert("Selecciona cliente y productos");
+      return;
+    }
+    const itemsPreview = items.map((i) => {
+      const precioFinal = calcularPrecio(
+        i.costo_material,
+        i.adicionales,
+        configuracion
+      );
+      const subtotal = precioFinal * i.cantidad;
+      return { ...i, precio: precioFinal, subtotal };
+    });
+    const totalPreview = itemsPreview.reduce((s, i) => s + i.subtotal, 0);
+    const data = {
+      numero: numeroCotizacion,
+      cliente: clientes.find((c) => c.id === clienteId),
+      createdAt: new Date(),
+      estado: "PENDIENTE",
+      total: totalPreview,
+      items: itemsPreview.map((i) => ({
+        id: i.productoId,
+        producto: { material: i.material },
+        cantidad: i.cantidad,
+        precio: i.precio,
+        subtotal: i.subtotal,
+      })),
+    };
+    setCotizacionPreview(data);
+    setShowPreview(true);
+  };
+
   return (
     <div>
       <h2>Nueva Cotización</h2>
-
       {/* Cliente con búsqueda */}
       <input
         list="clientes"
@@ -111,7 +193,6 @@ export default function Cotizaciones() {
           <option key={c.id} value={c.nombreComercial} />
         ))}
       </datalist>
-
       {/* Producto con búsqueda */}
       <input
         list="productos"
@@ -124,7 +205,6 @@ export default function Cotizaciones() {
           <option key={p.id} value={p.material} />
         ))}
       </datalist>
-
       <button
         className="btn-primary"
         onClick={() => {
@@ -137,8 +217,14 @@ export default function Cotizaciones() {
       >
         Agregar producto
       </button>
-
       {/* Tabla */}
+      {showPreview && (
+        <VistaPreviaCotizacion
+          cotizacion={cotizacionPreview}
+          onConfirm={guardarCotizacion}
+          onCancel={() => setShowPreview(false)}
+        />
+      )}
       <table>
         <thead>
           <tr>
@@ -188,17 +274,15 @@ export default function Cotizaciones() {
                 {/* Checkboxes de adicionales */}
                 {i.adicionales.map((a, j) => (
                   <label key={a.id} style={{ display: "block" }}>
+                    {" "}
                     <input
                       type="checkbox"
                       checked={a.seleccionado}
-                      onChange={(e) => {
-                        const nuevos = [...items];
-                        nuevos[idx].adicionales[j].seleccionado =
-                          e.target.checked;
-                        setItems(nuevos);
-                      }}
-                    />
-                    {a.nombre}
+                      onChange={(e) =>
+                        toggleAdicional(idx, j, e.target.checked)
+                      }
+                    />{" "}
+                    {a.nombre} (S/. {a.precio}){" "}
                   </label>
                 ))}
               </td>
@@ -206,12 +290,15 @@ export default function Cotizaciones() {
           ))}
         </tbody>
       </table>
-
       {/* Totales */}
       <h3>Total: S/ {total.toFixed(2)}</h3>
-
+      <button className="btn-primary" onClick={abrirVistaPrevia}>
+        {" "}
+        Vista Previa{" "}
+      </button>
       <button className="btn-primary" onClick={guardarCotizacion}>
-        Guardar y PDF
+        {" "}
+        Guardar y PDF{" "}
       </button>
     </div>
   );

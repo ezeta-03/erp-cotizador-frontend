@@ -20,7 +20,7 @@ export default function CotizacionesHistorial() {
     const matchEstado =
       filtroEstado === "TODAS" ? true : c.estado === filtroEstado;
     const matchCliente = filtroCliente
-      ? c.cliente.nombre.toLowerCase().includes(filtroCliente.toLowerCase())
+      ? c.cliente.nombreComercial.toLowerCase().includes(filtroCliente.toLowerCase())
       : true;
     const matchVendedor = filtroVendedor
       ? c.usuario?.nombre.toLowerCase().includes(filtroVendedor.toLowerCase())
@@ -93,7 +93,7 @@ export default function CotizacionesHistorial() {
               </span>
             </div>
 
-            <p className={styles.cliente}>{c.cliente.nombre}</p>
+            <p className={styles.cliente}>{c.cliente.nombreComercial}</p>
             <p className={styles.total}>💰 S/. {c.total.toFixed(2)}</p>
             <p className={styles.fecha}>
               📅 {new Date(c.createdAt).toLocaleDateString()}
