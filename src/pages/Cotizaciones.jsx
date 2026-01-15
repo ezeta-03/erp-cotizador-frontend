@@ -5,6 +5,7 @@ import { crearCotizacion } from "../api/cotizaciones";
 import useAuth from "../auth/useAuth";
 import { getConfiguracion } from "../api/configuracion";
 import VistaPreviaCotizacion from "../coomponents/VistaPreviaCotizacion";
+import CotizacionModal from "../pages/CotizacionModal";
 
 export default function Cotizaciones() {
   const [configuracion, setConfiguracion] = useState(null);
@@ -18,6 +19,7 @@ export default function Cotizaciones() {
   const [numeroCotizacion] = useState(() => `COT-${Date.now()}`);
   const [showPreview, setShowPreview] = useState(false);
   const [cotizacionPreview, setCotizacionPreview] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   // margen fijo oculto
   // const margen = 30;
@@ -87,12 +89,7 @@ export default function Cotizaciones() {
 
   const total = items.reduce((s, i) => s + i.subtotal, 0);
 
-  const guardarCotizacion = async () => {
-    if (!clienteId || items.length === 0) {
-      alert("Selecciona cliente y productos");
-      return;
-    }
-    // const numero = `COT-${new Date().getTime()}`;
+  const guardarCotizacion = async ({ clienteId, items }) => {
     const data = {
       clienteId,
       usuarioId: user.id,
@@ -100,11 +97,15 @@ export default function Cotizaciones() {
         productoId: i.productoId,
         cantidad: i.cantidad,
         costo_material: i.costo_material,
-        adicionales: i.adicionales
-          .filter((a) => a.seleccionado)
-          .map((a) => ({ id: a.id, precio: a.precio, seleccionado: true })),
+        adicionales: i.adicionales.map((a) => ({
+          id: a.id,
+          nombre: a.nombre,
+          precio: a.precio,
+          seleccionado: a.seleccionado,
+        })),
       })),
     };
+
     try {
       const cotizacion = await crearCotizacion(data);
       alert("Cotización creada");
@@ -174,49 +175,38 @@ export default function Cotizaciones() {
     setShowPreview(true);
   };
 
+  // const handleSaveCotizacion = (data) => {
+  //   crearCotizacion(data)
+  //     .then((cotizacion) => {
+  //       alert("Cotización creada");
+  //       window.open(
+  //         `${import.meta.env.VITE_API_URL}/cotizaciones/${
+  //           cotizacion.id
+  //         }/pdf?token=${token}`,
+  //         "_blank"
+  //       );
+  //     })
+  //     .catch((err) => {
+  //       console.error(err);
+  //       alert("Error creando cotización");
+  //     });
+  // };
+
   return (
     <div>
-      <h2>Nueva Cotización</h2>
-      {/* Cliente con búsqueda */}
-      <input
-        list="clientes"
-        placeholder="Selecciona o escribe cliente"
-        onChange={(e) => {
-          const cliente = clientes.find(
-            (c) => c.nombreComercial === e.target.value
-          );
-          if (cliente) setClienteId(cliente.id);
-        }}
-      />
-      <datalist id="clientes">
-        {clientes.map((c) => (
-          <option key={c.id} value={c.nombreComercial} />
-        ))}
-      </datalist>
-      {/* Producto con búsqueda */}
-      <input
-        list="productos"
-        placeholder="Selecciona o escribe producto"
-        value={productoSeleccionado}
-        onChange={(e) => setProductoSeleccionado(e.target.value)}
-      />
-      <datalist id="productos">
-        {productos.map((p) => (
-          <option key={p.id} value={p.material} />
-        ))}
-      </datalist>
-      <button
-        className="btn-primary"
-        onClick={() => {
-          const producto = productos.find(
-            (p) => p.material === productoSeleccionado
-          );
-          if (producto) agregarProducto(producto);
-          setProductoSeleccionado("");
-        }}
-      >
-        Agregar producto
+      <h2>Cotizaciones</h2>
+      <button className="btn-primary" onClick={() => setShowModal(true)}>
+        Nueva Cotización
       </button>
+
+      {showModal && (
+        <CotizacionModal
+          onClose={() => setShowModal(false)}
+          onSave={guardarCotizacion}
+        />
+      )}
+      {/* Cliente con búsqueda */}
+   
       {/* Tabla */}
       {showPreview && (
         <VistaPreviaCotizacion

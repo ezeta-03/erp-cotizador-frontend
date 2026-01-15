@@ -1,7 +1,7 @@
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,7 +13,7 @@
     width: 800px;
     max-width: 95%;
     padding: 30px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     animation: fadeIn 0.3s ease;
 
     h2 {
@@ -29,7 +29,8 @@
       border-collapse: collapse;
       margin-bottom: 20px;
 
-      th, td {
+      th,
+      td {
         padding: 10px;
         border-bottom: 1px solid #eee;
         text-align: left;
@@ -45,31 +46,69 @@
       td {
         color: #555;
       }
-    }
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
 
-    .actions {
-      display: flex;
-      justify-content: center;
+        span {
+          font-size: 14px;
+          color: #555;
+        }
 
-      .btnSecondary {
-        background: #f5f5f5;
-        color: #333;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background 0.2s;
+        .btnPagination {
+          background: #fd6113;
+          color: #fff;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 6px;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background 0.2s;
 
-        &:hover {
-          background: #e0e0e0;
+          &:hover:not(:disabled) {
+            background: #e55a0f;
+          }
+
+          &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+          }
+        }
+      }
+
+      .actions {
+        display: flex;
+        justify-content: center;
+
+        .btnSecondary {
+          background: #f5f5f5;
+          color: #333;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background 0.2s;
+
+          &:hover {
+            background: #e0e0e0;
+          }
         }
       }
     }
   }
-}
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }

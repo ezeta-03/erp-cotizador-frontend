@@ -1,0 +1,93 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  width: 80%;
+  max-width: 900px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.title {
+  margin-bottom: 15px;
+  color: #fd6113;
+}
+
+.label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: bold;
+}
+
+.select, .input {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+
+  th {
+    background: #fd6113;
+    color: #fff;
+    padding: 8px;
+  }
+
+  td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+  }
+}
+
+.checkbox {
+  display: block;
+  margin: 4px 0;
+}
+
+.total {
+  text-align: right;
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #10b981;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+
+  .btnSecondary {
+    background: #ddd;
+    border: none;
+    padding: 8px 16px;
+    margin-right: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .btnPrimary {
+    background: #fd6113;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+}
