@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
-import styles from "./CotizacionesVentas.module.scss"; // 👈 importa estilos
+import styles from "./CotizacionesVentas.module.scss";
 
 export default function CotizacionesVentas() {
   const [cotizaciones, setCotizaciones] = useState([]);
   const [error, setError] = useState(null);
+
+  // filtros
+  const [filtroEstado, setFiltroEstado] = useState("TODAS");
+  const [filtroCliente, setFiltroCliente] = useState("");
+  const [filtroVendedor, setFiltroVendedor] = useState("");
+  const [filtroFecha, setFiltroFecha] = useState("");
+
   const token = localStorage.getItem("token");
-  // const role = localStorage.getItem("role"); // "ADMIN" o "VENTAS"
 
   useEffect(() => {
     api
@@ -35,6 +41,27 @@ export default function CotizacionesVentas() {
     }
   };
 
+  // aplicar filtros
+  const filtradas = cotizaciones.filter((c) => {
+    const matchEstado =
+      filtroEstado === "TODAS" ? true : c.estado === filtroEstado;
+    const matchCliente = filtroCliente
+      ? c.cliente?.nombreComercial
+          ?.toLowerCase()
+          .includes(filtroCliente.toLowerCase())
+      : true;
+    const matchVendedor = filtroVendedor
+      ? c.usuario?.nombre
+          ?.toLowerCase()
+          .includes(filtroVendedor.toLowerCase())
+      : true;
+    const matchFecha = filtroFecha
+      ? new Date(c.createdAt).toLocaleDateString() === filtroFecha
+      : true;
+
+    return matchEstado && matchCliente && matchVendedor && matchFecha;
+  });
+
   if (error) {
     return <p>{error}</p>;
   }
@@ -44,9 +71,46 @@ export default function CotizacionesVentas() {
   }
 
   return (
-    <div>
+    <div className={styles.container}>
       <h2>Cotizaciones (Ventas)</h2>
-      <table>
+
+      {/* Filtros por estado */}
+      <div className={styles.filtros}>
+        {["TODAS", "PENDIENTE", "FACTURADA", "RECHAZADA", "APROBADA"].map((f) => (
+          <button
+            key={f}
+            className={filtroEstado === f ? styles.active : ""}
+            onClick={() => setFiltroEstado(f)}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      {/* Filtros avanzados */}
+      <div className={styles.filtrosAvanzados}>
+        <input
+          type="text"
+          placeholder="Filtrar por cliente..."
+          value={filtroCliente}
+          onChange={(e) => setFiltroCliente(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Filtrar por vendedor..."
+          value={filtroVendedor}
+          onChange={(e) => setFiltroVendedor(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Filtrar por fecha (dd/mm/aaaa)..."
+          value={filtroFecha}
+          onChange={(e) => setFiltroFecha(e.target.value)}
+        />
+      </div>
+
+      {/* Tabla de cotizaciones */}
+      <table className={styles.table}>
         <thead>
           <tr>
             <th scope="col">Número</th>
@@ -58,12 +122,16 @@ export default function CotizacionesVentas() {
           </tr>
         </thead>
         <tbody>
-          {cotizaciones.map((c) => (
+          {filtradas.map((c) => (
             <tr key={c.id}>
               <td>{c.numero}</td>
               <td>{c.usuario?.nombre}</td>
               <td>{c.cliente?.nombreComercial}</td>
-              <td>{c.estado}</td>
+              <td>
+                <span className={`${styles.estado} ${styles[c.estado]}`}>
+                  {c.estado}
+                </span>
+              </td>
               <td>S/. {c.total.toFixed(2)}</td>
               <td>
                 <button

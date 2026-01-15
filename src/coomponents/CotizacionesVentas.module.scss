@@ -1,41 +1,79 @@
-/* Botón principal de facturación */
-.btnFacturar {
-  background-color: #28a745; /* verde éxito */
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+.container {
+  padding: 20px;
 }
 
-/* Hover: más oscuro y ligero zoom */
-.btnFacturar:hover {
-  background-color: #218838;
-  transform: scale(1.05);
+.filtros {
+  margin-bottom: 10px;
+
+  button {
+    margin-right: 8px;
+    padding: 6px 12px;
+    border: none;
+    background: #eee;
+    cursor: pointer;
+    border-radius: 4px;
+
+    &.active {
+      background: #fd6113;
+      color: #fff;
+    }
+  }
 }
 
-/* Botón deshabilitado */
-.btnFacturar:disabled {
-  background-color: #6c757d; /* gris */
-  cursor: not-allowed;
-  opacity: 0.7;
+.filtrosAvanzados {
+  margin-bottom: 15px;
+
+  input {
+    margin-right: 10px;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
 }
 
-/* Tabla más limpia */
-table {
+.table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 16px;
+
+  th {
+    background: #fd6113;
+    color: #fff;
+    padding: 8px;
+  }
+
+  td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+  }
 }
 
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
+.estado {
+  font-weight: bold;
+
+  &.PENDIENTE {
+    color: #f59e0b;
+  }
+  &.APROBADA {
+    color: #10b981;
+  }
+  &.FACTURADA {
+    color: #3b82f6;
+  }
+  &.RECHAZADA {
+    color: #ef4444;
+  }
 }
 
-th {
-  background-color: #f8f9fa;
+.btnFacturar {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
 }

@@ -282,14 +282,14 @@ export default function Cotizaciones() {
       </table>
       {/* Totales */}
       <h3>Total: S/ {total.toFixed(2)}</h3>
-      <button className="btn-primary" onClick={abrirVistaPrevia}>
+      {/* <button className="btn-primary" onClick={abrirVistaPrevia}>
         {" "}
         Vista Previa{" "}
       </button>
       <button className="btn-primary" onClick={guardarCotizacion}>
         {" "}
         Guardar y PDF{" "}
-      </button>
+      </button> */}
     </div>
   );
 }
