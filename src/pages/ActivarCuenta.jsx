@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../api/axios";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import styles from "./login.module.scss";
+import styles from "./Login.module.scss";
 import logo from "/favicon.png";
 
 export default function ActivarCuenta() {
