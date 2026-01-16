@@ -1,24 +1,21 @@
 import api from "./axios";
 
 export const getProductos = async () => {
-  const res = await api.get("/productos");
-  return res.data;
+  const { data } = await api.get("/productos");
+  return data;
 };
 
 export const createProducto = async (data) => {
-  const res = await api.post("/productos", data);
-  return res.data;
+  const { data: res } = await api.post("/productos", data);
+  return res;
 };
 
 export const updateProducto = async (id, data) => {
-  const token = localStorage.getItem("token");
-  const res = await api.put(`/productos/${id}`, data, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
+  const { data: res } = await api.put(`/productos/${id}`, data);
+  return res;
 };
 
 export const deleteProducto = async (id) => {
-  const res = await api.delete(`/productos/${id}`);
-  return res.data;
+  const { data } = await api.delete(`/productos/${id}`);
+  return data;
 };

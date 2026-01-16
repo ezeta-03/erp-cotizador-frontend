@@ -1,21 +1,34 @@
 // src/api/stats.js
-import axios from "./axios";
+import api from "./axios";
 
-export const getEstadisticasCotizaciones = () => axios.get("/stats/cotizaciones/estados");
-
-export const getCotizacionesPorDia = () => axios.get("/stats/cotizaciones/por-dia");
-
-export const getMetaMensual = (vendedorId = null) => {
-  const params = vendedorId ? { vendedorId } : {};
-  return axios.get("/stats/meta", { params });
+export const getEstadisticasCotizaciones = async () => {
+  const { data } = await api.get("/stats/cotizaciones/estados");
+  return data;
 };
 
-export const getProgresoMeta = (vendedorId = null) => {
-  const params = vendedorId ? { vendedorId } : {};
-  return axios.get("/stats/progreso", { params });
+export const getCotizacionesPorDia = async () => {
+  const { data } = await api.get("/stats/cotizaciones/por-dia");
+  return data;
 };
 
-export const setMetaMensual = (vendedorId, monto) =>
-  axios.post("/stats/meta", { vendedorId, monto });
+export const getMetaMensual = async (vendedorId = null) => {
+  const params = vendedorId ? { vendedorId } : {};
+  const { data } = await api.get("/stats/meta", { params });
+  return data;
+};
 
-export const getProgresoTodosVendedores = () => axios.get("/stats/progreso/todos");
+export const getProgresoMeta = async (vendedorId = null) => {
+  const params = vendedorId ? { vendedorId } : {};
+  const { data } = await api.get("/stats/progreso", { params });
+  return data;
+};
+
+export const setMetaMensual = async (vendedorId, monto) => {
+  const { data } = await api.post("/stats/meta", { vendedorId, monto });
+  return data;
+};
+
+export const getProgresoTodosVendedores = async () => {
+  const { data } = await api.get("/stats/progreso/todos");
+  return data;
+};

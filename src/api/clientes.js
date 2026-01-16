@@ -1,48 +1,45 @@
 import api from "./axios";
 
+// Obtener clientes
 export const getClientes = async () => {
-  const res = await api.get("/clientes");
-  return res.data;
+  const { data } = await api.get("/clientes");
+  return data;
 };
 
+// Crear cliente
 export const createCliente = async (data) => {
   const res = await api.post("/clientes", data);
   return res.data;
 };
 
+// Actualizar cliente
 export const updateCliente = async (id, data) => {
   const res = await api.put(`/clientes/${id}`, data);
   return res.data;
 };
 
+// Eliminar cliente
 export const deleteCliente = async (id) => {
   const res = await api.delete(`/clientes/${id}`);
   return res.data;
 };
 
-// export const getActividadClientes = async (params) => {
-//   const res = await api.get("/clientes/actividad", { params });
-//   return res.data;
-// };
-
+// Invitar cliente
 export const invitarCliente = async (clienteId, email) => {
   const res = await api.post(`/clientes/${clienteId}/invitar`, { email });
   return res.data;
 };
 
+// Actividad general de clientes
 export const getActividadClientes = async (filtros) => {
-  const token = localStorage.getItem("token");
   const res = await api.get("/clientes/actividad", {
-    headers: { Authorization: `Bearer ${token}` },
     params: filtros,
   });
   return res.data;
 };
 
+// Actividades por cliente
 export const actividadesClientes = async (clienteId) => {
-  const token = localStorage.getItem("token");
-  const res = await api.get(`/clientes/${clienteId}/actividad`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await api.get(`/clientes/${clienteId}/actividad`);
   return res.data;
 };
