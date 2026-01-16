@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../api/axios";
 import useAuth from "../auth/useAuth";
-import styles from "./login.module.scss";
+import styles from "./Login.module.scss";
 import logo from "/favicon.png";
 
 export default function Login() {
