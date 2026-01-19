@@ -21,10 +21,14 @@ export default function AdminDashboard() {
         getCotizacionesPorDia()
       ]);
       
+      console.log('📊 Datos recibidos de progreso:', progresosRes.data);
+      console.log('📊 Datos recibidos de cotizaciones:', cotizacionesRes.data);
+      
       setDatos(progresosRes.data);
       setCotizacionesPorDia(cotizacionesRes.data);
     } catch (error) {
       console.error('Error al cargar datos:', error);
+      alert('Error al cargar datos: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -68,6 +72,15 @@ export default function AdminDashboard() {
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
         <p>Cargando estadísticas...</p>
+      </div>
+    );
+  }
+
+  if (!datos) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <p>No se pudieron cargar los datos. Revisa la consola para más detalles.</p>
+        <p>Datos actuales: {JSON.stringify(datos)}</p>
       </div>
     );
   }
