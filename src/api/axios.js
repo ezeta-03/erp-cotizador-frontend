@@ -3,7 +3,7 @@ import axios from "axios";
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   timeout: 15000, // Render puede tardar en despertar
-  withCredentials: false // cambia a true solo si usas cookies
+  withCredentials: false // No necesita credentials para JWT
 });
 
 // Interceptor para token
