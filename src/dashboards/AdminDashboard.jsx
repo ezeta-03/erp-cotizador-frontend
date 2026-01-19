@@ -21,11 +21,11 @@ export default function AdminDashboard() {
         getCotizacionesPorDia()
       ]);
       
-      console.log('📊 Datos recibidos de progreso:', progresosRes.data);
-      console.log('📊 Datos recibidos de cotizaciones:', cotizacionesRes.data);
+      console.log('📊 Datos recibidos de progreso:', progresosRes);
+      console.log('📊 Datos recibidos de cotizaciones:', cotizacionesRes);
       
-      setDatos(progresosRes.data);
-      setCotizacionesPorDia(cotizacionesRes.data);
+      setDatos(progresosRes);
+      setCotizacionesPorDia(cotizacionesRes);
     } catch (error) {
       console.error('Error al cargar datos:', error);
       alert('Error al cargar datos: ' + error.message);
