@@ -16,3 +16,9 @@ export const getMiUltimaCotizacion = async () => {
   const { data } = await api.get("/cotizaciones/mia");
   return data;
 };
+
+// Obtener cotización específica por ID
+export const getCotizacionById = async (id) => {
+  const { data } = await api.get(`/cotizaciones/${id}`);
+  return data;
+};

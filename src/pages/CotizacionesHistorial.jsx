@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { getCotizaciones } from "../api/cotizaciones";
+import { getCotizaciones, getCotizacionById } from "../api/cotizaciones";
+import { descargarPDFInteligente } from "../api/pdf";
 import styles from "./cotizacionesHistorial.module.scss";
 import VistaPreviaCotizacion from "../coomponents/VistaPreviaCotizacion";
 
@@ -36,10 +37,20 @@ export default function CotizacionesHistorial() {
     setSelectedCotizacion(cotizacion);
   };
 
-  const confirmPdf = () => {
+  const confirmPdf = async () => {
     if (!selectedCotizacion) return;
-    const url = `${import.meta.env.VITE_API_URL}/cotizaciones/${selectedCotizacion.id}/pdf?token=${token}`;
-    window.open(url, "_blank");
+
+    try {
+      // Obtener cotización completa con items detallados
+      const cotizacionCompleta = await getCotizacionById(selectedCotizacion.id);
+
+      // Descargar PDF de forma inteligente
+      await descargarPDFInteligente(cotizacionCompleta, token);
+    } catch (error) {
+      console.error('Error obteniendo cotización:', error);
+      alert('Error obteniendo datos de la cotización');
+    }
+
     setSelectedCotizacion(null);
   };
 

@@ -73,3 +73,21 @@ La aplicación detecta automáticamente el entorno de build:
 1. Verificar que el backend esté configurado correctamente
 2. Revisar logs del backend durante la generación del PDF
 3. Verificar permisos de usuario para acceder a la cotización
+4. **En producción**: Verificar que Render tenga suficiente memoria (1GB+) para Puppeteer
+
+### Sistema de PDF Inteligente
+La aplicación incluye un sistema inteligente de generación de PDFs:
+
+- **Primera opción**: Puppeteer en el backend (mejor calidad, requiere más recursos)
+- **Fallback automático**: jsPDF en el frontend (compatible con Vercel, Supabase, Render)
+- **Compatible con**: Vercel, Netlify, Render, Railway, DigitalOcean, AWS, etc.
+
+### Si Puppeteer falla en producción:
+- El sistema automáticamente usa jsPDF como alternativa
+- Los PDFs generados con jsPDF tienen calidad aceptable
+- No requiere configuración especial del servidor
+
+### Problemas conocidos en producción
+- **PDF no se genera**: Puppeteer puede fallar en entornos con poca memoria
+- **Error "Puppeteer launch failed"**: Indica problemas con Chrome en el servidor
+- **Timeout**: Los PDFs pueden tardar hasta 2 minutos en generarse

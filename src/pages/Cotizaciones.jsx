@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getClientes } from "../api/clientes";
 import { getProductos } from "../api/productos";
 import { crearCotizacion } from "../api/cotizaciones";
+import { descargarPDFInteligente } from "../api/pdf";
 import useAuth from "../auth/useAuth";
 import { getConfiguracion } from "../api/configuracion";
 import VistaPreviaCotizacion from "../coomponents/VistaPreviaCotizacion";
@@ -109,12 +110,9 @@ export default function Cotizaciones() {
     try {
       const cotizacion = await crearCotizacion(data);
       alert("Cotización creada");
-      window.open(
-        `${import.meta.env.VITE_API_URL}/cotizaciones/${
-          cotizacion.id
-        }/pdf?token=${token}`,
-        "_blank"
-      );
+
+      // Descargar PDF de forma inteligente (backend primero, jsPDF como fallback)
+      await descargarPDFInteligente(cotizacion, token);
     } catch (error) {
       console.error("Error creando cotización:", error);
       alert("Error creando cotización");
