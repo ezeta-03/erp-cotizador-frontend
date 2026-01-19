@@ -1,16 +1,75 @@
-# React + Vite
+# Frontend - Sistema de Cotización ZAAZMAGO
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 🚀 Despliegue
 
-Currently, two official plugins are available:
+### Variables de Entorno
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+#### Desarrollo (.env)
+```env
+VITE_API_URL=http://localhost:4000/api
+```
 
-## React Compiler
+#### Producción (.env.production)
+```env
+VITE_API_URL=https://erp-cotizador-backend.onrender.com/api
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Comandos
 
-## Expanding the ESLint configuration
+```bash
+# Instalar dependencias
+npm install
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Desarrollo
+npm run dev
+
+# Build para producción
+npm run build
+
+# Preview del build
+npm run preview
+```
+
+## 🌍 Entornos
+
+### Desarrollo
+- **URL**: `http://localhost:5173`
+- **API**: `http://localhost:4000/api`
+- **Datos**: Cotizaciones ficticias para testing
+
+### Producción
+- **URL**: `https://tu-frontend.vercel.app`
+- **API**: `https://erp-cotizador-backend.onrender.com/api`
+- **Datos**: Cotizaciones reales de la base de datos
+
+## 🔧 Configuración por Entorno
+
+La aplicación detecta automáticamente el entorno de build:
+
+- **Desarrollo**: Vite usa `.env`
+- **Producción**: Vite usa `.env.production`
+
+## 📱 Funcionalidades
+
+- ✅ Dashboard administrativo
+- ✅ Gestión de cotizaciones
+- ✅ Generación de PDFs
+- ✅ Autenticación JWT
+- ✅ Roles de usuario (ADMIN, VENTAS, CLIENTE)
+
+## 🐛 Troubleshooting
+
+### API no conecta
+1. Verificar VITE_API_URL en el entorno correspondiente
+2. Revisar CORS en el backend
+3. Verificar que el backend esté ejecutándose
+
+### Build falla
+1. Ejecutar `npm install` para actualizar dependencias
+2. Verificar que todas las variables de entorno estén definidas
+3. Revisar logs de build para errores específicos
+
+### PDF no descarga
+1. Verificar que el backend esté configurado correctamente
+2. Revisar logs del backend durante la generación del PDF
+3. Verificar permisos de usuario para acceder a la cotización
