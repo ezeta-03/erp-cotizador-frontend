@@ -38,10 +38,10 @@ export default function VentasDashboard() {
         getCotizaciones()
       ]);
       
-      setProgreso(progresoRes.data);
-      setCotizacionesPorDia(cotizacionesRes.data);
-      setEstadisticas(statsRes.data);
-      setCotizacionesRecientes(cotizacionesListRes.data?.slice(0, 5) || []);
+      setProgreso(progresoRes);
+      setCotizacionesPorDia(cotizacionesRes);
+      setEstadisticas(statsRes);
+      setCotizacionesRecientes(cotizacionesListRes?.slice(0, 5) || []);
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
