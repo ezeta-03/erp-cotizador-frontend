@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { DonutChart, LineChart } from '../coomponents/Charts';
 import { 
   getProgresoTodosVendedores, 
-  getCotizacionesPorDia,
-  setMetaMensual,
-  runSeed 
+  getCotizacionesPorDia
 } from '../api/stats';
 import { Target, TrendingUp, Users, Edit2, Save, X } from 'lucide-react';
 
@@ -27,22 +25,6 @@ export default function AdminDashboard() {
       setCotizacionesPorDia(cotizacionesRes.data);
     } catch (error) {
       console.error('Error al cargar datos:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const ejecutarSeed = async () => {
-    if (!confirm('¿Estás seguro de ejecutar el seed? Esto puede sobrescribir datos existentes.')) return;
-    
-    try {
-      setLoading(true);
-      await runSeed();
-      alert('Seed ejecutado correctamente. Recargando datos...');
-      await cargarDatos();
-    } catch (error) {
-      console.error('Error ejecutando seed:', error);
-      alert('Error ejecutando seed: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -93,32 +75,12 @@ export default function AdminDashboard() {
   return (
     <div style={{ padding: '2rem', backgroundColor: '#f9fafb', minHeight: '100vh' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-              Dashboard Administrativo
-            </h1>
-            <p style={{ color: '#6b7280' }}>
-              Monitorea el desempeño del equipo de ventas
-            </p>
-          </div>
-          <button
-            onClick={ejecutarSeed}
-            disabled={loading}
-            style={{
-              padding: '0.75rem 1.5rem',
-              backgroundColor: '#10b981',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: '500'
-            }}
-          >
-            {loading ? 'Ejecutando...' : 'Ejecutar Seed'}
-          </button>
-        </div>
+        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+          Dashboard Administrativo
+        </h1>
+        <p style={{ color: '#6b7280' }}>
+          Monitorea el desempeño del equipo de ventas
+        </p>
       </div>
 
       {/* KPIs Principales */}

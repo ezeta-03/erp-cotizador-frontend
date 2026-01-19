@@ -32,8 +32,3 @@ export const getProgresoTodosVendedores = async () => {
   const { data } = await api.get("/stats/progreso/todos");
   return data;
 };
-
-export const runSeed = async () => {
-  const { data } = await api.post("/stats/seed");
-  return data;
-};
