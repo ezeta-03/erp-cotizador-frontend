@@ -1,6 +1,30 @@
 # Frontend - Sistema de Cotización ZAAZMAGO
 
-## 🚀 Despliegue
+## 🚀 Despliegue en Vercel
+
+### 1. Conectar repositorio
+1. Ve a [vercel.com](https://vercel.com) y conecta tu repositorio de GitHub
+2. Selecciona el proyecto `frontend`
+3. Configura el build command: `npm run build`
+4. Configura el output directory: `dist`
+
+### 2. Variables de Entorno en Vercel
+En el dashboard de Vercel → Project Settings → Environment Variables:
+
+```env
+VITE_API_URL=https://tu-backend-en-render.onrender.com/api
+```
+
+### 3. Build Settings
+- **Framework Preset**: `Vite`
+- **Root Directory**: `frontend` (si está en subdirectorio)
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+
+### 4. Deploy
+Una vez configurado, cada push a `main` hará deploy automático.
+
+## 🔧 Configuración Local
 
 ### Variables de Entorno
 
@@ -64,9 +88,21 @@ La aplicación detecta automáticamente el entorno de build:
 2. Revisar CORS en el backend
 3. Verificar que el backend esté ejecutándose
 
-### Build falla
-1. Ejecutar `npm install` para actualizar dependencias
-2. Verificar que todas las variables de entorno estén definidas
+### Build falla en Vercel
+1. Verificar que el **Root Directory** esté configurado como `frontend`
+2. Asegurarse de que **VITE_API_URL** esté configurado en Environment Variables
+3. Revisar los logs de build en Vercel para errores específicos
+4. Si hay errores de sintaxis, ejecutar `npm run build` localmente primero
+
+### Error "Unexpected export"
+- Verificar que todos los archivos `.js` tengan sintaxis correcta
+- Asegurarse de que los imports/exports estén bien formateados
+- Revisar que no haya código suelto fuera de funciones
+
+### PDFs no se generan
+- Verificar que el backend esté configurado correctamente
+- Revisar que las variables de entorno del backend estén bien
+- Usar la función fallback con jsPDF si Puppeteer falla
 3. Revisar logs de build para errores específicos
 
 ### PDF no descarga
