@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { DonutChart, LineChart } from '../coomponents/Charts';
 import { 
   getProgresoTodosVendedores, 
-  getCotizacionesPorDia
+  getCotizacionesPorDia,
+  setMetaMensual
 } from '../api/stats';
 import { Target, TrendingUp, Users, Edit2, Save, X } from 'lucide-react';
 
