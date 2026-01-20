@@ -1,17 +1,53 @@
 // Función de utilidad para descargar PDFs de forma segura
-export const descargarPDF = (cotizacionId, token, numero = null) => {
+export const descargarPDF = async (cotizacionId, token, numero = null) => {
   const pdfUrl = `${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacionId}/pdf?token=${token}`;
 
-  // Crear un enlace temporal para descargar el PDF
-  const link = document.createElement('a');
-  link.href = pdfUrl;
-  link.download = `COT-${numero || cotizacionId}.pdf`;
-  link.target = '_blank';
+  try {
+    // Descargar el PDF completo
+    const response = await fetch(pdfUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
 
-  // Agregar al DOM y hacer clic
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    // Obtener el blob del PDF
+    const pdfBlob = await response.blob();
+    console.log('📄 Blob recibido, tamaño:', pdfBlob.size, 'bytes, tipo:', pdfBlob.type);
+
+    // Verificar que el blob tenga contenido
+    if (pdfBlob.size === 0) {
+      throw new Error('PDF vacío recibido del servidor');
+    }
+
+    // Crear URL del objeto blob
+    const pdfUrlBlob = URL.createObjectURL(pdfBlob);
+
+    // Crear enlace para descargar
+    const link = document.createElement('a');
+    link.href = pdfUrlBlob;
+    link.download = `COT-${numero || cotizacionId}.pdf`;
+    link.target = '_blank';
+
+    // Agregar al DOM y hacer clic
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Limpiar el URL del objeto después de un tiempo
+    setTimeout(() => {
+      URL.revokeObjectURL(pdfUrlBlob);
+    }, 1000);
+
+    return true; // Éxito
+  } catch (error) {
+    console.error('Error descargando PDF desde backend:', error);
+    throw error; // Re-lanzar para que el caller lo maneje
+  }
 };
 
 // Función alternativa para generar PDF usando jsPDF (compatible con Vercel/Render)
@@ -122,7 +158,8 @@ export const descargarPDFInteligente = async (cotizacion, token) => {
   try {
     // Intentar primero con el backend (Puppeteer)
     console.log('🔄 Intentando descargar PDF desde backend...');
-    descargarPDF(cotizacion.id, token, cotizacion.numero);
+    await descargarPDF(cotizacion.id, token, cotizacion.numero);
+    console.log('✅ PDF descargado exitosamente desde backend');
   } catch (error) {
     console.warn('⚠️ Error descargando PDF desde backend, usando jsPDF como alternativa...', error);
 
@@ -130,6 +167,7 @@ export const descargarPDFInteligente = async (cotizacion, token) => {
       // Fallback: generar PDF con jsPDF
       console.log('📄 Generando PDF con jsPDF...');
       await generarPDFCliente(cotizacion);
+      console.log('✅ PDF generado exitosamente con jsPDF');
     } catch (fallbackError) {
       console.error('❌ Error generando PDF con jsPDF:', fallbackError);
       alert('Error generando PDF. Por favor, contacte al administrador.');
