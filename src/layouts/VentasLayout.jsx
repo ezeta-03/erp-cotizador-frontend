@@ -5,10 +5,10 @@ export default function VentasLayout() {
     { path: "/ventas", label: "Dashboard" },
     { path: "/ventas/clientes", label: "Clientes" },
     { path: "/ventas/productos", label: "Productos" },
-    { path: "/ventas/cotizaciones", label: "Cotizar" },
+    // { path: "/ventas/cotizaciones", label: "Cotizar" },
     { path: "/ventas/historial", label: "Mis Cotizaciones" },
     { path: "/ventas/cotizaciones-ventas", label: "Facturar" },
-    { path: "/ventas/actividad", label: "Actividad Cliente" },
+    // { path: "/ventas/actividad", label: "Actividad Cliente" },
 
 
   ];
