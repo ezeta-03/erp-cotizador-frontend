@@ -10,7 +10,7 @@ export default function CotizacionesHistorial() {
   const [filtroEstado, setFiltroEstado] = useState("TODAS");
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroVendedor, setFiltroVendedor] = useState("");
-  const [filtroFecha, setFiltroFecha] = useState("");
+  // const [filtroFecha, setFiltroFecha] = useState("");
   const [selectedCotizacion, setSelectedCotizacion] = useState(null);
   const token = localStorage.getItem("token");
 
@@ -27,11 +27,11 @@ export default function CotizacionesHistorial() {
     const matchVendedor = filtroVendedor
       ? c.usuario?.nombre.toLowerCase().includes(filtroVendedor.toLowerCase())
       : true;
-    const matchFecha = filtroFecha
-      ? new Date(c.createdAt).toLocaleDateString() === filtroFecha
-      : true;
+    // const matchFecha = filtroFecha
+    //   ? new Date(c.createdAt).toLocaleDateString() === filtroFecha
+    //   : true;
 
-    return matchEstado && matchCliente && matchVendedor && matchFecha;
+    return matchEstado && matchCliente && matchVendedor // && matchFecha;
   });
 
   const handlePreview = (cotizacion) => {
@@ -86,12 +86,12 @@ export default function CotizacionesHistorial() {
           value={filtroVendedor}
           onChange={(e) => setFiltroVendedor(e.target.value)}
         />
-        <input
+        {/* <input
           type="text"
           placeholder="Filtrar por fecha (dd/mm/aaaa)..."
           value={filtroFecha}
           onChange={(e) => setFiltroFecha(e.target.value)}
-        />
+        /> */}
       </div>
 
       {/* Lista de cards */}
