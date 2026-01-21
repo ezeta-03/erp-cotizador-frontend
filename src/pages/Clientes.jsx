@@ -78,11 +78,17 @@ export default function Clientes() {
   };
 
   const handleInvitar = async (cliente) => {
-    const email = prompt(`Email para invitar a ${cliente.nombreComercial}:`, cliente.email || "");
-    if (!email) return;
+  const email = prompt(`Email para invitar a ${cliente.nombreComercial}:`, cliente.email || "");
+  if (!email) return;
+  
+  try {
     await invitarCliente(cliente.id, email);
     alert("📧 Invitación enviada correctamente");
-  };
+  } catch (error) {
+    console.error("Error al invitar:", error);
+    alert("❌ Error al enviar la invitación: " + (error.response?.data?.message || error.message));
+  }
+};
 
   const handleActividad = async (cliente) => {
     const data = await getActividadClientes({ clienteId: cliente.id });
