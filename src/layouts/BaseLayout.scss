@@ -258,9 +258,13 @@
   overflow-y: auto;
   max-width: 100%;
   margin-left: 280px;
+  transition: margin-left 0.3s ease;
   // Ajuste para cuando el menú está visible en desktop
   @media (min-width: 1025px) {
     margin-left: 280px; // 🔥 Mantener el margen en desktop
+    .sidebar.collapsed ~ & {
+      margin-left: 80px;
+    }
   }
 
   // Mobile: agregar espacio para el botón hamburguesa
@@ -293,3 +297,92 @@
 // Laptop: 1025px - 1439px
 // Desktop: 1440px - 1919px
 // Widescreen: 1920px+
+
+// ==================== COLLAPSE BUTTON ====================
+.collapse-btn {
+  display: none; // Oculto en móvil/tablet
+  position: absolute;
+  right: 10px;
+  top: 1.8rem;
+  width: 24px;
+  height: 24px;
+  background: $primary;
+  color: white;
+  font-weight: 800;
+  border: 1px solid $gray-200;
+  border-radius: 50%;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: $transition;
+  z-index: 10;
+
+  &:hover {
+    background: $primary;
+    color: white;
+    border-color: $primary;
+    transform: scale(1.1);
+  }
+
+  // Visible solo en desktop
+  @media (min-width: 1025px) {
+    display: flex;
+  }
+}
+
+// ==================== SIDEBAR COLAPSADO ====================
+.sidebar.collapsed {
+  width: 80px;
+
+  .sidebar-title {
+    font-size: 1rem;
+  }
+
+  .nav-text,
+  .logout-text {
+    display: none;
+  }
+
+  .nav-link {
+    justify-content: center;
+    padding: 0.875rem;
+
+    &.active {
+      border-left: none;
+      padding-left: 0.875rem;
+    }
+  }
+
+  .user-info {
+    align-items: center;
+  }
+
+  .user-avatar {
+    margin: 0 auto 0.5rem;
+  }
+
+  .btn-logout {
+    justify-content: center;
+    padding: 0.75rem;
+  }
+}
+
+// ==================== NAV LINK CON ICONOS ====================
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; // 🔥 AGREGAR
+  // ... resto del código igual ...
+}
+
+.nav-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-text {
+  flex: 1;
+}

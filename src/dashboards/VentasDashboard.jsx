@@ -89,7 +89,7 @@ export default function VentasDashboard() {
           <h1 className={styles.pageTitle}>Dashboard de Ventas</h1>
           <p className={styles.pageSubtitle}>Monitorea tu desempeño y progreso hacia la meta mensual</p>
         </div>
-        <button className={styles.btnPrimary} onClick={() => navigate('/ventas/cotizaciones')}>
+        <button className={styles.btnPrimary} onClick={() => navigate('/ventas/historial')}>
           <Plus size={20} />
           Nueva Cotización
         </button>
