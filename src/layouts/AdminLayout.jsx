@@ -3,7 +3,7 @@ import BaseLayout from "./BaseLayout";
 export default function AdminLayout() {
   const menu = [
     { path: "/admin", label: "Dashboard" },
-    { path: "/admin/usuarios", label: "Usuarios" }, // 👈 nuevo
+    { path: "/admin/usuarios", label: "Usuarios" },
     { path: "/admin/clientes", label: "Clientes" },
     { path: "/admin/productos", label: "Productos" },
     { path: "/admin/cotizaciones", label: "Cotizador" },

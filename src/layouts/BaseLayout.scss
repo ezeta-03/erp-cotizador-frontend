@@ -1,42 +1,289 @@
 @import "../styles/variables";
 
+// ==================== LAYOUT PRINCIPAL ====================
 .layout {
   display: flex;
   min-height: 100vh;
+  position: relative;
+  background-color: $gray-50;
 }
 
+// ==================== HAMBURGER BUTTON ====================
+.hamburger-btn {
+  display: none; // Oculto por defecto (desktop)
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  background: $white;
+  border: 1px solid $gray-200;
+  border-radius: $radius;
+  padding: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: $transition;
+
+  &:hover {
+    background: $gray-50;
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  // Visible solo en tablet y móvil
+  @media (max-width: 1024px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// ==================== OVERLAY ====================
+.menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  backdrop-filter: blur(2px);
+
+  @media (max-width: 1024px) {
+    display: block;
+  }
+}
+
+// ==================== SIDEBAR ====================
 .sidebar {
-  width: 230px;
+  width: 280px;
   background: $white;
   border-right: 1px solid $gray-200;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  z-index: 999;
+
+  // Mobile & Tablet: menú deslizable
+  @media (max-width: 1024px) {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    height: 100vh;
+    transition: left 0.3s ease;
+
+    &.open {
+      left: 0;
+    }
+  }
+
+  // Tablet horizontal
+  @media (min-width: 768px) and (max-width: 1024px) {
+    width: 260px;
+  }
+
+  // Mobile
+  @media (max-width: 767px) {
+    width: 280px;
+  }
 }
 
-.sidebar h3 {
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+}
+
+// ==================== SIDEBAR HEADER ====================
+.sidebar-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid $gray-200;
+}
+
+.sidebar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
   color: $primary;
-  margin-bottom: 20px;
+  margin: 0;
+
+  @media (max-width: 767px) {
+    font-size: 1.25rem;
+  }
 }
 
-.nav a {
+// ==================== NAVEGACIÓN ====================
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.nav-link {
   display: block;
-  padding: 10px 14px;
+  padding: 0.875rem 1rem;
   border-radius: $radius;
-  color: $gray-600;
-  margin-bottom: 6px;
+  color: $gray-700;
+  font-weight: 500;
   transition: $transition;
+  text-decoration: none;
+
+  &:hover {
+    background: $gray-100;
+    color: $primary;
+    transform: translateX(4px);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, rgba($primary, 0.1) 0%, rgba($primary, 0.05) 100%);
+    color: $primary;
+    font-weight: 600;
+    border-left: 3px solid $primary;
+    padding-left: calc(1rem - 3px);
+  }
 }
 
-.nav a.active {
-  background: rgba($primary, .1);
-  color: $primary;
+// ==================== USER INFO ====================
+.user-info {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid $gray-200;
+}
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba($primary, 0.3);
+}
+
+.user-details {
+  margin-bottom: 1rem;
+}
+
+.user-name {
+  font-size: 1rem;
   font-weight: 600;
+  color: $gray-900;
+  margin: 0 0 0.5rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.nav a:hover {
+.user-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: $gray-600;
+  margin-bottom: 0.25rem;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.user-email {
+  font-size: 0.8125rem;
+}
+
+.user-role {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $primary;
+}
+
+// ==================== LOGOUT BUTTON ====================
+.btn-logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
   background: $gray-100;
+  color: $gray-700;
+  border: 1px solid $gray-300;
+  border-radius: $radius;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: $danger;
+    color: white;
+    border-color: $danger;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($danger, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
 }
 
+// ==================== MAIN CONTENT ====================
 .main {
   flex: 1;
-  padding: 30px;
+  padding: 2rem;
+  overflow-y: auto;
+  max-width: 100%;
+
+  // Ajuste para cuando el menú está visible en desktop
+  @media (min-width: 1025px) {
+    margin-left: 0;
+  }
+
+  // Mobile: agregar espacio para el botón hamburguesa
+  @media (max-width: 1024px) {
+    padding-top: 5rem;
+  }
+
+  // Tablet
+  @media (min-width: 768px) and (max-width: 1024px) {
+    padding: 3rem 1.5rem;
+  }
+
+  // Mobile
+  @media (max-width: 767px) {
+    padding: 3rem 1rem;
+  }
+
+  // Widescreen
+  @media (min-width: 1920px) {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 3rem;
+  }
 }
+
+// ==================== RESPONSIVE BREAKPOINTS ====================
+// Mobile: 0 - 767px
+// Tablet: 768px - 1024px
+// Laptop: 1025px - 1439px
+// Desktop: 1440px - 1919px
+// Widescreen: 1920px+

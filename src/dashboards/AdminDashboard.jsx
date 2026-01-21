@@ -251,14 +251,14 @@ export default function AdminDashboard() {
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                           <button
                             onClick={() => guardarMeta(vendedor.vendedorId)}
-                            className={styles.btnPrimary}
+                            className={styles.btnApprove}
                             style={{ padding: '0.5rem', fontSize: '0.875rem' }}
                           >
                             <Save size={16} />
                           </button>
                           <button
                             onClick={cancelarEdicion}
-                            className={styles.btnDanger}
+                            className={styles.btnReject}
                             style={{ padding: '0.5rem', fontSize: '0.875rem', backgroundColor: '#ef4444' }}
                           >
                             <X size={16} />
@@ -267,7 +267,7 @@ export default function AdminDashboard() {
                       ) : (
                         <button
                           onClick={() => iniciarEdicion(vendedor)}
-                          className={styles.btnPrimary}
+                          className={styles.btnEdit}
                           style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
                         >
                           <Edit2 size={16} />

@@ -89,7 +89,7 @@ export default function VentasDashboard() {
           <h1 className={styles.pageTitle}>Dashboard de Ventas</h1>
           <p className={styles.pageSubtitle}>Monitorea tu desempeño y progreso hacia la meta mensual</p>
         </div>
-        <button className={styles.btnPrimary} onClick={() => navigate('/cotizaciones/nueva')}>
+        <button className={styles.btnPrimary} onClick={() => navigate('/ventas/cotizaciones')}>
           <Plus size={20} />
           Nueva Cotización
         </button>
@@ -185,7 +185,7 @@ export default function VentasDashboard() {
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>Cotizaciones Recientes</h2>
-            <button className={styles.btnSecondary} onClick={() => navigate('/cotizaciones')}>
+            <button className={styles.btnSecondary} onClick={() => navigate('/ventas/historial')}>
               <Eye size={16} />
               Ver todas
             </button>
