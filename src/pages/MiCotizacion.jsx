@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import styles from "./MiCotizacion.module.scss"; // 👈 reutilizamos estilos
 
 export default function MiCotizacion() {
   const [cotizacion, setCotizacion] = useState(null);
@@ -19,7 +20,7 @@ export default function MiCotizacion() {
   }, [token]);
 
   if (!cotizacion) {
-    return <p>No tienes cotizaciones aún</p>;
+    return <p className={styles.label}>No tienes cotizaciones aún</p>;
   }
 
   const responder = async (estado) => {
@@ -33,20 +34,20 @@ export default function MiCotizacion() {
   };
 
   return (
-    <div>
-      <h2>Mi última cotización</h2>
+    <div className={styles.modal}>
+      <h2 className={styles.title}>Mi última cotización</h2>
 
-      <p>
+      <p className={styles.label}>
         <b>Número:</b> {cotizacion.numero}
       </p>
-      <p>
+      <p className={styles.label}>
         <b>Estado:</b> {cotizacion.estado}
       </p>
-      <p>
+      <p className={styles.total}>
         <b>Total:</b> S/. {cotizacion.total.toFixed(2)}
       </p>
 
-      <table>
+      <table className={styles.table}>
         <thead>
           <tr>
             <th>Producto</th>
@@ -56,54 +57,59 @@ export default function MiCotizacion() {
           </tr>
         </thead>
         <tbody>
-          {cotizacion.items.map((i) => (
-            <tr key={i.id}>
-              <td>{i.descripcion}</td>
-              <td>{i.cantidad}</td>
-              <td>{i.precio.toFixed(2)}</td>
-              <td>{i.subtotal.toFixed(2)}</td>
-            </tr>
-          ))}
+          {cotizacion.items.map((i) => {
+            // 👇 glosa de adicionales seleccionados
+            const glosa =
+              i.adicionales
+                ?.filter((a) => a.seleccionado)
+                .map((a) => `con ${a.nombre}`)
+                .join(", ") || "";
+
+            return (
+              <tr key={i.id}>
+                <td>{i.producto.material} {glosa}</td>
+                <td>{i.cantidad}</td>
+                <td>S/. {i.precio.toFixed(2)}</td>
+                <td>S/. {i.subtotal.toFixed(2)}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
       <br />
 
-      {/* <a
-        href={`${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacion.id}/pdf`}
-        target="_blank"
-      >
-        Descargar PDF
-      </a> */}
-
       <a
-        href={`${import.meta.env.VITE_API_URL}/cotizaciones/${
-          cotizacion.id
-        }/pdf?token=${token}`}
+        className={styles.btnPrimary}
+        href={`${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacion.id}/pdf?token=${token}`}
         target="_blank"
       >
         Descargar PDF
       </a>
 
       {cotizacion.estado === "PENDIENTE" && (
-        <>
-          <br />
-          <br />
+        <div className={styles.actions}>
           <textarea
+            className={styles.input}
             placeholder="Comentario (opcional)"
             value={comentario}
             onChange={(e) => setComentario(e.target.value)}
           />
 
-          <br />
-          <button className="btn-approve" onClick={() => responder("APROBADA")}>
+          <button
+            className={styles.btnPrimary}
+            onClick={() => responder("APROBADA")}
+          >
             Aprobar
           </button>
 
-          <button className="btn-reject" onClick={() => responder("RECHAZADA")}>
+          <button
+            className={styles.btnSecondary}
+            onClick={() => responder("RECHAZADA")}
+          >
             Rechazar
           </button>
-        </>
+        </div>
       )}
     </div>
   );

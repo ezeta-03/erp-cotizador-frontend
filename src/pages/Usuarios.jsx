@@ -91,7 +91,7 @@ export default function Usuarios() {
       <h2>Gestión de Usuarios</h2>
 
       <button className={styles.btnAdd} onClick={() => setShowModal(true)}>
-        ➕ Crear Usuario
+         🙋‍♂️ Crear Usuario
       </button>
 
       <div className={styles.lista}>
@@ -100,7 +100,7 @@ export default function Usuarios() {
             <div className={styles.header}>
               <span className={styles.nombre}>{u.nombre}</span>
               <span className={`${styles.estado} ${u.activo ? styles.activo : styles.invitado}`}>
-                {u.activo ? "Activo" : "Invitado"}
+                {u.activo ? "✅ Activo" : "☑️ Invitado"}
               </span>
             </div>
             <p className={styles.email}>{u.email}</p>
@@ -108,19 +108,19 @@ export default function Usuarios() {
 
             <div className={styles.actions}>
               {u.activo && (
-                <button className={styles.btnEdit} onClick={() => handleEdit(u)}>Editar</button>
+                <button className={styles.btnEdit} onClick={() => handleEdit(u)}>🛡 Editar</button>
               )}
               {u.activo ? (
                 <button className={styles.btnToggle} onClick={() => handleToggleEstado(u.id, false)}>
-                  Desactivar
+                  ❌ Desactivar
                 </button>
               ) : (
                 <>
-                  <button className={styles.btnToggle} onClick={() => handleToggleEstado(u.id, true)}>
-                    Activar
+                  <button className={styles.btnActivate} onClick={() => handleToggleEstado(u.id, true)}>
+                    ✅ Activar
                   </button>
                   <button className={styles.btnReinvite} onClick={() => handleReinvitar(u)}>
-                    Reinvitar
+                    🚸 Reinvitar
                   </button>
                 </>
               )}

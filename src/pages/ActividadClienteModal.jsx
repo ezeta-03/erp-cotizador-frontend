@@ -88,7 +88,7 @@ export default function ActividadClienteModal({ cliente, onClose }) {
         )}
 
         <div className={styles.actions}>
-          <button className={styles.btnSecondary} onClick={onClose}>
+          <button className={styles.btnClose} onClick={onClose}>
             Cerrar
           </button>
         </div>

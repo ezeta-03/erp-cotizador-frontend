@@ -1,3 +1,6 @@
+@import "../styles/_variables.scss";
+@import "../styles/_table.scss";
+
 .container {
   padding: 20px;
 }
@@ -5,6 +8,21 @@
 h2 {
   margin-bottom: 20px;
   color: #fd6113;
+}
+
+.btnAdd {
+  background: #fd6113;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-weight: 500;
+
+  &:hover {
+    background: $black;
+  }
 }
 
 .lista {
@@ -17,13 +35,15 @@ h2 {
   background: #fff;
   border-radius: 10px;
   padding: 18px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   cursor: pointer;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
   }
 
   .header {
@@ -61,7 +81,8 @@ h2 {
       transition: background 0.2s;
     }
 
-    .btnEdit { background: #3b82f6; color: #fff; }
-    .btnDelete { background: #ef4444; color: #fff; }
+    
   }
 }
+
+

@@ -53,8 +53,8 @@ export default function ConfiguracionForm({ onRecalcular }) {
           <div className={styles.field}>
             <label>Costos indirectos (%)</label>
             <input
-              type="tel"
-              step="0.01"
+              type="number"
+              // step="0.01"
               name="costo_indirecto"
               value={config.costo_indirecto}
               onChange={handleChange}
@@ -64,8 +64,8 @@ export default function ConfiguracionForm({ onRecalcular }) {
           <div className={styles.field}>
             <label>Porcentaje administrativo (%)</label>
             <input
-              type="tel"
-              step="0.01"
+              type="number"
+              // step="0.01"
               name="porcentaje_administrativo"
               value={config.porcentaje_administrativo}
               onChange={handleChange}
@@ -75,12 +75,12 @@ export default function ConfiguracionForm({ onRecalcular }) {
           <div className={styles.field}>
             <label>Rentabilidad (%)</label>
             <input
-              type="tel"
+              type="number"
               name="rentabilidad"
-              step="0.03"
+              // step="0.03"
               value={config.rentabilidad}
               readOnly
-              // className={styles.readOnly}
+              className={styles.readOnly}
               onChange={handleChange}
 
             />
@@ -88,11 +88,11 @@ export default function ConfiguracionForm({ onRecalcular }) {
         </div>
 
         <div className={styles.actions}>
-          <button type="button" onClick={handleSave}>
-            Guardar configuración
+          <button className={styles.btnSave} type="button" onClick={handleSave}>
+            💾 Guardar configuración
           </button>
-          <button type="button" onClick={handleRecalcular}>
-            Recalcular precios
+          <button className={styles.btnRecalculate} type="button" onClick={handleRecalcular}>
+            💰 Recalcular precios
           </button>
         </div>
       </form>

@@ -102,7 +102,7 @@ export default function Clientes() {
 
       {(user.role === "ADMIN" || user.role === "VENTAS") && (
         <button className={styles.btnAdd} onClick={() => setShowFormModal(true)}>
-          ➕ Crear Cliente
+          🙋 Crear Cliente
         </button>
       )}
 
@@ -121,15 +121,15 @@ export default function Clientes() {
             {(user.role === "ADMIN" || user.role === "VENTAS") && (
               <div className={styles.actions}>
                 <button className={styles.btnEdit} onClick={(e) => { e.stopPropagation(); handleEdit(c); }}>
-                  Editar
+                  🛡 Editar
                 </button>
-                {user.role === "ADMIN" && (
+                {(user.role === "ADMIN" || user.role === "VENTAS") && (
                   <>
                     <button className={styles.btnDelete} onClick={(e) => { e.stopPropagation(); handleDelete(c.id); }}>
-                      Eliminar
+                      ❌ Eliminar
                     </button>
                     <button className={styles.btnInvite} onClick={(e) => { e.stopPropagation(); handleInvitar(c); }}>
-                      Invitar
+                      🚸 Invitar
                     </button>
                   </>
                 )}

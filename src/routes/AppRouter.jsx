@@ -79,6 +79,7 @@ export default function AppRouter() {
               </ProtectedRoute>
             }
           >
+            <Route index element={<MiCotizacion />} />
             <Route path="mia" element={<MiCotizacion />} />
           </Route>
 

@@ -24,3 +24,16 @@ td {
 tr:hover {
   background: $gray-50;
 }
+
+.btnEdit {
+  // background: #3b82f6;
+  color: #fff;
+  border-radius: 0.1rem;
+  border: none;
+}
+.btnDelete {
+  // background: red;
+  color: #fff;
+  border-radius: 0.1rem;
+  border: none;
+}

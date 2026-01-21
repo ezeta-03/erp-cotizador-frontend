@@ -73,7 +73,7 @@ export default function CotizacionModal({ onClose, onSave }) {
 
   const handleSave = () => {
     onSave({ clienteId, items });
-    // onClose();
+    onClose();
   };
 
   return (

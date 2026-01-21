@@ -6,10 +6,10 @@ export default function AdminLayout() {
     { path: "/admin/usuarios", label: "Usuarios" },
     { path: "/admin/clientes", label: "Clientes" },
     { path: "/admin/productos", label: "Productos" },
-    { path: "/admin/cotizaciones", label: "Cotizador" },
-    { path: "/admin/historial", label: "Historial" },
+    // { path: "/admin/cotizaciones", label: "Cotizador" },
+    { path: "/admin/historial", label: "Cotizaciones" },
     { path: "/admin/cotizaciones-ventas", label: "Facturar" },
-    { path: "/admin/actividad", label: "Actividad Cliente" },
+    // { path: "/admin/actividad", label: "Actividad Cliente" },
 
   ];
 

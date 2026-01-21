@@ -8,7 +8,7 @@ import {
   deleteProducto,
 } from "../api/productos";
 import ConfiguracionForm from "../coomponents/ConfiguracionForm";
-import "./productos.module.scss";
+import styles from "./productos.module.scss";
 import ProductoModal from "./ProductoModal";
 export default function Productos() {
   const [showModal, setShowModal] = useState(false);
@@ -96,9 +96,11 @@ export default function Productos() {
   // };
 
   return (
-    <div>
+    <div className={styles.container}>
       <h2>Productos</h2>
-     <button onClick={() => setShowModal(true)}>+ Nuevo Producto</button>
+      <button className={styles.btnAdd} onClick={() => setShowModal(true)}>
+        🎱 Nuevo Producto
+      </button>
 
       {/* <input type="file" accept=".xlsx,.xls" onChange={handleImportExcel} /> */}
       {showModal && (
@@ -196,9 +198,19 @@ export default function Productos() {
               <td>{p.margen.toFixed(2)}</td>
               {(user.role === "ADMIN" || user.role === "VENTAS") && (
                 <td>
-                  <button onClick={() => handleEdit(p)}>Editar</button>
+                  <button
+                    className={styles.btnEdit}
+                    onClick={() => handleEdit(p)}
+                  >
+                    ✒️
+                  </button>
                   {user.role === "ADMIN" && (
-                    <button onClick={() => handleDelete(p.id)}>Eliminar</button>
+                    <button
+                      className={styles.btnDelete}
+                      onClick={() => handleDelete(p.id)}
+                    >
+                      ❌
+                    </button>
                   )}
                 </td>
               )}

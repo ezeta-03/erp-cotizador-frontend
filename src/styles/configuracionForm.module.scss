@@ -1,3 +1,5 @@
+@import url('./_variables.scss');
+
 .form {
   display: flex;
   flex-direction: column;
@@ -38,4 +40,24 @@
   background-color: #f4f4f4;
   cursor: not-allowed;
   color: #666;
+}
+
+.btnSave {
+  background-color: #10b981;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btnRecalculate {
+  background-color: #f59e0b;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
 }

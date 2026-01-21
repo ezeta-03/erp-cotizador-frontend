@@ -57,6 +57,7 @@ export default function UsuarioFormModal({
           >
             <option value="ADMIN">Administrador</option>
             <option value="VENTAS">Ventas</option>
+            <option value="CLIENTE">Cliente</option>
           </select>
 
           <div className={styles.actions}>

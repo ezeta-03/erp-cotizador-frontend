@@ -1,3 +1,5 @@
+@import "../styles/_variables.scss";
+
 .container {
   padding: 20px;
 }
@@ -8,7 +10,7 @@ h2 {
 }
 
 .btnAdd {
-  background: #fd6113;
+  background: $primary;
   color: #fff;
   border: none;
   padding: 10px 14px;
@@ -17,7 +19,7 @@ h2 {
   margin-bottom: 20px;
 
   &:hover {
-    background: #e85c0d;
+    background: $black;
   }
 }
 
@@ -31,7 +33,7 @@ h2 {
   background: #fff;
   border-radius: 10px;
   padding: 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s;
 
   &:hover {
@@ -53,17 +55,17 @@ h2 {
       border-radius: 6px;
       font-size: 12px;
       font-weight: bold;
-      text-transform: uppercase;
+      // text-transform: uppercase;
     }
 
     .activo {
-      background: #10b981;
+      background: $green;
       color: #fff;
     }
 
     .invitado {
-      background: #facc15;
-      color: #000;
+      background: $purple;
+      color: #fff;
     }
   }
 
@@ -98,13 +100,19 @@ h2 {
     }
 
     .btnToggle {
-      background: #fd6113;
-      color: #fff;
+      background: #ccc;
+      border: 1px solid $gray-600;
+      color: $gray-600;
     }
 
     .btnReinvite {
       background: #facc15;
       color: #000;
+    }
+
+    .btnActivate {
+      background: $green;
+      color: #fff;
     }
   }
 }

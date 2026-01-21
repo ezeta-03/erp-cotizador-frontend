@@ -43,7 +43,7 @@ export default function BaseLayout({ menu }) {
         <div className="sidebar-content">
           {/* Logo o título */}
           <div className="sidebar-header">
-            <h2 className="sidebar-title">ERP Cotizador</h2>
+            <h2 className="sidebar-title">ERP | Cotizador</h2>
           </div>
 
           {/* Navegación */}

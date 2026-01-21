@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getCotizaciones, getCotizacionById } from "../api/cotizaciones";
+import Cotizaciones from "./Cotizaciones";
 import { descargarPDFInteligente } from "../api/pdf";
 import styles from "./cotizacionesHistorial.module.scss";
 import VistaPreviaCotizacion from "../coomponents/VistaPreviaCotizacion";
@@ -56,8 +57,8 @@ export default function CotizacionesHistorial() {
 
   return (
     <div className={styles.container}>
-      <h2>Historial de Cotizaciones</h2>
-
+      <h2>Cotizaciones</h2>
+      <Cotizaciones />
       {/* Filtros por estado */}
       <div className={styles.filtros}>
         {["TODAS", "PENDIENTE", "FACTURADA", "RECHAZADA", "APROBADA"].map((f) => (
