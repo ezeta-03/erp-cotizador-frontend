@@ -7,8 +7,16 @@ export default function MiCotizacion() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    api.get("/cotizaciones/mia").then((res) => setCotizacion(res.data));
-  }, []);
+    if (!token) return;
+    api
+      .get("/cotizaciones/mia", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setCotizacion(res.data))
+      .catch((err) => {
+        console.error("Error cargando cotización:", err);
+      });
+  }, [token]);
 
   if (!cotizacion) {
     return <p>No tienes cotizaciones aún</p>;
@@ -18,7 +26,7 @@ export default function MiCotizacion() {
     await api.post(
       `/cotizaciones/${cotizacion.id}/responder`,
       { estado, comentario },
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: { Authorization: `Bearer ${token}` } },
     );
     alert("Respuesta enviada");
     window.location.reload();
