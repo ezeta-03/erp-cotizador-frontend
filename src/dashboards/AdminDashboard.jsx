@@ -6,6 +6,7 @@ import {
   setMetaMensual
 } from '../api/stats';
 import { Target, TrendingUp, Users, Edit2, Save, X } from 'lucide-react';
+import styles from './AdminDashboard.module.scss'; // 🔥 IMPORTAR
 
 export default function AdminDashboard() {
   const [datos, setDatos] = useState(null);
@@ -61,7 +62,6 @@ export default function AdminDashboard() {
       setEditandoMeta(null);
       setNuevoMonto('');
       
-      // Recargar datos
       await cargarDatos();
     } catch (error) {
       console.error('Error al guardar meta:', error);
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <div className={styles.dashboardPage}>
         <p>Cargando estadísticas...</p>
       </div>
     );
@@ -79,175 +79,90 @@ export default function AdminDashboard() {
 
   if (!datos) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <p>No se pudieron cargar los datos. Revisa la consola para más detalles.</p>
-        <p>Datos actuales: {JSON.stringify(datos)}</p>
+      <div className={styles.dashboardPage}>
+        <p>No se pudieron cargar los datos.</p>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '2rem', backgroundColor: '#f9fafb', minHeight: '100vh' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-          Dashboard Administrativo
-        </h1>
-        <p style={{ color: '#6b7280' }}>
-          Monitorea el desempeño del equipo de ventas
-        </p>
+    <div className={styles.dashboardPage}>
+      {/* Header */}
+      <div className={styles.dashboardHeader}>
+        <div>
+          <h1 className={styles.pageTitle}>Dashboard Administrativo</h1>
+          <p className={styles.pageSubtitle}>Monitorea el desempeño del equipo de ventas</p>
+        </div>
       </div>
 
-      {/* KPIs Principales */}
-      {datos && (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: '1.5rem', 
-          marginBottom: '2rem' 
-        }}>
-          <div style={{ 
-            backgroundColor: 'white', 
-            padding: '1.5rem', 
-            borderRadius: '12px', 
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem'
-          }}>
-            <div style={{ 
-              width: '48px', 
-              height: '48px', 
-              backgroundColor: '#dbeafe', 
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Target size={24} color="#2563eb" />
-            </div>
-            <div>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>
-                Meta Total
-              </p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-                {new Intl.NumberFormat('es-PE', { 
-                  style: 'currency', 
-                  currency: 'PEN',
-                  notation: 'compact'
-                }).format(datos.general.meta)}
-              </p>
-            </div>
+      {/* KPIs */}
+      <div className={styles.statsGrid}>
+        <div className={`${styles.statCard} ${styles.statCard_blue}`}>
+          <div className={styles.statIcon}>
+            <Target size={32} color="#3b82f6" />
           </div>
-
-          <div style={{ 
-            backgroundColor: 'white', 
-            padding: '1.5rem', 
-            borderRadius: '12px', 
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem'
-          }}>
-            <div style={{ 
-              width: '48px', 
-              height: '48px', 
-              backgroundColor: '#d1fae5', 
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <TrendingUp size={24} color="#059669" />
-            </div>
-            <div>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>
-                Facturado Total
-              </p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#059669' }}>
-                {new Intl.NumberFormat('es-PE', { 
-                  style: 'currency', 
-                  currency: 'PEN',
-                  notation: 'compact'
-                }).format(datos.general.avance)}
-              </p>
-            </div>
-          </div>
-
-          <div style={{ 
-            backgroundColor: 'white', 
-            padding: '1.5rem', 
-            borderRadius: '12px', 
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem'
-          }}>
-            <div style={{ 
-              width: '48px', 
-              height: '48px', 
-              backgroundColor: '#fef3c7', 
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Users size={24} color="#d97706" />
-            </div>
-            <div>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>
-                Progreso General
-              </p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#d97706' }}>
-                {datos.general.porcentaje.toFixed(1)}%
-              </p>
-            </div>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Meta Total</p>
+            <p className={styles.statValue}>
+              {new Intl.NumberFormat('es-PE', { 
+                style: 'currency', 
+                currency: 'PEN',
+                notation: 'compact'
+              }).format(datos.general.meta)}
+            </p>
           </div>
         </div>
-      )}
 
-      {/* Gráficos Principales */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
-        gap: '1.5rem', 
-        marginBottom: '2rem' 
-      }}>
-        {datos && (
-          <div style={{ 
-            backgroundColor: 'white', 
-            padding: '1.5rem', 
-            borderRadius: '12px', 
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)' 
-          }}>
-            <DonutChart 
-              meta={datos.general.meta} 
-              avance={datos.general.avance} 
-              titulo="Meta General del Equipo" 
-            />
+        <div className={`${styles.statCard} ${styles.statCard_green}`}>
+          <div className={styles.statIcon}>
+            <TrendingUp size={32} color="#10b981" />
           </div>
-        )}
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Facturado Total</p>
+            <p className={styles.statValue} style={{color: '#059669'}}>
+              {new Intl.NumberFormat('es-PE', { 
+                style: 'currency', 
+                currency: 'PEN',
+                notation: 'compact'
+              }).format(datos.general.avance)}
+            </p>
+          </div>
+        </div>
 
-        <div style={{ 
-          backgroundColor: 'white', 
-          padding: '1.5rem', 
-          borderRadius: '12px', 
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)' 
-        }}>
+        <div className={`${styles.statCard} ${styles.statCard_yellow}`}>
+          <div className={styles.statIcon}>
+            <Users size={32} color="#d97706" />
+          </div>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Progreso General</p>
+            <p className={styles.statValue} style={{color: '#d97706'}}>
+              {datos.general.porcentaje.toFixed(1)}%
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Gráficos */}
+      <div className={styles.dashboardGrid}>
+        <div className={styles.card}>
+          <DonutChart 
+            meta={datos.general.meta} 
+            avance={datos.general.avance} 
+            titulo="Meta General del Equipo" 
+          />
+        </div>
+
+        <div className={styles.card}>
           <LineChart data={cotizacionesPorDia} />
         </div>
       </div>
 
       {/* Tabla de Vendedores */}
       {datos && datos.vendedores.length > 0 && (
-        <div style={{ 
-          backgroundColor: 'white', 
-          padding: '1.5rem', 
-          borderRadius: '12px', 
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)' 
-        }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
-            Desempeño por Vendedor
-          </h2>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Desempeño por Vendedor</h2>
+          </div>
           
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -311,11 +226,7 @@ export default function AdminDashboard() {
                       </p>
                     </td>
                     <td style={{ padding: '0.75rem' }}>
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '0.5rem' 
-                      }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <div style={{
                           flex: 1,
                           height: '8px',
@@ -330,11 +241,7 @@ export default function AdminDashboard() {
                             transition: 'width 0.3s'
                           }} />
                         </div>
-                        <span style={{ 
-                          fontSize: '0.875rem', 
-                          fontWeight: '500',
-                          minWidth: '45px'
-                        }}>
+                        <span style={{ fontSize: '0.875rem', fontWeight: '500', minWidth: '45px' }}>
                           {vendedor.porcentaje.toFixed(0)}%
                         </span>
                       </div>
@@ -344,33 +251,15 @@ export default function AdminDashboard() {
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                           <button
                             onClick={() => guardarMeta(vendedor.vendedorId)}
-                            style={{
-                              padding: '0.5rem',
-                              backgroundColor: '#10b981',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem'
-                            }}
+                            className={styles.btnPrimary}
+                            style={{ padding: '0.5rem', fontSize: '0.875rem' }}
                           >
                             <Save size={16} />
                           </button>
                           <button
                             onClick={cancelarEdicion}
-                            style={{
-                              padding: '0.5rem',
-                              backgroundColor: '#ef4444',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem'
-                            }}
+                            className={styles.btnDanger}
+                            style={{ padding: '0.5rem', fontSize: '0.875rem', backgroundColor: '#ef4444' }}
                           >
                             <X size={16} />
                           </button>
@@ -378,17 +267,8 @@ export default function AdminDashboard() {
                       ) : (
                         <button
                           onClick={() => iniciarEdicion(vendedor)}
-                          style={{
-                            padding: '0.5rem',
-                            backgroundColor: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.25rem'
-                          }}
+                          className={styles.btnPrimary}
+                          style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
                         >
                           <Edit2 size={16} />
                           Editar Meta
