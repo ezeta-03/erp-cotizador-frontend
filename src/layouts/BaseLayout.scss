@@ -64,16 +64,17 @@
   border-right: 1px solid $gray-200;
   display: flex;
   flex-direction: column;
-  position: relative;
+  position: fixed; // 🔥 Cambiar de relative a fixed
+  top: 0; // 🔥 Agregar
+  left: 0; // 🔥 Agregar
+  height: 100vh; // 🔥 Agregar
+  overflow-y: auto; // 🔥 Agregar para scroll interno si es necesario
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
   z-index: 999;
 
   // Mobile & Tablet: menú deslizable
   @media (max-width: 1024px) {
-    position: fixed;
-    top: 0;
-    left: -280px;
-    height: 100vh;
+    left: -280px; // Ya no necesitas position: fixed aquí
     transition: left 0.3s ease;
 
     &.open {
@@ -142,7 +143,11 @@
   }
 
   &.active {
-    background: linear-gradient(135deg, rgba($primary, 0.1) 0%, rgba($primary, 0.05) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba($primary, 0.1) 0%,
+      rgba($primary, 0.05) 100%
+    );
     color: $primary;
     font-weight: 600;
     border-left: 3px solid $primary;
@@ -252,14 +257,15 @@
   padding: 2rem;
   overflow-y: auto;
   max-width: 100%;
-
+  margin-left: 280px;
   // Ajuste para cuando el menú está visible en desktop
   @media (min-width: 1025px) {
-    margin-left: 0;
+    margin-left: 280px; // 🔥 Mantener el margen en desktop
   }
 
   // Mobile: agregar espacio para el botón hamburguesa
   @media (max-width: 1024px) {
+    margin-left: 0; // 🔥 Agregar
     padding-top: 5rem;
   }
 
