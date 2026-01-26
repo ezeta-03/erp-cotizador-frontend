@@ -8,7 +8,7 @@ export default function AdminLayout() {
     { path: "/admin/productos", label: "Productos" },
     // { path: "/admin/cotizaciones", label: "Cotizador" },
     { path: "/admin/historial", label: "Cotizaciones" },
-    { path: "/admin/cotizaciones-ventas", label: "Facturar" },
+    // { path: "/admin/cotizaciones-ventas", label: "Facturar" },
     // { path: "/admin/actividad", label: "Actividad Cliente" },
 
   ];

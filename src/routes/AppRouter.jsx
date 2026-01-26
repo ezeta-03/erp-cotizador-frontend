@@ -15,6 +15,7 @@ import ActividadClientes from "../coomponents/ActividadClientes";
 import AdminLayout from "../layouts/AdminLayout";
 import VentasLayout from "../layouts/VentasLayout";
 import ClienteLayout from "../layouts/ClienteLayout";
+import ContableLayout from "../layouts/ContableLayout";
 import ProtectedRoute from "./ProtectedRoute";
 
 export default function AppRouter() {
@@ -45,10 +46,11 @@ export default function AppRouter() {
             <Route path="usuarios" element={<Usuarios />} />
             <Route path="historial" element={<CotizacionesHistorial />} />
             <Route path="cotizaciones" element={<CotizacionesVentas />} />
-            <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
+            <Route
+              path="cotizaciones-ventas"
+              element={<CotizacionesVentas />}
+            />
             <Route path="actividad" element={<ActividadClientes />} />
-
-
           </Route>
 
           {/* ================= VENTAS ================= */}
@@ -65,9 +67,11 @@ export default function AppRouter() {
             <Route path="productos" element={<Productos />} />
             <Route path="cotizaciones" element={<Cotizaciones />} />
             <Route path="historial" element={<CotizacionesHistorial />} />
-            <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
+            <Route
+              path="cotizaciones-ventas"
+              element={<CotizacionesVentas />}
+            />
             <Route path="actividad" element={<ActividadClientes />} />
-
           </Route>
 
           {/* ================= CLIENTE ================= */}
@@ -81,6 +85,22 @@ export default function AppRouter() {
           >
             <Route index element={<MiCotizacion />} />
             <Route path="mia" element={<MiCotizacion />} />
+          </Route>
+
+          {/* ================= CONTABLE ================= */}
+          <Route
+            path="/contable"
+            element={
+              <ProtectedRoute roles={["CONTABLE"]}>
+                <ContableLayout />
+              </ProtectedRoute>
+            }
+          >
+            {/* 👇 Solo acceso a Facturación */}
+            <Route
+              path="cotizaciones-ventas"
+              element={<CotizacionesVentas />}
+            />
           </Route>
 
           {/* fallback logueado */}
