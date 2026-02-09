@@ -3,38 +3,47 @@ import styles from "../styles/configuracionForm.module.scss";
 
 export default function ConfiguracionForm({ onRecalcular }) {
   const [config, setConfig] = useState({
-    costo_indirecto: 0.1,
-    porcentaje_administrativo: 0.17,
-    rentabilidad: 0.3,
+    costo_indirecto: "",
+    porcentaje_administrativo: "",
+    rentabilidad: "0.3", // lo mantenemos como string
   });
 
   useEffect(() => {
     fetch("/api/configuracion")
       .then((res) => res.json())
-      .then((data) => setConfig(data));
+      .then((data) =>
+        setConfig({
+          costo_indirecto: data.costo_indirecto?.toString() || "",
+          porcentaje_administrativo: data.porcentaje_administrativo?.toString() || "",
+          rentabilidad: data.rentabilidad?.toString() || "0.3",
+        })
+      );
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let numeric = parseFloat(value);
-
-    if (isNaN(numeric)) return;
-
-    if (name === "rentabilidad" && numeric < 0.3) {
-      numeric = 0.3;
-    }
-
-    setConfig({ ...config, [name]: numeric });
+    setConfig({ ...config, [name]: value });
   };
 
   const handleSave = async () => {
+    // convertir a número antes de enviar
+    const payload = {
+      costo_indirecto: parseFloat(config.costo_indirecto) || 0,
+      porcentaje_administrativo: parseFloat(config.porcentaje_administrativo) || 0,
+      rentabilidad: Math.max(parseFloat(config.rentabilidad) || 0, 0.3),
+    };
+
     const res = await fetch("/api/configuracion", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(config),
+      body: JSON.stringify(payload),
     });
     const updated = await res.json();
-    setConfig(updated);
+    setConfig({
+      costo_indirecto: updated.costo_indirecto?.toString() || "",
+      porcentaje_administrativo: updated.porcentaje_administrativo?.toString() || "",
+      rentabilidad: updated.rentabilidad?.toString() || "0.3",
+    });
     alert("Configuración actualizada");
   };
 
@@ -54,7 +63,7 @@ export default function ConfiguracionForm({ onRecalcular }) {
             <label>Costos indirectos (%)</label>
             <input
               type="number"
-              // step="0.01"
+              step="0.01"
               name="costo_indirecto"
               value={config.costo_indirecto}
               onChange={handleChange}
@@ -65,7 +74,7 @@ export default function ConfiguracionForm({ onRecalcular }) {
             <label>Porcentaje administrativo (%)</label>
             <input
               type="number"
-              // step="0.01"
+              step="0.01"
               name="porcentaje_administrativo"
               value={config.porcentaje_administrativo}
               onChange={handleChange}
@@ -76,13 +85,12 @@ export default function ConfiguracionForm({ onRecalcular }) {
             <label>Rentabilidad (%)</label>
             <input
               type="number"
+              step="0.01"
               name="rentabilidad"
-              // step="0.03"
               value={config.rentabilidad}
               readOnly
               className={styles.readOnly}
               onChange={handleChange}
-
             />
           </div>
         </div>
@@ -91,7 +99,11 @@ export default function ConfiguracionForm({ onRecalcular }) {
           <button className={styles.btnSave} type="button" onClick={handleSave}>
             💾 Guardar configuración
           </button>
-          <button className={styles.btnRecalculate} type="button" onClick={handleRecalcular}>
+          <button
+            className={styles.btnRecalculate}
+            type="button"
+            onClick={handleRecalcular}
+          >
             💰 Recalcular precios
           </button>
         </div>
