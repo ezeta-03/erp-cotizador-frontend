@@ -22,7 +22,7 @@ export default function Productos() {
     unidad: "",
     costo_material: "",
   });
-
+  const [deletingId, setDeletingId] = useState(null);
   const [editId, setEditId] = useState(null);
 
   const cargarProductos = async () => {
@@ -80,8 +80,16 @@ export default function Productos() {
 
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar producto?")) return;
-    await deleteProducto(id);
-    cargarProductos();
+    setDeletingId(id);
+    setProductos((prev) => prev.filter((p) => p.id !== id));
+    try {
+      await deleteProducto(id);
+    } catch {
+      alert("No se pudo eliminar");
+      cargarProductos();
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   // const handleImportExcel = async (e) => {
@@ -117,53 +125,6 @@ export default function Productos() {
       {user.role === "ADMIN" && (
         <ConfiguracionForm onRecalcular={cargarProductos} />
       )}
-
-      {/* {(user.role === "ADMIN" || user.role === "VENTAS") && (
-        <form onSubmit={handleSubmit}>
-          <input
-            placeholder="Categoría"
-            value={form.categoria}
-            onChange={(e) => setForm({ ...form, categoria: e.target.value })}
-            required
-          />
-
-          <input
-            placeholder="Servicio"
-            value={form.servicio}
-            onChange={(e) => setForm({ ...form, servicio: e.target.value })}
-            required
-          />
-
-          <input
-            placeholder="Material"
-            value={form.material}
-            onChange={(e) => setForm({ ...form, material: e.target.value })}
-            required
-          />
-
-          <input
-            placeholder="Unidad"
-            value={form.unidad}
-            onChange={(e) => setForm({ ...form, unidad: e.target.value })}
-            required
-          />
-
-          <input
-            placeholder="Costo Material"
-            type="number"
-            step="0.01"
-            value={form.costo_material}
-            onChange={(e) =>
-              setForm({ ...form, costo_material: e.target.value })
-            }
-            required
-          />
-
-          <button className="btn-primary">
-            {editId ? "Actualizar" : "Crear"}
-          </button>
-        </form>
-      )} */}
 
       <hr />
 
@@ -206,10 +167,15 @@ export default function Productos() {
                   </button>
                   {user.role === "ADMIN" && (
                     <button
-                      className={styles.btnDelete}
+                      className={`${styles.btnDelete} ${deletingId === p.id ? styles.loading : ""}`}
                       onClick={() => handleDelete(p.id)}
+                      disabled={deletingId === p.id}
                     >
-                      ❌
+                      {deletingId === p.id ? (
+                        <span className={styles.spinner}></span>
+                      ) : (
+                        "❌"
+                      )}
                     </button>
                   )}
                 </td>

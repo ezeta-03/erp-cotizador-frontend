@@ -74,35 +74,44 @@ export default function ProductoModal({ producto, onSave, onClose }) {
       <div className={styles.modal}>
         <h2>{producto ? "Editar Producto" : "Nuevo Producto"}</h2>
         <form onSubmit={handleSubmit}>
-          <input
-            placeholder="Categoría"
-            value={form.categoria}
-            onChange={(e) => setForm({ ...form, categoria: e.target.value })}
-          />
-          <input
-            placeholder="Servicio"
-            value={form.servicio}
-            onChange={(e) => setForm({ ...form, servicio: e.target.value })}
-          />
+          {/* Primera fila: Categoría y Servicio */}
+          <div className={styles.row}>
+            <input
+              placeholder="Categoría"
+              value={form.categoria}
+              onChange={(e) => setForm({ ...form, categoria: e.target.value })}
+            />
+            <input
+              placeholder="Servicio"
+              value={form.servicio}
+              onChange={(e) => setForm({ ...form, servicio: e.target.value })}
+            />
+          </div>
+
+          {/* Segunda fila: Material */}
           <input
             placeholder="Material"
             value={form.material}
             onChange={(e) => setForm({ ...form, material: e.target.value })}
           />
-          <input
-            placeholder="Unidad"
-            value={form.unidad}
-            onChange={(e) => setForm({ ...form, unidad: e.target.value })}
-          />
-          <input
-            type="number"
-            step="0.01"
-            placeholder="Costo Material"
-            value={form.costo_material}
-            onChange={(e) =>
-              setForm({ ...form, costo_material: e.target.value })
-            }
-          />
+
+          {/* Tercera fila: Unidad y Costo Material */}
+          <div className={styles.row}>
+            <input
+              placeholder="Unidad"
+              value={form.unidad}
+              onChange={(e) => setForm({ ...form, unidad: e.target.value })}
+            />
+            <input
+              type="number"
+              step="0.01"
+              placeholder="Costo Material"
+              value={form.costo_material}
+              onChange={(e) =>
+                setForm({ ...form, costo_material: e.target.value })
+              }
+            />
+          </div>
 
           <h3>Adicionales</h3>
           {form.adicionales.map((a, i) => (
