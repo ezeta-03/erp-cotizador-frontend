@@ -58,7 +58,9 @@
 
         &:focus {
           outline: none;
-          border-color: #fd6113;
+          // border-color: #fd6113;
+          border-color: #f1624d;
+
           box-shadow: 0 0 0 2px rgba(253, 97, 19, 0.15);
         }
       }
