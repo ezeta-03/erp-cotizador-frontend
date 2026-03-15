@@ -25,10 +25,47 @@ h2 {
   }
 }
 
+/* 🔎 Bloque de filtros */
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  input, select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+
+    &:focus {
+      border-color: #fd6113;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(253, 97, 19, 0.15);
+    }
+  }
+}
+
+/* 🔎 Grid de cards */
 .lista {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, 1fr); // 👈 4 columnas en pantallas grandes
   gap: 20px;
+
+  /* Laptops medianas */
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Tablets */
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Móviles */
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .card {
@@ -36,9 +73,7 @@ h2 {
   border-radius: 10px;
   padding: 18px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
 
   &:hover {
@@ -81,49 +116,5 @@ h2 {
       transition: background 0.2s;
     }
   }
-
-  .btnDelete {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition:
-      background-color 0.3s ease,
-      transform 0.2s ease;
-
-    &:hover:not(:disabled) {
-      background-color: #d32f2f;
-      transform: scale(1.05);
-    }
-
-    &:active:not(:disabled) {
-      transform: scale(0.95);
-    }
-
-    &:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-  }
-
-  .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #fff;
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    display: inline-block;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
 }
+
