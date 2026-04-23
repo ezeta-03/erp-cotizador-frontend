@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import useAuth from "../auth/useAuth";
-import { getProductos, deleteProducto, importarProductosCSV, eliminarTodosProductos } from "../api/productos";
+import {
+  getProductos,
+  deleteProducto,
+  previewProductosCSV,
+  importarProductosCSV,
+  eliminarTodosProductos,
+} from "../api/productos";
 import ConfiguracionForm from "../coomponents/ConfiguracionForm";
 import styles from "./productos.module.scss";
 import {
@@ -13,10 +19,14 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
+  ArrowRight,
   X,
 } from "lucide-react";
 
 const PLANTILLA_CSV = `Producto;Precio de Produccion\nBANNER DELGADO 10 ONZAS;S/ 9.00\nBANNER GRUESO 12 ONZAS;S/ 13.50`;
+
+// ── Pasos del wizard de importación ──────────────────────────────────────────
+const PASO = { NINGUNO: 0, CARGANDO_PREVIEW: 1, PREVIEW: 2, IMPORTANDO: 3, RESULTADO: 4 };
 
 export default function Productos() {
   const { user } = useAuth();
@@ -25,10 +35,14 @@ export default function Productos() {
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [loading, setLoading] = useState(true);
-  const [importando, setImportando] = useState(false);
-  const [resultado, setResultado] = useState(null); // { creados, actualizados, omitidos, errores }
-  const [confirmacion, setConfirmacion] = useState(null); // archivo pendiente de confirmación
   const [confirmEliminarTodos, setConfirmEliminarTodos] = useState(false);
+
+  // Wizard de importación
+  const [paso, setPaso] = useState(PASO.NINGUNO);
+  const [archivoCSV, setArchivoCSV] = useState(null);
+  const [previewData, setPreviewData] = useState(null);   // { preview[], stats, omitidos[], erroresDetalle[] }
+  const [resultado, setResultado] = useState(null);        // { creados, actualizados, omitidos, total }
+  const [busquedaPreview, setBusquedaPreview] = useState("");
 
   const cargarProductos = async () => {
     setLoading(true);
@@ -40,16 +54,13 @@ export default function Productos() {
     }
   };
 
-  useEffect(() => {
-    cargarProductos();
-  }, []);
+  useEffect(() => { cargarProductos(); }, []);
 
-  // ── Filtrado ──────────────────────────────────────────────
   const productosFiltrados = productos.filter((p) =>
     (p.nombre || p.servicio || "").toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  // ── Descarga de plantilla ─────────────────────────────────
+  // ── Descarga de plantilla ─────────────────────────────────────────────────
   const descargarPlantilla = () => {
     const blob = new Blob([PLANTILLA_CSV], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -60,51 +71,63 @@ export default function Productos() {
     URL.revokeObjectURL(url);
   };
 
-  // ── Selección de archivo → pide confirmación ──────────────
-  const onFileChange = (e) => {
+  // ── PASO 1: usuario selecciona archivo → preview ──────────────────────────
+  const onFileChange = async (e) => {
     const archivo = e.target.files?.[0];
     if (!archivo) return;
-    e.target.value = ""; // reset para permitir re-selección del mismo archivo
-    setConfirmacion(archivo);
+    e.target.value = "";
+    setArchivoCSV(archivo);
+    setPaso(PASO.CARGANDO_PREVIEW);
+    setPreviewData(null);
+    setBusquedaPreview("");
+    try {
+      const data = await previewProductosCSV(archivo);
+      setPreviewData(data);
+      setPaso(PASO.PREVIEW);
+    } catch (err) {
+      alert("Error al analizar el archivo: " + (err.response?.data?.message || err.message));
+      setPaso(PASO.NINGUNO);
+    }
   };
 
-  // ── Ejecuta la importación ────────────────────────────────
+  // ── PASO 2: usuario confirma → importar ──────────────────────────────────
   const ejecutarImport = async () => {
-    if (!confirmacion) return;
-    setConfirmacion(null);
-    setImportando(true);
-    setResultado(null);
+    if (!archivoCSV) return;
+    setPaso(PASO.IMPORTANDO);
     try {
-      const res = await importarProductosCSV(confirmacion);
+      const res = await importarProductosCSV(archivoCSV);
       setResultado(res);
+      setPaso(PASO.RESULTADO);
       await cargarProductos();
     } catch (err) {
       setResultado({
         message: "Error al importar",
-        errores: [{ fila: "-", error: err.response?.data?.message || err.message }],
-        creados: 0,
-        actualizados: 0,
-        omitidos: 0,
-        total: 0,
+        creados: 0, actualizados: 0, omitidos: 0, total: 0,
+        errores: [{ error: err.response?.data?.message || err.message }],
       });
-    } finally {
-      setImportando(false);
+      setPaso(PASO.RESULTADO);
     }
   };
 
-  // ── Eliminar todos ────────────────────────────────────────
+  const cancelarWizard = () => {
+    setPaso(PASO.NINGUNO);
+    setArchivoCSV(null);
+    setPreviewData(null);
+    setResultado(null);
+  };
+
+  // ── Eliminar todos ────────────────────────────────────────────────────────
   const handleEliminarTodos = async () => {
     setConfirmEliminarTodos(false);
     try {
-      const res = await eliminarTodosProductos();
-      setResultado({ message: res.message, creados: 0, actualizados: 0, omitidos: 0, errores: [] });
+      await eliminarTodosProductos();
       await cargarProductos();
     } catch (err) {
-      alert("Error al eliminar productos: " + (err.response?.data?.message || err.message));
+      alert("Error: " + (err.response?.data?.message || err.message));
     }
   };
 
-  // ── Eliminar uno (soft delete) ────────────────────────────
+  // ── Eliminar uno ──────────────────────────────────────────────────────────
   const handleDelete = async (id, nombre) => {
     if (!confirm(`¿Desactivar "${nombre}"?`)) return;
     try {
@@ -115,11 +138,200 @@ export default function Productos() {
     }
   };
 
-  const formatCurrency = (v) =>
+  const fmt = (v) =>
     new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
 
+  // ────────────────────────────────────────────────────────────────────────────
   return (
     <div className={styles.container}>
+
+      {/* ── WIZARD DE IMPORTACIÓN (overlay cuando está activo) ── */}
+      {paso !== PASO.NINGUNO && (
+        <div className={styles.wizardOverlay}>
+          <div className={styles.wizardCard}>
+
+            {/* Cargando preview */}
+            {paso === PASO.CARGANDO_PREVIEW && (
+              <div className={styles.wizardCenter}>
+                <RefreshCw size={36} className={styles.spin} />
+                <p>Analizando archivo <strong>{archivoCSV?.name}</strong>…</p>
+              </div>
+            )}
+
+            {/* Importando */}
+            {paso === PASO.IMPORTANDO && (
+              <div className={styles.wizardCenter}>
+                <RefreshCw size={36} className={styles.spin} />
+                <p>Importando productos en la base de datos…</p>
+                <p className={styles.wizardHint}>Esto puede tardar unos segundos.</p>
+              </div>
+            )}
+
+            {/* Preview */}
+            {paso === PASO.PREVIEW && previewData && (
+              <>
+                <div className={styles.wizardHeader}>
+                  <div>
+                    <h3 className={styles.wizardTitle}>Vista previa — {archivoCSV?.name}</h3>
+                    <p className={styles.wizardSubtitle}>
+                      Revisa los productos antes de importar. Los actuales serán reemplazados.
+                    </p>
+                  </div>
+                  <button className={styles.btnIcon} onClick={cancelarWizard} title="Cancelar">
+                    <X size={20} />
+                  </button>
+                </div>
+
+                {/* Stats */}
+                <div className={styles.previewStats}>
+                  <div className={`${styles.statChip} ${styles.statChipGreen}`}>
+                    <strong>{previewData.stats.nuevos}</strong> nuevos
+                  </div>
+                  <div className={`${styles.statChip} ${styles.statChipBlue}`}>
+                    <strong>{previewData.stats.actualizar}</strong> actualizar
+                  </div>
+                  <div className={`${styles.statChip} ${styles.statChipGray}`}>
+                    <strong>{previewData.stats.omitidos}</strong> omitidos
+                  </div>
+                  {previewData.stats.errores > 0 && (
+                    <div className={`${styles.statChip} ${styles.statChipRed}`}>
+                      <strong>{previewData.stats.errores}</strong> errores
+                    </div>
+                  )}
+                  <span className={styles.statTotal}>
+                    Total a importar: <strong>{previewData.stats.validos}</strong> de {previewData.stats.total} filas
+                  </span>
+                </div>
+
+                {/* Buscador en preview */}
+                <div className={styles.searchBar} style={{ marginBottom: "0.75rem" }}>
+                  <Search size={14} className={styles.searchIcon} />
+                  <input
+                    className={styles.searchInput}
+                    placeholder="Buscar en la vista previa…"
+                    value={busquedaPreview}
+                    onChange={(e) => setBusquedaPreview(e.target.value)}
+                  />
+                  {busquedaPreview && (
+                    <button className={styles.btnClear} onClick={() => setBusquedaPreview("")}>
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Tabla de preview */}
+                <div className={styles.previewTableWrapper}>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Nombre del producto</th>
+                        <th>Precio producción</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {previewData.preview
+                        .filter((p) =>
+                          !busquedaPreview ||
+                          p.nombre.toLowerCase().includes(busquedaPreview.toLowerCase())
+                        )
+                        .map((p, i) => (
+                          <tr key={i}>
+                            <td className={styles.tdIdx}>{p.fila}</td>
+                            <td className={styles.tdNombre}>{p.nombre}</td>
+                            <td className={styles.tdPrecio}>{fmt(p.precio)}</td>
+                            <td>
+                              <span
+                                className={
+                                  p.accion === "crear"
+                                    ? styles.badgeNuevo
+                                    : styles.badgeActualizar
+                                }
+                              >
+                                {p.accion === "crear" ? "Nuevo" : "Actualizar"}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Omitidos */}
+                {previewData.omitidos?.length > 0 && (
+                  <details className={styles.erroresDetail}>
+                    <summary>{previewData.omitidos.length} fila(s) omitida(s) (sin precio)</summary>
+                    <ul>
+                      {previewData.omitidos.map((o, i) => (
+                        <li key={i}>Fila {o.fila}: "{o.nombre || "(vacío)"}" — {o.motivo}</li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+
+                {/* Acciones */}
+                <div className={styles.wizardActions}>
+                  <button className={styles.btnGhost} onClick={cancelarWizard}>
+                    <X size={16} /> Cancelar
+                  </button>
+                  <button
+                    className={styles.btnPrimary}
+                    onClick={ejecutarImport}
+                    disabled={previewData.stats.validos === 0}
+                  >
+                    Importar {previewData.stats.validos} productos
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Resultado */}
+            {paso === PASO.RESULTADO && resultado && (
+              <>
+                <div className={styles.wizardHeader}>
+                  <h3 className={styles.wizardTitle}>
+                    {resultado.errores?.length
+                      ? "Importación con advertencias"
+                      : "Importación completada"}
+                  </h3>
+                </div>
+
+                <div className={styles.previewStats}>
+                  <div className={`${styles.statChip} ${styles.statChipGreen}`}>
+                    <CheckCircle size={14} /> <strong>{resultado.creados}</strong> creados
+                  </div>
+                  <div className={`${styles.statChip} ${styles.statChipBlue}`}>
+                    <RefreshCw size={14} /> <strong>{resultado.actualizados}</strong> actualizados
+                  </div>
+                  <div className={`${styles.statChip} ${styles.statChipGray}`}>
+                    <XCircle size={14} /> <strong>{resultado.omitidos}</strong> omitidos
+                  </div>
+                </div>
+
+                {resultado.errores?.length > 0 && (
+                  <details className={`${styles.erroresDetail} ${styles.erroresDetailWarn}`} open>
+                    <summary>{resultado.errores.length} error(es)</summary>
+                    <ul>
+                      {resultado.errores.map((e, i) => (
+                        <li key={i}>{e.nombre ? `"${e.nombre}" — ` : ""}{e.error}</li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+
+                <div className={styles.wizardActions}>
+                  <button className={styles.btnPrimary} onClick={cancelarWizard}>
+                    Cerrar
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Encabezado ── */}
       <div className={styles.header}>
         <div>
@@ -146,10 +358,10 @@ export default function Productos() {
             <button
               className={styles.btnPrimary}
               onClick={() => fileInputRef.current?.click()}
-              disabled={importando}
+              disabled={paso !== PASO.NINGUNO}
             >
-              {importando ? <RefreshCw size={16} className={styles.spin} /> : <Upload size={16} />}
-              {importando ? "Importando..." : "Importar CSV"}
+              <Upload size={16} />
+              Importar CSV
             </button>
             <input
               ref={fileInputRef}
@@ -168,12 +380,10 @@ export default function Productos() {
           <AlertTriangle size={20} />
           <div>
             <strong>¿Eliminar todos los productos?</strong>
-            <p>Se desactivarán los <strong>{productos.length} productos</strong> activos. Esta acción se puede revertir importando un CSV nuevamente.</p>
+            <p>Se desactivarán los <strong>{productos.length} productos</strong> activos.</p>
           </div>
           <div className={styles.confirmActions}>
-            <button className={styles.btnDanger} onClick={handleEliminarTodos}>
-              Sí, eliminar todos
-            </button>
+            <button className={styles.btnDanger} onClick={handleEliminarTodos}>Sí, eliminar todos</button>
             <button className={styles.btnGhost} onClick={() => setConfirmEliminarTodos(false)}>
               <X size={16} /> Cancelar
             </button>
@@ -181,57 +391,7 @@ export default function Productos() {
         </div>
       )}
 
-      {/* ── Alerta de confirmación CSV ── */}
-      {confirmacion && (
-        <div className={styles.confirmBanner}>
-          <AlertTriangle size={20} />
-          <div>
-            <strong>¿Confirmar importación?</strong>
-            <p>
-              Esto reemplazará <strong>todos los productos activos</strong> con los del
-              archivo <code>{confirmacion.name}</code>. Los productos sin precio serán omitidos.
-            </p>
-          </div>
-          <div className={styles.confirmActions}>
-            <button className={styles.btnDanger} onClick={ejecutarImport}>
-              Sí, importar
-            </button>
-            <button className={styles.btnGhost} onClick={() => setConfirmacion(null)}>
-              <X size={16} /> Cancelar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── Resultado de importación ── */}
-      {resultado && (
-        <div className={`${styles.resultado} ${resultado.errores?.length ? styles.resultadoWarn : styles.resultadoOk}`}>
-          <div className={styles.resultadoHeader}>
-            {resultado.errores?.length ? <AlertTriangle size={18} /> : <CheckCircle size={18} />}
-            <strong>{resultado.message}</strong>
-            <button className={styles.btnClose} onClick={() => setResultado(null)}>
-              <X size={16} />
-            </button>
-          </div>
-          <ul className={styles.resultadoStats}>
-            <li><CheckCircle size={14} /> <span>{resultado.creados} creados</span></li>
-            <li><RefreshCw size={14} /> <span>{resultado.actualizados} actualizados</span></li>
-            <li><XCircle size={14} /> <span>{resultado.omitidos} omitidos</span></li>
-          </ul>
-          {resultado.errores?.length > 0 && (
-            <details className={styles.erroresDetail}>
-              <summary>{resultado.errores.length} error(es)</summary>
-              <ul>
-                {resultado.errores.map((e, i) => (
-                  <li key={i}>Fila {e.fila}: {e.nombre ? `"${e.nombre}" — ` : ""}{e.error}</li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </div>
-      )}
-
-      {/* ── Configuración de precios (solo ADMIN) ── */}
+      {/* ── Configuración (solo ADMIN) ── */}
       {user.role === "ADMIN" && (
         <ConfiguracionForm onRecalcular={cargarProductos} />
       )}
@@ -253,7 +413,7 @@ export default function Productos() {
         )}
       </div>
 
-      {/* ── Tabla ── */}
+      {/* ── Tabla de productos ── */}
       {loading ? (
         <div className={styles.loadingRow}>
           <RefreshCw size={20} className={styles.spin} /> Cargando productos...
@@ -273,7 +433,7 @@ export default function Productos() {
                 <th>Nombre del producto</th>
                 <th>Precio producción</th>
                 <th>Estado</th>
-                {user.role === "ADMIN" && <th>Acciones</th>}
+                {user.role === "ADMIN" && <th></th>}
               </tr>
             </thead>
             <tbody>
@@ -281,7 +441,7 @@ export default function Productos() {
                 <tr key={p.id}>
                   <td className={styles.tdIdx}>{idx + 1}</td>
                   <td className={styles.tdNombre}>{p.nombre || p.servicio}</td>
-                  <td className={styles.tdPrecio}>{formatCurrency(p.precio_final)}</td>
+                  <td className={styles.tdPrecio}>{fmt(p.precio_final)}</td>
                   <td>
                     <span className={p.activo ? styles.badgeActivo : styles.badgeInactivo}>
                       {p.activo ? "Activo" : "Inactivo"}
@@ -292,7 +452,7 @@ export default function Productos() {
                       <button
                         className={styles.btnDelete}
                         onClick={() => handleDelete(p.id, p.nombre || p.servicio)}
-                        title="Desactivar producto"
+                        title="Desactivar"
                       >
                         <Trash2 size={15} />
                       </button>

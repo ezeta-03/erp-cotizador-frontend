@@ -20,6 +20,15 @@ export const deleteProducto = async (id) => {
   return data;
 };
 
+export const previewProductosCSV = async (archivo) => {
+  const formData = new FormData();
+  formData.append("archivo", archivo);
+  const { data } = await api.post("/productos/preview-csv", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+};
+
 export const importarProductosCSV = async (archivo) => {
   const formData = new FormData();
   formData.append("archivo", archivo);
