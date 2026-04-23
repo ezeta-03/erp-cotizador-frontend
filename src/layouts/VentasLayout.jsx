@@ -1,16 +1,12 @@
 import BaseLayout from "./BaseLayout";
+import { BarChart3, UserCircle, Package, FileText } from "lucide-react";
 
 export default function VentasLayout() {
   const menu = [
-    { path: "/ventas", label: "Dashboard" },
-    { path: "/ventas/clientes", label: "Clientes" },
-    { path: "/ventas/productos", label: "Productos" },
-    // { path: "/ventas/cotizaciones", label: "Cotizar" },
-    { path: "/ventas/historial", label: "Mis Cotizaciones" },
-    // { path: "/ventas/cotizaciones-ventas", label: "Facturar" },
-    // { path: "/ventas/actividad", label: "Actividad Cliente" },
-
-
+    { path: "/cotizador/ventas", label: "Dashboard", icon: BarChart3 },
+    { path: "/cotizador/ventas/clientes", label: "Clientes", icon: UserCircle },
+    { path: "/cotizador/ventas/productos", label: "Productos", icon: Package },
+    { path: "/cotizador/ventas/historial", label: "Cotizaciones", icon: FileText },
   ];
 
   return <BaseLayout menu={menu} />;

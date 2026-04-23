@@ -1,8 +1,10 @@
 import BaseLayout from "./BaseLayout";
+import { BarChart3, DollarSign } from "lucide-react";
 
 export default function ContableLayout() {
   const menu = [
-    { path: "/contable/cotizaciones-ventas", label: "Facturar" },
+    { path: "/cotizador/contable", label: "Dashboard", icon: BarChart3 },
+    { path: "/cotizador/contable/cotizaciones-ventas", label: "Facturar", icon: DollarSign },
   ];
 
   return <BaseLayout menu={menu} />;

@@ -2,8 +2,8 @@ import useAuth from "../auth/useAuth";
 
 import AdminDashboard from "../dashboards/AdminDashboard";
 import VentasDashboard from "../dashboards/VentasDashboard";
-import GerenciaDashboard from "../dashboards/GerenciaDashboard";
 import ClienteDashboard from "../dashboards/ClienteDashboard";
+import ContableDashboard from "../dashboards/ContableDashboard";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -15,11 +15,11 @@ export default function Dashboard() {
       return <AdminDashboard />;
     case "VENTAS":
       return <VentasDashboard />;
-    case "GERENCIA":
-      return <GerenciaDashboard />;
     case "CLIENTE":
       return <ClienteDashboard />;
+    case "CONTABLE":
+      return <ContableDashboard />;
     default:
-      return <p>Rol no reconocido</p>;
+      return <p>Rol no reconocido: {user.role}</p>;
   }
 }

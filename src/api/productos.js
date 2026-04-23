@@ -19,3 +19,12 @@ export const deleteProducto = async (id) => {
   const { data } = await api.delete(`/productos/${id}`);
   return data;
 };
+
+export const importarProductosCSV = async (archivo) => {
+  const formData = new FormData();
+  formData.append("archivo", archivo);
+  const { data } = await api.post("/productos/importar-csv", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+};
