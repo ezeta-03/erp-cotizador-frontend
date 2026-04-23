@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import useAuth from "../auth/useAuth";
-import { getProductos, deleteProducto, importarProductosCSV } from "../api/productos";
+import { getProductos, deleteProducto, importarProductosCSV, eliminarTodosProductos } from "../api/productos";
 import ConfiguracionForm from "../coomponents/ConfiguracionForm";
 import styles from "./productos.module.scss";
 import {
@@ -9,6 +9,7 @@ import {
   Search,
   RefreshCw,
   Trash2,
+  Trash,
   CheckCircle,
   XCircle,
   AlertTriangle,
@@ -27,6 +28,7 @@ export default function Productos() {
   const [importando, setImportando] = useState(false);
   const [resultado, setResultado] = useState(null); // { creados, actualizados, omitidos, errores }
   const [confirmacion, setConfirmacion] = useState(null); // archivo pendiente de confirmación
+  const [confirmEliminarTodos, setConfirmEliminarTodos] = useState(false);
 
   const cargarProductos = async () => {
     setLoading(true);
@@ -90,7 +92,19 @@ export default function Productos() {
     }
   };
 
-  // ── Eliminar (soft delete) ────────────────────────────────
+  // ── Eliminar todos ────────────────────────────────────────
+  const handleEliminarTodos = async () => {
+    setConfirmEliminarTodos(false);
+    try {
+      const res = await eliminarTodosProductos();
+      setResultado({ message: res.message, creados: 0, actualizados: 0, omitidos: 0, errores: [] });
+      await cargarProductos();
+    } catch (err) {
+      alert("Error al eliminar productos: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  // ── Eliminar uno (soft delete) ────────────────────────────
   const handleDelete = async (id, nombre) => {
     if (!confirm(`¿Desactivar "${nombre}"?`)) return;
     try {
@@ -122,6 +136,14 @@ export default function Productos() {
               Plantilla CSV
             </button>
             <button
+              className={styles.btnDanger}
+              onClick={() => setConfirmEliminarTodos(true)}
+              disabled={productos.length === 0}
+            >
+              <Trash size={16} />
+              Eliminar todos
+            </button>
+            <button
               className={styles.btnPrimary}
               onClick={() => fileInputRef.current?.click()}
               disabled={importando}
@@ -140,7 +162,26 @@ export default function Productos() {
         )}
       </div>
 
-      {/* ── Alerta de confirmación ── */}
+      {/* ── Confirmación eliminar todos ── */}
+      {confirmEliminarTodos && (
+        <div className={styles.confirmBanner} style={{ borderColor: "#fca5a5", background: "#fff1f2", color: "#991b1b" }}>
+          <AlertTriangle size={20} />
+          <div>
+            <strong>¿Eliminar todos los productos?</strong>
+            <p>Se desactivarán los <strong>{productos.length} productos</strong> activos. Esta acción se puede revertir importando un CSV nuevamente.</p>
+          </div>
+          <div className={styles.confirmActions}>
+            <button className={styles.btnDanger} onClick={handleEliminarTodos}>
+              Sí, eliminar todos
+            </button>
+            <button className={styles.btnGhost} onClick={() => setConfirmEliminarTodos(false)}>
+              <X size={16} /> Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Alerta de confirmación CSV ── */}
       {confirmacion && (
         <div className={styles.confirmBanner}>
           <AlertTriangle size={20} />

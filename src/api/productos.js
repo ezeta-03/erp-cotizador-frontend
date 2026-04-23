@@ -28,3 +28,8 @@ export const importarProductosCSV = async (archivo) => {
   });
   return data;
 };
+
+export const eliminarTodosProductos = async () => {
+  const { data } = await api.delete("/productos/todos");
+  return data;
+};
