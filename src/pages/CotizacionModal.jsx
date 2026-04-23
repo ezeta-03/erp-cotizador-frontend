@@ -36,6 +36,7 @@ export default function CotizacionModal({ onClose, onSave }) {
   const [comentarioSolicitud, setComentarioSolicitud] = useState("");
   const [enviandoSolicitud, setEnviandoSolicitud] = useState(false);
   const [solicitudEnviada, setSolicitudEnviada] = useState(false);
+  const [verificando, setVerificando] = useState(false);
 
   useEffect(() => {
     getClientes().then(setClientes);
@@ -142,6 +143,18 @@ export default function CotizacionModal({ onClose, onSave }) {
     onClose();
   };
 
+  const verificarAprobacion = async () => {
+    setVerificando(true);
+    try {
+      const data = await getMisAprobadas();
+      setAprobaciones(data);
+    } catch {
+      // silencioso — no interrumpir el flujo
+    } finally {
+      setVerificando(false);
+    }
+  };
+
   const enviarSolicitud = async () => {
     if (!comentarioSolicitud.trim()) {
       alert("Escribe un comentario para justificar el margen reducido.");
@@ -215,9 +228,18 @@ export default function CotizacionModal({ onClose, onSave }) {
                     <p>Tienes aprobación para usar hasta {margenAprobado}% de margen.</p>
                   )}
                   {solicitudEnviada ? (
-                    <p className={styles.solicitudEnviada}>
-                      ✓ Solicitud enviada. Espera la aprobación del administrador.
-                    </p>
+                    <div className={styles.solicitudEnviadaRow}>
+                      <p className={styles.solicitudEnviada}>
+                        ✓ Solicitud enviada. Espera la aprobación del administrador.
+                      </p>
+                      <button
+                        className={styles.btnVerificar}
+                        onClick={verificarAprobacion}
+                        disabled={verificando}
+                      >
+                        {verificando ? "Verificando…" : "↻ Verificar aprobación"}
+                      </button>
+                    </div>
                   ) : !mostrarFormSolicitud ? (
                     <button
                       className={styles.btnSolicitar}
