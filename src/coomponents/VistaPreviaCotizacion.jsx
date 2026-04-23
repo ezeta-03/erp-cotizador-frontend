@@ -39,7 +39,7 @@ export default function VistaPreviaCotizacion({ cotizacion, onConfirm, onCancel 
             {cotizacion.items.map((item, i) => (
               <tr key={item.id}>
                 <td>{i + 1}</td>
-                <td>{item.producto.material}</td>
+                <td>{item.producto.nombre || item.producto.material || item.producto.servicio}</td>
                 <td>{item.cantidad}</td>
                 <td>{item.precio.toFixed(2)}</td>
                 <td>{item.subtotal.toFixed(2)}</td>

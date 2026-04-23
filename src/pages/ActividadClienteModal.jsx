@@ -55,7 +55,7 @@ export default function ActividadClienteModal({ cliente, onClose }) {
               {currentItems.map((c) => (
                 <tr key={c.id}>
                   <td>{c.numero}</td>
-                  <td>{c.items.map((i) => i.producto.material || i.producto.servicio).join(", ")}</td>
+                  <td>{c.items.map((i) => i.producto.nombre || i.producto.material || i.producto.servicio).join(", ")}</td>
                   <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                   <td>S/. {c.total.toFixed(2)}</td>
                   <td>{c.estado}</td>
