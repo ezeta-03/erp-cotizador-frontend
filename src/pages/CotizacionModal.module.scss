@@ -91,6 +91,163 @@
   margin: 0 0 0.75rem;
 }
 
+/* ── Margen de rentabilidad ── */
+.margenRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.75rem 0 0.25rem;
+  flex-wrap: wrap;
+}
+
+.margenInputGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.margenInput {
+  width: 72px;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  text-align: center;
+  outline: none;
+
+  &:focus { border-color: #6b7280; }
+
+  &.margenInputError {
+    border-color: #ef4444;
+    background: #fff1f2;
+    color: #dc2626;
+  }
+}
+
+.margenSuffix {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.margenWarn {
+  font-size: 0.78rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.margenOk {
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 700;
+}
+
+/* Alerta margen bajo mínimo */
+.margenAlerta {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  margin: 0.5rem 0 0.75rem;
+  color: #9a3412;
+}
+
+.margenAlertaTexto {
+  font-size: 0.875rem;
+
+  strong { font-size: 0.9rem; }
+
+  p { margin: 0.35rem 0 0; font-size: 0.82rem; }
+}
+
+.solicitudEnviada {
+  color: #065f46;
+  font-weight: 500;
+  background: #d1fae5;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  margin-top: 0.5rem !important;
+}
+
+.btnSolicitar {
+  margin-top: 0.6rem;
+  padding: 0.45rem 1rem;
+  background: #ea580c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: #c2410c; }
+}
+
+.formSolicitud {
+  margin-top: 0.6rem;
+}
+
+.formSolicitudLabel {
+  font-size: 0.82rem;
+  margin-bottom: 0.4rem;
+}
+
+.textareaSolicitud {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #fdba74;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  resize: vertical;
+  background: #fff;
+  color: #111;
+  outline: none;
+
+  &:focus { border-color: #ea580c; }
+}
+
+.formSolicitudActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+.btnCancelarSolicitud {
+  padding: 0.4rem 0.85rem;
+  background: transparent;
+  border: 1px solid #fdba74;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #9a3412;
+  cursor: pointer;
+}
+
+.btnEnviarSolicitud {
+  padding: 0.4rem 0.85rem;
+  background: #ea580c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &:hover:not(:disabled) { background: #c2410c; }
+}
+
+/* Banner margen aprobado */
+.margenAprobado {
+  background: #d1fae5;
+  border: 1px solid #6ee7b7;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  margin: 0.5rem 0 0.75rem;
+  color: #065f46;
+  font-size: 0.875rem;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;

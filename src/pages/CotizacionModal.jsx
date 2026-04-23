@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
 import { getClientes } from "../api/clientes";
 import { getProductos } from "../api/productos";
+import { getMisAprobadas, crearSolicitud } from "../api/solicitudesMargen";
 import styles from "./CotizacionModal.module.scss";
 
-const MARKUP = 1.1 * 1.17 * 1.3; // costo_indirecto × administrativo × rentabilidad
+const MARGEN_MINIMO = 30;
+const INDIRECTO = 1.1;
+const ADMINISTRATIVO = 1.17;
+const MARKUP_BASE = INDIRECTO * ADMINISTRATIVO; // sin margen
+
+const precioConMargen = (costoMaterial, margenPct) =>
+  parseFloat((costoMaterial * MARKUP_BASE * (1 + margenPct / 100)).toFixed(2));
 
 const nombreProducto = (p) => p?.nombre || p?.servicio || p?.material || "(sin nombre)";
+
+const fmt = (v) =>
+  new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
 
 export default function CotizacionModal({ onClose, onSave }) {
   const [clientes, setClientes] = useState([]);
@@ -15,26 +25,71 @@ export default function CotizacionModal({ onClose, onSave }) {
   const [showPreview, setShowPreview] = useState(false);
   const [busquedaProducto, setBusquedaProducto] = useState("");
 
+  // Margen
+  const [margen, setMargen] = useState(MARGEN_MINIMO);
+  const [margenInput, setMargenInput] = useState(String(MARGEN_MINIMO));
+  const margenBajoMinimo = margen < MARGEN_MINIMO;
+
+  // Solicitud de margen reducido
+  const [aprobaciones, setAprobaciones] = useState([]); // solicitudes APROBADA del usuario
+  const [mostrarFormSolicitud, setMostrarFormSolicitud] = useState(false);
+  const [comentarioSolicitud, setComentarioSolicitud] = useState("");
+  const [enviandoSolicitud, setEnviandoSolicitud] = useState(false);
+  const [solicitudEnviada, setSolicitudEnviada] = useState(false);
+
   useEffect(() => {
     getClientes().then(setClientes);
     getProductos().then(setProductos);
+    getMisAprobadas().then(setAprobaciones).catch(() => {});
   }, []);
+
+  // Lowest approved margin available (null if none)
+  const margenAprobado = aprobaciones.length > 0
+    ? Math.min(...aprobaciones.map((s) => s.margenSolicitado))
+    : null;
+
+  const margenPermitido = margenAprobado !== null && margen >= margenAprobado;
+  const puedeGuardar = !margenBajoMinimo || margenPermitido;
 
   const productosFiltrados = productos.filter((p) =>
     nombreProducto(p).toLowerCase().includes(busquedaProducto.toLowerCase())
   );
 
+  // Recompute all item prices when margen changes
+  const recalcularItems = (nuevoMargen, prevItems) =>
+    prevItems.map((item) => {
+      const nuevoPrecio = precioConMargen(item.costo_material, nuevoMargen);
+      const sumaAdicionales = item.adicionales
+        .filter((a) => a.seleccionado)
+        .reduce((acc, a) => acc + Number(a.precio), 0);
+      const precioTotal = parseFloat((nuevoPrecio + sumaAdicionales).toFixed(2));
+      return {
+        ...item,
+        precio: precioTotal,
+        subtotal: parseFloat((precioTotal * item.cantidad).toFixed(2)),
+      };
+    });
+
+  const handleMargenChange = (val) => {
+    setMargenInput(val);
+    const num = parseFloat(val);
+    if (!isNaN(num) && num >= 0) {
+      setMargen(num);
+      setItems((prev) => recalcularItems(num, prev));
+    }
+  };
+
   const agregarProducto = (producto) => {
-    const precioBase = parseFloat((producto.costo_material * MARKUP).toFixed(2));
+    const precio = precioConMargen(producto.costo_material, margen);
     setItems((prev) => [
       ...prev,
       {
         productoId: producto.id,
         nombre: nombreProducto(producto),
         costo_material: producto.costo_material,
-        precio: precioBase,
+        precio,
         cantidad: 1,
-        subtotal: precioBase,
+        subtotal: precio,
         adicionales:
           producto.adicionales?.map((a) => ({
             id: a.id,
@@ -47,27 +102,29 @@ export default function CotizacionModal({ onClose, onSave }) {
     setBusquedaProducto("");
   };
 
-  const eliminarProducto = (idx) => {
-    setItems((prev) => prev.filter((_, i) => i !== idx));
-  };
+  const eliminarProducto = (idx) => setItems((prev) => prev.filter((_, i) => i !== idx));
 
   const toggleAdicional = (idx, j, checked) => {
-    const nuevos = [...items];
-    nuevos[idx].adicionales[j].seleccionado = checked;
-    const sumaAdicionales = nuevos[idx].adicionales
-      .filter((a) => a.seleccionado)
-      .reduce((acc, a) => acc + Number(a.precio), 0);
-    const precioBase = nuevos[idx].costo_material * MARKUP;
-    nuevos[idx].precio = parseFloat((precioBase + sumaAdicionales).toFixed(2));
-    nuevos[idx].subtotal = parseFloat((nuevos[idx].precio * nuevos[idx].cantidad).toFixed(2));
-    setItems(nuevos);
+    setItems((prev) => {
+      const next = [...prev];
+      next[idx].adicionales[j].seleccionado = checked;
+      const sumaAdicionales = next[idx].adicionales
+        .filter((a) => a.seleccionado)
+        .reduce((acc, a) => acc + Number(a.precio), 0);
+      const precioBase = precioConMargen(next[idx].costo_material, margen);
+      next[idx].precio = parseFloat((precioBase + sumaAdicionales).toFixed(2));
+      next[idx].subtotal = parseFloat((next[idx].precio * next[idx].cantidad).toFixed(2));
+      return next;
+    });
   };
 
   const actualizarCantidad = (idx, value) => {
-    const nuevos = [...items];
-    nuevos[idx].cantidad = Math.max(1, Number(value));
-    nuevos[idx].subtotal = parseFloat((nuevos[idx].precio * nuevos[idx].cantidad).toFixed(2));
-    setItems(nuevos);
+    setItems((prev) => {
+      const next = [...prev];
+      next[idx].cantidad = Math.max(1, Number(value));
+      next[idx].subtotal = parseFloat((next[idx].precio * next[idx].cantidad).toFixed(2));
+      return next;
+    });
   };
 
   const total = items.reduce((s, i) => s + i.subtotal, 0);
@@ -81,12 +138,27 @@ export default function CotizacionModal({ onClose, onSave }) {
   };
 
   const handleSave = () => {
-    onSave({ clienteId, items });
+    onSave({ clienteId, items, margen });
     onClose();
   };
 
-  const fmt = (v) =>
-    new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
+  const enviarSolicitud = async () => {
+    if (!comentarioSolicitud.trim()) {
+      alert("Escribe un comentario para justificar el margen reducido.");
+      return;
+    }
+    setEnviandoSolicitud(true);
+    try {
+      await crearSolicitud({ margenSolicitado: margen, comentario: comentarioSolicitud });
+      setSolicitudEnviada(true);
+      setMostrarFormSolicitud(false);
+      setComentarioSolicitud("");
+    } catch (err) {
+      alert(err.response?.data?.message || "Error enviando la solicitud.");
+    } finally {
+      setEnviandoSolicitud(false);
+    }
+  };
 
   return (
     <div className={styles.overlay}>
@@ -110,6 +182,89 @@ export default function CotizacionModal({ onClose, onSave }) {
               ))}
             </select>
 
+            {/* Margen de rentabilidad */}
+            <div className={styles.margenRow}>
+              <label className={styles.label} style={{ margin: 0 }}>
+                Margen de rentabilidad
+              </label>
+              <div className={styles.margenInputGroup}>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  value={margenInput}
+                  onChange={(e) => handleMargenChange(e.target.value)}
+                  className={`${styles.margenInput} ${margenBajoMinimo ? styles.margenInputError : ""}`}
+                />
+                <span className={styles.margenSuffix}>%</span>
+                {margenBajoMinimo && (
+                  <span className={styles.margenWarn}>mínimo {MARGEN_MINIMO}%</span>
+                )}
+                {!margenBajoMinimo && margen > MARGEN_MINIMO && (
+                  <span className={styles.margenOk}>✓</span>
+                )}
+              </div>
+            </div>
+
+            {/* Banner de margen bajo (no aprobado) */}
+            {margenBajoMinimo && !margenPermitido && (
+              <div className={styles.margenAlerta}>
+                <div className={styles.margenAlertaTexto}>
+                  <strong>Margen por debajo del mínimo ({MARGEN_MINIMO}%)</strong>
+                  {margenAprobado !== null && (
+                    <p>Tienes aprobación para usar hasta {margenAprobado}% de margen.</p>
+                  )}
+                  {solicitudEnviada ? (
+                    <p className={styles.solicitudEnviada}>
+                      ✓ Solicitud enviada. Espera la aprobación del administrador.
+                    </p>
+                  ) : !mostrarFormSolicitud ? (
+                    <button
+                      className={styles.btnSolicitar}
+                      onClick={() => setMostrarFormSolicitud(true)}
+                    >
+                      Solicitar Margen
+                    </button>
+                  ) : (
+                    <div className={styles.formSolicitud}>
+                      <p className={styles.formSolicitudLabel}>
+                        Solicitar margen de <strong>{margen}%</strong> — explica el motivo:
+                      </p>
+                      <textarea
+                        className={styles.textareaSolicitud}
+                        placeholder="Ej: Cliente licitación pública, precio de mercado competitivo..."
+                        value={comentarioSolicitud}
+                        onChange={(e) => setComentarioSolicitud(e.target.value)}
+                        rows={3}
+                      />
+                      <div className={styles.formSolicitudActions}>
+                        <button
+                          className={styles.btnCancelarSolicitud}
+                          onClick={() => { setMostrarFormSolicitud(false); setComentarioSolicitud(""); }}
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          className={styles.btnEnviarSolicitud}
+                          onClick={enviarSolicitud}
+                          disabled={enviandoSolicitud}
+                        >
+                          {enviandoSolicitud ? "Enviando..." : "Enviar solicitud"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Banner de margen aprobado */}
+            {margenBajoMinimo && margenPermitido && (
+              <div className={styles.margenAprobado}>
+                ✓ Margen de <strong>{margenAprobado}%</strong> aprobado por el administrador
+              </div>
+            )}
+
             {/* Buscar y agregar producto */}
             <label className={styles.label}>Agregar producto</label>
             <input
@@ -128,7 +283,9 @@ export default function CotizacionModal({ onClose, onSave }) {
                     type="button"
                   >
                     <span>{nombreProducto(p)}</span>
-                    <span className={styles.dropdownPrice}>{fmt(p.costo_material * MARKUP)}</span>
+                    <span className={styles.dropdownPrice}>
+                      {fmt(precioConMargen(p.costo_material, margen))}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -194,7 +351,16 @@ export default function CotizacionModal({ onClose, onSave }) {
               <button className={styles.btnSecondary} onClick={onClose}>
                 Cancelar
               </button>
-              <button className={styles.btnPrimary} onClick={abrirVistaPrevia}>
+              <button
+                className={styles.btnPrimary}
+                onClick={abrirVistaPrevia}
+                disabled={!puedeGuardar || items.length === 0 || !clienteId}
+                title={
+                  !puedeGuardar
+                    ? "Margen por debajo del mínimo. Solicita aprobación."
+                    : undefined
+                }
+              >
                 Vista Previa
               </button>
             </div>
@@ -208,6 +374,13 @@ export default function CotizacionModal({ onClose, onSave }) {
             </p>
             <p>
               <strong>Fecha:</strong> {new Date().toLocaleDateString("es-PE")}
+            </p>
+            <p>
+              <strong>Margen aplicado:</strong>{" "}
+              <span className={margenBajoMinimo ? styles.margenWarn : ""}>
+                {margen}%
+                {margenBajoMinimo && " (aprobado por admin)"}
+              </span>
             </p>
 
             <table className={styles.table}>
