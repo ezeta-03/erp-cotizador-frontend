@@ -15,13 +15,13 @@ export default function AuthProvider({ children }) {
     localStorage.setItem("role", user.role);
     localStorage.setItem("nombre", user.nombre);
     setUser(user);
-    navigate("/");
+    navigate(`/cotizador/${user.role.toLowerCase()}`);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
-    navigate("/login");
+    navigate("/cotizador");
   };
 
   return (

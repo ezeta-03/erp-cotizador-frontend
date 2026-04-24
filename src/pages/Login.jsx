@@ -2,9 +2,8 @@ import { useState } from "react";
 import api from "../api/axios";
 import useAuth from "../auth/useAuth";
 import styles from "./Login.module.scss";
-import logo from "/favicon.png";
 
-export default function Login() {
+export default function Login({ moduleName = "Módulo de\nCotización" }) {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,39 +20,65 @@ export default function Login() {
 
   return (
     <div className={styles.loginPage}>
-      <div className={styles.loginContainer}>
-        <div className={styles.loginCard}>
-          <div className={styles.loginHeader}>
-            <div className={styles.loginIcon}>
-              <img src={logo} alt="Logo" />
+      <div className={styles.loginCard}>
+        {/* Panel izquierdo oscuro con video */}
+        <div className={styles.leftPanel}>
+          <video
+            className={styles.videoBg}
+            src="/background.webm"
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+          <div className={styles.leftContent}>
+            <img src="/zaazmago_holding.png" alt="Zaazmago Holding" className={styles.leftLogo} />
+            <div className={styles.leftModuleName}>
+              ERP<br />
+              {moduleName.split("\n").map((line, i) => (
+                <span key={i}>{line}<br /></span>
+              ))}
             </div>
-            <h1 className={styles.loginTitle}>ERP | Modulo de Cotización</h1>
-            <p className={styles.loginSubtitle}>
-              Ingresa tus credenciales para continuar
-            </p>
           </div>
+        </div>
 
-          <form className={styles.loginForm} onSubmit={handleSubmit}>
-            <input
-              className={styles.formInput}
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              className={styles.formInput}
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button type="submit" className={styles.btnPrimary}>
-              Ingresar
-            </button>
-          </form>
+        {/* Panel derecho claro */}
+        <div className={styles.rightPanel}>
+          <div className={styles.formWrapper}>
+            <div className={styles.formIcon}>
+              <img src="/square.jpeg" alt="Logo" />
+            </div>
+            <h1 className={styles.formTitle}>Bienvenido</h1>
+            <p className={styles.formSubtitle}>Ingresa tus credenciales para continuar</p>
+
+            <form className={styles.loginForm} onSubmit={handleSubmit}>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>Email</label>
+                <input
+                  className={styles.formInput}
+                  type="email"
+                  placeholder="zaazmago@zaazmago.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>Contraseña</label>
+                <input
+                  className={styles.formInput}
+                  type="password"
+                  placeholder="••••••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <button type="submit" className={styles.btnPrimary}>
+                Iniciar Sesión
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
