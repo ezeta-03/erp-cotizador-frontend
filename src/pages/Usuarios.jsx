@@ -45,7 +45,6 @@ export default function Usuarios() {
       role: form.role,
     };
     if (!editId) {
-      payload.password = form.password;
       await createUsuario(payload);
     } else {
       if (form.password) payload.password = form.password;
