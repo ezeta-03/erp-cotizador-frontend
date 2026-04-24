@@ -163,119 +163,185 @@ export default function AdminDashboard() {
 
       {/* Tabla de Vendedores */}
       {datos && datos.vendedores.length > 0 && (
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>Desempeño por Vendedor</h2>
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: "10px",
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 1px 4px rgba(0,0,0,.06)",
+            overflow: "hidden",
+            marginTop: "1.5rem",
+          }}
+        >
+          {/* Header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "1rem 1.25rem",
+              borderBottom: "1px solid #f3f4f6",
+            }}
+          >
+            <h3 style={{ margin: 0, fontWeight: 700, fontSize: "1rem", color: "#111" }}>
+              Desempeño por Vendedor
+            </h3>
+            <button
+              onClick={cargarDatos}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#6b7280",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.3rem",
+                fontSize: "0.8rem",
+              }}
+            >
+              <RefreshCw size={14} /> Actualizar
+            </button>
           </div>
-          
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+
+          {/* Tabla */}
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
               <thead>
-                <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6b7280' }}>
-                    Vendedor
-                  </th>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6b7280' }}>
-                    Meta
-                  </th>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6b7280' }}>
-                    Facturado
-                  </th>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6b7280' }}>
-                    Progreso
-                  </th>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6b7280' }}>
-                    Acciones
-                  </th>
+                <tr style={{ background: "#f9fafb" }}>
+                  {["Vendedor", "Meta", "Facturado", "Progreso", "Acciones"].map((h) => (
+                    <th
+                      key={h}
+                      style={{
+                        padding: "0.6rem 1rem",
+                        textAlign: "left",
+                        fontWeight: 600,
+                        fontSize: "0.75rem",
+                        color: "#6b7280",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.04em",
+                        borderBottom: "1px solid #e5e7eb",
+                      }}
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {datos.vendedores.map((vendedor) => (
-                  <tr key={vendedor.vendedorId} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '0.75rem' }}>
-                      <div>
-                        <p style={{ fontWeight: '500' }}>{vendedor.vendedor}</p>
-                        <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>{vendedor.email}</p>
-                      </div>
+                  <tr key={vendedor.vendedorId} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                    <td style={{ padding: "0.7rem 1rem" }}>
+                      <div style={{ fontWeight: 500 }}>{vendedor.vendedor}</div>
+                      <div style={{ fontSize: "0.78rem", color: "#9ca3af" }}>{vendedor.email}</div>
                     </td>
-                    <td style={{ padding: '0.75rem' }}>
+                    <td style={{ padding: "0.7rem 1rem" }}>
                       {editandoMeta === vendedor.vendedorId ? (
                         <input
                           type="number"
                           value={nuevoMonto}
                           onChange={(e) => setNuevoMonto(e.target.value)}
                           style={{
-                            padding: '0.5rem',
-                            border: '1px solid #d1d5db',
-                            borderRadius: '6px',
-                            width: '120px'
+                            padding: "0.4rem 0.6rem",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "6px",
+                            width: "120px",
+                            fontSize: "0.875rem",
                           }}
                           placeholder="Monto"
                         />
                       ) : (
-                        <p style={{ fontWeight: '500' }}>
-                          {new Intl.NumberFormat('es-PE', { 
-                            style: 'currency', 
-                            currency: 'PEN' 
-                          }).format(vendedor.meta)}
-                        </p>
+                        <span style={{ fontWeight: 500 }}>
+                          {new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(vendedor.meta)}
+                        </span>
                       )}
                     </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <p style={{ fontWeight: '500', color: '#059669' }}>
-                        {new Intl.NumberFormat('es-PE', { 
-                          style: 'currency', 
-                          currency: 'PEN' 
-                        }).format(vendedor.avance)}
-                      </p>
+                    <td style={{ padding: "0.7rem 1rem" }}>
+                      <span style={{ fontWeight: 600, color: "#059669" }}>
+                        {new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(vendedor.avance)}
+                      </span>
                     </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{
-                          flex: 1,
-                          height: '8px',
-                          backgroundColor: '#e5e7eb',
-                          borderRadius: '999px',
-                          overflow: 'hidden'
-                        }}>
-                          <div style={{
-                            width: `${Math.min(vendedor.porcentaje, 100)}%`,
-                            height: '100%',
-                            backgroundColor: vendedor.porcentaje >= 100 ? '#10b981' : '#3b82f6',
-                            transition: 'width 0.3s'
-                          }} />
+                    <td style={{ padding: "0.7rem 1rem", minWidth: "180px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                        <div style={{ flex: 1, height: "6px", backgroundColor: "#e5e7eb", borderRadius: "999px", overflow: "hidden" }}>
+                          <div
+                            style={{
+                              width: `${Math.min(vendedor.porcentaje, 100)}%`,
+                              height: "100%",
+                              backgroundColor: vendedor.porcentaje >= 100 ? "#10b981" : "#3b82f6",
+                              transition: "width 0.3s",
+                            }}
+                          />
                         </div>
-                        <span style={{ fontSize: '0.875rem', fontWeight: '500', minWidth: '45px' }}>
+                        <span
+                          style={{
+                            fontSize: "0.78rem",
+                            fontWeight: 700,
+                            minWidth: "40px",
+                            color: vendedor.porcentaje >= 100 ? "#059669" : "#374151",
+                          }}
+                        >
                           {vendedor.porcentaje.toFixed(0)}%
                         </span>
                       </div>
                     </td>
-                    <td style={{ padding: '0.75rem' }}>
+                    <td style={{ padding: "0.7rem 1rem" }}>
                       {editandoMeta === vendedor.vendedorId ? (
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div style={{ display: "flex", gap: "0.4rem" }}>
                           <button
                             onClick={() => guardarMeta(vendedor.vendedorId)}
-                            className={styles.btnApprove}
-                            style={{ padding: '0.5rem', fontSize: '0.875rem' }}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.25rem",
+                              padding: "0.35rem 0.75rem",
+                              background: "#059669",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: "6px",
+                              fontSize: "0.78rem",
+                              fontWeight: 600,
+                              cursor: "pointer",
+                            }}
                           >
-                            <Save size={16} />
+                            <Save size={13} /> Guardar
                           </button>
                           <button
                             onClick={cancelarEdicion}
-                            className={styles.btnReject}
-                            style={{ padding: '0.5rem', fontSize: '0.875rem', backgroundColor: '#ef4444' }}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.25rem",
+                              padding: "0.35rem 0.75rem",
+                              background: "#ef4444",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: "6px",
+                              fontSize: "0.78rem",
+                              fontWeight: 600,
+                              cursor: "pointer",
+                            }}
                           >
-                            <X size={16} />
+                            <X size={13} /> Cancelar
                           </button>
                         </div>
                       ) : (
                         <button
                           onClick={() => iniciarEdicion(vendedor)}
-                          className={styles.btnEdit}
-                          style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.25rem",
+                            padding: "0.35rem 0.75rem",
+                            background: "#f9fafb",
+                            color: "#374151",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "6px",
+                            fontSize: "0.78rem",
+                            fontWeight: 500,
+                            cursor: "pointer",
+                          }}
                         >
-                          <Edit2 size={16} />
-                          Editar Meta
+                          <Edit2 size={13} /> Editar Meta
                         </button>
                       )}
                     </td>
