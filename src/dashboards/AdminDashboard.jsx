@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { DonutChart, LineChart } from '../coomponents/Charts';
-import { 
-  getProgresoTodosVendedores, 
+import {
+  getProgresoTodosVendedores,
   getCotizacionesPorDia,
   setMetaMensual
 } from '../api/stats';
 import { Target, TrendingUp, Users, Edit2, Save, X } from 'lucide-react';
-import styles from './AdminDashboard.module.scss'; // 🔥 IMPORTAR
+import SolicitudesMargenPanel from '../coomponents/SolicitudesMargenPanel';
+import styles from './AdminDashboard.module.scss';
 
 export default function AdminDashboard() {
   const [datos, setDatos] = useState(null);
@@ -156,6 +157,9 @@ export default function AdminDashboard() {
           <LineChart data={cotizacionesPorDia} />
         </div>
       </div>
+
+      {/* Solicitudes de margen reducido */}
+      <SolicitudesMargenPanel />
 
       {/* Tabla de Vendedores */}
       {datos && datos.vendedores.length > 0 && (

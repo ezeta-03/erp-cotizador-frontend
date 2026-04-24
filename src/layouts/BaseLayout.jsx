@@ -10,13 +10,7 @@ import {
   Briefcase,
   ChevronLeft,
   ChevronRight,
-  Home,
-  ShoppingCart,
-  Users,
-  Package,
   FileText,
-  BarChart3,
-  Settings, // 🔥 AGREGAR iconos para tu menú
 } from "lucide-react";
 import "./BaseLayout.scss";
 import "../styles/_buttons.scss";
@@ -30,28 +24,12 @@ export default function BaseLayout({ menu }) {
   const closeMenu = () => setIsMenuOpen(false);
   const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
-  const getIcon = (path) => {
-    const icons = {
-      "/admin/dashboard": BarChart3,
-      "/admin/clientes": Users,
-      "/admin/productos": Package,
-      "/admin/cotizaciones": FileText,
-      "/admin/configuracion": Settings,
-      "/ventas/dashboard": Home,
-      "/ventas/clientes": Users,
-      "/ventas/productos": Package,
-      "/ventas/cotizaciones": FileText,
-      "/cliente/cotizacion": ShoppingCart,
-    };
-    const Icon = icons[path] || FileText;
-    return <Icon size={20} />;
-  };
-  // Función para obtener el label del rol en español
   const getRoleLabel = (role) => {
     const roles = {
       ADMIN: "Administrador",
       VENTAS: "Ventas",
       CLIENTE: "Cliente",
+      CONTABLE: "Contabilidad",
     };
     return roles[role] || role;
   };
@@ -95,22 +73,24 @@ export default function BaseLayout({ menu }) {
 
           {/* Navegación */}
           <nav className="nav">
-            {menu.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  isActive ? "nav-link active" : "nav-link"
-                }
-                title={isCollapsed ? item.label : ""}
-              >
-                <span className="nav-icon">{getIcon(item.path)}</span>{" "}
-                {/* 🔥 AGREGAR */}
-                <span className="nav-text">{item.label}</span>{" "}
-                {/* 🔥 MODIFICAR */}
-              </NavLink>
-            ))}
+            {menu.map((item) => {
+              const Icon = item.icon || FileText;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    isActive ? "nav-link active" : "nav-link"
+                  }
+                  title={isCollapsed ? item.label : ""}
+                >
+                  <span className="nav-icon"><Icon size={20} /></span>
+                  <span className="nav-text">{item.label}</span>
+                </NavLink>
+              );
+            })}
           </nav>
 
           {/* Información del usuario */}

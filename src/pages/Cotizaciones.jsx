@@ -13,10 +13,11 @@ export default function Cotizaciones() {
   const [cotizacionPreview, setCotizacionPreview] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const guardarCotizacion = async ({ clienteId, items }) => {
+  const guardarCotizacion = async ({ clienteId, items, margen }) => {
     const data = {
       clienteId,
       usuarioId: user.id,
+      margen,
       items: items.map((i) => ({
         productoId: i.productoId,
         cantidad: i.cantidad,

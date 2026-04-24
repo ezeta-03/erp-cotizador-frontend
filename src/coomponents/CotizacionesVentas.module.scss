@@ -1,5 +1,49 @@
 .container {
-  padding: 20px;
+  padding: 1.5rem;
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 1.25rem;
+}
+
+.info {
+  color: #6b7280;
+  padding: 2rem;
+  text-align: center;
+}
+
+.empty {
+  color: #9ca3af;
+  text-align: center;
+  padding: 2rem;
+}
+
+.filtroBtn {
+  margin-right: 8px;
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  &.active {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+  }
+}
+
+.inputFiltro {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  margin-right: 0.5rem;
 }
 
 .filtros {

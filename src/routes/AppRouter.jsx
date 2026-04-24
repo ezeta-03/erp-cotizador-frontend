@@ -23,96 +23,86 @@ export default function AppRouter() {
 
   return (
     <Routes>
-      {/* ================= PUBLICAS ================= */}
-      <Route path="/login" element={<Login />} />
+      {/* Redirige raíz al módulo cotizador */}
+      <Route path="/" element={<Navigate to="/cotizador" replace />} />
+
+      {/* ================= PÚBLICAS ================= */}
+      <Route path="/cotizador" element={<Login moduleName="Módulo de\nCotización" />} />
       <Route path="/activar" element={<ActivarCuenta />} />
+      <Route path="/login" element={<Navigate to="/cotizador" replace />} />
 
-      {/* ================= PROTEGIDAS ================= */}
-      {user && (
-        <>
-          {/* ================= ADMIN ================= */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute roles={["ADMIN"]}>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="clientes" element={<Clientes />} />
-            <Route path="productos" element={<Productos />} />
-            <Route path="cotizaciones" element={<Cotizaciones />} />
-            <Route path="usuarios" element={<Usuarios />} />
-            <Route path="historial" element={<CotizacionesHistorial />} />
-            <Route path="cotizaciones" element={<CotizacionesVentas />} />
-            <Route
-              path="cotizaciones-ventas"
-              element={<CotizacionesVentas />}
-            />
-            <Route path="actividad" element={<ActividadClientes />} />
-          </Route>
+      {/* ================= ADMIN ================= */}
+      <Route
+        path="/cotizador/admin"
+        element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="clientes" element={<Clientes />} />
+        <Route path="productos" element={<Productos />} />
+        <Route path="cotizaciones" element={<Cotizaciones />} />
+        <Route path="usuarios" element={<Usuarios />} />
+        <Route path="historial" element={<CotizacionesHistorial />} />
+        <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
+        <Route path="actividad" element={<ActividadClientes />} />
+      </Route>
 
-          {/* ================= VENTAS ================= */}
-          <Route
-            path="/ventas"
-            element={
-              <ProtectedRoute roles={["VENTAS"]}>
-                <VentasLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="clientes" element={<Clientes />} />
-            <Route path="productos" element={<Productos />} />
-            <Route path="cotizaciones" element={<Cotizaciones />} />
-            <Route path="historial" element={<CotizacionesHistorial />} />
-            <Route
-              path="cotizaciones-ventas"
-              element={<CotizacionesVentas />}
-            />
-            <Route path="actividad" element={<ActividadClientes />} />
-          </Route>
+      {/* ================= VENTAS ================= */}
+      <Route
+        path="/cotizador/ventas"
+        element={
+          <ProtectedRoute roles={["VENTAS"]}>
+            <VentasLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="clientes" element={<Clientes />} />
+        <Route path="productos" element={<Productos />} />
+        <Route path="cotizaciones" element={<Cotizaciones />} />
+        <Route path="historial" element={<CotizacionesHistorial />} />
+        <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
+        <Route path="actividad" element={<ActividadClientes />} />
+      </Route>
 
-          {/* ================= CLIENTE ================= */}
-          <Route
-            path="/cliente"
-            element={
-              <ProtectedRoute roles={["CLIENTE"]}>
-                <ClienteLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<MiCotizacion />} />
-            <Route path="mia" element={<MiCotizacion />} />
-          </Route>
+      {/* ================= CLIENTE ================= */}
+      <Route
+        path="/cotizador/cliente"
+        element={
+          <ProtectedRoute roles={["CLIENTE"]}>
+            <ClienteLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<MiCotizacion />} />
+        <Route path="mia" element={<MiCotizacion />} />
+      </Route>
 
-          {/* ================= CONTABLE ================= */}
-          <Route
-            path="/contable"
-            element={
-              <ProtectedRoute roles={["CONTABLE"]}>
-                <ContableLayout />
-              </ProtectedRoute>
-            }
-          >
-            {/* 👇 Solo acceso a Facturación */}
-            <Route
-              path="cotizaciones-ventas"
-              element={<CotizacionesVentas />}
-            />
-          </Route>
+      {/* ================= CONTABLE ================= */}
+      <Route
+        path="/cotizador/contable"
+        element={
+          <ProtectedRoute roles={["CONTABLE"]}>
+            <ContableLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
+      </Route>
 
-          {/* fallback logueado */}
-          <Route
-            path="*"
-            element={<Navigate to={`/${user.role.toLowerCase()}`} />}
-          />
-        </>
-      )}
-
-      {/* fallback NO logueado */}
-      {!user && <Route path="*" element={<Navigate to="/login" />} />}
+      {/* fallback */}
+      <Route
+        path="*"
+        element={
+          user
+            ? <Navigate to={`/cotizador/${user.role.toLowerCase()}`} />
+            : <Navigate to="/cotizador" />
+        }
+      />
     </Routes>
   );
 }

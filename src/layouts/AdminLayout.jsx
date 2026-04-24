@@ -1,16 +1,14 @@
 import BaseLayout from "./BaseLayout";
+import { BarChart3, Users, UserCircle, Package, FileText, DollarSign } from "lucide-react";
 
 export default function AdminLayout() {
   const menu = [
-    { path: "/admin", label: "Dashboard" },
-    { path: "/admin/usuarios", label: "Usuarios" },
-    { path: "/admin/clientes", label: "Clientes" },
-    { path: "/admin/productos", label: "Productos" },
-    // { path: "/admin/cotizaciones", label: "Cotizador" },
-    { path: "/admin/historial", label: "Cotizaciones" },
-    // { path: "/admin/cotizaciones-ventas", label: "Facturar" },
-    // { path: "/admin/actividad", label: "Actividad Cliente" },
-
+    { path: "/cotizador/admin", label: "Dashboard", icon: BarChart3 },
+    { path: "/cotizador/admin/usuarios", label: "Usuarios", icon: Users },
+    { path: "/cotizador/admin/clientes", label: "Clientes", icon: UserCircle },
+    { path: "/cotizador/admin/productos", label: "Productos", icon: Package },
+    { path: "/cotizador/admin/historial", label: "Cotizaciones", icon: FileText },
+    { path: "/cotizador/admin/cotizaciones-ventas", label: "Facturar", icon: DollarSign },
   ];
 
   return <BaseLayout menu={menu} />;
