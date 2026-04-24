@@ -5,7 +5,7 @@ import {
   getCotizacionesPorDia,
   setMetaMensual
 } from '../api/stats';
-import { Target, TrendingUp, Users, Edit2, Save, X } from 'lucide-react';
+import { Target, TrendingUp, Users, Edit2, Save, X, RefreshCw } from 'lucide-react';
 import SolicitudesMargenPanel from '../coomponents/SolicitudesMargenPanel';
 import styles from './AdminDashboard.module.scss';
 
