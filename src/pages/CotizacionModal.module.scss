@@ -377,3 +377,40 @@
 
   &:hover { background: #374151; }
 }
+
+/* ── Desglose financiero ── */
+.resumenFinanciero {
+  margin-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: flex-end;
+}
+
+.resumenFila {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.875rem;
+  color: #374151;
+
+  span:last-child {
+    min-width: 100px;
+    text-align: right;
+  }
+}
+
+.resumenMargen {
+  color: #059669;
+  font-weight: 500;
+}
+
+.resumenTotal {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+  border-top: 1px solid #d1d5db;
+  padding-top: 0.35rem;
+  margin-top: 0.15rem;
+}

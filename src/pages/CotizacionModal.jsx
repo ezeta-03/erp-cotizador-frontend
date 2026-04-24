@@ -9,8 +9,13 @@ const INDIRECTO = 1.1;
 const ADMINISTRATIVO = 1.17;
 const MARKUP_BASE = INDIRECTO * ADMINISTRATIVO; // sin margen
 
-const precioConMargen = (costoMaterial, margenPct) =>
-  parseFloat((costoMaterial * MARKUP_BASE * (1 + margenPct / 100)).toFixed(2));
+// Precio base SIN margen (lo que ve el interno): costo * markup + adicionales
+const calcPrecioBase = (costoMaterial, sumaAdicionales = 0) =>
+  parseFloat((costoMaterial * MARKUP_BASE + sumaAdicionales).toFixed(2));
+
+// Precio final CON margen (lo que ve el cliente)
+const calcPrecioFinal = (precioBase, margenPct) =>
+  parseFloat((precioBase * (1 + margenPct / 100)).toFixed(2));
 
 const nombreProducto = (p) => p?.nombre || p?.servicio || p?.material || "(sin nombre)";
 
@@ -59,15 +64,17 @@ export default function CotizacionModal({ onClose, onSave }) {
   // Recompute all item prices when margen changes
   const recalcularItems = (nuevoMargen, prevItems) =>
     prevItems.map((item) => {
-      const nuevoPrecio = precioConMargen(item.costo_material, nuevoMargen);
       const sumaAdicionales = item.adicionales
         .filter((a) => a.seleccionado)
         .reduce((acc, a) => acc + Number(a.precio), 0);
-      const precioTotal = parseFloat((nuevoPrecio + sumaAdicionales).toFixed(2));
+      const precioBase = calcPrecioBase(item.costo_material, sumaAdicionales);
+      const precio = calcPrecioFinal(precioBase, nuevoMargen);
       return {
         ...item,
-        precio: precioTotal,
-        subtotal: parseFloat((precioTotal * item.cantidad).toFixed(2)),
+        precioBase,
+        precio,
+        subtotalBase: parseFloat((precioBase * item.cantidad).toFixed(2)),
+        subtotal: parseFloat((precio * item.cantidad).toFixed(2)),
       };
     });
 
@@ -81,15 +88,18 @@ export default function CotizacionModal({ onClose, onSave }) {
   };
 
   const agregarProducto = (producto) => {
-    const precio = precioConMargen(producto.costo_material, margen);
+    const precioBase = calcPrecioBase(producto.costo_material, 0);
+    const precio = calcPrecioFinal(precioBase, margen);
     setItems((prev) => [
       ...prev,
       {
         productoId: producto.id,
         nombre: nombreProducto(producto),
         costo_material: producto.costo_material,
+        precioBase,
         precio,
         cantidad: 1,
+        subtotalBase: precioBase,
         subtotal: precio,
         adicionales:
           producto.adicionales?.map((a) => ({
@@ -112,9 +122,12 @@ export default function CotizacionModal({ onClose, onSave }) {
       const sumaAdicionales = next[idx].adicionales
         .filter((a) => a.seleccionado)
         .reduce((acc, a) => acc + Number(a.precio), 0);
-      const precioBase = precioConMargen(next[idx].costo_material, margen);
-      next[idx].precio = parseFloat((precioBase + sumaAdicionales).toFixed(2));
-      next[idx].subtotal = parseFloat((next[idx].precio * next[idx].cantidad).toFixed(2));
+      const precioBase = calcPrecioBase(next[idx].costo_material, sumaAdicionales);
+      const precio = calcPrecioFinal(precioBase, margen);
+      next[idx].precioBase = precioBase;
+      next[idx].precio = precio;
+      next[idx].subtotalBase = parseFloat((precioBase * next[idx].cantidad).toFixed(2));
+      next[idx].subtotal = parseFloat((precio * next[idx].cantidad).toFixed(2));
       return next;
     });
   };
@@ -123,12 +136,15 @@ export default function CotizacionModal({ onClose, onSave }) {
     setItems((prev) => {
       const next = [...prev];
       next[idx].cantidad = Math.max(1, Number(value));
+      next[idx].subtotalBase = parseFloat((next[idx].precioBase * next[idx].cantidad).toFixed(2));
       next[idx].subtotal = parseFloat((next[idx].precio * next[idx].cantidad).toFixed(2));
       return next;
     });
   };
 
-  const total = items.reduce((s, i) => s + i.subtotal, 0);
+  const totalBase = parseFloat(items.reduce((s, i) => s + (i.subtotalBase ?? i.subtotal), 0).toFixed(2));
+  const margenMonto = parseFloat((totalBase * margen / 100).toFixed(2));
+  const total = parseFloat((totalBase + margenMonto).toFixed(2));
 
   const abrirVistaPrevia = () => {
     if (!clienteId || items.length === 0) {
@@ -306,7 +322,7 @@ export default function CotizacionModal({ onClose, onSave }) {
                   >
                     <span>{nombreProducto(p)}</span>
                     <span className={styles.dropdownPrice}>
-                      {fmt(precioConMargen(p.costo_material, margen))}
+                      {fmt(calcPrecioFinal(calcPrecioBase(p.costo_material, 0), margen))}
                     </span>
                   </button>
                 ))}
@@ -316,58 +332,74 @@ export default function CotizacionModal({ onClose, onSave }) {
               <p className={styles.noResults}>Sin resultados para "{busquedaProducto}"</p>
             )}
 
-            {/* Tabla de items */}
+            {/* Tabla de items — vista interna: precios base sin margen */}
             {items.length > 0 && (
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th>Precio unit.</th>
-                    <th>Cant.</th>
-                    <th>Subtotal</th>
-                    <th>Adicionales</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item, idx) => (
-                    <tr key={idx}>
-                      <td>{item.nombre}</td>
-                      <td>{fmt(item.precio)}</td>
-                      <td>
-                        <input
-                          type="number"
-                          min="1"
-                          value={item.cantidad}
-                          onChange={(e) => actualizarCantidad(idx, e.target.value)}
-                          className={styles.inputCantidad}
-                        />
-                      </td>
-                      <td>{fmt(item.subtotal)}</td>
-                      <td>
-                        {item.adicionales.map((a, j) => (
-                          <label key={a.id} className={styles.checkbox}>
-                            <input
-                              type="checkbox"
-                              checked={a.seleccionado}
-                              onChange={(e) => toggleAdicional(idx, j, e.target.checked)}
-                            />
-                            {a.nombre} ({fmt(a.precio)})
-                          </label>
-                        ))}
-                      </td>
-                      <td>
-                        <button className={styles.btnRemove} onClick={() => eliminarProducto(idx)}>
-                          ✕
-                        </button>
-                      </td>
+              <>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Precio base</th>
+                      <th>Cant.</th>
+                      <th>Subtotal base</th>
+                      <th>Adicionales</th>
+                      <th></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  </thead>
+                  <tbody>
+                    {items.map((item, idx) => (
+                      <tr key={idx}>
+                        <td>{item.nombre}</td>
+                        <td>{fmt(item.precioBase)}</td>
+                        <td>
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.cantidad}
+                            onChange={(e) => actualizarCantidad(idx, e.target.value)}
+                            className={styles.inputCantidad}
+                          />
+                        </td>
+                        <td>{fmt(item.subtotalBase)}</td>
+                        <td>
+                          {item.adicionales.map((a, j) => (
+                            <label key={a.id} className={styles.checkbox}>
+                              <input
+                                type="checkbox"
+                                checked={a.seleccionado}
+                                onChange={(e) => toggleAdicional(idx, j, e.target.checked)}
+                              />
+                              {a.nombre} ({fmt(a.precio)})
+                            </label>
+                          ))}
+                        </td>
+                        <td>
+                          <button className={styles.btnRemove} onClick={() => eliminarProducto(idx)}>
+                            ✕
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
-            <h3 className={styles.total}>Total: {fmt(total)}</h3>
+                {/* Desglose financiero interno */}
+                <div className={styles.resumenFinanciero}>
+                  <div className={styles.resumenFila}>
+                    <span>Subtotal base</span>
+                    <span>{fmt(totalBase)}</span>
+                  </div>
+                  <div className={`${styles.resumenFila} ${styles.resumenMargen}`}>
+                    <span>Rentabilidad ({margen}%)</span>
+                    <span>+ {fmt(margenMonto)}</span>
+                  </div>
+                  <div className={`${styles.resumenFila} ${styles.resumenTotal}`}>
+                    <span>Total para cliente</span>
+                    <span>{fmt(total)}</span>
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className={styles.actions}>
               <button className={styles.btnSecondary} onClick={onClose}>
@@ -437,7 +469,21 @@ export default function CotizacionModal({ onClose, onSave }) {
               </tbody>
             </table>
 
-            <h3 className={styles.total}>TOTAL: {fmt(total)}</h3>
+            {/* Desglose financiero en vista previa */}
+            <div className={styles.resumenFinanciero}>
+              <div className={styles.resumenFila}>
+                <span>Subtotal base</span>
+                <span>{fmt(totalBase)}</span>
+              </div>
+              <div className={`${styles.resumenFila} ${styles.resumenMargen}`}>
+                <span>Rentabilidad ({margen}%)</span>
+                <span>+ {fmt(margenMonto)}</span>
+              </div>
+              <div className={`${styles.resumenFila} ${styles.resumenTotal}`}>
+                <span>Total para cliente</span>
+                <span>{fmt(total)}</span>
+              </div>
+            </div>
 
             <div className={styles.actions}>
               <button className={styles.btnSecondary} onClick={() => setShowPreview(false)}>

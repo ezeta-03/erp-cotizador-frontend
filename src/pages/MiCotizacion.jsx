@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
-import styles from "./MiCotizacion.module.scss"; // 👈 reutilizamos estilos
+import { descargarPDFInteligente } from "../api/pdf";
+import styles from "./MiCotizacion.module.scss";
 
 export default function MiCotizacion() {
   const [cotizacion, setCotizacion] = useState(null);
   const [comentario, setComentario] = useState("");
+  const [descargando, setDescargando] = useState(false);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export default function MiCotizacion() {
 
             return (
               <tr key={i.id}>
-                <td>{i.producto.material} {glosa}</td>
+                <td>{i.producto?.nombre || i.producto?.servicio || i.producto?.material} {glosa}</td>
                 <td>{i.cantidad}</td>
                 <td>S/. {i.precio.toFixed(2)}</td>
                 <td>S/. {i.subtotal.toFixed(2)}</td>
@@ -79,13 +81,18 @@ export default function MiCotizacion() {
 
       <br />
 
-      <a
+      <button
         className={styles.btnPrimary}
-        href={`${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacion.id}/pdf?token=${token}`}
-        target="_blank"
+        disabled={descargando}
+        onClick={async () => {
+          setDescargando(true);
+          try { await descargarPDFInteligente(cotizacion, token); }
+          catch { alert("Error descargando PDF"); }
+          finally { setDescargando(false); }
+        }}
       >
-        Descargar PDF
-      </a>
+        {descargando ? "Descargando…" : "Descargar PDF"}
+      </button>
 
       {cotizacion.estado === "PENDIENTE" && (
         <div className={styles.actions}>
