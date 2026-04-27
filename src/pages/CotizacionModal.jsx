@@ -5,6 +5,7 @@ import { getMisAprobadas, crearSolicitud } from "../api/solicitudesMargen";
 import styles from "./CotizacionModal.module.scss";
 
 const MARGEN_MINIMO = 30;
+const IGV_RATE = 0.18;
 
 const nombreProducto = (p) => p?.nombre || p?.servicio || p?.material || "(sin nombre)";
 
@@ -18,6 +19,9 @@ export default function CotizacionModal({ onClose, onSave }) {
   const [items, setItems] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
   const [busquedaProducto, setBusquedaProducto] = useState("");
+
+  // IGV
+  const [conIgv, setConIgv] = useState(true);
 
   // Margen
   const [margen, setMargen] = useState(MARGEN_MINIMO);
@@ -132,7 +136,9 @@ export default function CotizacionModal({ onClose, onSave }) {
 
   const totalBase = parseFloat(items.reduce((s, i) => s + (i.subtotalBase ?? i.subtotal), 0).toFixed(2));
   const margenMonto = parseFloat((totalBase * margen / 100).toFixed(2));
-  const total = parseFloat((totalBase + margenMonto).toFixed(2));
+  const valorVenta = parseFloat((totalBase + margenMonto).toFixed(2));
+  const igvMonto = parseFloat((conIgv ? valorVenta * IGV_RATE : 0).toFixed(2));
+  const totalFinal = parseFloat((valorVenta + igvMonto).toFixed(2));
 
   const abrirVistaPrevia = () => {
     if (!clienteId || items.length === 0) {
@@ -143,7 +149,7 @@ export default function CotizacionModal({ onClose, onSave }) {
   };
 
   const handleSave = () => {
-    onSave({ clienteId, items, margen });
+    onSave({ clienteId, items, margen, conIgv });
     onClose();
   };
 
@@ -295,6 +301,18 @@ export default function CotizacionModal({ onClose, onSave }) {
               </div>
             )}
 
+            {/* IGV Toggle */}
+            <div className={styles.igvRow}>
+              <span className={styles.igvLabel}>IGV (18%)</span>
+              <label className={`${styles.toggle} ${conIgv ? styles.toggleOn : ""}`}>
+                <input type="checkbox" checked={conIgv} onChange={(e) => setConIgv(e.target.checked)} />
+                <span className={styles.toggleTrack}><span className={styles.toggleThumb} /></span>
+              </label>
+              <span className={conIgv ? styles.igvBadge : styles.igvBadgeSin}>
+                {conIgv ? "Precios con IGV" : "Precios sin IGV"}
+              </span>
+            </div>
+
             {/* Buscar y agregar producto */}
             <label className={styles.label}>Agregar producto</label>
             <input
@@ -384,9 +402,21 @@ export default function CotizacionModal({ onClose, onSave }) {
                     <span>Rentabilidad ({margen}%)</span>
                     <span>+ {fmt(margenMonto)}</span>
                   </div>
+                  {conIgv && (
+                    <>
+                      <div className={`${styles.resumenFila} ${styles.resumenValorVenta}`}>
+                        <span>Valor de venta</span>
+                        <span>{fmt(valorVenta)}</span>
+                      </div>
+                      <div className={`${styles.resumenFila} ${styles.resumenIgv}`}>
+                        <span>IGV (18%)</span>
+                        <span>+ {fmt(igvMonto)}</span>
+                      </div>
+                    </>
+                  )}
                   <div className={`${styles.resumenFila} ${styles.resumenTotal}`}>
-                    <span>Total para cliente</span>
-                    <span>{fmt(total)}</span>
+                    <span>{conIgv ? "Total con IGV" : "Total sin IGV"}</span>
+                    <span>{fmt(totalFinal)}</span>
                   </div>
                 </div>
               </>
@@ -464,9 +494,21 @@ export default function CotizacionModal({ onClose, onSave }) {
                 <span>Rentabilidad ({margen}%)</span>
                 <span>+ {fmt(margenMonto)}</span>
               </div>
+              {conIgv && (
+                <>
+                  <div className={`${styles.resumenFila} ${styles.resumenValorVenta}`}>
+                    <span>Valor de venta</span>
+                    <span>{fmt(valorVenta)}</span>
+                  </div>
+                  <div className={`${styles.resumenFila} ${styles.resumenIgv}`}>
+                    <span>IGV (18%)</span>
+                    <span>+ {fmt(igvMonto)}</span>
+                  </div>
+                </>
+              )}
               <div className={`${styles.resumenFila} ${styles.resumenTotal}`}>
-                <span>Total para cliente</span>
-                <span>{fmt(total)}</span>
+                <span>{conIgv ? "Total con IGV" : "Total sin IGV"}</span>
+                <span>{fmt(totalFinal)}</span>
               </div>
             </div>
 

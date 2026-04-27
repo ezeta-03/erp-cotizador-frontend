@@ -44,11 +44,12 @@ export default function CotizacionesHistorial() {
     return matchEstado && matchCliente && matchVendedor;
   });
 
-  const guardarCotizacion = async ({ clienteId, items, margen }) => {
+  const guardarCotizacion = async ({ clienteId, items, margen, conIgv }) => {
     const data = {
       clienteId,
       usuarioId: user.id,
       margen,
+      conIgv,
       items: items.map((i) => ({
         productoId: i.productoId,
         cantidad: i.cantidad,
