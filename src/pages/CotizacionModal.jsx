@@ -127,7 +127,7 @@ export default function CotizacionModal({ onClose, onSave }) {
   const actualizarCantidad = (idx, value) => {
     setItems((prev) => {
       const next = [...prev];
-      next[idx].cantidad = Math.max(1, Number(value));
+      next[idx].cantidad = Math.max(0.01, parseFloat(value) || 0.01);
       next[idx].subtotalBase = parseFloat((next[idx].precioBase * next[idx].cantidad).toFixed(2));
       next[idx].subtotal = parseFloat((next[idx].precio * next[idx].cantidad).toFixed(2));
       return next;
@@ -364,7 +364,8 @@ export default function CotizacionModal({ onClose, onSave }) {
                         <td>
                           <input
                             type="number"
-                            min="1"
+                            min="0.01"
+                            step="0.01"
                             value={item.cantidad}
                             onChange={(e) => actualizarCantidad(idx, e.target.value)}
                             className={styles.inputCantidad}
