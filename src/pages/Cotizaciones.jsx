@@ -21,7 +21,7 @@ export default function Cotizaciones() {
       items: items.map((i) => ({
         productoId: i.productoId,
         cantidad: i.cantidad,
-        costo_material: i.costo_material,
+        precio: i.precio,
         adicionales: i.adicionales.map((a) => ({
           id: a.id,
           nombre: a.nombre,
