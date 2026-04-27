@@ -1,176 +1,247 @@
-// Función de utilidad para descargar PDFs de forma segura
 export const descargarPDF = async (cotizacionId, token, numero = null) => {
   const pdfUrl = `${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacionId}/pdf?token=${token}`;
 
-  try {
-    // Descargar el PDF completo
-    const response = await fetch(pdfUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+  const response = await fetch(pdfUrl, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    // Obtener el blob del PDF
-    const pdfBlob = await response.blob();
-    console.log('📄 Blob recibido, tamaño:', pdfBlob.size, 'bytes, tipo:', pdfBlob.type);
+  const pdfBlob = await response.blob();
+  if (pdfBlob.size === 0) throw new Error("PDF vacío recibido del servidor");
 
-    // Verificar que el blob tenga contenido
-    if (pdfBlob.size === 0) {
-      throw new Error('PDF vacío recibido del servidor');
-    }
-
-    // Crear URL del objeto blob
-    const pdfUrlBlob = URL.createObjectURL(pdfBlob);
-
-    // Crear enlace para descargar
-    const link = document.createElement('a');
-    link.href = pdfUrlBlob;
-    link.download = `COT-${numero || cotizacionId}.pdf`;
-    link.target = '_blank';
-
-    // Agregar al DOM y hacer clic
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Limpiar el URL del objeto después de un tiempo
-    setTimeout(() => {
-      URL.revokeObjectURL(pdfUrlBlob);
-    }, 1000);
-
-    return true; // Éxito
-  } catch (error) {
-    console.error('Error descargando PDF desde backend:', error);
-    throw error; // Re-lanzar para que el caller lo maneje
-  }
+  const url = URL.createObjectURL(pdfBlob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `COT-${numero || cotizacionId}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
-// Función alternativa para generar PDF usando jsPDF (compatible con Vercel/Render)
 export const generarPDFCliente = async (cotizacion) => {
-  try {
-    // Import dinámico para evitar problemas de build
-    const { default: jsPDF } = await import('jspdf');
-    const { default: autoTable } = await import('jspdf-autotable');
+  const { default: jsPDF } = await import("jspdf");
+  const { default: autoTable } = await import("jspdf-autotable");
 
-    const doc = new jsPDF();
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
 
-    // Configuración de colores y fuentes
-    const primaryColor = [253, 97, 19]; // Naranja ZAAZMAGO
-    const secondaryColor = [16, 176, 129]; // Verde
+  const GRAY    = [107, 114, 128];
+  const LGRAY   = [209, 213, 219];
+  const BLACK   = [17, 17, 17];
+  const BLUE    = [29, 78, 216];
+  const GREEN   = [22, 101, 52];
+  const GBG     = [220, 252, 231];
+  const SINBG   = [243, 244, 246];
+  const SINGRAY = [107, 114, 128];
 
-    // Encabezado
-    doc.setFillColor(...primaryColor);
-    doc.rect(0, 0, 210, 40, 'F');
+  const conIgv     = cotizacion.conIgv !== undefined ? cotizacion.conIgv : true;
+  const total      = cotizacion.total || 0;
+  const valorVenta = conIgv ? parseFloat((total / 1.18).toFixed(2)) : total;
+  const igvMonto   = conIgv ? parseFloat((total - valorVenta).toFixed(2)) : 0;
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(20);
-    doc.text('ZAAZMAGO', 105, 15, { align: 'center' });
+  const S = (v) => `S/ ${(v || 0).toFixed(2)}`;
 
-    doc.setFontSize(14);
-    doc.text('Cotización de Servicios', 105, 25, { align: 'center' });
+  const fecha = cotizacion.createdAt
+    ? new Date(cotizacion.createdAt).toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" })
+    : "N/A";
 
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(12);
+  const PW = 210;
+  const ML = 18;
+  const MR = 18;
+  const CW = PW - ML - MR;
 
-    // Información de la cotización
-    let yPosition = 50;
+  let y = 18;
 
-    doc.setFontSize(14);
-    doc.setTextColor(...primaryColor);
-    doc.text(`Cotización ${cotizacion.numero || 'N/A'}`, 20, yPosition);
-    yPosition += 10;
+  // ── Brand ──
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.setTextColor(...BLACK);
+  doc.text("ZAAZMAGO", ML, y);
 
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Cliente: ${cotizacion.cliente?.nombreComercial || 'N/A'}`, 20, yPosition);
-    yPosition += 6;
-    doc.text(`Fecha: ${new Date(cotizacion.createdAt).toLocaleDateString()}`, 20, yPosition);
-    yPosition += 6;
-    doc.text(`Estado: ${cotizacion.estado}`, 20, yPosition);
-    yPosition += 15;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  doc.text("PUBLICIDAD & DISEÑO", ML, y + 5);
 
-    // Tabla de productos
-    const tableData = cotizacion.items ? cotizacion.items.map(item => {
-      const productoNombre = item.producto?.material || item.producto?.servicio || item.producto?.nombre || 'Producto';
-      const glosa = item.glosa || '';
-      return [
-        item.cantidad || 0,
-        `${productoNombre} ${glosa}`,
-        `S/. ${(item.precio || 0).toFixed(2)}`,
-        `S/. ${(item.subtotal || 0).toFixed(2)}`
-      ];
-    }) : [];
+  // Doc info (right)
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...BLACK);
+  doc.text(`Cotización ${cotizacion.numero || "N/A"}`, PW - MR, y, { align: "right" });
 
-    if (tableData.length > 0) {
-      autoTable(doc, {
-        startY: yPosition,
-        head: [['Cant.', 'Producto', 'Precio Unit.', 'Subtotal']],
-        body: tableData,
-        theme: 'grid',
-        headStyles: {
-          fillColor: primaryColor,
-          textColor: [255, 255, 255],
-          fontSize: 10
-        },
-        bodyStyles: {
-          fontSize: 9
-        },
-        columnStyles: {
-          0: { cellWidth: 20 },
-          1: { cellWidth: 100 },
-          2: { cellWidth: 35 },
-          3: { cellWidth: 35 }
-        }
-      });
-    }
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  doc.text(fecha, PW - MR, y + 5, { align: "right" });
 
-    // Total
-    const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : yPosition + 20;
-    doc.setFontSize(12);
-    doc.setTextColor(...secondaryColor);
-    doc.text(`TOTAL: S/. ${cotizacion.total ? cotizacion.total.toFixed(2) : '0.00'}`, 150, finalY, { align: 'right' });
+  const estado = cotizacion.estado || "PENDIENTE";
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text(estado, PW - MR, y + 10, { align: "right" });
 
-    // Pie de página
-    const pageHeight = doc.internal.pageSize.height;
-    doc.setFontSize(8);
-    doc.setTextColor(128, 128, 128);
-    doc.text('ZAAZMAGO - Cotización generada automáticamente', 105, pageHeight - 20, { align: 'center' });
-    doc.text('ventas@zaazmago.com | +51 999 999 999', 105, pageHeight - 10, { align: 'center' });
+  y += 16;
 
-    // Descargar el PDF
-    const fileName = `COT-${cotizacion.numero || cotizacion.id || 'NUEVA'}.pdf`;
-    doc.save(fileName);
+  // ── Separator ──
+  doc.setDrawColor(...BLACK);
+  doc.setLineWidth(0.6);
+  doc.line(ML, y, PW - MR, y);
+  y += 10;
 
-    return true;
-  } catch (error) {
-    console.error('Error generando PDF con jsPDF:', error);
-    throw error;
+  // ── Cliente ──
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...GRAY);
+  doc.text("PARA", ML, y);
+  y += 5;
+
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...BLACK);
+  doc.text(cotizacion.cliente?.nombreComercial || "N/A", ML, y);
+  y += 5;
+
+  if (cotizacion.cliente?.nombreContacto) {
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(...GRAY);
+    doc.text(cotizacion.cliente.nombreContacto, ML, y);
+    y += 4;
   }
+  if (cotizacion.cliente?.email) {
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(...GRAY);
+    doc.text(cotizacion.cliente.email, ML, y);
+    y += 4;
+  }
+
+  y += 8;
+
+  // ── Items table ──
+  const tableData = (cotizacion.items || []).map((item, i) => {
+    const nombre = item.producto?.nombre || item.producto?.servicio || item.producto?.material || "Producto";
+    const glosa  = item.descripcion || item.glosa || "";
+    return [
+      `${i + 1}`,
+      glosa ? `${nombre}\n${glosa}` : nombre,
+      `${item.cantidad || 0}`,
+      S(item.precio),
+      S(item.subtotal),
+    ];
+  });
+
+  autoTable(doc, {
+    startY: y,
+    head: [["#", "Descripción", "Cant.", "Precio unit.", "Subtotal"]],
+    body: tableData,
+    theme: "plain",
+    headStyles: {
+      fontStyle: "bold",
+      fontSize: 7.5,
+      textColor: GRAY,
+      cellPadding: { top: 0, right: 4, bottom: 4, left: 0 },
+      lineWidth: { bottom: 0.4 },
+      lineColor: BLACK,
+    },
+    bodyStyles: {
+      fontSize: 9,
+      textColor: BLACK,
+      cellPadding: { top: 3.5, right: 4, bottom: 3.5, left: 0 },
+      lineWidth: { bottom: 0.1 },
+      lineColor: [243, 244, 246],
+    },
+    alternateRowStyles: {},
+    columnStyles: {
+      0: { cellWidth: 8,  textColor: GRAY, fontSize: 8 },
+      1: { cellWidth: 90, fontStyle: "bold" },
+      2: { cellWidth: 14, halign: "center" },
+      3: { cellWidth: 30, halign: "right" },
+      4: { cellWidth: 30, halign: "right", fontStyle: "bold" },
+    },
+    margin: { left: ML, right: MR },
+  });
+
+  y = doc.lastAutoTable.finalY + 8;
+
+  // ── Totals ──
+  const totalsX = PW - MR - 65;
+  const valX    = PW - MR;
+
+  const drawTotalsRow = (label, value, opts = {}) => {
+    doc.setFontSize(opts.large ? 13 : 9.5);
+    doc.setFont("helvetica", opts.bold ? "bold" : "normal");
+    doc.setTextColor(...(opts.color || [55, 65, 81]));
+    doc.text(label, totalsX, y);
+    doc.text(value, valX, y, { align: "right" });
+    y += opts.large ? 6 : 5.5;
+  };
+
+  if (conIgv) {
+    drawTotalsRow("Valor de venta", S(valorVenta));
+    doc.setTextColor(...BLUE);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.text("IGV (18%)", totalsX, y);
+    doc.text(`+ ${S(igvMonto)}`, valX, y, { align: "right" });
+    y += 5.5;
+
+    doc.setDrawColor(...LGRAY);
+    doc.setLineWidth(0.2);
+    doc.line(totalsX, y + 1, valX, y + 1);
+    y += 5;
+  }
+
+  // Total row
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...BLACK);
+  doc.text("Total", totalsX, y);
+  doc.text(S(total), valX, y, { align: "right" });
+
+  // Badge: Con IGV / Sin IGV
+  const badgeLabel = conIgv ? "Con IGV" : "Sin IGV";
+  const badgeBg    = conIgv ? GBG : SINBG;
+  const badgeText  = conIgv ? GREEN : SINGRAY;
+  const badgeW     = 14;
+  const badgeH     = 4;
+  const badgeX     = totalsX + doc.getTextWidth("Total") + 2;
+  const badgeY     = y - 3.5;
+  doc.setFillColor(...badgeBg);
+  doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 1.5, 1.5, "F");
+  doc.setFontSize(6.5);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...badgeText);
+  doc.text(badgeLabel, badgeX + badgeW / 2, badgeY + 2.8, { align: "center" });
+
+  // ── Footer ──
+  const PH = doc.internal.pageSize.height;
+  doc.setDrawColor(...LGRAY);
+  doc.setLineWidth(0.2);
+  doc.line(ML, PH - 18, PW - MR, PH - 18);
+
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(...GRAY);
+  doc.text("Cotización válida por 15 días hábiles desde la fecha de emisión.", ML, PH - 12);
+
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...LGRAY);
+  doc.text("ZAAZMAGO", PW - MR, PH - 12, { align: "right" });
+
+  doc.save(`COT-${cotizacion.numero || cotizacion.id || "NUEVA"}.pdf`);
 };
 
-// Función inteligente que intenta backend primero, luego jsPDF como fallback
 export const descargarPDFInteligente = async (cotizacion, token) => {
   try {
-    // Intentar primero con el backend (Puppeteer)
-    console.log('🔄 Intentando descargar PDF desde backend...');
     await descargarPDF(cotizacion.id, token, cotizacion.numero);
-    console.log('✅ PDF descargado exitosamente desde backend');
-  } catch (error) {
-    console.warn('⚠️ Error descargando PDF desde backend, usando jsPDF como alternativa...', error);
-
+  } catch {
     try {
-      // Fallback: generar PDF con jsPDF
-      console.log('📄 Generando PDF con jsPDF...');
       await generarPDFCliente(cotizacion);
-      console.log('✅ PDF generado exitosamente con jsPDF');
-    } catch (fallbackError) {
-      console.error('❌ Error generando PDF con jsPDF:', fallbackError);
-      alert('Error generando PDF. Por favor, contacte al administrador.');
+    } catch (err) {
+      console.error("❌ Error generando PDF:", err);
+      alert("Error generando PDF. Por favor, contacte al administrador.");
     }
   }
 };
