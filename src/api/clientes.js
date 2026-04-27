@@ -43,3 +43,9 @@ export const actividadesClientes = async (clienteId) => {
   const res = await api.get(`/clientes/${clienteId}/actividad`);
   return res.data;
 };
+
+// Activar / desactivar cliente (soft-delete)
+export const cambiarEstadoCliente = async (id, activo) => {
+  const { data } = await api.patch(`/clientes/${id}/estado`, { activo });
+  return data;
+};
