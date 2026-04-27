@@ -122,7 +122,7 @@ export const generarPDFCliente = async (cotizacion) => {
   // ── IGV notice ──
   const noticeBg   = conIgv ? GBG : SINBG;
   const noticeText = conIgv ? GREEN : SINGRAY;
-  const noticeStr  = conIgv ? "✓ Precios con IGV incluido (18%)" : "· Precios sin IGV — valor de venta";
+  const noticeStr  = conIgv ? "Precios con IGV incluido (18%)" : "Precios sin IGV (valor de venta)";
   const noticeW    = doc.getTextWidth(noticeStr) + 8;
   doc.setFillColor(...noticeBg);
   doc.roundedRect(ML, y - 4, noticeW, 6.5, 1.5, 1.5, "F");
