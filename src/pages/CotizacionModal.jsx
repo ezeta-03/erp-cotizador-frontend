@@ -223,10 +223,14 @@ export default function CotizacionModal({ onClose, onSave }) {
                   step="0.5"
                   value={margenInput}
                   onChange={(e) => handleMargenChange(e.target.value)}
-                  className={`${styles.margenInput} ${margenBajoMinimo ? styles.margenInputError : ""}`}
+                  className={`${styles.margenInput} ${margenBajoMinimo && !margenPermitido ? styles.margenInputError : ""}`}
+                  disabled={margenBajoMinimo && margenPermitido}
                 />
                 <span className={styles.margenSuffix}>%</span>
-                {margenBajoMinimo && (
+                {margenBajoMinimo && margenPermitido && (
+                  <span className={styles.margenOk}>🔒 Aprobado</span>
+                )}
+                {margenBajoMinimo && !margenPermitido && (
                   <span className={styles.margenWarn}>mínimo {MARGEN_MINIMO}%</span>
                 )}
                 {!margenBajoMinimo && margen > MARGEN_MINIMO && (

@@ -378,6 +378,13 @@
   &:hover { background: #374151; }
 }
 
+/* input deshabilitado (margen aprobado) */
+input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
 /* ── Desglose financiero ── */
 .resumenFinanciero {
   margin-top: 0.75rem;

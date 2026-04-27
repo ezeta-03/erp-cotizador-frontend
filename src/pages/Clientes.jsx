@@ -12,6 +12,29 @@ import styles from "./clientes.module.scss";
 import ClienteFormModal from "../pages/ClienteFormModal";
 import ActividadClienteModal from "../pages/ActividadClienteModal";
 
+// Badge de estado del usuario vinculado al cliente
+function EstadoUsuarioBadge({ usuario }) {
+  if (!usuario) {
+    return (
+      <span style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", borderRadius: "99px", background: "#f3f4f6", color: "#6b7280", fontWeight: 600 }}>
+        Sin cuenta
+      </span>
+    );
+  }
+  if (usuario.activo) {
+    return (
+      <span style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", borderRadius: "99px", background: "#dcfce7", color: "#166534", fontWeight: 600 }}>
+        Activo
+      </span>
+    );
+  }
+  return (
+    <span style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", borderRadius: "99px", background: "#fef9c3", color: "#854d0e", fontWeight: 600 }}>
+      Invitado
+    </span>
+  );
+}
+
 export default function Clientes() {
   const { user } = useAuth();
   const [clientes, setClientes] = useState([]);
@@ -27,6 +50,7 @@ export default function Clientes() {
   const [showFormModal, setShowFormModal] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState(null);
   const [actividad, setActividad] = useState([]);
+  const [invitandoId, setInvitandoId] = useState(null);
 
   const cargarClientes = useCallback(async () => {
     const data = await getClientes();
@@ -39,20 +63,12 @@ export default function Clientes() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = { ...form };
     if (editId) {
-      await updateCliente(editId, payload);
+      await updateCliente(editId, { ...form });
     } else {
-      await createCliente(payload);
+      await createCliente({ ...form });
     }
-    setForm({
-      nombreComercial: "",
-      documento: "",
-      nombreContacto: "",
-      telefono: "",
-      email: "",
-      direccion: "",
-    });
+    setForm({ nombreComercial: "", documento: "", nombreContacto: "", telefono: "", email: "", direccion: "" });
     setEditId(null);
     setShowFormModal(false);
     cargarClientes();
@@ -78,17 +94,23 @@ export default function Clientes() {
   };
 
   const handleInvitar = async (cliente) => {
-  const email = prompt(`Email para invitar a ${cliente.nombreComercial}:`, cliente.email || "");
-  if (!email) return;
-  
-  try {
-    await invitarCliente(cliente.id, email);
-    alert("📧 Invitación enviada correctamente");
-  } catch (error) {
-    console.error("Error al invitar:", error);
-    alert("❌ Error al enviar la invitación: " + (error.response?.data?.message || error.message));
-  }
-};
+    const emailSugerido = cliente.email || "";
+    const email = prompt(
+      `${cliente.usuario ? "Reenviar invitación a" : "Invitar a"} ${cliente.nombreComercial}.\nEmail:`,
+      emailSugerido
+    );
+    if (!email) return;
+    setInvitandoId(cliente.id);
+    try {
+      await invitarCliente(cliente.id, email);
+      alert("📧 Invitación enviada correctamente");
+      cargarClientes();
+    } catch (error) {
+      alert("❌ " + (error.response?.data?.message || error.message));
+    } finally {
+      setInvitandoId(null);
+    }
+  };
 
   const handleActividad = async (cliente) => {
     const data = await getActividadClientes({ clienteId: cliente.id });
@@ -96,11 +118,13 @@ export default function Clientes() {
     setSelectedCliente(cliente);
   };
 
+  const puedeGestionar = user.role === "ADMIN" || user.role === "VENTAS";
+
   return (
     <div className={styles.container}>
       <h2>Gestión de Clientes</h2>
 
-      {(user.role === "ADMIN" || user.role === "VENTAS") && (
+      {puedeGestionar && (
         <button className={styles.btnAdd} onClick={() => setShowFormModal(true)}>
           🙋 Crear Cliente
         </button>
@@ -111,27 +135,33 @@ export default function Clientes() {
           <div key={c.id} className={styles.card} onClick={() => handleActividad(c)}>
             <div className={styles.header}>
               <span className={styles.nombre}>{c.nombreComercial}</span>
-              <span className={styles.documento}>{c.documento}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <EstadoUsuarioBadge usuario={c.usuario} />
+                <span className={styles.documento}>{c.documento}</span>
+              </div>
             </div>
             <p className={styles.contacto}>{c.nombreContacto}</p>
             <p className={styles.email}>{c.email}</p>
-            <p className={styles.telefono}> {c.telefono}</p>
-            <p className={styles.direccion}> {c.direccion}</p>
+            <p className={styles.telefono}>{c.telefono}</p>
+            <p className={styles.direccion}>{c.direccion}</p>
 
-            {(user.role === "ADMIN" || user.role === "VENTAS") && (
+            {puedeGestionar && (
               <div className={styles.actions}>
                 <button className={styles.btnEdit} onClick={(e) => { e.stopPropagation(); handleEdit(c); }}>
                   🛡 Editar
                 </button>
-                {(user.role === "ADMIN" || user.role === "VENTAS") && (
-                  <>
-                    <button className={styles.btnDelete} onClick={(e) => { e.stopPropagation(); handleDelete(c.id); }}>
-                      ❌ Eliminar
-                    </button>
-                    <button className={styles.btnInvite} onClick={(e) => { e.stopPropagation(); handleInvitar(c); }}>
-                      🚸 Invitar
-                    </button>
-                  </>
+                <button className={styles.btnDelete} onClick={(e) => { e.stopPropagation(); handleDelete(c.id); }}>
+                  ❌ Eliminar
+                </button>
+                {/* Solo mostrar invitar si el cliente no tiene cuenta activa */}
+                {(!c.usuario || !c.usuario.activo) && (
+                  <button
+                    className={styles.btnInvite}
+                    disabled={invitandoId === c.id}
+                    onClick={(e) => { e.stopPropagation(); handleInvitar(c); }}
+                  >
+                    🚸 {c.usuario ? "Reinvitar" : "Invitar"}
+                  </button>
                 )}
               </div>
             )}

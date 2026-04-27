@@ -18,7 +18,6 @@ export default function Usuarios() {
     email: "",
     password: "",
     role: "VENTAS",
-    clienteId: "",
   });
   const [editId, setEditId] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -50,20 +49,14 @@ export default function Usuarios() {
       if (form.password) payload.password = form.password;
       await updateUsuario(editId, payload);
     }
-    setForm({ nombre: "", email: "", password: "", role: "VENTAS", clienteId: "" });
+    setForm({ nombre: "", email: "", password: "", role: "VENTAS" });
     setEditId(null);
     setShowModal(false);
     cargarUsuarios();
   };
 
   const handleEdit = (u) => {
-    setForm({
-      nombre: u.nombre,
-      email: u.email,
-      password: "",
-      role: u.role,
-      clienteId: u.clienteId || "",
-    });
+    setForm({ nombre: u.nombre, email: u.email, password: "", role: u.role });
     setEditId(u.id);
     setShowModal(true);
   };

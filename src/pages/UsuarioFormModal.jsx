@@ -50,7 +50,6 @@ export default function UsuarioFormModal({ form, setForm, editId, onSubmit, onCa
             <option value="ADMIN">Administrador</option>
             <option value="VENTAS">Ventas</option>
             <option value="CONTABLE">Contabilidad</option>
-            <option value="CLIENTE">Cliente</option>
           </select>
 
           <div className={styles.actions}>
