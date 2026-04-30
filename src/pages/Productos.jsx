@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useAuth from "../auth/useAuth";
 import {
   getProductos,
@@ -28,7 +28,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const POR_PAGINA = 25;
+const POR_PAGINA = 15;
 
 const PLANTILLA_CSV = `Producto;Precio de Produccion\nBANNER DELGADO 10 ONZAS;S/ 9.00\nBANNER GRUESO 12 ONZAS;S/ 13.50`;
 
@@ -41,6 +41,7 @@ export default function Productos() {
 
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
+  const [categoriaFiltro, setCategoriaFiltro] = useState("TODOS");
   const [loading, setLoading] = useState(true);
   const [confirmEliminarTodos, setConfirmEliminarTodos] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -70,9 +71,23 @@ export default function Productos() {
 
   useEffect(() => { cargarProductos(); }, []);
 
-  const productosFiltrados = productos.filter((p) =>
-    (p.nombre || p.servicio || "").toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const categorias = useMemo(() => {
+    const cats = [...new Set(productos.map((p) => p.categoria || "GENERAL"))].sort();
+    return ["TODOS", ...cats];
+  }, [productos]);
+
+  const contPorCategoria = useMemo(() => {
+    const m = {};
+    productos.forEach((p) => { const c = p.categoria || "GENERAL"; m[c] = (m[c] || 0) + 1; });
+    return m;
+  }, [productos]);
+
+  const productosFiltrados = useMemo(() => productos.filter((p) => {
+    const matchTexto = !busqueda || (p.nombre || p.servicio || "").toLowerCase().includes(busqueda.toLowerCase());
+    const matchCat = categoriaFiltro === "TODOS" || (p.categoria || "GENERAL") === categoriaFiltro;
+    return matchTexto && matchCat;
+  }), [productos, busqueda, categoriaFiltro]);
+
   const totalPaginas = Math.max(1, Math.ceil(productosFiltrados.length / POR_PAGINA));
   const productosPagina = productosFiltrados.slice((paginaActual - 1) * POR_PAGINA, paginaActual * POR_PAGINA);
 
@@ -535,12 +550,31 @@ export default function Productos() {
         <ConfiguracionForm onRecalcular={cargarProductos} />
       )} */}
 
+      {/* ── Chips de categoría ── */}
+      {!loading && productos.length > 0 && (
+        <div className={styles.catFiltros}>
+          {categorias.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              className={`${styles.catChip} ${categoriaFiltro === cat ? styles.catChipActive : ""}`}
+              onClick={() => { setCategoriaFiltro(cat); setPaginaActual(1); }}
+            >
+              {cat}
+              {cat !== "TODOS" && (
+                <span className={styles.catCount}>{contPorCategoria[cat] ?? 0}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* ── Buscador ── */}
       <div className={styles.searchBar}>
         <Search size={16} className={styles.searchIcon} />
         <input
           type="text"
-          placeholder="Buscar producto..."
+          placeholder={`Buscar${categoriaFiltro !== "TODOS" ? ` en ${categoriaFiltro}` : " producto"}…`}
           value={busqueda}
           onChange={(e) => { setBusqueda(e.target.value); setPaginaActual(1); }}
           className={styles.searchInput}
@@ -559,8 +593,8 @@ export default function Productos() {
         </div>
       ) : productosFiltrados.length === 0 ? (
         <div className={styles.emptyState}>
-          {busqueda
-            ? `Sin resultados para "${busqueda}"`
+          {busqueda || categoriaFiltro !== "TODOS"
+            ? `Sin resultados${busqueda ? ` para "${busqueda}"` : ""}${categoriaFiltro !== "TODOS" ? ` en ${categoriaFiltro}` : ""}`
             : "No hay productos. Importa un CSV para comenzar."}
         </div>
       ) : (
@@ -582,8 +616,19 @@ export default function Productos() {
                 <tr key={p.id}>
                   <td className={styles.tdIdx}>{(paginaActual - 1) * POR_PAGINA + idx + 1}</td>
                   <td className={styles.tdNombre}>
-                    {p.nombre || p.servicio}
-                    {p.origen === "MANUAL" && <span className={styles.badgeManual}>Manual</span>}
+                    <span className={styles.productoNombreText}>{p.nombre || p.servicio}</span>
+                    <div className={styles.productoBadges}>
+                      {p.categoria && (
+                        <span className={styles.badgeCat}>{p.categoria}</span>
+                      )}
+                      {p.tipoMedida && p.tipoMedida !== "UNIDAD" && (
+                        <span className={styles.badgeTipo}>
+                          {p.tipoMedida === "AREA" ? "m²" : p.tipoMedida === "LINEAL" ? "lineal" : "peso"}
+                          {p.unidad ? ` · ${p.unidad}` : ""}
+                        </span>
+                      )}
+                      {p.origen === "MANUAL" && <span className={styles.badgeManual}>Manual</span>}
+                    </div>
                   </td>
                   <td className={styles.tdPrecio}>{fmt(p.precio_final)}</td>
                   {user.role === "ADMIN" && (

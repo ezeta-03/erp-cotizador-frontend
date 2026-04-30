@@ -227,6 +227,87 @@
   }
 }
 
+/* ── Chips de categoría ── */
+.catFiltros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.catChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid $gray-200;
+  border-radius: 99px;
+  background: $white;
+  color: $gray-600;
+  font-size: 0.775rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition;
+  white-space: nowrap;
+
+  &:hover { border-color: $gray-400; background: $gray-50; }
+}
+
+.catChipActive {
+  background: $black;
+  border-color: $black;
+  color: $white;
+
+  .catCount { background: rgba(255,255,255,.18); color: $white; }
+}
+
+.catCount {
+  background: $gray-100;
+  color: $gray-600;
+  border-radius: 99px;
+  padding: 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ── Badges inline en filas ── */
+.productoNombreText {
+  display: block;
+  font-weight: 500;
+  color: $gray-900;
+}
+
+.productoBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.25rem;
+}
+
+.badgeCat {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  background: $gray-100;
+  color: $gray-600;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.badgeTipo {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
 /* ── Buscador ── */
 .searchBar {
   display: flex;
