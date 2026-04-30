@@ -6,6 +6,7 @@ import {
   previewProductosCSV,
   importarProductosCSV,
   eliminarTodosProductos,
+  updateTipoMedida,
 } from "../api/productos";
 // import ConfiguracionForm from "../coomponents/ConfiguracionForm";
 import styles from "./productos.module.scss";
@@ -124,6 +125,28 @@ export default function Productos() {
       await cargarProductos();
     } catch (err) {
       alert("Error: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  // ── Tipo de medida + unidad (inline) ────────────────────────────────────────
+  const handleTipoMedidaChange = async (id, tipoMedida) => {
+    setProductos((prev) => prev.map((p) => p.id === id ? { ...p, tipoMedida } : p));
+    try {
+      const updated = await updateTipoMedida(id, { tipoMedida });
+      setProductos((prev) => prev.map((p) => p.id === id ? { ...p, ...updated } : p));
+    } catch {
+      cargarProductos();
+    }
+  };
+
+  const handleUnidadChange = async (id, unidad) => {
+    const prod = productos.find((p) => p.id === id);
+    if (!prod) return;
+    setProductos((prev) => prev.map((p) => p.id === id ? { ...p, unidad } : p));
+    try {
+      await updateTipoMedida(id, { tipoMedida: prod.tipoMedida || "UNIDAD", unidad });
+    } catch {
+      cargarProductos();
     }
   };
 
@@ -432,6 +455,8 @@ export default function Productos() {
                 <th>#</th>
                 <th>Nombre del producto</th>
                 <th>Precio producción</th>
+                {user.role === "ADMIN" && <th>Tipo de medida</th>}
+                {user.role === "ADMIN" && <th>Unidad</th>}
                 <th>Estado</th>
                 {user.role === "ADMIN" && <th></th>}
               </tr>
@@ -442,6 +467,38 @@ export default function Productos() {
                   <td className={styles.tdIdx}>{idx + 1}</td>
                   <td className={styles.tdNombre}>{p.nombre || p.servicio}</td>
                   <td className={styles.tdPrecio}>{fmt(p.precio_final)}</td>
+                  {user.role === "ADMIN" && (
+                    <td>
+                      <select
+                        className={styles.selectTipo}
+                        value={p.tipoMedida || "UNIDAD"}
+                        onChange={(e) => handleTipoMedidaChange(p.id, e.target.value)}
+                      >
+                        <option value="UNIDAD">Unidades (pzas)</option>
+                        <option value="LINEAL">Lineal (m, cm…)</option>
+                        <option value="AREA">Area (Ancho × Alto)</option>
+                        <option value="PESO">Peso / Volumen (oz, kg…)</option>
+                      </select>
+                    </td>
+                  )}
+                  {user.role === "ADMIN" && (
+                    <td>
+                      {(p.tipoMedida && p.tipoMedida !== "UNIDAD") ? (
+                        <input
+                          type="text"
+                          className={styles.inputUnidad}
+                          value={p.unidad || ""}
+                          placeholder="m², oz…"
+                          onChange={(e) =>
+                            setProductos((prev) => prev.map((x) => x.id === p.id ? { ...x, unidad: e.target.value } : x))
+                          }
+                          onBlur={(e) => handleUnidadChange(p.id, e.target.value)}
+                        />
+                      ) : (
+                        <span className={styles.tdNA}>—</span>
+                      )}
+                    </td>
+                  )}
                   <td>
                     <span className={p.activo ? styles.badgeActivo : styles.badgeInactivo}>
                       {p.activo ? "Activo" : "Inactivo"}

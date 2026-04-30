@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getClientes } from "../api/clientes";
 import { getProductos } from "../api/productos";
 import { getMisAprobadas, crearSolicitud } from "../api/solicitudesMargen";
@@ -11,6 +11,37 @@ const nombreProducto = (p) => p?.nombre || p?.servicio || p?.material || "(sin n
 
 const fmt = (v) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
+
+// ── Input decimal: type="text" con teclado numérico — acepta coma o punto ──
+function DecimalInput({ value, onChange, className, disabled, min = 0.01, placeholder }) {
+  const [raw, setRaw] = useState(() => (value != null ? String(value) : ""));
+  const isFocused = useRef(false);
+
+  useEffect(() => {
+    if (!isFocused.current) {
+      setRaw(value != null ? String(value) : "");
+    }
+  }, [value]);
+
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={raw}
+      placeholder={placeholder}
+      disabled={disabled}
+      className={className}
+      onChange={(e) => setRaw(e.target.value.replace(/[^0-9.,]/g, ""))}
+      onFocus={() => { isFocused.current = true; }}
+      onBlur={() => {
+        isFocused.current = false;
+        const num = Math.max(min, parseFloat(raw.replace(",", ".")) || min);
+        setRaw(String(num));
+        onChange(num);
+      }}
+    />
+  );
+}
 
 export default function CotizacionModal({ onClose, onSave }) {
   const [clientes, setClientes] = useState([]);
@@ -25,7 +56,6 @@ export default function CotizacionModal({ onClose, onSave }) {
 
   // Margen
   const [margen, setMargen] = useState(MARGEN_MINIMO);
-  const [margenInput, setMargenInput] = useState(String(MARGEN_MINIMO));
   const margenBajoMinimo = margen < MARGEN_MINIMO;
 
   // Solicitud de margen reducido
@@ -53,7 +83,7 @@ export default function CotizacionModal({ onClose, onSave }) {
     nombreProducto(p).toLowerCase().includes(busquedaProducto.toLowerCase())
   );
 
-  // precio_final × medida (m² por pieza) + adicionales = precio por pieza; margen encima
+  // ── Recalcula precios manteniendo medida/dimensiones actuales ──────────────
   const recalcularItems = (nuevoMargen, prevItems) =>
     prevItems.map((item) => {
       const sumaAdicionales = item.adicionales
@@ -70,18 +100,34 @@ export default function CotizacionModal({ onClose, onSave }) {
       };
     });
 
-  const handleMargenChange = (val) => {
-    setMargenInput(val);
-    const num = parseFloat(val);
-    if (!isNaN(num) && num >= 0) {
-      setMargen(num);
-      setItems((prev) => recalcularItems(num, prev));
-    }
+  const handleMargenChange = (num) => {
+    setMargen(num);
+    setItems((prev) => recalcularItems(num, prev));
   };
 
+  // ── Helpers de recalculo de precios por item ───────────────────────────────
+  const _recalcItem = (item, nuevoMargen) => {
+    const sumaAdicionales = item.adicionales
+      .filter((a) => a.seleccionado)
+      .reduce((acc, a) => acc + Number(a.precio), 0);
+    const precioBase = parseFloat((item.precio_final * (item.medida || 1) + sumaAdicionales).toFixed(2));
+    const precio = parseFloat((precioBase * (1 + nuevoMargen / 100)).toFixed(2));
+    return {
+      ...item,
+      precioBase,
+      precio,
+      subtotalBase: parseFloat((precioBase * item.cantidad).toFixed(2)),
+      subtotal: parseFloat((precio * item.cantidad).toFixed(2)),
+    };
+  };
+
+  // ── Agregar producto ───────────────────────────────────────────────────────
   const agregarProducto = (producto) => {
-    const medida = 1;
-    const precioBase = parseFloat((Number(producto.precio_final) * medida).toFixed(2));
+    const tipoMedida = producto.tipoMedida || "UNIDAD";
+    const medidaAncho = 1;
+    const medidaAlto = 1;
+    const medida = tipoMedida === "AREA" ? medidaAncho * medidaAlto : 1;
+    const precioBase = parseFloat((producto.precio_final * medida).toFixed(2));
     const precio = parseFloat((precioBase * (1 + margen / 100)).toFixed(2));
     setItems((prev) => [
       ...prev,
@@ -90,7 +136,10 @@ export default function CotizacionModal({ onClose, onSave }) {
         nombre: nombreProducto(producto),
         precio_final: producto.precio_final,
         unidad: producto.unidad || "",
+        tipoMedida,
         medida,
+        medidaAncho,
+        medidaAlto,
         precioBase,
         precio,
         cantidad: 1,
@@ -110,51 +159,52 @@ export default function CotizacionModal({ onClose, onSave }) {
 
   const eliminarProducto = (idx) => setItems((prev) => prev.filter((_, i) => i !== idx));
 
+  // ── Adicionales ────────────────────────────────────────────────────────────
   const toggleAdicional = (idx, j, checked) => {
     setItems((prev) => {
+      const next = prev.map((item, i) => i !== idx ? item : { ...item });
+      next[idx].adicionales = next[idx].adicionales.map((a, k) =>
+        k !== j ? a : { ...a, seleccionado: checked }
+      );
+      return prev.map((item, i) => i !== idx ? item : _recalcItem(next[idx], margen));
+    });
+  };
+
+  // ── Dimensiones AREA (ancho × alto) ───────────────────────────────────────
+  const actualizarDimension = (idx, dim, value) => {
+    setItems((prev) => {
       const next = [...prev];
-      next[idx].adicionales[j].seleccionado = checked;
-      const sumaAdicionales = next[idx].adicionales
-        .filter((a) => a.seleccionado)
-        .reduce((acc, a) => acc + Number(a.precio), 0);
-      const precioBase = parseFloat((next[idx].precio_final * (next[idx].medida || 1) + sumaAdicionales).toFixed(2));
-      const precio = parseFloat((precioBase * (1 + margen / 100)).toFixed(2));
-      next[idx].precioBase = precioBase;
-      next[idx].precio = precio;
-      next[idx].subtotalBase = parseFloat((precioBase * next[idx].cantidad).toFixed(2));
-      next[idx].subtotal = parseFloat((precio * next[idx].cantidad).toFixed(2));
+      const item = { ...next[idx] };
+      if (dim === "ancho") item.medidaAncho = value;
+      else item.medidaAlto = value;
+      item.medida = parseFloat(((item.medidaAncho || 1) * (item.medidaAlto || 1)).toFixed(6));
+      next[idx] = _recalcItem(item, margen);
       return next;
     });
   };
 
+  // ── Medida simple (LINEAL / PESO) ─────────────────────────────────────────
   const actualizarMedida = (idx, value) => {
     setItems((prev) => {
       const next = [...prev];
-      const medida = Math.max(0.01, parseFloat(value) || 0.01);
-      next[idx].medida = medida;
-      const sumaAdicionales = next[idx].adicionales
-        .filter((a) => a.seleccionado)
-        .reduce((acc, a) => acc + Number(a.precio), 0);
-      const precioBase = parseFloat((next[idx].precio_final * medida + sumaAdicionales).toFixed(2));
-      const precio = parseFloat((precioBase * (1 + margen / 100)).toFixed(2));
-      next[idx].precioBase = precioBase;
-      next[idx].precio = precio;
-      next[idx].subtotalBase = parseFloat((precioBase * next[idx].cantidad).toFixed(2));
-      next[idx].subtotal = parseFloat((precio * next[idx].cantidad).toFixed(2));
+      next[idx] = _recalcItem({ ...next[idx], medida: value }, margen);
       return next;
     });
   };
 
+  // ── Cantidad (piezas) ─────────────────────────────────────────────────────
   const actualizarCantidad = (idx, value) => {
     setItems((prev) => {
       const next = [...prev];
-      next[idx].cantidad = Math.max(0.01, parseFloat(value) || 0.01);
-      next[idx].subtotalBase = parseFloat((next[idx].precioBase * next[idx].cantidad).toFixed(2));
-      next[idx].subtotal = parseFloat((next[idx].precio * next[idx].cantidad).toFixed(2));
+      const item = { ...next[idx], cantidad: value };
+      item.subtotalBase = parseFloat((item.precioBase * value).toFixed(2));
+      item.subtotal = parseFloat((item.precio * value).toFixed(2));
+      next[idx] = item;
       return next;
     });
   };
 
+  // ── Totales ────────────────────────────────────────────────────────────────
   const totalBase = parseFloat(items.reduce((s, i) => s + (i.subtotalBase ?? i.subtotal), 0).toFixed(2));
   const margenMonto = parseFloat((totalBase * margen / 100).toFixed(2));
   const valorVenta = parseFloat((totalBase + margenMonto).toFixed(2));
@@ -204,6 +254,57 @@ export default function CotizacionModal({ onClose, onSave }) {
     }
   };
 
+  // ── Helper: string descriptivo de medida para vista previa / PDF ───────────
+  const medidaStr = (item) => {
+    if (!item.tipoMedida || item.tipoMedida === "UNIDAD") return "—";
+    if (item.tipoMedida === "AREA") {
+      const a = parseFloat((item.medidaAncho || 1).toFixed(4));
+      const b = parseFloat((item.medidaAlto || 1).toFixed(4));
+      return `${a} × ${b}${item.unidad ? ` ${item.unidad}` : ""}`;
+    }
+    return `${parseFloat((item.medida || 1).toFixed(4))}${item.unidad ? ` ${item.unidad}` : ""}`;
+  };
+
+  // ── Celda de dimensiones en tabla interna ──────────────────────────────────
+  const renderMedidaCell = (item, idx) => {
+    if (!item.tipoMedida || item.tipoMedida === "UNIDAD") {
+      return <span className={styles.medidaNA}>—</span>;
+    }
+    if (item.tipoMedida === "AREA") {
+      return (
+        <div className={styles.medidaAreaCell}>
+          <DecimalInput
+            value={item.medidaAncho || 1}
+            onChange={(v) => actualizarDimension(idx, "ancho", v)}
+            className={styles.inputMedida}
+            placeholder="Ancho"
+          />
+          <span className={styles.medidaSep}>×</span>
+          <DecimalInput
+            value={item.medidaAlto || 1}
+            onChange={(v) => actualizarDimension(idx, "alto", v)}
+            className={styles.inputMedida}
+            placeholder="Alto"
+          />
+          {item.unidad && <span className={styles.unidadLabel}>{item.unidad}</span>}
+          <span className={styles.medidaResult}>
+            = {parseFloat(((item.medidaAncho || 1) * (item.medidaAlto || 1)).toFixed(4))}
+          </span>
+        </div>
+      );
+    }
+    return (
+      <div className={styles.medidaCell}>
+        <DecimalInput
+          value={item.medida || 1}
+          onChange={(v) => actualizarMedida(idx, v)}
+          className={styles.inputMedida}
+        />
+        {item.unidad && <span className={styles.unidadLabel}>{item.unidad}</span>}
+      </div>
+    );
+  };
+
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
@@ -232,24 +333,22 @@ export default function CotizacionModal({ onClose, onSave }) {
                 Margen de rentabilidad
               </label>
               <div className={styles.margenInputGroup}>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={margenInput}
-                  onChange={(e) => handleMargenChange(e.target.value)}
-                  className={`${styles.margenInput} ${margenBajoMinimo && !margenPermitido ? styles.margenInputError : ""}`}
+                <DecimalInput
+                  value={margen}
+                  onChange={handleMargenChange}
+                  min={0}
                   disabled={margenBajoMinimo && margenPermitido}
+                  className={`${styles.margenInput} ${margenBajoMinimo && !margenPermitido ? styles.margenInputError : ""}`}
                 />
                 <span className={styles.margenSuffix}>%</span>
                 {margenBajoMinimo && margenPermitido && (
-                  <span className={styles.margenOk}>🔒 Aprobado</span>
+                  <span className={styles.margenOk}>Aprobado</span>
                 )}
                 {margenBajoMinimo && !margenPermitido && (
                   <span className={styles.margenWarn}>mínimo {MARGEN_MINIMO}%</span>
                 )}
                 {!margenBajoMinimo && (
-                  <span className={styles.margenOk}>✓</span>
+                  <span className={styles.margenOk}>OK</span>
                 )}
               </div>
             </div>
@@ -265,14 +364,14 @@ export default function CotizacionModal({ onClose, onSave }) {
                   {solicitudEnviada ? (
                     <div className={styles.solicitudEnviadaRow}>
                       <p className={styles.solicitudEnviada}>
-                        ✓ Solicitud enviada. Espera la aprobación del administrador.
+                        Solicitud enviada. Espera la aprobación del administrador.
                       </p>
                       <button
                         className={styles.btnVerificar}
                         onClick={verificarAprobacion}
                         disabled={verificando}
                       >
-                        {verificando ? "Verificando…" : "↻ Verificar aprobación"}
+                        {verificando ? "Verificando…" : "Verificar aprobación"}
                       </button>
                     </div>
                   ) : !mostrarFormSolicitud ? (
@@ -318,7 +417,7 @@ export default function CotizacionModal({ onClose, onSave }) {
             {/* Banner de margen aprobado */}
             {margenBajoMinimo && margenPermitido && (
               <div className={styles.margenAprobado}>
-                ✓ Margen de <strong>{margenAprobado}%</strong> aprobado por el administrador
+                Margen de <strong>{margenAprobado}%</strong> aprobado por el administrador
               </div>
             )}
 
@@ -351,9 +450,17 @@ export default function CotizacionModal({ onClose, onSave }) {
                     onClick={() => agregarProducto(p)}
                     type="button"
                   >
-                    <span>{nombreProducto(p)}</span>
+                    <span>
+                      {nombreProducto(p)}
+                      {p.tipoMedida && p.tipoMedida !== "UNIDAD" && (
+                        <span className={styles.dropdownTipo}>
+                          {" "}· {p.tipoMedida === "AREA" ? "m²" : p.unidad || p.tipoMedida.toLowerCase()}
+                        </span>
+                      )}
+                    </span>
                     <span className={styles.dropdownPrice}>
                       {fmt(parseFloat((Number(p.precio_final) * (1 + margen / 100)).toFixed(2)))}
+                      {p.unidad ? `/${p.unidad}` : ""}
                     </span>
                   </button>
                 ))}
@@ -363,14 +470,14 @@ export default function CotizacionModal({ onClose, onSave }) {
               <p className={styles.noResults}>Sin resultados para "{busquedaProducto}"</p>
             )}
 
-            {/* Tabla interna: muestra precio base (sin margen) */}
+            {/* Tabla interna */}
             {items.length > 0 && (
               <>
                 <table className={styles.table}>
                   <thead>
                     <tr>
                       <th>Producto</th>
-                      <th>Medida</th>
+                      <th>Dimensiones</th>
                       <th>Piezas</th>
                       <th>P./pieza</th>
                       <th>Subtotal</th>
@@ -382,28 +489,11 @@ export default function CotizacionModal({ onClose, onSave }) {
                     {items.map((item, idx) => (
                       <tr key={idx}>
                         <td>{item.nombre}</td>
+                        <td>{renderMedidaCell(item, idx)}</td>
                         <td>
-                          <div className={styles.medidaCell}>
-                            <input
-                              type="number"
-                              min="0.01"
-                              step="0.01"
-                              value={item.medida}
-                              onChange={(e) => actualizarMedida(idx, e.target.value)}
-                              className={styles.inputCantidad}
-                            />
-                            {item.unidad && (
-                              <span className={styles.unidadLabel}>{item.unidad}</span>
-                            )}
-                          </div>
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            min="0.01"
-                            step="0.01"
+                          <DecimalInput
                             value={item.cantidad}
-                            onChange={(e) => actualizarCantidad(idx, e.target.value)}
+                            onChange={(v) => actualizarCantidad(idx, v)}
                             className={styles.inputCantidad}
                           />
                         </td>
@@ -508,7 +598,6 @@ export default function CotizacionModal({ onClose, onSave }) {
                     .filter((a) => a.seleccionado)
                     .map((a) => `con ${a.nombre}`)
                     .join(", ");
-                  const medidaStr = `${item.medida || 1}${item.unidad ? ` ${item.unidad}` : ""}`;
                   return (
                     <tr key={idx}>
                       <td>{idx + 1}</td>
@@ -516,7 +605,7 @@ export default function CotizacionModal({ onClose, onSave }) {
                         {item.nombre}
                         {glosa && <span className={styles.glosa}> — {glosa}</span>}
                       </td>
-                      <td>{medidaStr}</td>
+                      <td>{medidaStr(item)}</td>
                       <td>{item.cantidad}</td>
                       <td>{fmt(item.precio)}</td>
                       <td>{fmt(item.subtotal)}</td>

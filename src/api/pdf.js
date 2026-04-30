@@ -136,9 +136,14 @@ export const generarPDFCliente = async (cotizacion) => {
   const tableData = (cotizacion.items || []).map((item, i) => {
     const nombre = item.producto?.nombre || item.producto?.servicio || item.producto?.material || "Producto";
     const glosa  = item.descripcion || item.glosa || "";
-    const medida = item.medida || 1;
     const unidad = item.producto?.unidad || "";
-    const medidaStr = medida !== 1 ? `${parseFloat(medida)} ${unidad}`.trim() + " por pieza" : null;
+    let medidaStr = null;
+    if (item.medidaAncho && item.medidaAlto) {
+      const a = parseFloat(item.medidaAncho), b = parseFloat(item.medidaAlto);
+      medidaStr = `${a} x ${b}${unidad ? ` ${unidad}` : ""}`.trim() + " por pieza";
+    } else if (item.medida && item.medida !== 1) {
+      medidaStr = `${parseFloat(item.medida)}${unidad ? ` ${unidad}` : ""}`.trim() + " por pieza";
+    }
     const descLines = [nombre, glosa, medidaStr].filter(Boolean);
     return [
       `${i + 1}`,

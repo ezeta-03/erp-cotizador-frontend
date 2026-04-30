@@ -23,6 +23,8 @@ export default function Cotizaciones() {
         productoId: i.productoId,
         cantidad: i.cantidad,
         medida: i.medida || 1,
+        medidaAncho: i.medidaAncho || null,
+        medidaAlto: i.medidaAlto || null,
         precio: i.precio,
         adicionales: i.adicionales.map((a) => ({
           id: a.id,

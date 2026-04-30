@@ -342,6 +342,41 @@
   white-space: nowrap;
 }
 
+.tdNA {
+  color: $gray-400;
+  font-size: 0.85rem;
+}
+
+.selectTipo {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid $gray-200;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  color: $gray-700;
+  background: $white;
+  cursor: pointer;
+  outline: none;
+  width: 100%;
+  max-width: 180px;
+
+  &:focus { border-color: $gray-400; }
+  &:hover { border-color: $gray-300; }
+}
+
+.inputUnidad {
+  width: 72px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid $gray-200;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  color: $gray-700;
+  outline: none;
+  text-align: center;
+
+  &:focus { border-color: $gray-400; }
+  &::placeholder { color: $gray-300; }
+}
+
 /* ── Badges ── */
 .badgeActivo {
   display: inline-block;

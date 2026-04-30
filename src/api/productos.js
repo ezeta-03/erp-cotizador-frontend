@@ -42,3 +42,8 @@ export const eliminarTodosProductos = async () => {
   const { data } = await api.delete("/productos/todos");
   return data;
 };
+
+export const updateTipoMedida = async (id, { tipoMedida, unidad }) => {
+  const { data } = await api.patch(`/productos/${id}/tipo-medida`, { tipoMedida, unidad });
+  return data;
+};
