@@ -8,7 +8,7 @@ import CotizacionModal from "./CotizacionModal";
 import { crearCotizacion } from "../api/cotizaciones";
 import useAuth from "../auth/useAuth";
 
-const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "FACTURADA", "RECHAZADA"];
+const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "FACTURADA", "RENEGOCIACION", "RECHAZADA"];
 
 function EstadoBadge({ estado }) {
   return (
@@ -219,13 +219,13 @@ export default function CotizacionesHistorial() {
               <p className={styles.total}>{fmt(c.total)}</p>
               <p className={styles.fecha}>{new Date(c.createdAt).toLocaleDateString("es-PE")}</p>
               <p className={styles.vendedor}>{c.usuario?.nombre}</p>
-              {c.estado === "RECHAZADA" && c.respuestaComentario && (
+              {c.estado === "RENEGOCIACION" && c.respuestaComentario && (
                 <p className={styles.cardComentario}>"{c.respuestaComentario}"</p>
               )}
               <button className={styles.btnPreview} onClick={() => handlePreview(c)}>
                 Vista previa / PDF
               </button>
-              {c.estado === "RECHAZADA" && (
+              {c.estado === "RENEGOCIACION" && (
                 <button
                   className={styles.btnRenegociarCard}
                   onClick={() => setCotizacionARenegociar(c)}
@@ -266,7 +266,7 @@ export default function CotizacionesHistorial() {
                   <td className={styles.tdTotal}>{fmt(c.total)}</td>
                   <td>
                     <EstadoBadge estado={c.estado} />
-                    {c.estado === "RECHAZADA" && c.respuestaComentario && (
+                    {c.estado === "RENEGOCIACION" && c.respuestaComentario && (
                       <div className={styles.tdComentario}>"{c.respuestaComentario}"</div>
                     )}
                   </td>
@@ -279,7 +279,7 @@ export default function CotizacionesHistorial() {
                       <button className={styles.btnSmall} onClick={() => handlePreview(c)}>
                         PDF
                       </button>
-                      {c.estado === "RECHAZADA" && (
+                      {c.estado === "RENEGOCIACION" && (
                         <button
                           className={styles.btnRenegociar}
                           onClick={() => setCotizacionARenegociar(c)}
@@ -335,6 +335,14 @@ export default function CotizacionesHistorial() {
           <div className={styles.previewOverlay}>
             <div className={styles.previewModal}>
               <div className={styles.previewActions}>
+                {cot.estado === "RENEGOCIACION" && (
+                  <button
+                    className={styles.btnEditar}
+                    onClick={() => { setCotizacionARenegociar(cot); setSelectedCotizacion(null); }}
+                  >
+                    Editar y Re-enviar
+                  </button>
+                )}
                 <button className={styles.btnDescargar} onClick={confirmPdf}>
                   <Download size={15} /> Descargar PDF
                 </button>
@@ -342,6 +350,12 @@ export default function CotizacionesHistorial() {
                   <X size={15} /> Cerrar
                 </button>
               </div>
+              {cot.respuestaComentario && (
+                <div className={styles.comentarioCliente}>
+                  <span className={styles.comentarioClienteLabel}>Mensaje del cliente:</span>
+                  <p>"{cot.respuestaComentario}"</p>
+                </div>
+              )}
               <CotizacionPDFPreview
                 numero={cot.numero}
                 fecha={fecha}

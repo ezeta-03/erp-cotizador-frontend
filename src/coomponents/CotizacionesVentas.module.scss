@@ -163,10 +163,11 @@
   font-size: 0.75rem;
   font-weight: 600;
 
-  &.PENDIENTE  { background: #fef3c7; color: #92400e; }
-  &.APROBADA   { background: #d1fae5; color: #065f46; }
-  &.FACTURADA  { background: #dbeafe; color: #1e40af; }
-  &.RECHAZADA  { background: #fee2e2; color: #991b1b; }
+  &.PENDIENTE      { background: #fef3c7; color: #92400e; }
+  &.APROBADA       { background: #d1fae5; color: #065f46; }
+  &.FACTURADA      { background: #dbeafe; color: #1e40af; }
+  &.RECHAZADA      { background: #fee2e2; color: #991b1b; }
+  &.RENEGOCIACION  { background: #ffedd5; color: #9a3412; }
 }
 
 /* ── Botón facturar ── */

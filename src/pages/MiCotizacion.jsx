@@ -5,7 +5,7 @@ import { descargarPDFInteligente } from "../api/pdf";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
 import styles from "./MiCotizacion.module.scss";
 
-const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RECHAZADA", "FACTURADA"];
+const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "RECHAZADA", "FACTURADA"];
 
 function EstadoBadge({ estado }) {
   return <span className={`${styles.estadoBadge} ${styles[estado]}`}>{estado}</span>;
@@ -200,7 +200,7 @@ export default function MiCotizacion() {
                   <div className={styles.respondActions}>
                     <button
                       className={styles.btnRechazar}
-                      onClick={() => responder("RECHAZADA")}
+                      onClick={() => responder("RENEGOCIACION")}
                       disabled={respondiendo}
                     >
                       Rechazar
@@ -216,7 +216,7 @@ export default function MiCotizacion() {
                 </div>
               )}
 
-              {cot.respuestaComentario && cot.estado !== "PENDIENTE" && (
+              {cot.respuestaComentario && !["PENDIENTE"].includes(cot.estado) && (
                 <div className={styles.comentarioDisplay}>
                   <span className={styles.comentarioLabel}>Tu comentario</span>
                   <p>"{cot.respuestaComentario}"</p>

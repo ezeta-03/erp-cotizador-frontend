@@ -163,10 +163,11 @@
   white-space: nowrap;
 }
 
-.PENDIENTE  { background: #fef9c3; color: #854d0e; }
-.APROBADA   { background: #dbeafe; color: #1e40af; }
-.FACTURADA  { background: #dcfce7; color: #166534; }
-.RECHAZADA  { background: #fee2e2; color: #991b1b; }
+.PENDIENTE      { background: #fef9c3; color: #854d0e; }
+.APROBADA       { background: #dbeafe; color: #1e40af; }
+.FACTURADA      { background: #dcfce7; color: #166534; }
+.RECHAZADA      { background: #fee2e2; color: #991b1b; }
+.RENEGOCIACION  { background: #ffedd5; color: #9a3412; }
 
 /* ── Table ── */
 .tableContainer {
@@ -283,6 +284,47 @@
   font-size: 0.875rem;
   cursor: pointer;
   &:hover { background: rgba(255,255,255,.25); }
+}
+
+/* ── Editar y Re-enviar (overlay) ── */
+.btnEditar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 1.1rem;
+  background: #f97316;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  &:hover { background: #ea580c; }
+}
+
+.comentarioCliente {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 0.875rem 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.comentarioClienteLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #9a3412;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.comentarioCliente p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #c2410c;
+  font-style: italic;
 }
 
 /* ── Renegociar ── */

@@ -61,7 +61,7 @@ export default function CotizacionesVentas() {
 
       {/* Chips de estado */}
       <div className={styles.filtros}>
-        {["TODAS", "PENDIENTE", "APROBADA", "RECHAZADA", "FACTURADA"].map((f) => (
+        {["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "RECHAZADA", "FACTURADA"].map((f) => (
           <button
             key={f}
             className={`${styles.filtroBtn} ${filtroEstado === f ? styles.active : ""}`}
