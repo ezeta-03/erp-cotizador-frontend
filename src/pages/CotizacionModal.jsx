@@ -45,11 +45,11 @@ function DecimalInput({ value, onChange, className, disabled, min = 0.01, placeh
   );
 }
 
-export default function CotizacionModal({ onClose, onSave }) {
+export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, title, saveLabel }) {
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
-  const [clienteId, setClienteId] = useState("");
-  const [items, setItems] = useState([]);
+  const [clienteId, setClienteId] = useState(initialClienteId || "");
+  const [items, setItems] = useState(initialItems || []);
   const [showPreview, setShowPreview] = useState(false);
   const [busquedaProducto, setBusquedaProducto] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("TODOS");
@@ -337,7 +337,7 @@ export default function CotizacionModal({ onClose, onSave }) {
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.title}>Nueva Cotización</h2>
+          <h2 className={styles.title}>{title || "Nueva Cotización"}</h2>
           <button className={styles.btnClose} onClick={onClose} type="button" title="Cerrar">
             <X size={20} />
           </button>
@@ -701,7 +701,7 @@ export default function CotizacionModal({ onClose, onSave }) {
                   <ChevronLeft size={15} /> Volver
                 </button>
                 <button className={styles.btnPrimary} onClick={handleSave}>
-                  <FileText size={15} /> Generar Cotización
+                  <FileText size={15} /> {saveLabel || "Generar Cotización"}
                 </button>
               </div>
             </>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { LayoutGrid, List, Plus, X, Download } from "lucide-react";
-import { getCotizaciones, getCotizacionById } from "../api/cotizaciones";
+import { getCotizaciones, getCotizacionById, renegociarCotizacion } from "../api/cotizaciones";
 import { descargarPDFInteligente } from "../api/pdf";
 import styles from "./cotizacionesHistorial.module.scss";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
@@ -32,6 +32,7 @@ export default function CotizacionesHistorial() {
   const [filtroVendedor, setFiltroVendedor] = useState("");
   const [selectedCotizacion, setSelectedCotizacion] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [cotizacionARenegociar, setCotizacionARenegociar] = useState(null);
 
   const cargarCotizaciones = () => getCotizaciones().then(setCotizaciones);
 
@@ -72,6 +73,73 @@ export default function CotizacionesHistorial() {
     } catch (error) {
       console.error("Error creando cotización:", error);
       alert("Error creando cotización");
+    }
+  };
+
+  const buildModalItems = (cot) =>
+    (cot.items || []).map((item) => {
+      const p = item.producto;
+      const tipoMedida = p?.tipoMedida || "UNIDAD";
+      const medida = item.medida || 1;
+      const medidaAncho = item.medidaAncho || 1;
+      const medidaAlto = item.medidaAlto || 1;
+      const sumaAdicionales = (item.adicionales || [])
+        .filter((a) => a.seleccionado)
+        .reduce((acc, a) => acc + Number(a.precio), 0);
+      const precioBase = parseFloat(((p?.precio_final || 0) * medida + sumaAdicionales).toFixed(2));
+      return {
+        productoId: p?.id,
+        nombre: p?.nombre || p?.servicio || p?.material || "(sin nombre)",
+        precio_final: p?.precio_final || 0,
+        unidad: p?.unidad || "",
+        tipoMedida,
+        medida,
+        medidaAncho,
+        medidaAlto,
+        precioBase,
+        precio: item.precio,
+        cantidad: item.cantidad,
+        descripcion: item.descripcion || "",
+        subtotalBase: parseFloat((precioBase * item.cantidad).toFixed(2)),
+        subtotal: parseFloat((item.precio * item.cantidad).toFixed(2)),
+        adicionales: (p?.adicionales || []).map((a) => ({
+          id: a.id,
+          nombre: a.nombre,
+          precio: a.precio,
+          seleccionado: (item.adicionales || []).some(
+            (ca) => ca.adicionalId === a.id && ca.seleccionado
+          ),
+        })),
+      };
+    });
+
+  const guardarRenegociacion = async ({ items, conIgv }) => {
+    if (!cotizacionARenegociar) return;
+    const payload = {
+      conIgv,
+      items: items.map((i) => ({
+        productoId: i.productoId,
+        cantidad: i.cantidad,
+        medida: i.medida || 1,
+        medidaAncho: i.medidaAncho || null,
+        medidaAlto: i.medidaAlto || null,
+        precio: i.precio,
+        descripcion: i.descripcion,
+        adicionales: i.adicionales.map((a) => ({
+          id: a.id,
+          nombre: a.nombre,
+          precio: a.precio,
+          seleccionado: a.seleccionado,
+        })),
+      })),
+    };
+    try {
+      await renegociarCotizacion(cotizacionARenegociar.id, payload);
+      setCotizacionARenegociar(null);
+      cargarCotizaciones();
+    } catch (error) {
+      console.error("Error renegociando cotización:", error);
+      alert("Error al re-enviar la cotización");
     }
   };
 
@@ -151,9 +219,20 @@ export default function CotizacionesHistorial() {
               <p className={styles.total}>{fmt(c.total)}</p>
               <p className={styles.fecha}>{new Date(c.createdAt).toLocaleDateString("es-PE")}</p>
               <p className={styles.vendedor}>{c.usuario?.nombre}</p>
+              {c.estado === "RECHAZADA" && c.respuestaComentario && (
+                <p className={styles.cardComentario}>"{c.respuestaComentario}"</p>
+              )}
               <button className={styles.btnPreview} onClick={() => handlePreview(c)}>
                 Vista previa / PDF
               </button>
+              {c.estado === "RECHAZADA" && (
+                <button
+                  className={styles.btnRenegociarCard}
+                  onClick={() => setCotizacionARenegociar(c)}
+                >
+                  Re-enviar
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -185,15 +264,30 @@ export default function CotizacionesHistorial() {
                     <div>{c.usuario?.nombre}</div>
                   </td>
                   <td className={styles.tdTotal}>{fmt(c.total)}</td>
-                  <td><EstadoBadge estado={c.estado} /></td>
+                  <td>
+                    <EstadoBadge estado={c.estado} />
+                    {c.estado === "RECHAZADA" && c.respuestaComentario && (
+                      <div className={styles.tdComentario}>"{c.respuestaComentario}"</div>
+                    )}
+                  </td>
                   <td>
                     <div>{new Date(c.createdAt).toLocaleDateString("es-PE")}</div>
                     <div className={styles.tdSub}>{new Date(c.createdAt).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}</div>
                   </td>
                   <td>
-                    <button className={styles.btnSmall} onClick={() => handlePreview(c)}>
-                      PDF
-                    </button>
+                    <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                      <button className={styles.btnSmall} onClick={() => handlePreview(c)}>
+                        PDF
+                      </button>
+                      {c.estado === "RECHAZADA" && (
+                        <button
+                          className={styles.btnRenegociar}
+                          onClick={() => setCotizacionARenegociar(c)}
+                        >
+                          Re-enviar
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -206,6 +300,17 @@ export default function CotizacionesHistorial() {
         <CotizacionModal
           onClose={() => setShowModal(false)}
           onSave={guardarCotizacion}
+        />
+      )}
+
+      {cotizacionARenegociar && (
+        <CotizacionModal
+          onClose={() => setCotizacionARenegociar(null)}
+          onSave={guardarRenegociacion}
+          initialClienteId={String(cotizacionARenegociar.clienteId)}
+          initialItems={buildModalItems(cotizacionARenegociar)}
+          title="Re-enviar Cotización"
+          saveLabel="Re-enviar Cotización"
         />
       )}
 

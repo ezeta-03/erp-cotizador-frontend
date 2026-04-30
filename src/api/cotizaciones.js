@@ -22,3 +22,21 @@ export const getCotizacionById = async (id) => {
   const { data } = await api.get(`/cotizaciones/${id}`);
   return data;
 };
+
+// CLIENTE → todas sus cotizaciones
+export const getMisCotizaciones = async () => {
+  const { data } = await api.get("/cotizaciones/mis-cotizaciones");
+  return data;
+};
+
+// CLIENTE → aprobar / rechazar
+export const responderCotizacion = async (id, estado, comentario) => {
+  const { data } = await api.post(`/cotizaciones/${id}/responder`, { estado, comentario });
+  return data;
+};
+
+// VENTAS/ADMIN → renegociar cotización rechazada
+export const renegociarCotizacion = async (id, payload) => {
+  const { data } = await api.post(`/cotizaciones/${id}/renegociar`, payload);
+  return data;
+};
