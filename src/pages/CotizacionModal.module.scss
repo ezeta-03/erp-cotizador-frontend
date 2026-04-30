@@ -363,9 +363,19 @@
   white-space: nowrap;
 }
 
-.dropdownTipo {
-  font-size: 0.75rem;
+.dropdownUnit {
+  font-size: 0.72rem;
   color: #9ca3af;
+  font-weight: 400;
+}
+
+.thHint {
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: #9ca3af;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-top: 1px;
 }
 
 .checkbox {

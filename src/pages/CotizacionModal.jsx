@@ -271,6 +271,7 @@ export default function CotizacionModal({ onClose, onSave }) {
       return <span className={styles.medidaNA}>—</span>;
     }
     if (item.tipoMedida === "AREA") {
+      const area = parseFloat(((item.medidaAncho || 1) * (item.medidaAlto || 1)).toFixed(4));
       return (
         <div className={styles.medidaAreaCell}>
           <DecimalInput
@@ -287,9 +288,7 @@ export default function CotizacionModal({ onClose, onSave }) {
             placeholder="Alto"
           />
           {item.unidad && <span className={styles.unidadLabel}>{item.unidad}</span>}
-          <span className={styles.medidaResult}>
-            = {parseFloat(((item.medidaAncho || 1) * (item.medidaAlto || 1)).toFixed(4))}
-          </span>
+          <span className={styles.medidaResult}>= {area} por pieza</span>
         </div>
       );
     }
@@ -300,7 +299,10 @@ export default function CotizacionModal({ onClose, onSave }) {
           onChange={(v) => actualizarMedida(idx, v)}
           className={styles.inputMedida}
         />
-        {item.unidad && <span className={styles.unidadLabel}>{item.unidad}</span>}
+        {item.unidad
+          ? <span className={styles.unidadLabel}>{item.unidad} por pieza</span>
+          : <span className={styles.unidadLabel}>por pieza</span>
+        }
       </div>
     );
   };
@@ -450,17 +452,14 @@ export default function CotizacionModal({ onClose, onSave }) {
                     onClick={() => agregarProducto(p)}
                     type="button"
                   >
-                    <span>
-                      {nombreProducto(p)}
-                      {p.tipoMedida && p.tipoMedida !== "UNIDAD" && (
-                        <span className={styles.dropdownTipo}>
-                          {" "}· {p.tipoMedida === "AREA" ? "m²" : p.unidad || p.tipoMedida.toLowerCase()}
-                        </span>
-                      )}
-                    </span>
+                    <span>{nombreProducto(p)}</span>
                     <span className={styles.dropdownPrice}>
                       {fmt(parseFloat((Number(p.precio_final) * (1 + margen / 100)).toFixed(2)))}
-                      {p.unidad ? `/${p.unidad}` : ""}
+                      <span className={styles.dropdownUnit}>
+                        {(!p.tipoMedida || p.tipoMedida === "UNIDAD")
+                          ? " / pza"
+                          : p.unidad ? ` / ${p.unidad}` : ""}
+                      </span>
                     </span>
                   </button>
                 ))}
@@ -477,9 +476,18 @@ export default function CotizacionModal({ onClose, onSave }) {
                   <thead>
                     <tr>
                       <th>Producto</th>
-                      <th>Dimensiones</th>
-                      <th>Piezas</th>
-                      <th>P./pieza</th>
+                      <th>
+                        Dimensiones
+                        <div className={styles.thHint}>tamaño de cada pieza</div>
+                      </th>
+                      <th>
+                        Cant.
+                        <div className={styles.thHint}>piezas</div>
+                      </th>
+                      <th>
+                        Precio
+                        <div className={styles.thHint}>base / pieza</div>
+                      </th>
                       <th>Subtotal</th>
                       <th>Adicionales</th>
                       <th></th>
