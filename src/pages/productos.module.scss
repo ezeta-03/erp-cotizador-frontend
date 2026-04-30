@@ -277,6 +277,9 @@
   display: block;
   font-weight: 500;
   color: $gray-900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .productoBadges {
@@ -365,14 +368,16 @@
   background: $white;
   border-radius: $radius;
   border: 1px solid $gray-200;
-  overflow: hidden;
+  overflow-x: auto;
   box-shadow: $shadow;
 }
 
 .table {
   width: 100%;
+  min-width: 620px;
   border-collapse: collapse;
   font-size: 0.875rem;
+  table-layout: fixed;
 
   thead {
     background: $gray-50;
@@ -414,8 +419,9 @@
 .tdNombre {
   font-weight: 500;
   color: $gray-900;
-  max-width: 420px;
+  overflow: hidden;
 }
+
 
 .tdPrecio {
   font-weight: 600;

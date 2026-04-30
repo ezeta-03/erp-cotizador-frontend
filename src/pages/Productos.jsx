@@ -602,13 +602,13 @@ export default function Productos() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>#</th>
+                <th style={{ width: "3rem" }}>#</th>
                 <th>Nombre del producto</th>
-                <th>Precio producción</th>
-                {user.role === "ADMIN" && <th>Tipo de medida</th>}
-                {user.role === "ADMIN" && <th>Unidad</th>}
-                <th>Estado</th>
-                {user.role === "ADMIN" && <th></th>}
+                <th style={{ width: "130px" }}>Precio producción</th>
+                {user.role === "ADMIN" && <th style={{ width: "180px" }}>Tipo de medida</th>}
+                {user.role === "ADMIN" && <th style={{ width: "88px" }}>Unidad</th>}
+                <th style={{ width: "90px" }}>Estado</th>
+                {user.role === "ADMIN" && <th style={{ width: "3rem" }}></th>}
               </tr>
             </thead>
             <tbody>
