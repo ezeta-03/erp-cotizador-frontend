@@ -4,6 +4,7 @@ import { getProductos } from "../api/productos";
 import { getMisAprobadas, crearSolicitud } from "../api/solicitudesMargen";
 import styles from "./CotizacionModal.module.scss";
 import { X, ChevronLeft, Eye, FileText, Trash2 } from "lucide-react";
+import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
 
 const MARGEN_MINIMO = 30;
 const IGV_RATE = 0.18;
@@ -667,95 +668,45 @@ export default function CotizacionModal({ onClose, onSave }) {
               </button>
             </div>
           </>
-        ) : (
-          <>
-            <h3 className={styles.title}>Vista Previa</h3>
-            <p>
-              <strong>Cliente:</strong>{" "}
-              {clientes.find((c) => String(c.id) === String(clienteId))?.nombreComercial}
-            </p>
-            <p>
-              <strong>Fecha:</strong> {new Date().toLocaleDateString("es-PE")}
-            </p>
-            <p>
-              <strong>Margen aplicado:</strong>{" "}
-              <span className={margenBajoMinimo ? styles.margenWarn : ""}>
-                {margen}%{margenBajoMinimo && " (aprobado por admin)"}
-              </span>
-            </p>
-
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Producto</th>
-                  <th>Medida</th>
-                  <th>Piezas</th>
-                  <th>Precio/pieza</th>
-                  <th>Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, idx) => {
-                  const glosa = item.adicionales
-                    .filter((a) => a.seleccionado)
-                    .map((a) => `con ${a.nombre}`)
-                    .join(", ");
-                  return (
-                    <tr key={idx}>
-                      <td>{idx + 1}</td>
-                      <td>
-                        {item.nombre}
-                        {item.descripcion && <span className={styles.glosa}> — {item.descripcion}</span>}
-                        {!item.descripcion && glosa && <span className={styles.glosa}> — {glosa}</span>}
-                      </td>
-                      <td>{medidaStr(item)}</td>
-                      <td>{item.cantidad}</td>
-                      <td>{fmt(item.precio)}</td>
-                      <td>{fmt(item.subtotal)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-
-            <div className={styles.resumenFinanciero}>
-              <div className={styles.resumenFila}>
-                <span>Subtotal base</span>
-                <span>{fmt(totalBase)}</span>
+        ) : (() => {
+          const clienteObj = clientes.find((c) => String(c.id) === String(clienteId));
+          const fechaFmt = new Date().toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" });
+          const previewItems = items.map((item) => ({
+            nombre: item.nombre,
+            descripcion: item.descripcion ||
+              item.adicionales?.filter((a) => a.seleccionado).map((a) => `con ${a.nombre}`).join(", "),
+            medidaAncho: item.medidaAncho,
+            medidaAlto: item.medidaAlto,
+            medida: item.medida,
+            unidad: item.unidad,
+            cantidad: item.cantidad,
+            precio: item.precio,
+            subtotal: item.subtotal,
+          }));
+          return (
+            <>
+              <CotizacionPDFPreview
+                numero={null}
+                fecha={fechaFmt}
+                estado={null}
+                cliente={clienteObj}
+                conIgv={conIgv}
+                items={previewItems}
+                valorVenta={valorVenta}
+                igvMonto={igvMonto}
+                total={totalFinal}
+              />
+              <div className={styles.actions}>
+                <button className={styles.btnSecondary} onClick={() => setShowPreview(false)}>
+                  <ChevronLeft size={15} /> Volver
+                </button>
+                <button className={styles.btnPrimary} onClick={handleSave}>
+                  <FileText size={15} /> Generar Cotización
+                </button>
               </div>
-              <div className={`${styles.resumenFila} ${styles.resumenMargen}`}>
-                <span>Rentabilidad ({margen}%)</span>
-                <span>+ {fmt(margenMonto)}</span>
-              </div>
-              {conIgv && (
-                <>
-                  <div className={`${styles.resumenFila} ${styles.resumenValorVenta}`}>
-                    <span>Valor de venta</span>
-                    <span>{fmt(valorVenta)}</span>
-                  </div>
-                  <div className={`${styles.resumenFila} ${styles.resumenIgv}`}>
-                    <span>IGV (18%)</span>
-                    <span>+ {fmt(igvMonto)}</span>
-                  </div>
-                </>
-              )}
-              <div className={`${styles.resumenFila} ${styles.resumenTotal}`}>
-                <span>{conIgv ? "Total con IGV" : "Total sin IGV"}</span>
-                <span>{fmt(totalFinal)}</span>
-              </div>
-            </div>
-
-            <div className={styles.actions}>
-              <button className={styles.btnSecondary} onClick={() => setShowPreview(false)}>
-                <ChevronLeft size={15} /> Volver
-              </button>
-              <button className={styles.btnPrimary} onClick={handleSave}>
-                <FileText size={15} /> Generar Cotización
-              </button>
-            </div>
-          </>
-        )}
+            </>
+          );
+        })()}
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { LayoutGrid, List, Plus } from "lucide-react";
+import { LayoutGrid, List, Plus, X, Download } from "lucide-react";
 import { getCotizaciones, getCotizacionById } from "../api/cotizaciones";
 import { descargarPDFInteligente } from "../api/pdf";
 import styles from "./cotizacionesHistorial.module.scss";
-import VistaPreviaCotizacion from "../coomponents/VistaPreviaCotizacion";
+import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
 import CotizacionModal from "./CotizacionModal";
 import { crearCotizacion } from "../api/cotizaciones";
 import useAuth from "../auth/useAuth";
@@ -26,7 +26,7 @@ export default function CotizacionesHistorial() {
   const token = localStorage.getItem("token");
 
   const [cotizaciones, setCotizaciones] = useState([]);
-  const [vista, setVista] = useState("cards");
+  const [vista, setVista] = useState("tabla");
   const [filtroEstado, setFiltroEstado] = useState("TODAS");
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroVendedor, setFiltroVendedor] = useState("");
@@ -209,13 +209,49 @@ export default function CotizacionesHistorial() {
         />
       )}
 
-      {selectedCotizacion && (
-        <VistaPreviaCotizacion
-          cotizacion={selectedCotizacion}
-          onConfirm={confirmPdf}
-          onCancel={() => setSelectedCotizacion(null)}
-        />
-      )}
+      {selectedCotizacion && (() => {
+        const cot = selectedCotizacion;
+        const total = cot.total || 0;
+        const igvMonto = cot.conIgv ? parseFloat((total - total / 1.18).toFixed(2)) : 0;
+        const valorVenta = cot.conIgv ? parseFloat((total / 1.18).toFixed(2)) : total;
+        const fecha = new Date(cot.createdAt).toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" });
+        const previewItems = (cot.items || []).map((item) => ({
+          nombre: item.producto?.nombre || item.producto?.servicio || "(sin nombre)",
+          descripcion: item.descripcion,
+          medidaAncho: item.medidaAncho,
+          medidaAlto: item.medidaAlto,
+          medida: item.medida,
+          unidad: item.producto?.unidad,
+          cantidad: item.cantidad,
+          precio: item.precio,
+          subtotal: item.subtotal,
+        }));
+        return (
+          <div className={styles.previewOverlay}>
+            <div className={styles.previewModal}>
+              <div className={styles.previewActions}>
+                <button className={styles.btnDescargar} onClick={confirmPdf}>
+                  <Download size={15} /> Descargar PDF
+                </button>
+                <button className={styles.btnCerrar} onClick={() => setSelectedCotizacion(null)}>
+                  <X size={15} /> Cerrar
+                </button>
+              </div>
+              <CotizacionPDFPreview
+                numero={cot.numero}
+                fecha={fecha}
+                estado={cot.estado}
+                cliente={cot.cliente}
+                conIgv={cot.conIgv !== false}
+                items={previewItems}
+                valorVenta={valorVenta}
+                igvMonto={igvMonto}
+                total={total}
+              />
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

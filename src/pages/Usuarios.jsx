@@ -54,7 +54,7 @@ function Toggle({ checked, onChange }) {
 export default function Usuarios() {
   const { user } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
-  const [vista, setVista] = useState("cards");
+  const [vista, setVista] = useState("tabla");
   const [form, setForm] = useState({ nombre: "", email: "", password: "", role: "VENTAS" });
   const [editId, setEditId] = useState(null);
   const [showModal, setShowModal] = useState(false);

@@ -49,7 +49,7 @@ function Toggle({ checked, onChange }) {
 export default function Clientes() {
   const { user } = useAuth();
   const [clientes, setClientes] = useState([]);
-  const [vista, setVista] = useState("cards");
+  const [vista, setVista] = useState("tabla");
   const [form, setForm] = useState({
     nombreComercial: "",
     documento: "",

@@ -50,9 +50,16 @@ export default function CotizacionesVentas() {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.heading}>Cotizaciones</h2>
+      <div className={styles.header}>
+        <div>
+          <h2 className={styles.heading}>Facturar</h2>
+          <p className={styles.subtitle}>
+            {filtradas.length} cotizacion{filtradas.length !== 1 ? "es" : ""}
+          </p>
+        </div>
+      </div>
 
-      {/* Filtros por estado */}
+      {/* Chips de estado */}
       <div className={styles.filtros}>
         {["TODAS", "PENDIENTE", "APROBADA", "RECHAZADA", "FACTURADA"].map((f) => (
           <button
@@ -65,18 +72,18 @@ export default function CotizacionesVentas() {
         ))}
       </div>
 
-      {/* Filtros de texto */}
+      {/* Buscadores */}
       <div className={styles.filtrosAvanzados}>
         <input
           type="text"
-          placeholder="Filtrar por cliente..."
+          placeholder="Buscar por cliente..."
           value={filtroCliente}
           onChange={(e) => setFiltroCliente(e.target.value)}
           className={styles.inputFiltro}
         />
         <input
           type="text"
-          placeholder="Filtrar por vendedor..."
+          placeholder="Buscar por vendedor..."
           value={filtroVendedor}
           onChange={(e) => setFiltroVendedor(e.target.value)}
           className={styles.inputFiltro}
@@ -86,40 +93,42 @@ export default function CotizacionesVentas() {
       {filtradas.length === 0 ? (
         <p className={styles.empty}>No hay cotizaciones para mostrar.</p>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Número</th>
-              <th>Vendedor</th>
-              <th>Cliente</th>
-              <th>Estado</th>
-              <th>Total</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtradas.map((c) => (
-              <tr key={c.id}>
-                <td>{c.numero}</td>
-                <td>{c.usuario?.nombre}</td>
-                <td>{c.cliente?.nombreComercial}</td>
-                <td>
-                  <span className={`${styles.estado} ${styles[c.estado]}`}>{c.estado}</span>
-                </td>
-                <td>{fmt(c.total)}</td>
-                <td>
-                  <button
-                    className={styles.btnFacturar}
-                    onClick={() => facturar(c.id)}
-                    disabled={c.estado !== "APROBADA"}
-                  >
-                    Facturar
-                  </button>
-                </td>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th style={{ width: "130px" }}>Número</th>
+                <th>Cliente</th>
+                <th style={{ width: "140px" }}>Vendedor</th>
+                <th style={{ width: "110px" }}>Estado</th>
+                <th style={{ width: "110px" }}>Total</th>
+                <th style={{ width: "110px" }}>Acción</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtradas.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.numero}</td>
+                  <td>{c.cliente?.nombreComercial}</td>
+                  <td>{c.usuario?.nombre}</td>
+                  <td>
+                    <span className={`${styles.estado} ${styles[c.estado]}`}>{c.estado}</span>
+                  </td>
+                  <td>{fmt(c.total)}</td>
+                  <td>
+                    <button
+                      className={styles.btnFacturar}
+                      onClick={() => facturar(c.id)}
+                      disabled={c.estado !== "APROBADA"}
+                    >
+                      Facturar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
