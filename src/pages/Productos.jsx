@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import useAuth from "../auth/useAuth";
 import {
   getProductos,
+  createProducto,
   deleteProducto,
   previewProductosCSV,
   importarProductosCSV,
@@ -22,7 +23,12 @@ import {
   AlertTriangle,
   ArrowRight,
   X,
+  PlusCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
+const POR_PAGINA = 25;
 
 const PLANTILLA_CSV = `Producto;Precio de Produccion\nBANNER DELGADO 10 ONZAS;S/ 9.00\nBANNER GRUESO 12 ONZAS;S/ 13.50`;
 
@@ -37,6 +43,13 @@ export default function Productos() {
   const [busqueda, setBusqueda] = useState("");
   const [loading, setLoading] = useState(true);
   const [confirmEliminarTodos, setConfirmEliminarTodos] = useState(false);
+  const [paginaActual, setPaginaActual] = useState(1);
+
+  // Formulario nuevo producto
+  const [mostrarFormNuevo, setMostrarFormNuevo] = useState(false);
+  const [formData, setFormData] = useState({ nombre: "", precio_final: "", tipoMedida: "UNIDAD", unidad: "" });
+  const [formError, setFormError] = useState("");
+  const [formLoading, setFormLoading] = useState(false);
 
   // Wizard de importación
   const [paso, setPaso] = useState(PASO.NINGUNO);
@@ -60,6 +73,8 @@ export default function Productos() {
   const productosFiltrados = productos.filter((p) =>
     (p.nombre || p.servicio || "").toLowerCase().includes(busqueda.toLowerCase())
   );
+  const totalPaginas = Math.max(1, Math.ceil(productosFiltrados.length / POR_PAGINA));
+  const productosPagina = productosFiltrados.slice((paginaActual - 1) * POR_PAGINA, paginaActual * POR_PAGINA);
 
   // ── Descarga de plantilla ─────────────────────────────────────────────────
   const descargarPlantilla = () => {
@@ -161,12 +176,109 @@ export default function Productos() {
     }
   };
 
+  // ── Nuevo producto (formulario manual) ───────────────────────────────────────
+  const abrirFormNuevo = () => {
+    setFormData({ nombre: "", precio_final: "", tipoMedida: "UNIDAD", unidad: "" });
+    setFormError("");
+    setMostrarFormNuevo(true);
+  };
+  const cerrarFormNuevo = () => setMostrarFormNuevo(false);
+
+  const handleCrearProducto = async (e) => {
+    e.preventDefault();
+    const nombre = formData.nombre.trim();
+    const precio = parseFloat(String(formData.precio_final).replace(",", "."));
+    if (!nombre) return setFormError("El nombre es requerido.");
+    if (isNaN(precio) || precio <= 0) return setFormError("El precio debe ser un número positivo.");
+    setFormLoading(true);
+    setFormError("");
+    try {
+      await createProducto({
+        nombre,
+        precio_final: precio,
+        tipoMedida: formData.tipoMedida,
+        unidad: formData.unidad.trim() || undefined,
+      });
+      cerrarFormNuevo();
+      await cargarProductos();
+    } catch (err) {
+      setFormError(err.response?.data?.message || "Error al crear el producto.");
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
   const fmt = (v) =>
     new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
 
   // ────────────────────────────────────────────────────────────────────────────
   return (
     <div className={styles.container}>
+
+      {/* ── FORMULARIO NUEVO PRODUCTO ── */}
+      {mostrarFormNuevo && (
+        <div className={styles.formOverlay} onClick={cerrarFormNuevo}>
+          <div className={styles.formModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.formModalHeader}>
+              <h3>Nuevo producto</h3>
+              <button className={styles.btnIcon} onClick={cerrarFormNuevo}><X size={18} /></button>
+            </div>
+            <form onSubmit={handleCrearProducto}>
+              <div className={styles.formField}>
+                <label className={styles.formFieldLabel}>Nombre del producto *</label>
+                <input
+                  type="text"
+                  placeholder="Ej. BANNER DELGADO 10 ONZAS"
+                  value={formData.nombre}
+                  onChange={(e) => setFormData((d) => ({ ...d, nombre: e.target.value }))}
+                  autoFocus
+                />
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formFieldLabel}>Precio de producción (S/) *</label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="Ej. 9.00"
+                  value={formData.precio_final}
+                  onChange={(e) => setFormData((d) => ({ ...d, precio_final: e.target.value }))}
+                />
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formFieldLabel}>Tipo de medida</label>
+                <select
+                  value={formData.tipoMedida}
+                  onChange={(e) => setFormData((d) => ({ ...d, tipoMedida: e.target.value, unidad: "" }))}
+                >
+                  <option value="UNIDAD">Unidades (pzas)</option>
+                  <option value="LINEAL">Lineal (m, cm…)</option>
+                  <option value="AREA">Área (Ancho × Alto)</option>
+                  <option value="PESO">Peso / Volumen (oz, kg…)</option>
+                </select>
+              </div>
+              {formData.tipoMedida !== "UNIDAD" && (
+                <div className={styles.formField}>
+                  <label className={styles.formFieldLabel}>Unidad (etiqueta)</label>
+                  <input
+                    type="text"
+                    placeholder="Ej. m², oz, kg…"
+                    value={formData.unidad}
+                    onChange={(e) => setFormData((d) => ({ ...d, unidad: e.target.value }))}
+                  />
+                </div>
+              )}
+              {formError && <p className={styles.formError}>{formError}</p>}
+              <div className={styles.formActions}>
+                <button type="button" className={styles.btnGhost} onClick={cerrarFormNuevo}>Cancelar</button>
+                <button type="submit" className={styles.btnPrimary} disabled={formLoading}>
+                  {formLoading ? <RefreshCw size={15} className={styles.spin} /> : <PlusCircle size={15} />}
+                  Crear producto
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ── WIZARD DE IMPORTACIÓN (overlay cuando está activo) ── */}
       {paso !== PASO.NINGUNO && (
@@ -370,6 +482,10 @@ export default function Productos() {
               <Download size={16} />
               Plantilla CSV
             </button>
+            <button className={styles.btnOutline} onClick={abrirFormNuevo}>
+              <PlusCircle size={16} />
+              Nuevo producto
+            </button>
             <button
               className={styles.btnDanger}
               onClick={() => setConfirmEliminarTodos(true)}
@@ -426,11 +542,11 @@ export default function Productos() {
           type="text"
           placeholder="Buscar producto..."
           value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
+          onChange={(e) => { setBusqueda(e.target.value); setPaginaActual(1); }}
           className={styles.searchInput}
         />
         {busqueda && (
-          <button className={styles.btnClear} onClick={() => setBusqueda("")}>
+          <button className={styles.btnClear} onClick={() => { setBusqueda(""); setPaginaActual(1); }}>
             <X size={14} />
           </button>
         )}
@@ -462,10 +578,13 @@ export default function Productos() {
               </tr>
             </thead>
             <tbody>
-              {productosFiltrados.map((p, idx) => (
+              {productosPagina.map((p, idx) => (
                 <tr key={p.id}>
-                  <td className={styles.tdIdx}>{idx + 1}</td>
-                  <td className={styles.tdNombre}>{p.nombre || p.servicio}</td>
+                  <td className={styles.tdIdx}>{(paginaActual - 1) * POR_PAGINA + idx + 1}</td>
+                  <td className={styles.tdNombre}>
+                    {p.nombre || p.servicio}
+                    {p.origen === "MANUAL" && <span className={styles.badgeManual}>Manual</span>}
+                  </td>
                   <td className={styles.tdPrecio}>{fmt(p.precio_final)}</td>
                   {user.role === "ADMIN" && (
                     <td>
@@ -519,6 +638,51 @@ export default function Productos() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* ── Paginación ── */}
+      {!loading && productosFiltrados.length > POR_PAGINA && (
+        <div className={styles.paginacion}>
+          <span className={styles.paginaInfo}>
+            Mostrando {(paginaActual - 1) * POR_PAGINA + 1}–{Math.min(paginaActual * POR_PAGINA, productosFiltrados.length)} de {productosFiltrados.length}
+          </span>
+          <div className={styles.paginaBtns}>
+            <button
+              className={styles.pagBtn}
+              onClick={() => setPaginaActual((p) => Math.max(1, p - 1))}
+              disabled={paginaActual === 1}
+            >
+              <ChevronLeft size={15} />
+            </button>
+            {Array.from({ length: totalPaginas }, (_, i) => i + 1)
+              .filter((n) => n === 1 || n === totalPaginas || Math.abs(n - paginaActual) <= 2)
+              .reduce((acc, n, i, arr) => {
+                if (i > 0 && n - arr[i - 1] > 1) acc.push("…");
+                acc.push(n);
+                return acc;
+              }, [])
+              .map((item, i) =>
+                item === "…" ? (
+                  <span key={`ellipsis-${i}`} className={styles.pagEllipsis}>…</span>
+                ) : (
+                  <button
+                    key={item}
+                    className={`${styles.pagBtn} ${item === paginaActual ? styles.pagBtnActive : ""}`}
+                    onClick={() => setPaginaActual(item)}
+                  >
+                    {item}
+                  </button>
+                )
+              )}
+            <button
+              className={styles.pagBtn}
+              onClick={() => setPaginaActual((p) => Math.min(totalPaginas, p + 1))}
+              disabled={paginaActual === totalPaginas}
+            >
+              <ChevronRight size={15} />
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -560,6 +560,159 @@
   }
 }
 
+/* ── Badge Manual ── */
+.badgeManual {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.45rem;
+  background: #ede9fe;
+  color: #5b21b6;
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+/* ── Paginación ── */
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.paginaInfo {
+  font-size: 0.8rem;
+  color: $gray-400;
+}
+
+.paginaBtns {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  border: 1px solid $gray-200;
+  border-radius: 6px;
+  background: $white;
+  color: $gray-700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover:not(:disabled) { border-color: $gray-400; background: $gray-50; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.pagBtnActive {
+  background: $black;
+  color: $white;
+  border-color: $black;
+  font-weight: 600;
+
+  &:hover { background: $black; }
+}
+
+.pagEllipsis {
+  font-size: 0.8rem;
+  color: $gray-400;
+  padding: 0 0.2rem;
+}
+
+/* ── Formulario nuevo producto ── */
+.formOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.formModal {
+  background: $white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  overflow: hidden;
+
+  form {
+    padding: 1.25rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  select, input[type="text"] {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid $gray-200;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: $gray-900;
+    outline: none;
+    box-sizing: border-box;
+    background: $white;
+
+    &:focus { border-color: $gray-400; }
+    &::placeholder { color: $gray-300; }
+  }
+}
+
+.formModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid $gray-100;
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: $gray-900;
+    margin: 0;
+  }
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.formFieldLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $gray-600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.formError {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin: 0;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
 /* ── Animación spinner ── */
 .spin {
   animation: spin 1s linear infinite;
