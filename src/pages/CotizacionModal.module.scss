@@ -49,14 +49,106 @@
   &:focus { border-color: #6b7280; }
 }
 
-/* Dropdown de búsqueda de producto */
+/* ── Chips de categoría ── */
+.catFiltros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0.5rem;
+}
+
+.catChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 99px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover { border-color: #9ca3af; background: #f9fafb; }
+}
+
+.catChipActive {
+  background: #111;
+  border-color: #111;
+  color: #fff;
+
+  .catCount { background: rgba(255,255,255,.2); color: #fff; }
+}
+
+.catCount {
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 99px;
+  padding: 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ── Buscador con icono ── */
+.buscadorWrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  padding: 0 0.6rem;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+  transition: border-color 0.15s;
+
+  &:focus-within { border-color: #6b7280; }
+}
+
+.buscadorIcon {
+  color: #9ca3af;
+  font-size: 1.1rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.buscadorInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0.55rem 0;
+  font-size: 0.875rem;
+  background: transparent;
+  color: #111;
+
+  &::placeholder { color: #9ca3af; }
+}
+
+.buscadorClear {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.2rem;
+  line-height: 1;
+  border-radius: 3px;
+
+  &:hover { color: #374151; background: #f3f4f6; }
+}
+
+/* ── Lista de resultados ── */
 .dropdown {
   border: 1px solid #d1d5db;
   border-radius: 6px;
   margin-bottom: 0.75rem;
-  max-height: 220px;
+  max-height: 260px;
   overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .dropdownItem {
@@ -64,24 +156,72 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 0.55rem 0.75rem;
+  padding: 0.6rem 0.75rem;
   background: #fff;
   border: none;
   border-bottom: 1px solid #f3f4f6;
   cursor: pointer;
-  font-size: 0.875rem;
   text-align: left;
-  gap: 0.5rem;
+  gap: 0.75rem;
 
   &:last-child { border-bottom: none; }
   &:hover { background: #f9fafb; }
 }
 
-.dropdownPrice {
+.dropdownItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.dropdownItemNombre {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdownBadges {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.badgeCat {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  background: #f3f4f6;
+  color: #374151;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.badgeTipo {
+  font-size: 0.65rem;
   font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.dropdownPrice {
+  font-weight: 700;
   color: #059669;
   white-space: nowrap;
   flex-shrink: 0;
+  font-size: 0.875rem;
+}
+
+.dropdownUnit {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  font-weight: 400;
 }
 
 .noResults {
@@ -89,6 +229,24 @@
   color: #9ca3af;
   padding: 0.5rem 0;
   margin: 0 0 0.75rem;
+}
+
+.noResultsInline {
+  font-size: 0.82rem;
+  color: #9ca3af;
+  padding: 0.75rem 1rem;
+  margin: 0;
+  text-align: center;
+}
+
+.dropdownMore {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  border-top: 1px solid #f3f4f6;
+  text-align: center;
+  font-style: italic;
 }
 
 /* ── Margen de rentabilidad ── */

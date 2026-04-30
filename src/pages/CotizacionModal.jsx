@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { getClientes } from "../api/clientes";
 import { getProductos } from "../api/productos";
 import { getMisAprobadas, crearSolicitud } from "../api/solicitudesMargen";
@@ -50,6 +50,7 @@ export default function CotizacionModal({ onClose, onSave }) {
   const [items, setItems] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
   const [busquedaProducto, setBusquedaProducto] = useState("");
+  const [categoriaFiltro, setCategoriaFiltro] = useState("TODOS");
 
   // IGV
   const [conIgv, setConIgv] = useState(true);
@@ -79,9 +80,26 @@ export default function CotizacionModal({ onClose, onSave }) {
   const margenPermitido = margenAprobado !== null && margen >= margenAprobado;
   const puedeGuardar = !margenBajoMinimo || margenPermitido;
 
-  const productosFiltrados = productos.filter((p) =>
-    nombreProducto(p).toLowerCase().includes(busquedaProducto.toLowerCase())
-  );
+  // ── Categorías únicas (para chips de filtro) ──────────────────────────────
+  const categorias = useMemo(() => {
+    const cats = [...new Set(productos.map((p) => p.categoria || "GENERAL"))].sort();
+    return ["TODOS", ...cats];
+  }, [productos]);
+
+  const contPorCategoria = useMemo(() => {
+    const m = {};
+    productos.forEach((p) => { const c = p.categoria || "GENERAL"; m[c] = (m[c] || 0) + 1; });
+    return m;
+  }, [productos]);
+
+  const productosFiltrados = useMemo(() => productos.filter((p) => {
+    const matchTexto = !busquedaProducto ||
+      nombreProducto(p).toLowerCase().includes(busquedaProducto.toLowerCase());
+    const matchCategoria = categoriaFiltro === "TODOS" || (p.categoria || "GENERAL") === categoriaFiltro;
+    return matchTexto && matchCategoria;
+  }), [productos, busquedaProducto, categoriaFiltro]);
+
+  const mostrarLista = busquedaProducto.length > 0 || categoriaFiltro !== "TODOS";
 
   // ── Recalcula precios manteniendo medida/dimensiones actuales ──────────────
   const recalcularItems = (nuevoMargen, prevItems) =>
@@ -437,36 +455,87 @@ export default function CotizacionModal({ onClose, onSave }) {
 
             {/* Buscar y agregar producto */}
             <label className={styles.label}>Agregar producto</label>
-            <input
-              className={styles.select}
-              placeholder="Buscar producto..."
-              value={busquedaProducto}
-              onChange={(e) => setBusquedaProducto(e.target.value)}
-            />
-            {busquedaProducto && productosFiltrados.length > 0 && (
+
+            {/* Chips de categoría */}
+            <div className={styles.catFiltros}>
+              {categorias.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`${styles.catChip} ${categoriaFiltro === cat ? styles.catChipActive : ""}`}
+                  onClick={() => setCategoriaFiltro(cat)}
+                >
+                  {cat}
+                  {cat !== "TODOS" && (
+                    <span className={styles.catCount}>{contPorCategoria[cat] ?? 0}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Buscador de texto */}
+            <div className={styles.buscadorWrap}>
+              <span className={styles.buscadorIcon}>⌕</span>
+              <input
+                className={styles.buscadorInput}
+                placeholder={`Buscar${categoriaFiltro !== "TODOS" ? ` en ${categoriaFiltro}` : " producto"}…`}
+                value={busquedaProducto}
+                onChange={(e) => setBusquedaProducto(e.target.value)}
+              />
+              {busquedaProducto && (
+                <button
+                  type="button"
+                  className={styles.buscadorClear}
+                  onClick={() => setBusquedaProducto("")}
+                >✕</button>
+              )}
+            </div>
+
+            {/* Lista de resultados */}
+            {mostrarLista && (
               <div className={styles.dropdown}>
-                {productosFiltrados.slice(0, 10).map((p) => (
-                  <button
-                    key={p.id}
-                    className={styles.dropdownItem}
-                    onClick={() => agregarProducto(p)}
-                    type="button"
-                  >
-                    <span>{nombreProducto(p)}</span>
-                    <span className={styles.dropdownPrice}>
-                      {fmt(parseFloat((Number(p.precio_final) * (1 + margen / 100)).toFixed(2)))}
-                      <span className={styles.dropdownUnit}>
-                        {(!p.tipoMedida || p.tipoMedida === "UNIDAD")
-                          ? " / pza"
-                          : p.unidad ? ` / ${p.unidad}` : ""}
-                      </span>
-                    </span>
-                  </button>
-                ))}
+                {productosFiltrados.length === 0 ? (
+                  <p className={styles.noResultsInline}>
+                    Sin resultados{busquedaProducto ? ` para "${busquedaProducto}"` : ""}
+                  </p>
+                ) : (
+                  productosFiltrados.slice(0, 12).map((p) => {
+                    const unidadLabel = (!p.tipoMedida || p.tipoMedida === "UNIDAD")
+                      ? "pza"
+                      : p.unidad || (p.tipoMedida === "AREA" ? "m²" : p.tipoMedida.toLowerCase());
+                    const precioConMargen = parseFloat((Number(p.precio_final) * (1 + margen / 100)).toFixed(2));
+                    return (
+                      <button
+                        key={p.id}
+                        className={styles.dropdownItem}
+                        onClick={() => agregarProducto(p)}
+                        type="button"
+                      >
+                        <div className={styles.dropdownItemInfo}>
+                          <span className={styles.dropdownItemNombre}>{nombreProducto(p)}</span>
+                          <div className={styles.dropdownBadges}>
+                            {p.categoria && (
+                              <span className={styles.badgeCat}>{p.categoria}</span>
+                            )}
+                            {p.tipoMedida && p.tipoMedida !== "UNIDAD" && (
+                              <span className={styles.badgeTipo}>{unidadLabel}</span>
+                            )}
+                          </div>
+                        </div>
+                        <span className={styles.dropdownPrice}>
+                          {fmt(precioConMargen)}
+                          <span className={styles.dropdownUnit}> / {unidadLabel}</span>
+                        </span>
+                      </button>
+                    );
+                  })
+                )}
+                {productosFiltrados.length > 12 && (
+                  <p className={styles.dropdownMore}>
+                    +{productosFiltrados.length - 12} más — refina la búsqueda
+                  </p>
+                )}
               </div>
-            )}
-            {busquedaProducto && productosFiltrados.length === 0 && (
-              <p className={styles.noResults}>Sin resultados para "{busquedaProducto}"</p>
             )}
 
             {/* Tabla interna */}
