@@ -7,7 +7,7 @@ import {
   importarProductosCSV,
   eliminarTodosProductos,
 } from "../api/productos";
-import ConfiguracionForm from "../coomponents/ConfiguracionForm";
+// import ConfiguracionForm from "../coomponents/ConfiguracionForm";
 import styles from "./productos.module.scss";
 import {
   Upload,
@@ -392,9 +392,9 @@ export default function Productos() {
       )}
 
       {/* ── Configuración (solo ADMIN) ── */}
-      {user.role === "ADMIN" && (
+      {/* {user.role === "ADMIN" && (
         <ConfiguracionForm onRecalcular={cargarProductos} />
-      )}
+      )} */}
 
       {/* ── Buscador ── */}
       <div className={styles.searchBar}>

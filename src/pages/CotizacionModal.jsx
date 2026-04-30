@@ -53,13 +53,13 @@ export default function CotizacionModal({ onClose, onSave }) {
     nombreProducto(p).toLowerCase().includes(busquedaProducto.toLowerCase())
   );
 
-  // precio_final ES el precio base del producto; el margen se aplica encima
+  // precio_final × medida (m² por pieza) + adicionales = precio por pieza; margen encima
   const recalcularItems = (nuevoMargen, prevItems) =>
     prevItems.map((item) => {
       const sumaAdicionales = item.adicionales
         .filter((a) => a.seleccionado)
         .reduce((acc, a) => acc + Number(a.precio), 0);
-      const precioBase = parseFloat((item.precio_final + sumaAdicionales).toFixed(2));
+      const precioBase = parseFloat((item.precio_final * (item.medida || 1) + sumaAdicionales).toFixed(2));
       const precio = parseFloat((precioBase * (1 + nuevoMargen / 100)).toFixed(2));
       return {
         ...item,
@@ -80,7 +80,8 @@ export default function CotizacionModal({ onClose, onSave }) {
   };
 
   const agregarProducto = (producto) => {
-    const precioBase = parseFloat(Number(producto.precio_final).toFixed(2));
+    const medida = 1;
+    const precioBase = parseFloat((Number(producto.precio_final) * medida).toFixed(2));
     const precio = parseFloat((precioBase * (1 + margen / 100)).toFixed(2));
     setItems((prev) => [
       ...prev,
@@ -88,6 +89,8 @@ export default function CotizacionModal({ onClose, onSave }) {
         productoId: producto.id,
         nombre: nombreProducto(producto),
         precio_final: producto.precio_final,
+        unidad: producto.unidad || "",
+        medida,
         precioBase,
         precio,
         cantidad: 1,
@@ -114,7 +117,25 @@ export default function CotizacionModal({ onClose, onSave }) {
       const sumaAdicionales = next[idx].adicionales
         .filter((a) => a.seleccionado)
         .reduce((acc, a) => acc + Number(a.precio), 0);
-      const precioBase = parseFloat((next[idx].precio_final + sumaAdicionales).toFixed(2));
+      const precioBase = parseFloat((next[idx].precio_final * (next[idx].medida || 1) + sumaAdicionales).toFixed(2));
+      const precio = parseFloat((precioBase * (1 + margen / 100)).toFixed(2));
+      next[idx].precioBase = precioBase;
+      next[idx].precio = precio;
+      next[idx].subtotalBase = parseFloat((precioBase * next[idx].cantidad).toFixed(2));
+      next[idx].subtotal = parseFloat((precio * next[idx].cantidad).toFixed(2));
+      return next;
+    });
+  };
+
+  const actualizarMedida = (idx, value) => {
+    setItems((prev) => {
+      const next = [...prev];
+      const medida = Math.max(0.01, parseFloat(value) || 0.01);
+      next[idx].medida = medida;
+      const sumaAdicionales = next[idx].adicionales
+        .filter((a) => a.seleccionado)
+        .reduce((acc, a) => acc + Number(a.precio), 0);
+      const precioBase = parseFloat((next[idx].precio_final * medida + sumaAdicionales).toFixed(2));
       const precio = parseFloat((precioBase * (1 + margen / 100)).toFixed(2));
       next[idx].precioBase = precioBase;
       next[idx].precio = precio;
@@ -349,9 +370,10 @@ export default function CotizacionModal({ onClose, onSave }) {
                   <thead>
                     <tr>
                       <th>Producto</th>
-                      <th>Precio base</th>
-                      <th>Cant.</th>
-                      <th>Subtotal base</th>
+                      <th>Medida</th>
+                      <th>Piezas</th>
+                      <th>P./pieza</th>
+                      <th>Subtotal</th>
                       <th>Adicionales</th>
                       <th></th>
                     </tr>
@@ -360,7 +382,21 @@ export default function CotizacionModal({ onClose, onSave }) {
                     {items.map((item, idx) => (
                       <tr key={idx}>
                         <td>{item.nombre}</td>
-                        <td>{fmt(item.precioBase)}</td>
+                        <td>
+                          <div className={styles.medidaCell}>
+                            <input
+                              type="number"
+                              min="0.01"
+                              step="0.01"
+                              value={item.medida}
+                              onChange={(e) => actualizarMedida(idx, e.target.value)}
+                              className={styles.inputCantidad}
+                            />
+                            {item.unidad && (
+                              <span className={styles.unidadLabel}>{item.unidad}</span>
+                            )}
+                          </div>
+                        </td>
                         <td>
                           <input
                             type="number"
@@ -371,6 +407,7 @@ export default function CotizacionModal({ onClose, onSave }) {
                             className={styles.inputCantidad}
                           />
                         </td>
+                        <td>{fmt(item.precioBase)}</td>
                         <td>{fmt(item.subtotalBase)}</td>
                         <td>
                           {item.adicionales.map((a, j) => (
@@ -459,8 +496,9 @@ export default function CotizacionModal({ onClose, onSave }) {
                 <tr>
                   <th>#</th>
                   <th>Producto</th>
-                  <th>Cant.</th>
-                  <th>Precio unit.</th>
+                  <th>Medida</th>
+                  <th>Piezas</th>
+                  <th>Precio/pieza</th>
                   <th>Subtotal</th>
                 </tr>
               </thead>
@@ -470,6 +508,7 @@ export default function CotizacionModal({ onClose, onSave }) {
                     .filter((a) => a.seleccionado)
                     .map((a) => `con ${a.nombre}`)
                     .join(", ");
+                  const medidaStr = `${item.medida || 1}${item.unidad ? ` ${item.unidad}` : ""}`;
                   return (
                     <tr key={idx}>
                       <td>{idx + 1}</td>
@@ -477,6 +516,7 @@ export default function CotizacionModal({ onClose, onSave }) {
                         {item.nombre}
                         {glosa && <span className={styles.glosa}> — {glosa}</span>}
                       </td>
+                      <td>{medidaStr}</td>
                       <td>{item.cantidad}</td>
                       <td>{fmt(item.precio)}</td>
                       <td>{fmt(item.subtotal)}</td>

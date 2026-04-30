@@ -53,6 +53,7 @@ export default function CotizacionesHistorial() {
       items: items.map((i) => ({
         productoId: i.productoId,
         cantidad: i.cantidad,
+        medida: i.medida || 1,
         precio: i.precio,
         adicionales: i.adicionales.map((a) => ({
           id: a.id,
