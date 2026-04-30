@@ -3,6 +3,7 @@ import { getClientes } from "../api/clientes";
 import { getProductos } from "../api/productos";
 import { getMisAprobadas, crearSolicitud } from "../api/solicitudesMargen";
 import styles from "./CotizacionModal.module.scss";
+import { X, ChevronLeft, Eye, FileText, Trash2 } from "lucide-react";
 
 const MARGEN_MINIMO = 30;
 const IGV_RATE = 0.18;
@@ -161,6 +162,7 @@ export default function CotizacionModal({ onClose, onSave }) {
         precioBase,
         precio,
         cantidad: 1,
+        descripcion: "",
         subtotalBase: precioBase,
         subtotal: precio,
         adicionales:
@@ -208,6 +210,11 @@ export default function CotizacionModal({ onClose, onSave }) {
       next[idx] = _recalcItem({ ...next[idx], medida: value }, margen);
       return next;
     });
+  };
+
+  // ── Descripción / glosa libre por item ────────────────────────────────────
+  const actualizarDescripcion = (idx, value) => {
+    setItems((prev) => prev.map((item, i) => i !== idx ? item : { ...item, descripcion: value }));
   };
 
   // ── Cantidad (piezas) ─────────────────────────────────────────────────────
@@ -328,7 +335,12 @@ export default function CotizacionModal({ onClose, onSave }) {
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h2 className={styles.title}>Nueva Cotización</h2>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.title}>Nueva Cotización</h2>
+          <button className={styles.btnClose} onClick={onClose} type="button" title="Cerrar">
+            <X size={20} />
+          </button>
+        </div>
 
         {!showPreview ? (
           <>
@@ -544,7 +556,10 @@ export default function CotizacionModal({ onClose, onSave }) {
                 <table className={styles.table}>
                   <thead>
                     <tr>
-                      <th>Producto</th>
+                      <th>
+                        Producto
+                        <div className={styles.thHint}>nombre · notas</div>
+                      </th>
                       <th>
                         Dimensiones
                         <div className={styles.thHint}>tamaño de cada pieza</div>
@@ -565,7 +580,18 @@ export default function CotizacionModal({ onClose, onSave }) {
                   <tbody>
                     {items.map((item, idx) => (
                       <tr key={idx}>
-                        <td>{item.nombre}</td>
+                        <td>
+                          <div className={styles.productoCell}>
+                            <span className={styles.productoNombre}>{item.nombre}</span>
+                            <input
+                              type="text"
+                              className={styles.inputDescripcion}
+                              placeholder="Notas (opcional)…"
+                              value={item.descripcion || ""}
+                              onChange={(e) => actualizarDescripcion(idx, e.target.value)}
+                            />
+                          </div>
+                        </td>
                         <td>{renderMedidaCell(item, idx)}</td>
                         <td>
                           <DecimalInput
@@ -589,8 +615,8 @@ export default function CotizacionModal({ onClose, onSave }) {
                           ))}
                         </td>
                         <td>
-                          <button className={styles.btnRemove} onClick={() => eliminarProducto(idx)}>
-                            ✕
+                          <button className={styles.btnRemove} onClick={() => eliminarProducto(idx)} title="Quitar">
+                            <Trash2 size={14} />
                           </button>
                         </td>
                       </tr>
@@ -629,7 +655,7 @@ export default function CotizacionModal({ onClose, onSave }) {
 
             <div className={styles.actions}>
               <button className={styles.btnSecondary} onClick={onClose}>
-                Cancelar
+                <X size={15} /> Cancelar
               </button>
               <button
                 className={styles.btnPrimary}
@@ -637,7 +663,7 @@ export default function CotizacionModal({ onClose, onSave }) {
                 disabled={!puedeGuardar || items.length === 0 || !clienteId}
                 title={!puedeGuardar ? "Margen por debajo del mínimo. Solicita aprobación." : undefined}
               >
-                Vista Previa
+                <Eye size={15} /> Vista Previa
               </button>
             </div>
           </>
@@ -680,7 +706,8 @@ export default function CotizacionModal({ onClose, onSave }) {
                       <td>{idx + 1}</td>
                       <td>
                         {item.nombre}
-                        {glosa && <span className={styles.glosa}> — {glosa}</span>}
+                        {item.descripcion && <span className={styles.glosa}> — {item.descripcion}</span>}
+                        {!item.descripcion && glosa && <span className={styles.glosa}> — {glosa}</span>}
                       </td>
                       <td>{medidaStr(item)}</td>
                       <td>{item.cantidad}</td>
@@ -721,10 +748,10 @@ export default function CotizacionModal({ onClose, onSave }) {
 
             <div className={styles.actions}>
               <button className={styles.btnSecondary} onClick={() => setShowPreview(false)}>
-                Volver
+                <ChevronLeft size={15} /> Volver
               </button>
               <button className={styles.btnPrimary} onClick={handleSave}>
-                Generar Cotización
+                <FileText size={15} /> Generar Cotización
               </button>
             </div>
           </>
