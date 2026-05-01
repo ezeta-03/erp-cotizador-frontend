@@ -158,21 +158,22 @@ export default function CotizacionesHistorial() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.toolbar}>
-        <div className={styles.toolbarLeft}>
-          <h2>Cotizaciones</h2>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Cotizaciones</h1>
+          <p className={styles.subtitle}>Historial de cotizaciones emitidas</p>
         </div>
-        <div className={styles.toolbarRight}>
+        <div className={styles.headerActions}>
           <button
-            className={styles.btnView}
+            className={styles.btnOutline}
             onClick={() => setVista(vista === "cards" ? "tabla" : "cards")}
             title={vista === "cards" ? "Ver como tabla" : "Ver como tarjetas"}
           >
-            {vista === "cards" ? <List size={15} /> : <LayoutGrid size={15} />}
+            {vista === "cards" ? <List size={18} /> : <LayoutGrid size={18} />}
             {vista === "cards" ? "Tabla" : "Tarjetas"}
           </button>
-          <button className={styles.btnNew} onClick={() => setShowModal(true)}>
-            <Plus size={15} /> Nueva Cotización
+          <button className={styles.btnPrimary} onClick={() => setShowModal(true)}>
+            <Plus size={18} /> Nueva Cotización
           </button>
         </div>
       </div>
@@ -215,24 +216,28 @@ export default function CotizacionesHistorial() {
                 <span className={styles.numero}>#{c.numero}</span>
                 <EstadoBadge estado={c.estado} />
               </div>
-              <p className={styles.cliente}>{c.cliente.nombreComercial}</p>
-              <p className={styles.total}>{fmt(c.total)}</p>
-              <p className={styles.fecha}>{new Date(c.createdAt).toLocaleDateString("es-PE")}</p>
-              <p className={styles.vendedor}>{c.usuario?.nombre}</p>
-              {c.estado === "RENEGOCIACION" && c.respuestaComentario && (
-                <p className={styles.cardComentario}>"{c.respuestaComentario}"</p>
-              )}
-              <button className={styles.btnPreview} onClick={() => handlePreview(c)}>
-                Vista previa / PDF
-              </button>
-              {c.estado === "RENEGOCIACION" && (
-                <button
-                  className={styles.btnRenegociarCard}
-                  onClick={() => setCotizacionARenegociar(c)}
-                >
-                  Re-enviar
+              <div className={styles.cardBody}>
+                <p className={styles.cliente}>{c.cliente.nombreComercial}</p>
+                <p className={styles.total}>{fmt(c.total)}</p>
+                <p className={styles.fecha}>{new Date(c.createdAt).toLocaleDateString("es-PE")}</p>
+                <p className={styles.vendedor}>{c.usuario?.nombre}</p>
+                {c.estado === "RENEGOCIACION" && c.respuestaComentario && (
+                  <p className={styles.cardComentario}>"{c.respuestaComentario}"</p>
+                )}
+              </div>
+              <div className={styles.cardActions}>
+                <button className={styles.btnOutline} onClick={() => handlePreview(c)}>
+                  Vista previa / PDF
                 </button>
-              )}
+                {c.estado === "RENEGOCIACION" && (
+                  <button
+                    className={styles.btnDanger}
+                    onClick={() => setCotizacionARenegociar(c)}
+                  >
+                    Re-enviar
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -275,13 +280,14 @@ export default function CotizacionesHistorial() {
                     <div className={styles.tdSub}>{new Date(c.createdAt).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}</div>
                   </td>
                   <td>
-                    <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-                      <button className={styles.btnSmall} onClick={() => handlePreview(c)}>
+                    <div className={styles.tdActions}>
+                      <button className={styles.btnGhost} onClick={() => handlePreview(c)}>
                         PDF
                       </button>
                       {c.estado === "RENEGOCIACION" && (
                         <button
-                          className={styles.btnRenegociar}
+                          className={styles.btnDanger}
+                          style={{ padding: "0.4rem" }}
                           onClick={() => setCotizacionARenegociar(c)}
                         >
                           Re-enviar

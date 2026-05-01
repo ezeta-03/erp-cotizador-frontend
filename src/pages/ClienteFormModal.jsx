@@ -9,28 +9,26 @@ export default function ClienteFormModal({ form, setForm, editId, onSubmit, onCa
   }, [onCancel]);
 
   return (
-    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
-      <div className={styles.modal}>
-        <div className={styles.modalHeader}>
-          <h2>{editId ? "Editar Cliente" : "Nuevo Cliente"}</h2>
+    <div className={styles.formOverlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className={styles.formModal}>
+        <div className={styles.formModalHeader}>
+          <h3>{editId ? "Editar Cliente" : "Nuevo Cliente"}</h3>
         </div>
 
-        <form onSubmit={onSubmit} className={styles.form}>
-          <div className={styles.row}>
-            <div className={styles.fieldGroup}>
-              <label className={styles.label}>Nombre comercial</label>
+        <form onSubmit={onSubmit} className={styles.formModalBody}>
+          <div className={styles.formRow}>
+            <div className={styles.formField}>
+              <label>Nombre comercial</label>
               <input
-                className={styles.input}
                 placeholder="Empresa S.A."
                 value={form.nombreComercial}
                 onChange={(e) => setForm({ ...form, nombreComercial: e.target.value })}
                 required
               />
             </div>
-            <div className={styles.fieldGroup}>
-              <label className={styles.label}>RUC / Documento</label>
+            <div className={styles.formField}>
+              <label>RUC / Documento</label>
               <input
-                className={styles.input}
                 placeholder="20XXXXXXXXX"
                 value={form.documento}
                 onChange={(e) => setForm({ ...form, documento: e.target.value })}
@@ -39,21 +37,19 @@ export default function ClienteFormModal({ form, setForm, editId, onSubmit, onCa
             </div>
           </div>
 
-          <div className={styles.row}>
-            <div className={styles.fieldGroup}>
-              <label className={styles.label}>Nombre de contacto</label>
+          <div className={styles.formRow}>
+            <div className={styles.formField}>
+              <label>Nombre de contacto</label>
               <input
-                className={styles.input}
                 placeholder="Juan Pérez"
                 value={form.nombreContacto}
                 onChange={(e) => setForm({ ...form, nombreContacto: e.target.value })}
                 required
               />
             </div>
-            <div className={styles.fieldGroup}>
-              <label className={styles.label}>Teléfono</label>
+            <div className={styles.formField}>
+              <label>Teléfono</label>
               <input
-                className={styles.input}
                 placeholder="+51 999 000 000"
                 value={form.telefono}
                 onChange={(e) => setForm({ ...form, telefono: e.target.value })}
@@ -61,10 +57,9 @@ export default function ClienteFormModal({ form, setForm, editId, onSubmit, onCa
             </div>
           </div>
 
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>Correo electrónico</label>
+          <div className={styles.formField}>
+            <label>Correo electrónico</label>
             <input
-              className={styles.input}
               type="email"
               placeholder="contacto@empresa.com"
               value={form.email}
@@ -72,21 +67,20 @@ export default function ClienteFormModal({ form, setForm, editId, onSubmit, onCa
             />
           </div>
 
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>Dirección</label>
+          <div className={styles.formField}>
+            <label>Dirección</label>
             <input
-              className={styles.input}
               placeholder="Av. Lima 123, Lima"
               value={form.direccion}
               onChange={(e) => setForm({ ...form, direccion: e.target.value })}
             />
           </div>
 
-          <div className={styles.actions}>
+          <div className={styles.formActions}>
             <button type="submit" className={styles.btnPrimary}>
               {editId ? "Actualizar" : "Crear Cliente"}
             </button>
-            <button type="button" className={styles.btnSecondary} onClick={onCancel}>
+            <button type="button" className={styles.btnGhost} onClick={onCancel}>
               Cancelar
             </button>
           </div>

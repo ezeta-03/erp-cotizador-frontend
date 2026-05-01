@@ -48,10 +48,18 @@ export default function Cotizaciones() {
   };
 
   return (
-    <div>
-      <button className={styles.btnAdd} onClick={() => setShowModal(true)}>
-        📝 Nueva Cotización
-      </button>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Nueva Cotización</h1>
+          <p className={styles.subtitle}>Genera una cotización rápida para tus clientes</p>
+        </div>
+        <div className={styles.headerActions}>
+          <button className={styles.btnPrimary} onClick={() => setShowModal(true)}>
+            📝 Crear Cotización
+          </button>
+        </div>
+      </div>
 
       {showModal && (
         <CotizacionModal

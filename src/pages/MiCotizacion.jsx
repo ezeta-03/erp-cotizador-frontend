@@ -30,6 +30,8 @@ export default function MiCotizacion() {
       .finally(() => setLoading(false));
   }, []);
 
+  const ultimaId = cotizaciones.length > 0 ? Math.max(...cotizaciones.map((c) => c.id)) : null;
+
   const filtradas = cotizaciones.filter(
     (c) => filtroEstado === "TODAS" || c.estado === filtroEstado
   );
@@ -69,15 +71,18 @@ export default function MiCotizacion() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.toolbar}>
-        <h2>Mis Cotizaciones</h2>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Mis Cotizaciones</h1>
+          <p className={styles.subtitle}>Historial y estado de tus cotizaciones</p>
+        </div>
       </div>
 
       <div className={styles.filtros}>
         {ESTADOS.map((f) => (
           <button
             key={f}
-            className={filtroEstado === f ? styles.active : ""}
+            className={`${styles.filtroBtn} ${filtroEstado === f ? styles.active : ""}`}
             onClick={() => setFiltroEstado(f)}
           >
             {f}
@@ -123,8 +128,10 @@ export default function MiCotizacion() {
                   </td>
                   <td>
                     <button
-                      className={styles.btnSmall}
+                      className={styles.btnOutline}
                       onClick={() => { setSelected(c); setComentario(""); }}
+                      disabled={c.id !== ultimaId}
+                      title={c.id !== ultimaId ? "Solo puedes ver la última cotización" : ""}
                     >
                       Ver
                     </button>

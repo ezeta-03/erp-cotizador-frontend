@@ -9,18 +9,16 @@ export default function UsuarioFormModal({ form, setForm, editId, onSubmit, onCa
   }, [onCancel]);
 
   return (
-    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
-      <div className={styles.modal}>
-        <div className={styles.modalHeader}>
-          <h2>{editId ? "Editar Usuario" : "Invitar Usuario"}</h2>
-          {!editId && <p>Se enviará un correo de activación para que el usuario cree su contraseña.</p>}
+    <div className={styles.formOverlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className={styles.formModal}>
+        <div className={styles.formModalHeader}>
+          <h3>{editId ? "Editar Usuario" : "Invitar Usuario"}</h3>
         </div>
 
-        <form onSubmit={onSubmit} className={styles.form}>
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>Nombre completo</label>
+        <form onSubmit={onSubmit} className={styles.formModalBody}>
+          <div className={styles.formField}>
+            <label>Nombre completo</label>
             <input
-              className={styles.input}
               placeholder="Ej. Juan Pérez"
               value={form.nombre}
               onChange={(e) => setForm({ ...form, nombre: e.target.value })}
@@ -28,10 +26,9 @@ export default function UsuarioFormModal({ form, setForm, editId, onSubmit, onCa
             />
           </div>
 
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>Correo electrónico</label>
+          <div className={styles.formField}>
+            <label>Correo electrónico</label>
             <input
-              className={styles.input}
               type="email"
               placeholder="usuario@empresa.com"
               value={form.email}
@@ -40,10 +37,9 @@ export default function UsuarioFormModal({ form, setForm, editId, onSubmit, onCa
             />
           </div>
 
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>Rol</label>
+          <div className={styles.formField}>
+            <label>Rol</label>
             <select
-              className={styles.select}
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
             >
@@ -54,10 +50,9 @@ export default function UsuarioFormModal({ form, setForm, editId, onSubmit, onCa
           </div>
 
           {editId && (
-            <div className={styles.fieldGroup}>
-              <label className={styles.label}>Nueva contraseña</label>
+            <div className={styles.formField}>
+              <label>Nueva contraseña</label>
               <input
-                className={styles.input}
                 type="password"
                 placeholder="Dejar vacío para no cambiar"
                 value={form.password}
@@ -66,11 +61,11 @@ export default function UsuarioFormModal({ form, setForm, editId, onSubmit, onCa
             </div>
           )}
 
-          <div className={styles.actions}>
+          <div className={styles.formActions}>
             <button type="submit" className={styles.btnPrimary}>
               {editId ? "Actualizar" : "Enviar invitación"}
             </button>
-            <button type="button" className={styles.btnSecondary} onClick={onCancel}>
+            <button type="button" className={styles.btnGhost} onClick={onCancel}>
               Cancelar
             </button>
           </div>

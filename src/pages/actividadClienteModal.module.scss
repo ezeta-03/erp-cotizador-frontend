@@ -1,116 +1,330 @@
-@import "../styles/_variables.scss";
+@import "../styles/_ui.scss";
 
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+/* ── Filtros ── */
+.filtrosWrap {
+  padding: 1rem 1.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: $bg-slate-50;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: $radius-sm;
+  padding: 0 0.75rem;
+  gap: 0.5rem;
+  transition: $transition-smooth;
+
+  &:focus-within {
+    border-color: $text-slate-400;
+    box-shadow: 0 0 0 3px rgba(0,0,0,.05);
+  }
+}
+
+.searchIcon { color: $text-slate-400; flex-shrink: 0; }
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0.6rem 0;
+  font-size: 0.875rem;
+  background: transparent;
+  color: $text-slate-900;
+  &::placeholder { color: $text-slate-400; }
+}
+
+.filtrosRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: $radius-sm;
+  background: #fff;
+  font-size: 0.8rem;
+  color: $text-slate-600;
+  cursor: pointer;
+  outline: none;
+  transition: $transition-smooth;
+  &:focus { border-color: $text-slate-400; }
+}
+
+.dateRange {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dateInput {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: $radius-sm;
+  background: #fff;
+  font-size: 0.8rem;
+  color: $text-slate-600;
+  outline: none;
+  transition: $transition-smooth;
+  &:focus { border-color: $text-slate-400; }
+}
+
+.dateSep { color: $text-slate-400; font-size: 0.8rem; }
+
+.btnLimpiar {
+  padding: 0.45rem 0.875rem;
+  border: 1px solid #cbd5e1;
+  border-radius: $radius-sm;
+  background: #fff;
+  font-size: 0.775rem;
+  color: $text-slate-600;
+  cursor: pointer;
+  transition: $transition-smooth;
+  white-space: nowrap;
+  &:hover { background: $bg-slate-50; border-color: $text-slate-400; }
+}
+
+/* Estado chips */
+.chips {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 0.25rem 0.65rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 99px;
+  background: #fff;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $text-slate-600;
+  cursor: pointer;
+  transition: $transition-smooth;
+  white-space: nowrap;
+  &:hover { border-color: $text-slate-400; background: $bg-slate-50; }
+}
+
+.chipActive {
+  background: $text-slate-900;
+  border-color: $text-slate-900;
+  color: #fff;
+}
+
+/* ── Body ── */
+.body {
+  overflow-x: auto;
+  flex: 1;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: $text-slate-400;
+  font-size: 0.875rem;
+}
+
+/* ── Tabla principal ── */
+.tableWrapper { overflow-x: auto; }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  thead {
+    background: $bg-slate-50;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  th {
+    padding: 0.65rem 1rem;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: $text-slate-600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: $text-slate-900;
+    vertical-align: middle;
+  }
+
+  tbody tr:hover td { background: $bg-slate-50; }
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+.trExpanded td { background: #f0fdf4 !important; }
+
+.tdNumero { font-weight: 600; color: $text-slate-900; white-space: nowrap; }
+.tdTotal  { font-weight: 700; color: #059669; white-space: nowrap; }
+.tdFecha  { white-space: nowrap; font-size: 0.8rem; }
+
+.tdProductos {
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.more {
+  color: $text-slate-400;
+  font-size: 0.75rem;
+}
+
+.btnExpand {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: $text-slate-600;
+  cursor: pointer;
+  transition: $transition-smooth;
+  &:hover { background: $bg-slate-50; color: $text-slate-900; }
+}
 
-  .modal {
-    background: #fff;
-    border-radius: 12px;
-    width: 800px;
-    max-width: 95%;
-    padding: 30px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    animation: fadeIn 0.3s ease;
+/* ── Fila de detalle expandible ── */
+.trDetail td {
+  padding: 0;
+  border-bottom: 1px solid #cbd5e1;
+  background: #f8fafc !important;
+}
 
-    h2 {
-      margin-bottom: 20px;
-      font-size: 18px;
-      font-weight: 600;
-      text-align: center;
-      color: #333;
-    }
+.detailBox {
+  padding: 1rem 1.5rem 1.25rem 2.5rem;
+}
 
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
+.detailLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: $text-slate-400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.75rem;
+}
 
-      th,
-      td {
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-        text-align: left;
-        font-size: 13px;
-      }
+.detailTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
 
-      th {
-        background: #fd6113;
-        color: #fff;
-        font-weight: 600;
-      }
-
-      td {
-        color: #555;
-      }
-      .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 20px;
-
-        span {
-          font-size: 14px;
-          color: #555;
-        }
-
-        .btnPagination {
-          background: #fd6113;
-          color: #fff;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 6px;
-          font-size: 14px;
-          cursor: pointer;
-          transition: background 0.2s;
-
-          &:hover:not(:disabled) {
-            background: #e55a0f;
-          }
-
-          &:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-          }
-        }
-      }
-    }
+  th {
+    padding: 0.4rem 0.75rem;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: $text-slate-400;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid #cbd5e1;
   }
 
-  .actions {
-    display: flex;
-    justify-content: center;
-
-    .btnClose {
-      background: $primary;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.2s;
-
-      &:hover {
-        background: #e0e0e0;
-      }
-    }
+  td {
+    padding: 0.45rem 0.75rem;
+    color: $text-slate-600;
+    border-bottom: 1px solid #e2e8f0;
   }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+.detailSubtotal { font-weight: 600; color: $text-slate-900; }
+
+.detailComentario {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: $text-slate-600;
+  font-style: italic;
+  padding: 0.5rem 0.75rem;
+  background: #fef3c7;
+  border-left: 3px solid #f59e0b;
+  border-radius: 0 $radius-sm $radius-sm 0;
+}
+
+/* ── Estado badges ── */
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.PENDIENTE      { background: #fef3c7; color: #92400e; }
+.APROBADA       { background: #d1fae5; color: #065f46; }
+.FACTURADA      { background: #dbeafe; color: #1e40af; }
+.RECHAZADA      { background: #fee2e2; color: #991b1b; }
+.RENEGOCIACION  { background: #ffedd5; color: #9a3412; }
+
+/* ── Footer / Paginación ── */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1.75rem;
+  border-top: 1px solid #e2e8f0;
+  background: $bg-slate-50;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.footerInfo {
+  font-size: 0.8rem;
+  color: $text-slate-400;
+}
+
+.pagination {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.btnPag {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.775rem;
+  color: $text-slate-600;
+  cursor: pointer;
+  transition: $transition-smooth;
+  min-width: 32px;
+
+  &:hover:not(:disabled) { background: $bg-slate-50; border-color: $text-slate-400; }
+  &:disabled { color: $text-slate-400; cursor: not-allowed; }
+}
+
+.btnPagActive {
+  background: $text-slate-900;
+  border-color: $text-slate-900;
+  color: #fff;
+  &:hover { background: $text-slate-900 !important; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .overlay { padding: 1rem 0.5rem; }
+  .modalHeader, .filtrosWrap, .footer { padding-left: 1rem; padding-right: 1rem; }
+  .filtrosRow { flex-direction: column; align-items: stretch; }
+  .dateRange { flex-wrap: wrap; }
 }

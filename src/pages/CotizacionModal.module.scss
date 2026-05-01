@@ -1,78 +1,4 @@
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.modal {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1.75rem;
-  width: 100%;
-  max-width: 900px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-}
-
-/* ── Header del modal ── */
-.modalHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
-  gap: 1rem;
-}
-
-.title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #111;
-}
-
-.btnClose {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: none;
-  border: none;
-  border-radius: 6px;
-  color: #9ca3af;
-  cursor: pointer;
-  flex-shrink: 0;
-
-  &:hover { background: #f3f4f6; color: #374151; }
-}
-
-.label {
-  display: block;
-  margin: 0.75rem 0 0.3rem;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #374151;
-}
-
-.select {
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  margin-bottom: 0.25rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  background: #fff;
-  color: #111;
-  outline: none;
-
-  &:focus { border-color: #6b7280; }
-}
+@import "../styles/_ui.scss";
 
 /* ── Chips de categoría ── */
 .catFiltros {
@@ -87,30 +13,30 @@
   align-items: center;
   gap: 0.3rem;
   padding: 0.28rem 0.7rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #cbd5e1;
   border-radius: 99px;
   background: #fff;
-  color: #374151;
+  color: $text-slate-600;
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: $transition-smooth;
   white-space: nowrap;
 
-  &:hover { border-color: #9ca3af; background: #f9fafb; }
+  &:hover { border-color: $text-slate-400; background: $bg-slate-50; }
 }
 
 .catChipActive {
-  background: #111;
-  border-color: #111;
+  background: $text-slate-900;
+  border-color: $text-slate-900;
   color: #fff;
 
   .catCount { background: rgba(255,255,255,.2); color: #fff; }
 }
 
 .catCount {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: #f1f5f9;
+  color: $text-slate-600;
   border-radius: 99px;
   padding: 0 0.35rem;
   font-size: 0.68rem;
@@ -119,57 +45,10 @@
   text-align: center;
 }
 
-/* ── Buscador con icono ── */
-.buscadorWrap {
-  display: flex;
-  align-items: center;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: #fff;
-  padding: 0 0.6rem;
-  gap: 0.4rem;
-  margin-bottom: 0.25rem;
-  transition: border-color 0.15s;
-
-  &:focus-within { border-color: #6b7280; }
-}
-
-.buscadorIcon {
-  color: #9ca3af;
-  font-size: 1.1rem;
-  line-height: 1;
-  user-select: none;
-}
-
-.buscadorInput {
-  flex: 1;
-  border: none;
-  outline: none;
-  padding: 0.55rem 0;
-  font-size: 0.875rem;
-  background: transparent;
-  color: #111;
-
-  &::placeholder { color: #9ca3af; }
-}
-
-.buscadorClear {
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  font-size: 0.75rem;
-  padding: 0.2rem;
-  line-height: 1;
-  border-radius: 3px;
-
-  &:hover { color: #374151; background: #f3f4f6; }
-}
-
 /* ── Lista de resultados ── */
 .dropdown {
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: $radius-sm;
   margin-bottom: 0.75rem;
   max-height: 260px;
   overflow-y: auto;
@@ -184,13 +63,13 @@
   padding: 0.6rem 0.75rem;
   background: #fff;
   border: none;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f1f5f9;
   cursor: pointer;
   text-align: left;
   gap: 0.75rem;
 
   &:last-child { border-bottom: none; }
-  &:hover { background: #f9fafb; }
+  &:hover { background: $bg-slate-50; }
 }
 
 .dropdownItemInfo {
@@ -203,7 +82,7 @@
 .dropdownItemNombre {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #111;
+  color: $text-slate-900;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -213,26 +92,6 @@
   display: flex;
   gap: 0.3rem;
   flex-wrap: wrap;
-}
-
-.badgeCat {
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 0.1rem 0.45rem;
-  border-radius: 3px;
-  background: #f3f4f6;
-  color: #374151;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.badgeTipo {
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 0.1rem 0.45rem;
-  border-radius: 3px;
-  background: #e0f2fe;
-  color: #0369a1;
 }
 
 .dropdownPrice {
@@ -245,20 +104,13 @@
 
 .dropdownUnit {
   font-size: 0.72rem;
-  color: #9ca3af;
+  color: $text-slate-400;
   font-weight: 400;
-}
-
-.noResults {
-  font-size: 0.8rem;
-  color: #9ca3af;
-  padding: 0.5rem 0;
-  margin: 0 0 0.75rem;
 }
 
 .noResultsInline {
   font-size: 0.82rem;
-  color: #9ca3af;
+  color: $text-slate-400;
   padding: 0.75rem 1rem;
   margin: 0;
   text-align: center;
@@ -266,10 +118,10 @@
 
 .dropdownMore {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: $text-slate-400;
   padding: 0.5rem 0.75rem;
   margin: 0;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid #f1f5f9;
   text-align: center;
   font-style: italic;
 }
@@ -292,13 +144,13 @@
 .margenInput {
   width: 72px;
   padding: 0.45rem 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: $radius-sm;
   font-size: 0.875rem;
   text-align: center;
   outline: none;
 
-  &:focus { border-color: #6b7280; }
+  &:focus { border-color: $brand-primary; }
 
   &.margenInputError {
     border-color: #ef4444;
@@ -309,7 +161,7 @@
 
 .margenSuffix {
   font-weight: 600;
-  color: #374151;
+  color: $text-slate-600;
   font-size: 0.875rem;
 }
 
@@ -329,7 +181,7 @@
 .margenAlerta {
   background: #fff7ed;
   border: 1px solid #fed7aa;
-  border-radius: 8px;
+  border-radius: $radius-sm;
   padding: 0.9rem 1rem;
   margin: 0.5rem 0 0.75rem;
   color: #9a3412;
@@ -355,7 +207,7 @@
   color: #065f46;
   font-weight: 500;
   background: #d1fae5;
-  border-radius: 6px;
+  border-radius: $radius-sm;
   padding: 0.4rem 0.6rem;
   margin: 0 !important;
 }
@@ -368,7 +220,7 @@
   background: #fff;
   color: #065f46;
   border: 1px solid #6ee7b7;
-  border-radius: 6px;
+  border-radius: $radius-sm;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -382,15 +234,15 @@
 .btnSolicitar {
   margin-top: 0.6rem;
   padding: 0.45rem 1rem;
-  background: #ea580c;
+  background: $brand-primary;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: $radius-sm;
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
 
-  &:hover { background: #c2410c; }
+  &:hover { background: $brand-primary-hover; }
 }
 
 .formSolicitud {
@@ -406,14 +258,14 @@
   width: 100%;
   padding: 0.5rem 0.6rem;
   border: 1px solid #fdba74;
-  border-radius: 6px;
+  border-radius: $radius-sm;
   font-size: 0.82rem;
   resize: vertical;
   background: #fff;
-  color: #111;
+  color: $text-slate-900;
   outline: none;
 
-  &:focus { border-color: #ea580c; }
+  &:focus { border-color: $brand-primary; }
 }
 
 .formSolicitudActions {
@@ -427,7 +279,7 @@
   padding: 0.4rem 0.85rem;
   background: transparent;
   border: 1px solid #fdba74;
-  border-radius: 6px;
+  border-radius: $radius-sm;
   font-size: 0.8rem;
   color: #9a3412;
   cursor: pointer;
@@ -435,86 +287,58 @@
 
 .btnEnviarSolicitud {
   padding: 0.4rem 0.85rem;
-  background: #ea580c;
+  background: $brand-primary;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: $radius-sm;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
 
   &:disabled { opacity: 0.6; cursor: not-allowed; }
-  &:hover:not(:disabled) { background: #c2410c; }
+  &:hover:not(:disabled) { background: $brand-primary-hover; }
 }
 
 /* Banner margen aprobado */
 .margenAprobado {
   background: #d1fae5;
   border: 1px solid #6ee7b7;
-  border-radius: 8px;
+  border-radius: $radius-sm;
   padding: 0.6rem 1rem;
   margin: 0.5rem 0 0.75rem;
   color: #065f46;
   font-size: 0.875rem;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  font-size: 0.875rem;
-
-  th {
-    background: #111;
-    color: #fff;
-    padding: 0.6rem 0.75rem;
-    text-align: left;
-    font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  td {
-    padding: 0.6rem 0.75rem;
-    border-bottom: 1px solid #f3f4f6;
-    color: #374151;
-    vertical-align: middle;
-  }
-
-  tbody tr:hover { background: #f9fafb; }
-}
-
+/* ── Tabla interna específicas ── */
 .inputCantidad {
   width: 64px;
   padding: 0.3rem 0.4rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #cbd5e1;
   border-radius: 4px;
   font-size: 0.875rem;
   text-align: center;
 
-  &:focus { outline: none; border-color: #6b7280; }
+  &:focus { outline: none; border-color: $brand-primary; }
 }
 
 .inputMedida {
   width: 58px;
   padding: 0.3rem 0.4rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #cbd5e1;
   border-radius: 4px;
   font-size: 0.8rem;
   text-align: center;
 
-  &:focus { outline: none; border-color: #6b7280; }
+  &:focus { outline: none; border-color: $brand-primary; }
 }
 
-/* Medida simple (LINEAL / PESO) */
 .medidaCell {
   display: flex;
   align-items: center;
   gap: 0.3rem;
 }
 
-/* Medida 2D (AREA) */
 .medidaAreaCell {
   display: flex;
   align-items: center;
@@ -524,38 +348,32 @@
 
 .medidaSep {
   font-weight: 700;
-  color: #374151;
+  color: $text-slate-600;
   font-size: 0.9rem;
   line-height: 1;
 }
 
 .medidaResult {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: $text-slate-400;
   white-space: nowrap;
 }
 
 .medidaNA {
-  color: #d1d5db;
+  color: $text-slate-400;
   font-size: 0.85rem;
 }
 
 .unidadLabel {
   font-size: 0.78rem;
-  color: #6b7280;
+  color: $text-slate-400;
   white-space: nowrap;
-}
-
-.dropdownUnit {
-  font-size: 0.72rem;
-  color: #9ca3af;
-  font-weight: 400;
 }
 
 .thHint {
   font-size: 0.65rem;
   font-weight: 400;
-  color: #9ca3af;
+  color: $text-slate-400;
   text-transform: none;
   letter-spacing: 0;
   margin-top: 1px;
@@ -570,12 +388,6 @@
   cursor: pointer;
 }
 
-.glosa {
-  color: #6b7280;
-  font-size: 0.8rem;
-}
-
-/* ── Celda producto con notas ── */
 .productoCell {
   display: flex;
   flex-direction: column;
@@ -586,94 +398,28 @@
 .productoNombre {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #111;
+  color: $text-slate-900;
   line-height: 1.3;
 }
 
 .inputDescripcion {
   width: 100%;
   padding: 0.25rem 0.45rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e2e8f0;
   border-radius: 4px;
   font-size: 0.78rem;
-  color: #6b7280;
-  background: #f9fafb;
+  color: $text-slate-600;
+  background: $bg-slate-50;
   outline: none;
   box-sizing: border-box;
 
   &:focus {
-    border-color: #9ca3af;
+    border-color: $text-slate-400;
     background: #fff;
-    color: #111;
+    color: $text-slate-900;
   }
 
-  &::placeholder { color: #d1d5db; }
-}
-
-.btnRemove {
-  background: none;
-  border: none;
-  color: #ef4444;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-
-  &:hover { background: #fee2e2; }
-}
-
-.total {
-  text-align: right;
-  margin: 1rem 0 0;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #111;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-}
-
-.btnSecondary, .btnPrimary {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.btnSecondary {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
-  padding: 0.55rem 1.25rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-
-  &:hover { background: #e5e7eb; }
-}
-
-.btnPrimary {
-  background: #111;
-  color: #fff;
-  border: none;
-  padding: 0.55rem 1.25rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-
-  &:hover { background: #374151; }
-}
-
-/* input deshabilitado (margen aprobado) */
-input:disabled {
-  background: #f3f4f6;
-  color: #6b7280;
-  cursor: not-allowed;
+  &::placeholder { color: $text-slate-400; }
 }
 
 /* ── Toggle IGV ── */
@@ -687,7 +433,7 @@ input:disabled {
 .igvLabel {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: $text-slate-600;
 }
 
 .igvBadge {
@@ -700,48 +446,18 @@ input:disabled {
 }
 
 .igvBadgeSin {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.toggle {
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-
-  input { display: none; }
-
-  .toggleTrack {
-    width: 36px;
-    height: 20px;
-    background: #d1d5db;
-    border-radius: 10px;
-    position: relative;
-    transition: background 0.2s;
-
-    .toggleThumb {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 16px;
-      height: 16px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform 0.2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,.2);
-    }
-  }
-
-  &.toggleOn .toggleTrack {
-    background: #111;
-    .toggleThumb { transform: translateX(16px); }
-  }
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 99px;
+  background: #f1f5f9;
+  color: $text-slate-600;
 }
 
 /* ── Desglose financiero ── */
 .resumenFinanciero {
   margin-top: 0.75rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #e2e8f0;
   padding-top: 0.75rem;
   display: flex;
   flex-direction: column;
@@ -753,7 +469,7 @@ input:disabled {
   display: flex;
   gap: 2rem;
   font-size: 0.875rem;
-  color: #374151;
+  color: $text-slate-600;
 
   span:last-child {
     min-width: 100px;
@@ -772,8 +488,8 @@ input:disabled {
 }
 
 .resumenValorVenta {
-  color: #374151;
-  border-top: 1px dashed #e5e7eb;
+  color: $text-slate-600;
+  border-top: 1px dashed #e2e8f0;
   padding-top: 0.25rem;
   margin-top: 0.1rem;
 }
@@ -781,8 +497,8 @@ input:disabled {
 .resumenTotal {
   font-size: 1rem;
   font-weight: 700;
-  color: #111;
-  border-top: 1px solid #d1d5db;
+  color: $text-slate-900;
+  border-top: 1px solid #cbd5e1;
   padding-top: 0.35rem;
   margin-top: 0.15rem;
 }

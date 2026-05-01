@@ -1,62 +1,4 @@
-@import "../styles/variables";
-
-.container { padding: 1.5rem; }
-
-/* ── Toolbar ── */
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-
-  h2 { margin: 0; font-size: 1.25rem; font-weight: 700; color: #111; }
-}
-
-.toolbarLeft {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.toolbarRight {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btnNew {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.5rem 1rem;
-  background: #111;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-  &:hover { background: #374151; }
-}
-
-.btnView {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.45rem 0.875rem;
-  background: #fff;
-  border: 1px solid $gray-300;
-  border-radius: 6px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: $gray-700;
-  cursor: pointer;
-  transition: background 0.15s;
-  &:hover { background: $gray-50; }
-}
+@import "../styles/_ui.scss";
 
 /* ── Filtros ── */
 .filtros {
@@ -67,21 +9,21 @@
 
   button {
     padding: 0.35rem 0.875rem;
-    border: 1px solid $gray-200;
-    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: $radius-sm;
     background: #fff;
     font-size: 0.8rem;
     font-weight: 500;
-    color: $gray-700;
+    color: $text-slate-600;
     cursor: pointer;
-    transition: all 0.15s;
-    &:hover { background: $gray-50; }
+    transition: $transition-fast;
+    &:hover { background: $bg-slate-50; }
   }
 
   .active {
-    background: #111;
+    background: $text-slate-900;
     color: #fff;
-    border-color: #111;
+    border-color: $text-slate-900;
     font-weight: 600;
   }
 }
@@ -96,67 +38,24 @@
     flex: 1;
     min-width: 180px;
     padding: 0.5rem 0.75rem;
-    border: 1px solid $gray-300;
-    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: $radius-sm;
     font-size: 0.875rem;
     outline: none;
-    &:focus { border-color: #111; }
+    transition: $transition-smooth;
+    &:focus { border-color: $brand-primary; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15); }
   }
 }
 
-/* ── Cards ── */
-.lista {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
-}
-
-.card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 1.125rem;
-  border: 1px solid $gray-200;
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
-  transition: box-shadow 0.2s;
-
-  &:hover { box-shadow: 0 4px 12px rgba(0,0,0,.09); }
-
-  .cardHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    gap: 0.5rem;
-
-    .numero { font-weight: 700; font-size: 0.875rem; color: #111; }
-  }
-
-  .cliente { font-weight: 600; font-size: 0.9rem; color: #111; margin-bottom: 0.25rem; }
-  .total   { font-size: 1rem; font-weight: 700; color: #059669; margin-bottom: 0.2rem; }
-  .fecha   { font-size: 0.78rem; color: $gray-400; margin-bottom: 0.15rem; }
-  .vendedor { font-size: 0.78rem; color: $gray-600; margin-bottom: 0.75rem; }
-
-  .btnPreview {
-    width: 100%;
-    padding: 0.45rem;
-    border: 1px solid $gray-200;
-    border-radius: 6px;
-    background: #fff;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: $gray-700;
-    cursor: pointer;
-    transition: background 0.15s;
-    &:hover { background: $gray-50; }
-  }
-}
+/* ── Extras de Cards y Tabla ── */
+.tdTotal { font-weight: 700; color: #059669; }
 
 /* ── Estado badges ── */
 .estadoBadge {
   display: inline-block;
   font-size: 0.68rem;
   font-weight: 700;
-  padding: 0.15rem 0.5rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 99px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -169,72 +68,12 @@
 .RECHAZADA      { background: #fee2e2; color: #991b1b; }
 .RENEGOCIACION  { background: #ffedd5; color: #9a3412; }
 
-/* ── Table ── */
-.tableContainer {
-  background: #fff;
-  border-radius: 10px;
-  border: 1px solid $gray-200;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06);
-  overflow: hidden;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-
-  thead tr { background: $gray-50; }
-
-  th {
-    padding: 0.65rem 1rem;
-    text-align: left;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: $gray-600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    border-bottom: 1px solid $gray-200;
-    white-space: nowrap;
-  }
-
-  td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid $gray-100;
-    color: #111;
-    vertical-align: middle;
-  }
-
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: $gray-50; }
-
-  .tdSub {
-    font-size: 0.75rem;
-    color: $gray-400;
-    margin-top: 0.1rem;
-  }
-
-  .tdTotal { font-weight: 700; color: #059669; }
-
-  .btnSmall {
-    padding: 0.3rem 0.65rem;
-    border: 1px solid $gray-200;
-    border-radius: 5px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background: #fff;
-    color: $gray-700;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s;
-    &:hover { background: $gray-50; }
-  }
-}
-
 /* ── Overlay de preview PDF ── */
 .previewOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.55);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
   z-index: 1200;
   display: flex;
   align-items: flex-start;
@@ -257,55 +96,11 @@
   gap: 0.75rem;
 }
 
-.btnDescargar {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.55rem 1.1rem;
-  background: #111;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  &:hover { background: #374151; }
-}
-
-.btnCerrar {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.55rem 1rem;
-  background: rgba(255,255,255,.15);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,.3);
-  border-radius: 6px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  &:hover { background: rgba(255,255,255,.25); }
-}
-
 /* ── Editar y Re-enviar (overlay) ── */
-.btnEditar {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.55rem 1.1rem;
-  background: #f97316;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  &:hover { background: #ea580c; }
-}
-
 .comentarioCliente {
   background: #fff7ed;
   border: 1px solid #fed7aa;
-  border-radius: 8px;
+  border-radius: $radius-sm;
   padding: 0.875rem 1.125rem;
   display: flex;
   flex-direction: column;
@@ -330,7 +125,7 @@
 /* ── Renegociar ── */
 .tdComentario {
   font-size: 0.72rem;
-  color: $gray-400;
+  color: $text-slate-400;
   margin-top: 0.2rem;
   font-style: italic;
   max-width: 220px;
@@ -339,38 +134,9 @@
   text-overflow: ellipsis;
 }
 
-.btnRenegociar {
-  padding: 0.3rem 0.65rem;
-  border: 1px solid #fca5a5;
-  border-radius: 5px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: #fff;
-  color: #dc2626;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s;
-  &:hover { background: #fef2f2; }
-}
-
 .cardComentario {
   font-size: 0.78rem;
-  color: $gray-400;
+  color: $text-slate-400;
   font-style: italic;
   margin: 0.2rem 0 0.5rem;
-}
-
-.btnRenegociarCard {
-  width: 100%;
-  margin-top: 0.4rem;
-  padding: 0.45rem;
-  border: 1px solid #fca5a5;
-  border-radius: 6px;
-  background: #fff;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #dc2626;
-  cursor: pointer;
-  transition: background 0.15s;
-  &:hover { background: #fef2f2; }
 }

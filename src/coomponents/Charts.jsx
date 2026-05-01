@@ -19,17 +19,26 @@ export function DonutChart({ meta, avance, titulo = "Meta Mensual" }) {
 
     const ctx = chartRef.current.getContext('2d');
     const restante = Math.max(meta - avance, 0);
-    const porcentaje = meta > 0 ? ((avance / meta) * 100).toFixed(1) : 0;
+    const porcentaje = meta > 0 ? ((avance / meta) * 100) : 0;
+    
+    // Semaforización
+    let colorAprobado = '#ef4444'; // Red para < 70%
+    if (porcentaje >= 100) {
+      colorAprobado = '#10b981'; // Green para >= 100%
+    } else if (porcentaje >= 70) {
+      colorAprobado = '#f59e0b'; // Yellow para 70-99%
+    }
 
     chartInstance.current = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['Facturado', 'Pendiente'],
+        labels: ['Aprobado', 'Pendiente'],
         datasets: [{
           data: [avance, restante],
-          backgroundColor: ['#10b981', '#e5e7eb'],
+          backgroundColor: [colorAprobado, '#f1f5f9'],
           borderWidth: 0,
-          cutout: '70%',
+          cutout: '75%',
+          borderRadius: 4,
         }]
       },
       options: {
@@ -67,11 +76,11 @@ export function DonutChart({ meta, avance, titulo = "Meta Mensual" }) {
           ctx.font = 'bold 24px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillStyle = '#111827';
-          ctx.fillText(`${porcentaje}%`, width / 2, height / 2 - 10);
+          ctx.fillStyle = '#0f172a';
+          ctx.fillText(`${porcentaje.toFixed(1)}%`, width / 2, height / 2 - 10);
           
           ctx.font = '12px sans-serif';
-          ctx.fillStyle = '#6b7280';
+          ctx.fillStyle = '#64748b';
           ctx.fillText('Completado', width / 2, height / 2 + 15);
           ctx.save();
         }
@@ -86,7 +95,7 @@ export function DonutChart({ meta, avance, titulo = "Meta Mensual" }) {
   }, [meta, avance]);
 
   return (
-    <div style={{ width: '100%', maxWidth: '300px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '300px', margin: '0 auto', minWidth: 0 }}>
       <h3 style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '1rem', fontWeight: '600' }}>
         {titulo}
       </h3>
@@ -96,7 +105,7 @@ export function DonutChart({ meta, avance, titulo = "Meta Mensual" }) {
           Meta: {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(meta)}
         </p>
         <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-          Facturado: {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(avance)}
+          Aprobado: {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(avance)}
         </p>
       </div>
     </div>
@@ -129,30 +138,32 @@ export function LineChart({ data }) {
           {
             label: 'Cotizaciones Enviadas',
             data: enviadas,
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            borderWidth: 2,
+            borderColor: '#6366f1', // Indigo
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            borderWidth: 3,
             fill: true,
             tension: 0.4,
-            pointRadius: 3,
-            pointHoverRadius: 5,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#6366f1',
           },
           {
             label: 'Cotizaciones Aprobadas',
             data: aprobadas,
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            borderWidth: 2,
+            borderColor: '#14b8a6', // Teal
+            backgroundColor: 'rgba(20, 184, 166, 0.1)',
+            borderWidth: 3,
             fill: true,
             tension: 0.4,
-            pointRadius: 3,
-            pointHoverRadius: 5,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#14b8a6',
           }
         ]
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         interaction: {
           mode: 'index',
           intersect: false,
@@ -210,11 +221,13 @@ export function LineChart({ data }) {
   }, [data]);
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
       <h3 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: '600' }}>
         Cotizaciones del Mes
       </h3>
-      <canvas ref={chartRef}></canvas>
+      <div style={{ position: 'relative', flex: 1, minHeight: '250px', width: '100%' }}>
+        <canvas ref={chartRef}></canvas>
+      </div>
     </div>
   );
 }

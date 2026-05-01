@@ -1,5 +1,5 @@
 import BaseLayout from "./BaseLayout";
-import { BarChart3, Users, UserCircle, Package, FileText, DollarSign } from "lucide-react";
+import { BarChart3, Users, UserCircle, Package, FileText, DollarSign, KeyRound } from "lucide-react";
 
 export default function AdminLayout() {
   const menu = [
@@ -9,6 +9,7 @@ export default function AdminLayout() {
     { path: "/cotizador/admin/productos", label: "Productos", icon: Package },
     { path: "/cotizador/admin/historial", label: "Cotizaciones", icon: FileText },
     { path: "/cotizador/admin/cotizaciones-ventas", label: "Facturar", icon: DollarSign },
+    { path: "/cotizador/admin/perfil", label: "Cambiar contraseña", icon: KeyRound },
   ];
 
   return <BaseLayout menu={menu} />;

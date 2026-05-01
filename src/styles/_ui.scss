@@ -1,0 +1,534 @@
+/* ===== Premium UI System ===== */
+/* Import variables if needed, though we can redefine core tokens here for independence */
+@import "./variables";
+
+$brand-primary: #f97316;
+$brand-primary-hover: #ea580c;
+$brand-primary-light: #ffedd5;
+$bg-slate-50: #f8fafc;
+$bg-slate-100: #f1f5f9;
+$text-slate-900: #0f172a;
+$text-slate-600: #475569;
+$text-slate-400: #94a3b8;
+
+$radius-lg: 16px;
+$radius-md: 10px;
+$radius-sm: 8px;
+
+$shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
+$shadow-hover: 0 20px 40px -10px rgba(0,0,0,0.12);
+$shadow-modal: 0 25px 60px -15px rgba(0,0,0,0.25);
+
+$transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast: all 0.15s ease-out;
+
+/* ── Contenedor principal ── */
+.container {
+  padding: 2.5rem;
+  background: $bg-slate-50;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: $text-slate-900;
+}
+
+/* ── Encabezado ── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: $text-slate-900;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: $text-slate-400;
+  margin: 0;
+  font-weight: 400;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+}
+
+/* ── Botones Premium ── */
+button {
+  font-family: inherit;
+}
+
+.btnPrimary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: $brand-primary;
+  color: #fff;
+  border: none;
+  border-radius: $radius-md;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition-smooth;
+  box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.39);
+
+  &:hover:not(:disabled) { 
+    background: $brand-primary-hover; 
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.45);
+  }
+  &:active:not(:disabled) { transform: translateY(0); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+}
+
+.btnOutline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  color: $text-slate-600;
+  border: 1px solid #e2e8f0;
+  border-radius: $radius-md;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition-smooth;
+
+  &:hover { 
+    border-color: #cbd5e1; 
+    background: $bg-slate-50; 
+    color: $text-slate-900;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
+}
+
+.btnDanger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.25rem;
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover { 
+    background: #ef4444; 
+    color: #fff;
+    border-color: #ef4444;
+    box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.39);
+  }
+}
+
+.btnGhost {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  color: $text-slate-600;
+  border: none;
+  border-radius: $radius-md;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover { 
+    background: $bg-slate-100; 
+    color: $text-slate-900; 
+  }
+}
+
+.btnDelete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: transparent;
+  color: $text-slate-400;
+  border: none;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover { color: #ef4444; background: #fef2f2; }
+}
+
+.btnClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: $bg-slate-50;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: $text-slate-600;
+  transition: $transition-fast;
+  margin-left: auto;
+  
+  &:hover { 
+    background: #e2e8f0; 
+    color: $text-slate-900; 
+    transform: rotate(90deg); 
+  }
+}
+
+/* ── Badges (Píldoras) ── */
+.badgeActivo {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.badgeInactivo {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badgeInvitado {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: #fef9c3;
+  color: #854d0e;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ── Tarjetas y Listas ── */
+.lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: $radius-lg;
+  padding: 1.5rem;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: $shadow-soft;
+  transition: $transition-smooth;
+  display: flex;
+  flex-direction: column;
+
+  &:hover { 
+    transform: translateY(-4px);
+    box-shadow: $shadow-hover;
+    border-color: rgba(203, 213, 225, 0.8);
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+
+    .nombre { 
+      font-weight: 700; 
+      color: $text-slate-900; 
+      font-size: 1.1rem; 
+      line-height: 1.3;
+    }
+  }
+
+  .cardBody {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: $text-slate-600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  .cardActions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e2e8f0;
+
+    button {
+      flex: 1;
+    }
+  }
+}
+
+/* ── Tablas Elegantes ── */
+.tableContainer {
+  background: #fff;
+  border-radius: $radius-lg;
+  border: 1px solid #e2e8f0;
+  box-shadow: $shadow-soft;
+  overflow: hidden;
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+  text-align: left;
+
+  thead tr { 
+    background: $bg-slate-50;
+  }
+
+  th {
+    padding: 1rem 1.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: $text-slate-600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: $text-slate-900;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: $transition-fast;
+    &:hover { background: $bg-slate-50; }
+    &:last-child td { border-bottom: none; }
+  }
+
+  .tdSub {
+    font-size: 0.8rem;
+    color: $text-slate-400;
+    margin-top: 0.2rem;
+  }
+
+  .tdActions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+}
+
+/* ── Modales / Wizards (Glassmorphism) ── */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+.wizardOverlay, .formOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.wizardCard, .formModal {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  box-shadow: $shadow-modal;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wizardCard { max-width: 860px; max-height: 90vh; }
+.formModal { max-width: 480px; max-height: 90vh; }
+
+.wizardHeader, .formModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+  
+  .wizardTitle, h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: $text-slate-900;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  
+  .wizardSubtitle {
+    font-size: 0.875rem;
+    color: $text-slate-400;
+    margin: 0.25rem 0 0 0;
+  }
+}
+
+.formModalBody {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+}
+
+/* ── Formularios ── */
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label, .formFieldLabel {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $text-slate-600;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: $radius-sm;
+    font-size: 0.95rem;
+    color: $text-slate-900;
+    background: #fff;
+    transition: $transition-smooth;
+    outline: none;
+    font-family: inherit;
+
+    &::placeholder { color: $text-slate-400; }
+    
+    &:focus { 
+      border-color: $brand-primary; 
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+    }
+  }
+}
+
+.formRow {
+  display: flex;
+  gap: 1.25rem;
+  
+  > * {
+    flex: 1;
+  }
+}
+
+.formActions, .wizardActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  background: $bg-slate-50;
+  border-top: 1px solid #e2e8f0;
+  border-radius: 0 0 20px 20px;
+}
+
+/* ── Barra de Búsqueda ── */
+.searchBar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: $radius-md;
+  padding: 0 1rem;
+  transition: $transition-smooth;
+
+  &:focus-within {
+    border-color: $brand-primary;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  }
+
+  .searchIcon { color: $text-slate-400; }
+
+  .searchInput {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.95rem;
+    background: transparent;
+    color: $text-slate-900;
+
+    &::placeholder { color: $text-slate-400; }
+  }
+}
+
+/* ── Toggle Switch ── */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+
+  input { display: none; }
+
+  .toggleTrack {
+    width: 44px;
+    height: 24px;
+    background: #cbd5e1;
+    border-radius: 99px;
+    position: relative;
+    transition: background 0.3s ease;
+
+    .toggleThumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+  }
+
+  &.toggleOn .toggleTrack {
+    background: $brand-primary;
+
+    .toggleThumb { transform: translateX(20px); }
+  }
+}

@@ -1,5 +1,5 @@
 import BaseLayout from "./BaseLayout";
-import { BarChart3, UserCircle, Package, FileText } from "lucide-react";
+import { BarChart3, UserCircle, Package, FileText, KeyRound } from "lucide-react";
 
 export default function VentasLayout() {
   const menu = [
@@ -7,6 +7,7 @@ export default function VentasLayout() {
     { path: "/cotizador/ventas/clientes", label: "Clientes", icon: UserCircle },
     { path: "/cotizador/ventas/productos", label: "Productos", icon: Package },
     { path: "/cotizador/ventas/historial", label: "Cotizaciones", icon: FileText },
+    { path: "/cotizador/ventas/perfil", label: "Cambiar contraseña", icon: KeyRound },
   ];
 
   return <BaseLayout menu={menu} />;

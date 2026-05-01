@@ -10,6 +10,7 @@ import Productos from "../pages/Productos";
 import Cotizaciones from "../pages/Cotizaciones";
 import CotizacionesHistorial from "../pages/CotizacionesHistorial";
 import MiCotizacion from "../pages/MiCotizacion";
+import CambiarContrasena from "../pages/CambiarContrasena";
 import CotizacionesVentas from "../coomponents/CotizacionesVentas";
 import ActividadClientes from "../coomponents/ActividadClientes";
 import AdminLayout from "../layouts/AdminLayout";
@@ -48,6 +49,7 @@ export default function AppRouter() {
         <Route path="historial" element={<CotizacionesHistorial />} />
         <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
         <Route path="actividad" element={<ActividadClientes />} />
+        <Route path="perfil" element={<CambiarContrasena />} />
       </Route>
 
       {/* ================= VENTAS ================= */}
@@ -66,6 +68,7 @@ export default function AppRouter() {
         <Route path="historial" element={<CotizacionesHistorial />} />
         <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
         <Route path="actividad" element={<ActividadClientes />} />
+        <Route path="perfil" element={<CambiarContrasena />} />
       </Route>
 
       {/* ================= CLIENTE ================= */}
@@ -79,6 +82,7 @@ export default function AppRouter() {
       >
         <Route index element={<MiCotizacion />} />
         <Route path="mia" element={<MiCotizacion />} />
+        <Route path="perfil" element={<CambiarContrasena />} />
       </Route>
 
       {/* ================= CONTABLE ================= */}
@@ -92,6 +96,7 @@ export default function AppRouter() {
       >
         <Route index element={<Dashboard />} />
         <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
+        <Route path="perfil" element={<CambiarContrasena />} />
       </Route>
 
       {/* fallback */}

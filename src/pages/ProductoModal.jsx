@@ -70,47 +70,64 @@ export default function ProductoModal({ producto, onSave, onClose }) {
   };
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modal}>
-        <h2>{producto ? "Editar Producto" : "Nuevo Producto"}</h2>
-        <form onSubmit={handleSubmit}>
+    <div className={styles.formOverlay}>
+      <div className={styles.formModal}>
+        <div className={styles.formModalHeader}>
+          <h3>{producto ? "Editar Producto" : "Nuevo Producto"}</h3>
+        </div>
+        <form onSubmit={handleSubmit} className={styles.formModalBody}>
           {/* Primera fila: Categoría y Servicio */}
-          <div className={styles.row}>
-            <input
-              placeholder="Categoría"
-              value={form.categoria}
-              onChange={(e) => setForm({ ...form, categoria: e.target.value })}
-            />
-            <input
-              placeholder="Servicio"
-              value={form.servicio}
-              onChange={(e) => setForm({ ...form, servicio: e.target.value })}
-            />
+          <div className={styles.formRow}>
+            <div className={styles.formField}>
+              <label>Categoría</label>
+              <input
+                placeholder="Categoría"
+                value={form.categoria}
+                onChange={(e) => setForm({ ...form, categoria: e.target.value })}
+              />
+            </div>
+            <div className={styles.formField}>
+              <label>Servicio</label>
+              <input
+                placeholder="Servicio"
+                value={form.servicio}
+                onChange={(e) => setForm({ ...form, servicio: e.target.value })}
+              />
+            </div>
           </div>
 
           {/* Segunda fila: Material */}
-          <input
-            placeholder="Material"
-            value={form.material}
-            onChange={(e) => setForm({ ...form, material: e.target.value })}
-          />
+          <div className={styles.formField}>
+            <label>Material</label>
+            <input
+              placeholder="Material"
+              value={form.material}
+              onChange={(e) => setForm({ ...form, material: e.target.value })}
+            />
+          </div>
 
           {/* Tercera fila: Unidad y Costo Material */}
-          <div className={styles.row}>
-            <input
-              placeholder="Unidad"
-              value={form.unidad}
-              onChange={(e) => setForm({ ...form, unidad: e.target.value })}
-            />
-            <input
-              type="number"
-              step="0.01"
-              placeholder="Costo Material"
-              value={form.costo_material}
-              onChange={(e) =>
-                setForm({ ...form, costo_material: e.target.value })
-              }
-            />
+          <div className={styles.formRow}>
+            <div className={styles.formField}>
+              <label>Unidad</label>
+              <input
+                placeholder="Unidad"
+                value={form.unidad}
+                onChange={(e) => setForm({ ...form, unidad: e.target.value })}
+              />
+            </div>
+            <div className={styles.formField}>
+              <label>Costo Material</label>
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Costo Material"
+                value={form.costo_material}
+                onChange={(e) =>
+                  setForm({ ...form, costo_material: e.target.value })
+                }
+              />
+            </div>
           </div>
 
           <h3>Adicionales</h3>
@@ -160,13 +177,13 @@ export default function ProductoModal({ producto, onSave, onClose }) {
             <strong>Margen:</strong> S/. {margen.toFixed(2)}
           </p>
 
-          <div className={styles.actions}>
+          <div className={styles.formActions}>
             <button type="submit" className={styles.btnPrimary}>
               Guardar
             </button>
             <button
               type="button"
-              className={styles.btnSecondary}
+              className={styles.btnGhost}
               onClick={onClose}
             >
               Cancelar

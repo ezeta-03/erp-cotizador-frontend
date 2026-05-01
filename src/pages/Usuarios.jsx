@@ -28,13 +28,13 @@ function RolBadge({ role }) {
 function EstadoBadge({ activo }) {
   if (activo) {
     return (
-      <span style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", borderRadius: "99px", background: "#dcfce7", color: "#166534", fontWeight: 600 }}>
+      <span className={styles.badgeActivo}>
         Activo
       </span>
     );
   }
   return (
-    <span style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", borderRadius: "99px", background: "#fef9c3", color: "#854d0e", fontWeight: 600 }}>
+    <span className={styles.badgeInactivo}>
       Inactivo
     </span>
   );
@@ -110,19 +110,22 @@ export default function Usuarios() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.toolbar}>
-        <h2>Usuarios</h2>
-        <div className={styles.toolbarActions}>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Usuarios</h1>
+          <p className={styles.subtitle}>Gestión de accesos y roles del sistema</p>
+        </div>
+        <div className={styles.headerActions}>
           <button
-            className={styles.btnView}
+            className={styles.btnOutline}
             onClick={() => setVista(vista === "cards" ? "tabla" : "cards")}
             title={vista === "cards" ? "Ver como tabla" : "Ver como tarjetas"}
           >
-            {vista === "cards" ? <List size={15} /> : <LayoutGrid size={15} />}
+            {vista === "cards" ? <List size={18} /> : <LayoutGrid size={18} />}
             {vista === "cards" ? "Tabla" : "Tarjetas"}
           </button>
-          <button className={styles.btnAdd} onClick={() => { setEditId(null); setForm({ nombre: "", email: "", password: "", role: "VENTAS" }); setShowModal(true); }}>
-            <Plus size={15} /> Invitar usuario
+          <button className={styles.btnPrimary} onClick={() => { setEditId(null); setForm({ nombre: "", email: "", password: "", role: "VENTAS" }); setShowModal(true); }}>
+            <Plus size={18} /> Invitar usuario
           </button>
         </div>
       </div>
@@ -136,14 +139,16 @@ export default function Usuarios() {
                 <span className={styles.nombre}>{u.nombre}</span>
                 <EstadoBadge activo={u.activo} />
               </div>
-              <p className={styles.email}>{u.email}</p>
-              <p className={styles.role}><RolBadge role={u.role} /></p>
+              <div className={styles.cardBody}>
+                <p className={styles.email}>{u.email}</p>
+                <p className={styles.role}><RolBadge role={u.role} /></p>
+              </div>
               <div className={styles.cardActions}>
                 {u.activo && (
-                  <button className={styles.btnEdit} onClick={() => handleEdit(u)}>Editar</button>
+                  <button className={styles.btnOutline} onClick={() => handleEdit(u)}>Editar</button>
                 )}
                 {!u.activo && (
-                  <button className={styles.btnReinvite} onClick={() => handleReinvitar(u)}>Reinvitar</button>
+                  <button className={styles.btnOutline} onClick={() => handleReinvitar(u)}>Reinvitar</button>
                 )}
               </div>
             </div>
@@ -180,10 +185,10 @@ export default function Usuarios() {
                   <td>
                     <div className={styles.tdActions}>
                       {u.activo && (
-                        <button className={styles.btnSmall} onClick={() => handleEdit(u)}>Editar</button>
+                        <button className={styles.btnGhost} onClick={() => handleEdit(u)}>Editar</button>
                       )}
                       {!u.activo && (
-                        <button className={styles.btnSmall} onClick={() => handleReinvitar(u)}>Reinvitar</button>
+                        <button className={styles.btnGhost} onClick={() => handleReinvitar(u)}>Reinvitar</button>
                       )}
                     </div>
                   </td>

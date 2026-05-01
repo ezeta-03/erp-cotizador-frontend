@@ -3,7 +3,7 @@ import api from "../api/axios";
 import useAuth from "../auth/useAuth";
 import styles from "./Login.module.scss";
 
-export default function Login({ moduleName = "Módulo de\nCotización" }) {
+export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,9 +35,8 @@ export default function Login({ moduleName = "Módulo de\nCotización" }) {
             <img src="/zaazmago_holding.png" alt="Zaazmago Holding" className={styles.leftLogo} />
             <div className={styles.leftModuleName}>
               ERP<br />
-              {moduleName.split("\n").map((line, i) => (
-                <span key={i}>{line}<br /></span>
-              ))}
+              Módulo de<br />
+              Cotización
             </div>
           </div>
         </div>
@@ -52,10 +51,9 @@ export default function Login({ moduleName = "Módulo de\nCotización" }) {
             <p className={styles.formSubtitle}>Ingresa tus credenciales para continuar</p>
 
             <form className={styles.loginForm} onSubmit={handleSubmit}>
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel}>Email</label>
+              <div className={styles.formField}>
+                <label>Email</label>
                 <input
-                  className={styles.formInput}
                   type="email"
                   placeholder="zaazmago@zaazmago.com"
                   value={email}
@@ -63,10 +61,9 @@ export default function Login({ moduleName = "Módulo de\nCotización" }) {
                   required
                 />
               </div>
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel}>Contraseña</label>
+              <div className={styles.formField}>
+                <label>Contraseña</label>
                 <input
-                  className={styles.formInput}
                   type="password"
                   placeholder="••••••••••••"
                   value={password}

@@ -13,10 +13,11 @@ import {
 import styles from "./ClienteDashboard.module.scss";
 
 const ESTADO_CONFIG = {
-  PENDIENTE:  { label: "Pendiente de respuesta", color: styles.badgePendiente,  Icon: Clock },
-  APROBADA:   { label: "Aprobada",               color: styles.badgeAprobada,   Icon: CheckCircle },
-  RECHAZADA:  { label: "Rechazada",              color: styles.badgeRechazada,  Icon: XCircle },
-  FACTURADA:  { label: "Facturada",              color: styles.badgeFacturada,  Icon: DollarSign },
+  PENDIENTE:     { label: "Pendiente de respuesta", color: styles.badgePendiente,     Icon: Clock },
+  APROBADA:      { label: "Aprobada",               color: styles.badgeAprobada,      Icon: CheckCircle },
+  RECHAZADA:     { label: "Rechazada",              color: styles.badgeRechazada,     Icon: XCircle },
+  FACTURADA:     { label: "Facturada",              color: styles.badgeFacturada,     Icon: DollarSign },
+  RENEGOCIACION: { label: "En renegociación",       color: styles.badgeRenegociacion, Icon: Clock },
 };
 
 export default function ClienteDashboard() {

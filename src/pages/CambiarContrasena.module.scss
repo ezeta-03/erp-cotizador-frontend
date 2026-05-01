@@ -1,0 +1,144 @@
+@import "../styles/variables";
+
+.page {
+  padding: 2rem;
+  background-color: $gray-50;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: $gray-900;
+  margin: 0 0 0.25rem;
+}
+
+.pageSubtitle {
+  font-size: 0.875rem;
+  color: $gray-400;
+  margin: 0;
+}
+
+.card {
+  background: $white;
+  border-radius: $radius;
+  border: 1px solid $gray-200;
+  box-shadow: $shadow;
+  padding: 2rem;
+  max-width: 480px;
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius;
+  margin-bottom: 1.5rem;
+}
+
+.successBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: $radius;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+
+.errorBanner {
+  padding: 0.75rem 1rem;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: $radius;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $gray-700;
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: 0.65rem 2.5rem 0.65rem 0.875rem;
+  border: 1px solid $gray-200;
+  border-radius: $radius;
+  font-size: 0.875rem;
+  color: $gray-900;
+  background: $white;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: $black; box-shadow: 0 0 0 3px rgba(0,0,0,.05); }
+  &::placeholder { color: $gray-400; }
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $gray-400;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s;
+  &:hover { color: $gray-700; }
+}
+
+.btnSubmit {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: $black;
+  color: $white;
+  border: none;
+  border-radius: $radius;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) { background: #374151; }
+  &:disabled { background: $gray-200; color: $gray-400; cursor: not-allowed; }
+}
+
+@media (max-width: 768px) {
+  .page { padding: 1rem; }
+  .pageTitle { font-size: 1.5rem; }
+  .card { padding: 1.25rem; }
+}

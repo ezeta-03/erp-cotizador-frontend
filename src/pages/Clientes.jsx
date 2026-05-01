@@ -16,20 +16,20 @@ import ActividadClienteModal from "../pages/ActividadClienteModal";
 function EstadoUsuarioBadge({ usuario }) {
   if (!usuario) {
     return (
-      <span style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", borderRadius: "99px", background: "#f3f4f6", color: "#6b7280", fontWeight: 600 }}>
+      <span className={styles.badgeInactivo}>
         Sin cuenta
       </span>
     );
   }
   if (usuario.activo) {
     return (
-      <span style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", borderRadius: "99px", background: "#dcfce7", color: "#166534", fontWeight: 600 }}>
+      <span className={styles.badgeActivo}>
         Portal activo
       </span>
     );
   }
   return (
-    <span style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", borderRadius: "99px", background: "#fef9c3", color: "#854d0e", fontWeight: 600 }}>
+    <span className={styles.badgeInvitado}>
       Invitado
     </span>
   );
@@ -136,20 +136,23 @@ export default function Clientes() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.toolbar}>
-        <h2>Clientes</h2>
-        <div className={styles.toolbarActions}>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Clientes</h1>
+          <p className={styles.subtitle}>Gestión y control de clientes</p>
+        </div>
+        <div className={styles.headerActions}>
           <button
-            className={styles.btnView}
+            className={styles.btnOutline}
             onClick={() => setVista(vista === "cards" ? "tabla" : "cards")}
             title={vista === "cards" ? "Ver como tabla" : "Ver como tarjetas"}
           >
-            {vista === "cards" ? <List size={15} /> : <LayoutGrid size={15} />}
+            {vista === "cards" ? <List size={18} /> : <LayoutGrid size={18} />}
             {vista === "cards" ? "Tabla" : "Tarjetas"}
           </button>
           {puedeGestionar && (
-            <button className={styles.btnAdd} onClick={() => { resetForm(); setShowFormModal(true); }}>
-              <Plus size={15} /> Nuevo cliente
+            <button className={styles.btnPrimary} onClick={() => { resetForm(); setShowFormModal(true); }}>
+              <Plus size={18} /> Nuevo cliente
             </button>
           )}
         </div>
@@ -164,22 +167,24 @@ export default function Clientes() {
                 <span className={styles.nombre}>{c.nombreComercial}</span>
                 <EstadoUsuarioBadge usuario={c.usuario} />
               </div>
-              <p className={styles.documento}>{c.documento}</p>
-              <p className={styles.contacto}>{c.nombreContacto}</p>
-              <p className={styles.email}>{c.email}</p>
-              <p className={styles.telefono}>{c.telefono}</p>
+              <div className={styles.cardBody}>
+                <p className={styles.documento}>{c.documento}</p>
+                <p className={styles.contacto}>{c.nombreContacto}</p>
+                <p className={styles.email}>{c.email}</p>
+                <p className={styles.telefono}>{c.telefono}</p>
+              </div>
 
               {puedeGestionar && (
                 <div className={styles.cardActions}>
                   <button
-                    className={styles.btnEdit}
+                    className={styles.btnOutline}
                     onClick={(e) => { e.stopPropagation(); handleEdit(c); }}
                   >
                     Editar
                   </button>
                   {(!c.usuario || !c.usuario.activo) && (
                     <button
-                      className={styles.btnReinvite}
+                      className={styles.btnOutline}
                       disabled={invitandoId === c.id}
                       onClick={(e) => { e.stopPropagation(); handleInvitar(c); }}
                     >
@@ -229,11 +234,11 @@ export default function Clientes() {
                   <td>
                     <div className={styles.tdActions}>
                       {puedeGestionar && (
-                        <button className={styles.btnSmall} onClick={() => handleEdit(c)}>Editar</button>
+                        <button className={styles.btnGhost} onClick={() => handleEdit(c)}>Editar</button>
                       )}
                       {puedeGestionar && (!c.usuario || !c.usuario.activo) && (
                         <button
-                          className={styles.btnSmall}
+                          className={styles.btnGhost}
                           disabled={invitandoId === c.id}
                           onClick={() => handleInvitar(c)}
                         >

@@ -334,21 +334,21 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <div className={styles.modalHeader}>
-          <h2 className={styles.title}>{title || "Nueva Cotización"}</h2>
+    <div className={styles.wizardOverlay}>
+      <div className={styles.wizardCard}>
+        <div className={styles.wizardHeader}>
+          <h2 className={styles.wizardTitle}>{title || "Nueva Cotización"}</h2>
           <button className={styles.btnClose} onClick={onClose} type="button" title="Cerrar">
             <X size={20} />
           </button>
         </div>
 
         {!showPreview ? (
-          <>
+          <div className={styles.formModalBody}>
             {/* Cliente */}
-            <label className={styles.label}>Cliente</label>
+            <div className={styles.formField}>
+              <label>Cliente</label>
             <select
-              className={styles.select}
               value={clienteId}
               onChange={(e) => setClienteId(e.target.value)}
             >
@@ -359,10 +359,11 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                 </option>
               ))}
             </select>
+            </div>
 
             {/* Margen de rentabilidad */}
             <div className={styles.margenRow}>
-              <label className={styles.label} style={{ margin: 0 }}>
+              <label style={{ margin: 0, fontWeight: 600, fontSize: "0.85rem", color: "#475569" }}>
                 Margen de rentabilidad
               </label>
               <div className={styles.margenInputGroup}>
@@ -467,7 +468,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
             </div>
 
             {/* Buscar y agregar producto */}
-            <label className={styles.label}>Agregar producto</label>
+            <label style={{ fontWeight: 600, fontSize: "0.85rem", color: "#475569" }}>Agregar producto</label>
 
             {/* Chips de categoría */}
             <div className={styles.catFiltros}>
@@ -616,7 +617,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                           ))}
                         </td>
                         <td>
-                          <button className={styles.btnRemove} onClick={() => eliminarProducto(idx)} title="Quitar">
+                          <button className={styles.btnDelete} onClick={() => eliminarProducto(idx)} title="Quitar">
                             <Trash2 size={14} />
                           </button>
                         </td>
@@ -654,8 +655,8 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
               </>
             )}
 
-            <div className={styles.actions}>
-              <button className={styles.btnSecondary} onClick={onClose}>
+            <div className={styles.wizardActions}>
+              <button className={styles.btnGhost} onClick={onClose}>
                 <X size={15} /> Cancelar
               </button>
               <button
@@ -667,7 +668,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                 <Eye size={15} /> Vista Previa
               </button>
             </div>
-          </>
+          </div>
         ) : (() => {
           const clienteObj = clientes.find((c) => String(c.id) === String(clienteId));
           const fechaFmt = new Date().toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" });
@@ -696,8 +697,8 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                 igvMonto={igvMonto}
                 total={totalFinal}
               />
-              <div className={styles.actions}>
-                <button className={styles.btnSecondary} onClick={() => setShowPreview(false)}>
+              <div className={styles.wizardActions}>
+                <button className={styles.btnGhost} onClick={() => setShowPreview(false)}>
                   <ChevronLeft size={15} /> Volver
                 </button>
                 <button className={styles.btnPrimary} onClick={handleSave}>

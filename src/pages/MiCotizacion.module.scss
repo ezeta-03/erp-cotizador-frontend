@@ -1,139 +1,61 @@
-@import "../styles/variables";
+@import "../styles/_ui.scss";
 
-.container { padding: 1.5rem; }
-
-/* ── Toolbar ── */
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
-
-  h2 { margin: 0; font-size: 1.25rem; font-weight: 700; color: #111; }
-}
-
-/* ── Filtros ── */
+/* ── Filtros (chips) ── */
 .filtros {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
   flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
 
-  button {
-    padding: 0.35rem 0.875rem;
-    border: 1px solid $gray-200;
-    border-radius: 6px;
-    background: #fff;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: $gray-700;
-    cursor: pointer;
-    transition: all 0.15s;
-    &:hover { background: $gray-50; }
-  }
+.filtroBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 99px;
+  background: #fff;
+  color: $text-slate-600;
+  font-size: 0.775rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition-smooth;
+  white-space: nowrap;
 
-  .active {
-    background: #111;
+  &:hover { border-color: $text-slate-400; background: $bg-slate-50; }
+
+  &.active {
+    background: $text-slate-900;
+    border-color: $text-slate-900;
     color: #fff;
-    border-color: #111;
-    font-weight: 600;
   }
 }
 
-/* ── Empty state ── */
-.empty {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: $gray-400;
-  font-size: 0.9rem;
-  background: #fff;
-  border-radius: 10px;
-  border: 1px dashed $gray-200;
-}
-
-/* ── Table ── */
-.tableContainer {
-  background: #fff;
-  border-radius: 10px;
-  border: 1px solid $gray-200;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06);
-  overflow: hidden;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-
-  thead tr { background: $gray-50; }
-
-  th {
-    padding: 0.65rem 1rem;
-    text-align: left;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: $gray-600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    border-bottom: 1px solid $gray-200;
-    white-space: nowrap;
-  }
-
-  td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid $gray-100;
-    color: #111;
-    vertical-align: middle;
-  }
-
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: $gray-50; }
-
-  .tdSub {
-    font-size: 0.75rem;
-    color: $gray-400;
-    margin-top: 0.1rem;
-  }
-
-  .tdTotal { font-weight: 700; color: #059669; }
-
-  .btnSmall {
-    padding: 0.3rem 0.65rem;
-    border: 1px solid $gray-200;
-    border-radius: 5px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background: #fff;
-    color: $gray-700;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s;
-    &:hover { background: $gray-50; }
-  }
-}
+/* ── Table Extras ── */
+.tdTotal { font-weight: 700; color: #059669; }
 
 /* ── Estado badges ── */
 .estadoBadge {
   display: inline-block;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
   border-radius: 99px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   white-space: nowrap;
 }
 
-.PENDIENTE      { background: #fef9c3; color: #854d0e; }
-.APROBADA       { background: #dbeafe; color: #1e40af; }
-.FACTURADA      { background: #dcfce7; color: #166534; }
+.PENDIENTE      { background: #fef3c7; color: #92400e; }
+.APROBADA       { background: #dcfce7; color: #166534; }
+.FACTURADA      { background: #dbeafe; color: #1e40af; }
 .RECHAZADA      { background: #fee2e2; color: #991b1b; }
 .RENEGOCIACION  { background: #ffedd5; color: #9a3412; }
 
 /* ── Comentario inline en tabla ── */
 .tdComentario {
   font-size: 0.72rem;
-  color: $gray-400;
+  color: $text-slate-400;
   margin-top: 0.2rem;
   font-style: italic;
   max-width: 220px;
@@ -146,7 +68,8 @@
 .previewOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.55);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
   z-index: 1200;
   display: flex;
   align-items: flex-start;
@@ -174,14 +97,15 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.55rem 1.1rem;
-  background: #111;
+  background: $text-slate-900;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: $radius-sm;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  &:hover { background: #374151; }
+  transition: $transition-fast;
+  &:hover { background: #334155; }
 }
 
 .btnCerrar {
@@ -192,34 +116,38 @@
   background: rgba(255,255,255,.15);
   color: #fff;
   border: 1px solid rgba(255,255,255,.3);
-  border-radius: 6px;
+  border-radius: $radius-sm;
   font-size: 0.875rem;
   cursor: pointer;
+  transition: $transition-fast;
   &:hover { background: rgba(255,255,255,.25); }
 }
 
 /* ── Formulario de respuesta (aprobar / rechazar) ── */
 .respondForm {
   background: #fff;
-  border-radius: 10px;
+  border-radius: $radius-lg;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
+  box-shadow: $shadow-soft;
+  border: 1px solid #e2e8f0;
 }
 
 .comentarioInput {
   width: 100%;
   padding: 0.65rem 0.875rem;
-  border: 1px solid $gray-200;
-  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: $radius-sm;
   font-size: 0.875rem;
   resize: vertical;
   outline: none;
   box-sizing: border-box;
   font-family: inherit;
-  &:focus { border-color: #111; }
-  &::placeholder { color: $gray-400; }
+  transition: $transition-smooth;
+  &:focus { border-color: $brand-primary; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15); }
+  &::placeholder { color: $text-slate-400; }
 }
 
 .respondActions {
@@ -236,13 +164,13 @@
   background: #059669;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: $radius-sm;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: $transition-fast;
   &:hover:not(:disabled) { background: #047857; }
-  &:disabled { background: $gray-200; color: $gray-400; cursor: not-allowed; }
+  &:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
 }
 
 .btnRechazar {
@@ -253,29 +181,31 @@
   background: #dc2626;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: $radius-sm;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: $transition-fast;
   &:hover:not(:disabled) { background: #b91c1c; }
-  &:disabled { background: $gray-200; color: $gray-400; cursor: not-allowed; }
+  &:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
 }
 
 /* ── Comentario existente ── */
 .comentarioDisplay {
   background: #fff;
-  border-radius: 10px;
+  border-radius: $radius-lg;
   padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  box-shadow: $shadow-soft;
+  border: 1px solid #e2e8f0;
 }
 
 .comentarioLabel {
   font-size: 0.72rem;
   font-weight: 600;
-  color: $gray-400;
+  color: $text-slate-400;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -283,6 +213,6 @@
 .comentarioDisplay p {
   margin: 0;
   font-size: 0.875rem;
-  color: $gray-700;
+  color: $text-slate-900;
   font-style: italic;
 }
