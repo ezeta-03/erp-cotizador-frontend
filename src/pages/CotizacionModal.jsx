@@ -53,6 +53,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   const [showPreview, setShowPreview] = useState(false);
   const [busquedaProducto, setBusquedaProducto] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("TODOS");
+  const [mostrarModalProductos, setMostrarModalProductos] = useState(false);
 
   // IGV
   const [conIgv, setConIgv] = useState(true);
@@ -100,8 +101,6 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
     const matchCategoria = categoriaFiltro === "TODOS" || (p.categoria || "GENERAL") === categoriaFiltro;
     return matchTexto && matchCategoria;
   }), [productos, busquedaProducto, categoriaFiltro]);
-
-  const mostrarLista = busquedaProducto.length > 0 || categoriaFiltro !== "TODOS";
 
   // ── Recalcula precios manteniendo medida/dimensiones actuales ──────────────
   const recalcularItems = (nuevoMargen, prevItems) =>
@@ -175,7 +174,6 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
           })) || [],
       },
     ]);
-    setBusquedaProducto("");
   };
 
   const eliminarProducto = (idx) => setItems((prev) => prev.filter((_, i) => i !== idx));
@@ -468,87 +466,111 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
             </div>
 
             {/* Buscar y agregar producto */}
-            <label style={{ fontWeight: 600, fontSize: "0.85rem", color: "#475569" }}>Agregar producto</label>
-
-            {/* Chips de categoría */}
-            <div className={styles.catFiltros}>
-              {categorias.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  className={`${styles.catChip} ${categoriaFiltro === cat ? styles.catChipActive : ""}`}
-                  onClick={() => setCategoriaFiltro(cat)}
-                >
-                  {cat}
-                  {cat !== "TODOS" && (
-                    <span className={styles.catCount}>{contPorCategoria[cat] ?? 0}</span>
-                  )}
-                </button>
-              ))}
+            <div className={styles.productosSelectorHeader}>
+              <label style={{ fontWeight: 600, fontSize: "0.85rem", color: "#475569" }}>
+                Agregar producto
+              </label>
+              <button
+                type="button"
+                className={styles.buscadorButton}
+                onClick={() => setMostrarModalProductos(true)}
+              >
+                Buscar productos
+              </button>
             </div>
 
-            {/* Buscador de texto */}
-            <div className={styles.buscadorWrap}>
-              <span className={styles.buscadorIcon}>⌕</span>
-              <input
-                className={styles.buscadorInput}
-                placeholder={`Buscar${categoriaFiltro !== "TODOS" ? ` en ${categoriaFiltro}` : " producto"}…`}
-                value={busquedaProducto}
-                onChange={(e) => setBusquedaProducto(e.target.value)}
-              />
-              {busquedaProducto && (
-                <button
-                  type="button"
-                  className={styles.buscadorClear}
-                  onClick={() => setBusquedaProducto("")}
-                >✕</button>
-              )}
-            </div>
+            {mostrarModalProductos && (
+              <div
+                className={styles.productosOverlay}
+                onClick={(e) => { if (e.target === e.currentTarget) setMostrarModalProductos(false); }}
+              >
+                <div className={styles.productosModal}>
+                  <div className={styles.productosModalHeader}>
+                    <h3>Seleccionar producto</h3>
+                    <button className={styles.btnClose} onClick={() => setMostrarModalProductos(false)} type="button" title="Cerrar">
+                      <X size={20} />
+                    </button>
+                  </div>
 
-            {/* Lista de resultados */}
-            {mostrarLista && (
-              <div className={styles.dropdown}>
-                {productosFiltrados.length === 0 ? (
-                  <p className={styles.noResultsInline}>
-                    Sin resultados{busquedaProducto ? ` para "${busquedaProducto}"` : ""}
-                  </p>
-                ) : (
-                  productosFiltrados.slice(0, 12).map((p) => {
-                    const unidadLabel = (!p.tipoMedida || p.tipoMedida === "UNIDAD")
-                      ? "pza"
-                      : p.unidad || (p.tipoMedida === "AREA" ? "m²" : p.tipoMedida.toLowerCase());
-                    const precioConMargen = parseFloat((Number(p.precio_final) * (1 + margen / 100)).toFixed(2));
-                    return (
-                      <button
-                        key={p.id}
-                        className={styles.dropdownItem}
-                        onClick={() => agregarProducto(p)}
-                        type="button"
-                      >
-                        <div className={styles.dropdownItemInfo}>
-                          <span className={styles.dropdownItemNombre}>{nombreProducto(p)}</span>
-                          <div className={styles.dropdownBadges}>
-                            {p.categoria && (
-                              <span className={styles.badgeCat}>{p.categoria}</span>
-                            )}
-                            {p.tipoMedida && p.tipoMedida !== "UNIDAD" && (
-                              <span className={styles.badgeTipo}>{unidadLabel}</span>
-                            )}
-                          </div>
-                        </div>
-                        <span className={styles.dropdownPrice}>
-                          {fmt(precioConMargen)}
-                          <span className={styles.dropdownUnit}> / {unidadLabel}</span>
-                        </span>
-                      </button>
-                    );
-                  })
-                )}
-                {productosFiltrados.length > 12 && (
-                  <p className={styles.dropdownMore}>
-                    +{productosFiltrados.length - 12} más — refina la búsqueda
-                  </p>
-                )}
+                  <div className={styles.productosModalBody}>
+                    <div className={styles.catFiltros}>
+                      {categorias.map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          className={`${styles.catChip} ${categoriaFiltro === cat ? styles.catChipActive : ""}`}
+                          onClick={() => setCategoriaFiltro(cat)}
+                        >
+                          {cat}
+                          {cat !== "TODOS" && (
+                            <span className={styles.catCount}>{contPorCategoria[cat] ?? 0}</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className={styles.buscadorWrap}>
+                      <span className={styles.buscadorIcon}>⌕</span>
+                      <input
+                        className={styles.buscadorInput}
+                        placeholder={`Buscar${categoriaFiltro !== "TODOS" ? ` en ${categoriaFiltro}` : " producto"}…`}
+                        value={busquedaProducto}
+                        onChange={(e) => setBusquedaProducto(e.target.value)}
+                      />
+                      {busquedaProducto && (
+                        <button
+                          type="button"
+                          className={styles.buscadorClear}
+                          onClick={() => setBusquedaProducto("")}
+                        >✕</button>
+                      )}
+                    </div>
+
+                    <div className={styles.dropdown}>
+                      {productosFiltrados.length === 0 ? (
+                        <p className={styles.noResultsInline}>
+                          Sin resultados{busquedaProducto ? ` para "${busquedaProducto}"` : ""}
+                        </p>
+                      ) : (
+                        productosFiltrados.slice(0, 12).map((p) => {
+                          const unidadLabel = (!p.tipoMedida || p.tipoMedida === "UNIDAD")
+                            ? "pza"
+                            : p.unidad || (p.tipoMedida === "AREA" ? "m²" : p.tipoMedida.toLowerCase());
+                          const precioConMargen = parseFloat((Number(p.precio_final) * (1 + margen / 100)).toFixed(2));
+                          return (
+                            <button
+                              key={p.id}
+                              className={styles.dropdownItem}
+                              onClick={() => agregarProducto(p)}
+                              type="button"
+                            >
+                              <div className={styles.dropdownItemInfo}>
+                                <span className={styles.dropdownItemNombre}>{nombreProducto(p)}</span>
+                                <div className={styles.dropdownBadges}>
+                                  {p.categoria && (
+                                    <span className={styles.badgeCat}>{p.categoria}</span>
+                                  )}
+                                  {p.tipoMedida && p.tipoMedida !== "UNIDAD" && (
+                                    <span className={styles.badgeTipo}>{unidadLabel}</span>
+                                  )}
+                                </div>
+                              </div>
+                              <span className={styles.dropdownPrice}>
+                                {fmt(precioConMargen)}
+                                <span className={styles.dropdownUnit}> / {unidadLabel}</span>
+                              </span>
+                            </button>
+                          );
+                        })
+                      )}
+                      {productosFiltrados.length > 12 && (
+                        <p className={styles.dropdownMore}>
+                          +{productosFiltrados.length - 12} más — refina la búsqueda
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
