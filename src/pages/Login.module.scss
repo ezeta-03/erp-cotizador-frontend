@@ -76,6 +76,10 @@
 .formWrapper {
   width: 100%;
   max-width: 22rem;
+  padding: 2.25rem;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
 }
 
 .formIcon {
@@ -136,24 +140,38 @@
     padding: 2.5rem 1.5rem;
   }
 
-  /* ===== CAMPOS DE FORMULARIO ===== */
+  .leftContent {
+    padding: 2rem;
+  }
+
+  .formWrapper {
+    max-width: 100%;
+    padding: 2rem;
+  }
+
+  .formTitle {
+    font-size: 1.75rem;
+  }
+}
+
+/* ===== CAMPOS DE FORMULARIO ===== */
 .fieldGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.55rem;
 }
 
 .fieldLabel {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: $text-slate-900;
 }
 
 .formInput {
   width: 100%;
-  padding: 0.85rem 1rem;
-  border: 1.5px solid #e2e8f0;
-  border-radius: $radius-sm;
+  padding: 1rem 1rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 0.9rem;
   background: #ffffff;
   color: $text-slate-900;
   font-size: 0.95rem;
@@ -161,16 +179,16 @@
   outline: none;
   transition: $transition-smooth;
   box-sizing: border-box;
+}
 
-  &::placeholder {
-    color: #cbd5e1;
-    letter-spacing: 0.05em;
-  }
+.formInput::placeholder {
+  color: #94a3b8;
+  letter-spacing: 0.02em;
+}
 
-  &:focus {
-    border-color: $brand-primary;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
-  }
+.formInput:focus {
+  border-color: $brand-primary;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
 }
 
 /* ===== BOTÓN PRIMARIO (login) ===== */
@@ -179,27 +197,26 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 0.9rem;
+  padding: 1rem;
   background: $brand-primary;
   color: #fff;
   border: none;
-  border-radius: $radius-sm;
+  border-radius: 1rem;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: $transition-smooth;
   margin-top: 0.25rem;
   font-family: inherit;
-
-  &:hover:not(:disabled) {
-    background: $brand-primary-hover;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
-  }
-
-  &:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-  }
 }
+
+.btnPrimary:hover:not(:disabled) {
+  background: $brand-primary-hover;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
