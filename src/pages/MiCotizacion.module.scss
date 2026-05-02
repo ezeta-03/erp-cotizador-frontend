@@ -216,3 +216,67 @@
   color: $text-slate-900;
   font-style: italic;
 }
+
+/* ===== CAMPOS DE FORMULARIO ===== */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fieldLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $text-slate-900;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: $radius-sm;
+  background: #ffffff;
+  color: $text-slate-900;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: $transition-smooth;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: #cbd5e1;
+    letter-spacing: 0.05em;
+  }
+
+  &:focus {
+    border-color: $brand-primary;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  }
+}
+
+/* ===== BOTÓN PRIMARIO (login) ===== */
+.btnPrimary {
+  width: 100%;
+  padding: 0.9rem;
+  background: $brand-primary;
+  color: #fff;
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: $transition-smooth;
+  margin-top: 0.25rem;
+  font-family: inherit;
+
+  &:hover:not(:disabled) {
+    background: $brand-primary-hover;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}

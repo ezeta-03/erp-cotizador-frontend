@@ -12,6 +12,8 @@ export default function ActivarCuenta() {
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
+  console.log("ActivarCuenta renderizado, token:", token);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirm) {
