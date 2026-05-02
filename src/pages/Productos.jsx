@@ -199,6 +199,13 @@ export default function Productos() {
   };
   const cerrarFormNuevo = () => setMostrarFormNuevo(false);
 
+  useEffect(() => {
+    if (!mostrarFormNuevo) return;
+    const onEsc = (e) => { if (e.key === "Escape") cerrarFormNuevo(); };
+    document.addEventListener("keydown", onEsc);
+    return () => document.removeEventListener("keydown", onEsc);
+  }, [mostrarFormNuevo]);
+
   const handleCrearProducto = async (e) => {
     e.preventDefault();
     const nombre = formData.nombre.trim();
@@ -232,13 +239,13 @@ export default function Productos() {
 
       {/* ── FORMULARIO NUEVO PRODUCTO ── */}
       {mostrarFormNuevo && (
-        <div className={styles.formOverlay} onClick={cerrarFormNuevo}>
+        <div className={styles.formOverlay} onClick={(e) => e.target === e.currentTarget && cerrarFormNuevo()}>
           <div className={styles.formModal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.formModalHeader}>
               <h3>Nuevo producto</h3>
-              <button className={styles.btnIcon} onClick={cerrarFormNuevo}><X size={18} /></button>
+              <button className={styles.btnClose} onClick={cerrarFormNuevo}><X size={18} /></button>
             </div>
-            <form onSubmit={handleCrearProducto}>
+            <form onSubmit={handleCrearProducto} className={styles.formModalBody}>
               <div className={styles.formField}>
                 <label className={styles.formFieldLabel}>Nombre del producto *</label>
                 <input

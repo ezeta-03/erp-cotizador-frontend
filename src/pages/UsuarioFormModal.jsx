@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { X } from "lucide-react";
 import styles from "../styles/formModal.module.scss";
 
 export default function UsuarioFormModal({ form, setForm, editId, onSubmit, onCancel }) {
@@ -10,9 +11,10 @@ export default function UsuarioFormModal({ form, setForm, editId, onSubmit, onCa
 
   return (
     <div className={styles.formOverlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
-      <div className={styles.formModal}>
+      <div className={styles.formModal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.formModalHeader}>
           <h3>{editId ? "Editar Usuario" : "Invitar Usuario"}</h3>
+          <button className={styles.btnClose} onClick={onCancel}><X size={18} /></button>
         </div>
 
         <form onSubmit={onSubmit} className={styles.formModalBody}>

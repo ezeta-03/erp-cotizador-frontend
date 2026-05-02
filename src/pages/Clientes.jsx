@@ -10,8 +10,8 @@ import {
   getActividadClientes,
 } from "../api/clientes";
 import styles from "./clientes.module.scss";
-import ClienteFormModal from "../pages/ClienteFormModal";
-import ActividadClienteModal from "../pages/ActividadClienteModal";
+import ClienteFormModal from "./ClienteFormModal";
+import ActividadClienteModal from "./ActividadClienteModal";
 
 function EstadoUsuarioBadge({ usuario }) {
   if (!usuario) {

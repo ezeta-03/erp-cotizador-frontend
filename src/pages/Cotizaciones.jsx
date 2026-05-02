@@ -2,7 +2,7 @@ import { useState } from "react";
 import { crearCotizacion } from "../api/cotizaciones";
 import { descargarPDFInteligente } from "../api/pdf";
 import useAuth from "../auth/useAuth";
-import CotizacionModal from "../pages/CotizacionModal";
+import CotizacionModal from "./CotizacionModal";
 import VistaPreviaCotizacion from "../coomponents/VistaPreviaCotizacion";
 import styles from "./cotizaciones.module.scss";
 export default function Cotizaciones() {

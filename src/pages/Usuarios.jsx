@@ -9,7 +9,7 @@ import {
   reinvitarUsuario,
 } from "../api/usuarios";
 import styles from "./usuarios.module.scss";
-import UsuarioFormModal from "../pages/UsuarioFormModal";
+import UsuarioFormModal from "./UsuarioFormModal";
 
 function RolBadge({ role }) {
   const map = {

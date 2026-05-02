@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import styles from "./productoModal.module.scss";
+import { X } from "lucide-react";
+import styles from "./productos.module.scss";
 
 export default function ProductoModal({ producto, onSave, onClose }) {
   const [form, setForm] = useState({
@@ -74,6 +75,7 @@ export default function ProductoModal({ producto, onSave, onClose }) {
       <div className={styles.formModal}>
         <div className={styles.formModalHeader}>
           <h3>{producto ? "Editar Producto" : "Nuevo Producto"}</h3>
+          <button className={styles.btnClose} onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit} className={styles.formModalBody}>
           {/* Primera fila: Categoría y Servicio */}
