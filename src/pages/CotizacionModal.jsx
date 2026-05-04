@@ -244,6 +244,18 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   };
 
   const handleSave = () => {
+    if (!clienteId) {
+      alert("Selecciona un cliente.");
+      return;
+    }
+    if (items.length === 0) {
+      alert("Agrega al menos un producto.");
+      return;
+    }
+    if (margen < 0) {
+      alert("El margen no puede ser negativo.");
+      return;
+    }
     onSave({ clienteId, items, margen, conIgv });
     onClose();
   };
