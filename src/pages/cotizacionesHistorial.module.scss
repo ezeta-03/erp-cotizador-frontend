@@ -140,3 +140,94 @@
   font-style: italic;
   margin: 0.2rem 0 0.5rem;
 }
+
+/* ── Timeline de estados ── */
+.timeline {
+  margin: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.timelineTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-slate-400;
+  margin: 0 0 0.875rem;
+}
+
+.timelineList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 0.75rem;
+  position: relative;
+  padding-bottom: 1rem;
+
+  &:last-child { padding-bottom: 0; }
+}
+
+.timelineDot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $brand-primary;
+  margin-top: 0.35rem;
+  z-index: 1;
+}
+
+.timelineLine {
+  position: absolute;
+  left: 4px;
+  top: 16px;
+  bottom: 0;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.timelineContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.timelineEstado {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.timelineArrow {
+  color: $text-slate-400;
+  font-size: 0.85rem;
+}
+
+.timelineMeta {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.timelineFecha {
+  color: $text-slate-400;
+  font-weight: 400;
+}
+
+.timelineComentario {
+  font-size: 0.78rem;
+  color: $text-slate-400;
+  font-style: italic;
+  margin: 0.15rem 0 0;
+}

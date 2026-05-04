@@ -40,3 +40,9 @@ export const renegociarCotizacion = async (id, payload) => {
   const { data } = await api.post(`/cotizaciones/${id}/renegociar`, payload);
   return data;
 };
+
+// Log de cambios de estado
+export const getCotizacionLog = async (id) => {
+  const { data } = await api.get(`/cotizaciones/${id}/log`);
+  return data;
+};

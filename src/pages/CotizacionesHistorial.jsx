@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { LayoutGrid, List, Plus, X, Download } from "lucide-react";
-import { getCotizaciones, getCotizacionById, renegociarCotizacion } from "../api/cotizaciones";
+import { getCotizaciones, getCotizacionById, renegociarCotizacion, getCotizacionLog } from "../api/cotizaciones";
 import { descargarPDFInteligente } from "../api/pdf";
 import styles from "./cotizacionesHistorial.module.scss";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
@@ -31,12 +31,18 @@ export default function CotizacionesHistorial() {
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroVendedor, setFiltroVendedor] = useState("");
   const [selectedCotizacion, setSelectedCotizacion] = useState(null);
+  const [logCotizacion, setLogCotizacion] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [cotizacionARenegociar, setCotizacionARenegociar] = useState(null);
 
   const cargarCotizaciones = () => getCotizaciones().then(setCotizaciones);
 
   useEffect(() => { cargarCotizaciones(); }, []);
+
+  useEffect(() => {
+    if (!selectedCotizacion) return;
+    getCotizacionLog(selectedCotizacion.id).then(setLogCotizacion).catch(() => {});
+  }, [selectedCotizacion]);
 
   const filtradas = cotizaciones.filter((c) => {
     const matchEstado = filtroEstado === "TODAS" || c.estado === filtroEstado;
@@ -362,6 +368,41 @@ export default function CotizacionesHistorial() {
                   <p>"{cot.respuestaComentario}"</p>
                 </div>
               )}
+
+              {/* Timeline de estados */}
+              {logCotizacion.length > 0 && (
+                <div className={styles.timeline}>
+                  <p className={styles.timelineTitle}>Historial de estados</p>
+                  <div className={styles.timelineList}>
+                    {logCotizacion.map((entry, i) => (
+                      <div key={entry.id} className={styles.timelineItem}>
+                        <div className={styles.timelineDot} />
+                        {i < logCotizacion.length - 1 && <div className={styles.timelineLine} />}
+                        <div className={styles.timelineContent}>
+                          <div className={styles.timelineEstado}>
+                            {entry.estadoAnterior
+                              ? <><span className={`${styles.estadoBadge} ${styles[entry.estadoAnterior]}`}>{entry.estadoAnterior}</span><span className={styles.timelineArrow}>→</span></>
+                              : null}
+                            <span className={`${styles.estadoBadge} ${styles[entry.estadoNuevo]}`}>{entry.estadoNuevo}</span>
+                          </div>
+                          <div className={styles.timelineMeta}>
+                            <span>{entry.usuario?.nombre}</span>
+                            <span className={styles.timelineFecha}>
+                              {new Date(entry.createdAt).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })}
+                              {" · "}
+                              {new Date(entry.createdAt).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </div>
+                          {entry.comentario && (
+                            <p className={styles.timelineComentario}>"{entry.comentario}"</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <CotizacionPDFPreview
                 numero={cot.numero}
                 fecha={fecha}
