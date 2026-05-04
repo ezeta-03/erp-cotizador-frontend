@@ -30,3 +30,8 @@ export const deleteUsuario = async (id) => {
   const res = await api.delete(`/usuarios/${id}`);
   return res.data;
 };
+
+export const getUsuarioLog = async (id) => {
+  const { data } = await api.get(`/usuarios/${id}/log`);
+  return data;
+};
