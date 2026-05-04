@@ -1,22 +1,74 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "../api/axios";
 import useAuth from "../auth/useAuth";
 import styles from "./Login.module.scss";
+
+const FRASES = [
+  { desde: 0,  texto: "Verificando credenciales…" },
+  { desde: 18, texto: "Iniciando módulos del sistema…" },
+  { desde: 36, texto: "Cargando catálogo de productos…" },
+  { desde: 54, texto: "Preparando configuración comercial…" },
+  { desde: 72, texto: "Sincronizando datos de ventas…" },
+  { desde: 90, texto: "¡Todo listo!" },
+];
 
 export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+  const loginDataRef = useRef(null);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    if (!loading) return;
+    intervalRef.current = setInterval(() => {
+      setProgreso(prev => {
+        if (prev >= 100) {
+          clearInterval(intervalRef.current);
+          setTimeout(() => {
+            const { token, user } = loginDataRef.current;
+            login(token, user);
+          }, 350);
+          return 100;
+        }
+        return prev + 1;
+      });
+    }, 28);
+    return () => clearInterval(intervalRef.current);
+  }, [loading, login]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await api.post("/auth/login", { email, password });
-      login(res.data.token, res.data.user);
+      loginDataRef.current = { token: res.data.token, user: res.data.user };
+      setProgreso(0);
+      setLoading(true);
     } catch (err) {
       alert(err.response?.data?.message || "Error al iniciar sesión");
     }
   };
+
+  const fraseActual =
+    FRASES.slice().reverse().find(f => progreso >= f.desde)?.texto ?? FRASES[0].texto;
+
+  if (loading) {
+    return (
+      <div className={styles.loaderOverlay}>
+        <div className={styles.loaderContent}>
+          <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.loaderLogo} />
+          <div className={styles.loaderModulo}>ERP · Módulo de Cotización</div>
+          <div className={styles.loaderPct}>{progreso}%</div>
+          <div className={styles.progressBar}>
+            <div className={styles.progressFill} style={{ width: `${progreso}%` }} />
+          </div>
+          <span key={fraseActual} className={styles.loaderFrase}>{fraseActual}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.loginPage}>

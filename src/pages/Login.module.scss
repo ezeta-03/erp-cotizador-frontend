@@ -220,3 +220,75 @@
   opacity: 0.65;
   cursor: not-allowed;
 }
+
+/* ===== LOADER POST-LOGIN ===== */
+@keyframes loaderFadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.loaderOverlay {
+  position: fixed;
+  inset: 0;
+  background: #111111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-toast;
+}
+
+.loaderContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  width: min(380px, 85vw);
+}
+
+.loaderLogo {
+  height: 2rem;
+  filter: brightness(0) invert(1);
+  opacity: 0.85;
+}
+
+.loaderModulo {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.loaderPct {
+  font-size: 5rem;
+  font-weight: 900;
+  color: $brand-primary;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  min-width: 4ch;
+  text-align: center;
+}
+
+.progressBar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: $brand-primary;
+  border-radius: 999px;
+  transition: width 35ms linear;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.55);
+}
+
+.loaderFrase {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  animation: loaderFadeInUp 0.3s ease-out;
+}
