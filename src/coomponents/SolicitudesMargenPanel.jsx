@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getSolicitudes, aprobarSolicitud, rechazarSolicitud } from "../api/solicitudesMargen";
 import { CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import s from "./SolicitudesMargenPanel.module.scss";
+import Spinner from "./Spinner";
 import { MARGEN_MINIMO } from "../config/negocio";
 import { useToast } from "./Toast";
 
@@ -94,7 +95,9 @@ export default function SolicitudesMargenPanel() {
 
       {/* Contenido */}
       {loading ? (
-        <p className={s.empty}>Cargando...</p>
+        <div className={s.empty} style={{ flexDirection: "row", gap: "0.5rem" }}>
+          <Spinner size={18} /> Cargando solicitudes...
+        </div>
       ) : solicitudes.length === 0 ? (
         <p className={s.empty}>
           No hay solicitudes{filtro ? ` con estado "${filtro}"` : ""}.

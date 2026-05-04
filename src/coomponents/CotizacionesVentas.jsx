@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import styles from "./CotizacionesVentas.module.scss";
 import { useToast } from "./Toast";
+import Spinner from "./Spinner";
 
 const fmt = (v) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
@@ -50,7 +51,11 @@ export default function CotizacionesVentas() {
     return matchEstado && matchCliente && matchVendedor;
   });
 
-  if (loading) return <p className={styles.info}>Cargando cotizaciones...</p>;
+  if (loading) return (
+    <div className={styles.info} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+      <Spinner size={18} /> Cargando cotizaciones...
+    </div>
+  );
   if (error) return <p className={styles.info}>{error}</p>;
 
   return (

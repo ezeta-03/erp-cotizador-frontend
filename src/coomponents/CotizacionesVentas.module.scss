@@ -54,8 +54,8 @@
 
   &:hover { border-color: $gray-400; background: $gray-50; }
   &.active {
-    background: $black;
-    border-color: $black;
+    background: #f97316;
+    border-color: #f97316;
     color: $white;
   }
 }
@@ -211,9 +211,10 @@
 
   &:hover:not(:disabled) { background: #374151; }
   &:disabled {
-    background: $gray-100;
-    color: $gray-400;
+    background: $gray-200;
+    color: $gray-500;
     cursor: not-allowed;
+    border: 1px solid $gray-300;
   }
 }
 

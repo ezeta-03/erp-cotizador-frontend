@@ -7,6 +7,7 @@ import {
   getMetaMensualLog,
 } from '../api/stats';
 import { Target, TrendingUp, Users, Edit2, Save, X, RefreshCw, History } from 'lucide-react';
+import Spinner from '../coomponents/Spinner';
 import SolicitudesMargenPanel from '../coomponents/SolicitudesMargenPanel';
 import styles from './AdminDashboard.module.scss';
 
@@ -89,8 +90,8 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className={styles.dashboardPage}>
-        <p>Cargando estadísticas...</p>
+      <div className={styles.dashboardPage} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", minHeight: "40vh", color: "#6b7280" }}>
+        <Spinner size={24} /> Cargando estadísticas...
       </div>
     );
   }
