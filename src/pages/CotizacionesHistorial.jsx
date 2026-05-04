@@ -7,6 +7,7 @@ import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
 import CotizacionModal from "./CotizacionModal";
 import { crearCotizacion } from "../api/cotizaciones";
 import useAuth from "../auth/useAuth";
+import { useToast } from "../coomponents/Toast";
 
 const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "FACTURADA", "RENEGOCIACION", "RECHAZADA"];
 
@@ -24,6 +25,7 @@ const fmt = (v) =>
 export default function CotizacionesHistorial() {
   const { user } = useAuth();
   const token = localStorage.getItem("token");
+  const { show: showToast, ToastNode } = useToast();
 
   const [cotizaciones, setCotizaciones] = useState([]);
   const [vista, setVista] = useState("tabla");
@@ -78,7 +80,7 @@ export default function CotizacionesHistorial() {
       cargarCotizaciones();
     } catch (error) {
       console.error("Error creando cotización:", error);
-      alert("Error creando cotización");
+      showToast("Error creando cotización");
     }
   };
 
@@ -145,7 +147,7 @@ export default function CotizacionesHistorial() {
       cargarCotizaciones();
     } catch (error) {
       console.error("Error renegociando cotización:", error);
-      alert("Error al re-enviar la cotización");
+      showToast("Error al re-enviar la cotización");
     }
   };
 
@@ -157,12 +159,14 @@ export default function CotizacionesHistorial() {
       const cotizacionCompleta = await getCotizacionById(selectedCotizacion.id);
       await descargarPDFInteligente(cotizacionCompleta, token);
     } catch {
-      alert("Error obteniendo datos de la cotización");
+      showToast("Error obteniendo datos de la cotización");
     }
     setSelectedCotizacion(null);
   };
 
   return (
+    <>
+    {ToastNode}
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
@@ -419,5 +423,6 @@ export default function CotizacionesHistorial() {
         );
       })()}
     </div>
+    </>
   );
 }

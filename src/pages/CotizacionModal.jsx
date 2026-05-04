@@ -5,9 +5,7 @@ import { getMisAprobadas, crearSolicitud } from "../api/solicitudesMargen";
 import styles from "./CotizacionModal.module.scss";
 import { X, ChevronLeft, Eye, FileText, Trash2 } from "lucide-react";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
-
-const MARGEN_MINIMO = 30;
-const IGV_RATE = 0.18;
+import { MARGEN_MINIMO, IGV_RATE } from "../config/negocio";
 
 const nombreProducto = (p) => p?.nombre || p?.servicio || p?.material || "(sin nombre)";
 

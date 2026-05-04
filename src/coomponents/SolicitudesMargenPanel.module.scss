@@ -1,0 +1,271 @@
+@import "../styles/_ui.scss";
+
+.panel {
+  background: #fff;
+  border-radius: $radius-md;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  margin-top: 1.5rem;
+}
+
+/* ── Header ── */
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.panelTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  h3 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #111;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.badgeCount {
+  @extend .badge;
+  background: #ef4444;
+  color: #fff;
+}
+
+.btnRefresh {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 0.8rem;
+  transition: $transition-fast;
+
+  &:hover { color: #111; }
+}
+
+/* ── Filtros ── */
+.filtros {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+  flex-wrap: wrap;
+}
+
+.filtroBtn {
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover { background: #f3f4f6; }
+}
+
+.filtroBtnActivo {
+  @extend .filtroBtn;
+  border-color: $brand-primary;
+  background: $brand-primary;
+  color: #fff;
+
+  &:hover { background: $brand-primary-hover; border-color: $brand-primary-hover; }
+}
+
+/* ── Estado vacío / cargando ── */
+.empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+/* ── Tabla ── */
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.th {
+  padding: 0.6rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  white-space: nowrap;
+}
+
+.tdNombre { padding: 0.7rem 1rem; }
+.tdNombreMain { font-weight: 500; }
+.tdNombreSub { font-size: 0.78rem; color: #9ca3af; }
+
+.tdMargen { padding: 0.7rem 1rem; }
+.margenValor { font-weight: 700; font-size: 1rem; }
+.margenBajo  { color: #dc2626; }
+.margenMedio { color: #ea580c; }
+.margenHint  { font-size: 0.75rem; color: #9ca3af; margin-left: 0.3rem; }
+
+.tdComentario { padding: 0.7rem 1rem; max-width: 220px; color: #374151; }
+.tdFecha      { padding: 0.7rem 1rem; color: #6b7280; white-space: nowrap; }
+.tdEstado     { padding: 0.7rem 1rem; }
+
+.tdResueltoPor { padding: 0.7rem 1rem; }
+.resueltoPorNombre { font-size: 0.8rem; font-weight: 500; color: #374151; }
+.resueltoPorFecha  { font-size: 0.75rem; color: #9ca3af; }
+.resueltoPorMotivo { font-size: 0.75rem; color: #dc2626; margin-top: 0.2rem; }
+.resueltoPorVacio  { color: #d1d5db; font-size: 0.8rem; }
+
+.tdAcciones { padding: 0.7rem 1rem; }
+.accionesWrap { display: flex; gap: 0.4rem; }
+
+/* ── Badges de estado ── */
+.estadoBadge {
+  @extend .badge;
+  white-space: nowrap;
+}
+
+.PENDIENTE  { background: #fef9c3; color: #854d0e; }
+.APROBADA   { background: #dcfce7; color: #166534; }
+.RECHAZADA  { background: #fee2e2; color: #991b1b; }
+.USADA      { background: #f3f4f6; color: #6b7280; }
+
+/* ── Botones de acción en tabla ── */
+.btnAprobar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  background: #059669;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition-fast;
+  white-space: nowrap;
+
+  &:hover { background: #047857; }
+}
+
+.btnRechazar {
+  @extend .btnAprobar;
+  background: #ef4444;
+
+  &:hover { background: #dc2626; }
+}
+
+.estadoTexto {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.estadoTextoAprobado {
+  @extend .estadoTexto;
+  color: #059669;
+}
+
+/* ── Fila de rechazo inline ── */
+.filaRechazo td {
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.rechazoInner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.rechazoLabel {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #991b1b;
+  margin-bottom: 0.35rem;
+}
+
+.rechazoTextarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #fca5a5;
+  font-size: 0.85rem;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: #ef4444; }
+}
+
+.rechazoAcciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 1.4rem;
+}
+
+.btnConfirmarRechazo {
+  padding: 0.4rem 1rem;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: $transition-fast;
+
+  &:disabled {
+    background: #fca5a5;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover { background: #dc2626; }
+}
+
+.btnCancelarRechazo {
+  padding: 0.4rem 1rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover { background: #e5e7eb; }
+}
