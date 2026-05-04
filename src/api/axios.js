@@ -6,19 +6,28 @@ const api = axios.create({
   withCredentials: false // No necesita credentials para JWT
 });
 
-// Interceptor para token
+// Interceptor de petición: adjunta el token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-
     if (token) {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
+  (error) => Promise.reject(error)
+);
+
+// Interceptor de respuesta: sesión expirada → limpia y redirige al login
+api.interceptors.response.use(
+  (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/";
+    }
     return Promise.reject(error);
   }
 );
