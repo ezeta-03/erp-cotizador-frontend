@@ -20,7 +20,7 @@ export const aprobarSolicitud = async (id) => {
   return data;
 };
 
-export const rechazarSolicitud = async (id) => {
-  const { data } = await api.post(`/solicitudes-margen/${id}/rechazar`);
+export const rechazarSolicitud = async (id, motivo) => {
+  const { data } = await api.post(`/solicitudes-margen/${id}/rechazar`, { motivo });
   return data;
 };
