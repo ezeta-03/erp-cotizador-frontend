@@ -230,6 +230,23 @@
   }
 }
 
+.btnTableHistory {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.5rem;
+  background: #eff6ff;
+  color: #3b82f6;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #dbeafe;
+  }
+}
+
 /* ================== MAIN GRID ================== */
 .dashboardGrid {
   display: grid;

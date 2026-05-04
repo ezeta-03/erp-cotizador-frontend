@@ -32,3 +32,8 @@ export const getProgresoTodosVendedores = async () => {
   const { data } = await api.get("/stats/progreso/todos");
   return data;
 };
+
+export const getMetaMensualLog = async (vendedorId) => {
+  const { data } = await api.get(`/stats/meta/log/${vendedorId}`);
+  return data;
+};
