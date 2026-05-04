@@ -100,7 +100,7 @@
   inset: 0;
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(4px);
-  z-index: 1200;
+  z-index: $z-modal;
   display: flex;
   align-items: flex-start;
   justify-content: center;
