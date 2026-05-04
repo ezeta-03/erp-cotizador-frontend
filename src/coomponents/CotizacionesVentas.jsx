@@ -13,6 +13,7 @@ export default function CotizacionesVentas() {
   const [filtroEstado, setFiltroEstado] = useState("TODAS");
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroVendedor, setFiltroVendedor] = useState("");
+  const [facturando, setFacturando] = useState(null);
 
   useEffect(() => {
     api
@@ -27,6 +28,7 @@ export default function CotizacionesVentas() {
 
   const facturar = async (id) => {
     if (!confirm("¿Marcar esta cotización como FACTURADA?")) return;
+    setFacturando(id);
     try {
       await api.post(`/cotizaciones/${id}/facturar`, {});
       setCotizaciones((prev) =>
@@ -35,6 +37,8 @@ export default function CotizacionesVentas() {
     } catch (err) {
       console.error("❌ Error facturando cotización:", err);
       alert("Error al facturar la cotización.");
+    } finally {
+      setFacturando(null);
     }
   };
 
@@ -119,9 +123,9 @@ export default function CotizacionesVentas() {
                     <button
                       className={styles.btnFacturar}
                       onClick={() => facturar(c.id)}
-                      disabled={c.estado !== "APROBADA"}
+                      disabled={c.estado !== "APROBADA" || facturando === c.id}
                     >
-                      Facturar
+                      {facturando === c.id ? "Facturando..." : "Facturar"}
                     </button>
                   </td>
                 </tr>
