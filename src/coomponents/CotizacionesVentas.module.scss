@@ -97,14 +97,35 @@
 }
 
 /* ── Estados vacío / cargando ── */
-.info, .empty {
+.info {
   text-align: center;
   padding: 3rem 1rem;
   color: $gray-400;
   font-size: 0.9rem;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 1rem;
+  color: $gray-400;
+  font-size: 0.875rem;
   background: $white;
   border-radius: $radius;
   border: 1px dashed $gray-200;
+
+  .emptyIcon {
+    font-size: 2rem;
+    opacity: 0.4;
+    line-height: 1;
+  }
+
+  strong {
+    color: $gray-600;
+    font-size: 0.9rem;
+  }
 }
 
 /* ── Tabla ── */
@@ -152,6 +173,9 @@
     padding: 0.75rem 1rem;
     color: $gray-700;
     vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 

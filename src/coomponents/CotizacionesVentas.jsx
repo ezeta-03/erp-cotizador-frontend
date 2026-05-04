@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import styles from "./CotizacionesVentas.module.scss";
+import { useToast } from "./Toast";
 
 const fmt = (v) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
@@ -9,11 +10,11 @@ export default function CotizacionesVentas() {
   const [cotizaciones, setCotizaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [filtroEstado, setFiltroEstado] = useState("TODAS");
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroVendedor, setFiltroVendedor] = useState("");
   const [facturando, setFacturando] = useState(null);
+  const { show: showToast, ToastNode } = useToast();
 
   useEffect(() => {
     api
@@ -36,7 +37,7 @@ export default function CotizacionesVentas() {
       );
     } catch (err) {
       console.error("❌ Error facturando cotización:", err);
-      alert("Error al facturar la cotización.");
+      showToast("Error al facturar la cotización.");
     } finally {
       setFacturando(null);
     }
@@ -53,6 +54,8 @@ export default function CotizacionesVentas() {
   if (error) return <p className={styles.info}>{error}</p>;
 
   return (
+    <>
+    {ToastNode}
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
@@ -95,7 +98,11 @@ export default function CotizacionesVentas() {
       </div>
 
       {filtradas.length === 0 ? (
-        <p className={styles.empty}>No hay cotizaciones para mostrar.</p>
+        <div className={styles.empty}>
+          <span className={styles.emptyIcon}>📋</span>
+          <strong>Sin cotizaciones</strong>
+          <span>No hay resultados para los filtros seleccionados.</span>
+        </div>
       ) : (
         <div className={styles.tableWrapper}>
           <table className={styles.table}>
@@ -135,5 +142,6 @@ export default function CotizacionesVentas() {
         </div>
       )}
     </div>
+    </>
   );
 }

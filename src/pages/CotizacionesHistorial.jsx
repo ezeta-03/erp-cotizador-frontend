@@ -219,6 +219,13 @@ export default function CotizacionesHistorial() {
 
       {/* ── Vista tarjetas ── */}
       {vista === "cards" && (
+        filtradas.length === 0 ? (
+          <div className={styles.emptyState}>
+            <span className={styles.emptyIcon}>📋</span>
+            <strong>Sin cotizaciones</strong>
+            <span>No hay resultados para los filtros seleccionados.</span>
+          </div>
+        ) : (
         <div className={styles.lista}>
           {filtradas.map((c) => (
             <div key={c.id} className={styles.card}>
@@ -251,10 +258,18 @@ export default function CotizacionesHistorial() {
             </div>
           ))}
         </div>
+        )
       )}
 
       {/* ── Vista tabla ── */}
       {vista === "tabla" && (
+        filtradas.length === 0 ? (
+          <div className={styles.emptyState}>
+            <span className={styles.emptyIcon}>📋</span>
+            <strong>Sin cotizaciones</strong>
+            <span>No hay resultados para los filtros seleccionados.</span>
+          </div>
+        ) : (
         <div className={styles.tableContainer}>
           <table className={styles.table}>
             <thead>
@@ -274,8 +289,8 @@ export default function CotizacionesHistorial() {
                   <td>
                     <div>{c.numero}</div>
                   </td>
-                  <td>{c.cliente.nombreComercial}</td>
-                  <td>
+                  <td className={styles.tdCliente}>{c.cliente.nombreComercial}</td>
+                  <td className={styles.tdVendedor}>
                     <div>{c.usuario?.nombre}</div>
                   </td>
                   <td className={styles.tdTotal}>{fmt(c.total)}</td>
@@ -310,6 +325,7 @@ export default function CotizacionesHistorial() {
             </tbody>
           </table>
         </div>
+        )
       )}
 
       {showModal && (
