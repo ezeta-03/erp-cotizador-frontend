@@ -2,7 +2,7 @@
 
 .page {
   min-height: 100vh;
-  background: $bg-slate-50;
+  background: var(--color-bg);
   display: flex;
   flex-direction: column;
 }
@@ -13,8 +13,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 2.5rem;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .headerLeft {
@@ -35,9 +35,9 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: $text-slate-400;
+  color: var(--color-text3);
   padding-left: 1rem;
-  border-left: 1px solid #e2e8f0;
+  border-left: 1px solid var(--color-border);
 }
 
 .headerRight {
@@ -56,12 +56,12 @@
 .userName {
   font-size: 0.9rem;
   font-weight: 600;
-  color: $text-slate-900;
+  color: var(--color-text1);
 }
 
 .userRole {
   font-size: 0.75rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -71,6 +71,25 @@
   display: none;
 }
 
+.btnTheme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-text3);
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover {
+    background: var(--color-surface2);
+    color: var(--color-text1);
+  }
+}
+
 .btnLogout {
   display: flex;
   align-items: center;
@@ -78,9 +97,9 @@
   width: 36px;
   height: 36px;
   background: transparent;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 50%;
-  color: $text-slate-400;
+  color: var(--color-text3);
   cursor: pointer;
   transition: $transition-fast;
 
@@ -100,14 +119,14 @@
 .heroTitle {
   font-size: 2.25rem;
   font-weight: 800;
-  color: $text-slate-900;
+  color: var(--color-text1);
   letter-spacing: -0.03em;
   margin: 0 0 0.5rem;
 }
 
 .heroSub {
   font-size: 1rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   margin: 0;
 }
 
@@ -124,10 +143,10 @@
   position: relative;
   width: 260px;
   padding: 2rem 1.75rem;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
-  box-shadow: $shadow-soft;
+  box-shadow: var(--shadow-soft);
   text-align: left;
   cursor: pointer;
   transition: $transition-smooth;
@@ -137,8 +156,8 @@
 
   &:hover:not(:disabled) {
     transform: translateY(-6px);
-    box-shadow: $shadow-hover;
-    border-color: #cbd5e1;
+    box-shadow: var(--shadow-hover);
+    border-color: var(--color-border);
   }
 
   &:active:not(:disabled) {
@@ -152,7 +171,7 @@
 
   &:hover {
     transform: none !important;
-    box-shadow: $shadow-soft !important;
+    box-shadow: var(--shadow-soft) !important;
   }
 }
 
@@ -164,8 +183,8 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: #f1f5f9;
-  color: $text-slate-400;
+  background: var(--color-surface2);
+  color: var(--color-text3);
   padding: 0.25rem 0.6rem;
   border-radius: 99px;
 }
@@ -183,14 +202,14 @@
 .cardTitle {
   font-size: 1.2rem;
   font-weight: 800;
-  color: $text-slate-900;
+  color: var(--color-text1);
   margin: 0;
   letter-spacing: -0.02em;
 }
 
 .cardDesc {
   font-size: 0.875rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   margin: 0;
   line-height: 1.5;
 }
@@ -222,7 +241,6 @@
     padding: 1rem 1.25rem;
   }
 
-  /* Ocultar nombre completo, mostrar avatar con iniciales */
   .userInfo {
     display: none;
   }
@@ -254,7 +272,6 @@
     font-size: 0.875rem;
   }
 
-  /* Grid de 2 columnas */
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -281,7 +298,6 @@
     font-size: 0.95rem;
   }
 
-  /* Ocultar descripción y flecha en mobile — el icono + título ya comunican suficiente */
   .cardDesc,
   .cardEnter {
     display: none;

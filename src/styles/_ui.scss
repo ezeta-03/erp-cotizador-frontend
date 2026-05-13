@@ -1,5 +1,4 @@
 /* ===== Premium UI System ===== */
-/* Import variables if needed, though we can redefine core tokens here for independence */
 @import "./variables";
 
 $brand-primary: #f97316;
@@ -33,10 +32,10 @@ $z-tooltip:  1300;
 /* ── Contenedor principal ── */
 .container {
   padding: 2.5rem;
-  background: $bg-slate-50;
+  background: var(--color-bg);
   min-height: 100vh;
   font-family: 'Inter', system-ui, sans-serif;
-  color: $text-slate-900;
+  color: var(--color-text1);
 }
 
 /* ── Encabezado ── */
@@ -52,14 +51,14 @@ $z-tooltip:  1300;
 .title {
   font-size: 2rem;
   font-weight: 800;
-  color: $text-slate-900;
+  color: var(--color-text1);
   margin: 0 0 0.4rem;
   letter-spacing: -0.03em;
 }
 
 .subtitle {
   font-size: 0.95rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   margin: 0;
   font-weight: 400;
 }
@@ -92,8 +91,8 @@ button {
   transition: $transition-smooth;
   box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.39);
 
-  &:hover:not(:disabled) { 
-    background: $brand-primary-hover; 
+  &:hover:not(:disabled) {
+    background: $brand-primary-hover;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(249, 115, 22, 0.45);
   }
@@ -106,19 +105,19 @@ button {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #fff;
-  color: $text-slate-600;
-  border: 1px solid #e2e8f0;
+  background: var(--color-surface);
+  color: var(--color-text2);
+  border: 1px solid var(--color-border);
   border-radius: $radius-md;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: $transition-smooth;
 
-  &:hover { 
-    border-color: #cbd5e1; 
-    background: $bg-slate-50; 
-    color: $text-slate-900;
+  &:hover {
+    border-color: var(--color-input-border);
+    background: var(--color-surface2);
+    color: var(--color-text1);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.03);
   }
@@ -138,8 +137,8 @@ button {
   cursor: pointer;
   transition: $transition-fast;
 
-  &:hover { 
-    background: #ef4444; 
+  &:hover {
+    background: #ef4444;
     color: #fff;
     border-color: #ef4444;
     box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.39);
@@ -152,7 +151,7 @@ button {
   gap: 0.4rem;
   padding: 0.6rem 1rem;
   background: transparent;
-  color: $text-slate-600;
+  color: var(--color-text2);
   border: none;
   border-radius: $radius-md;
   font-size: 0.9rem;
@@ -160,9 +159,9 @@ button {
   cursor: pointer;
   transition: $transition-fast;
 
-  &:hover { 
-    background: $bg-slate-100; 
-    color: $text-slate-900; 
+  &:hover {
+    background: var(--color-surface2);
+    color: var(--color-text1);
   }
 }
 
@@ -172,7 +171,7 @@ button {
   justify-content: center;
   padding: 0.5rem;
   background: transparent;
-  color: $text-slate-400;
+  color: var(--color-text3);
   border: none;
   border-radius: $radius-sm;
   cursor: pointer;
@@ -187,18 +186,18 @@ button {
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: $bg-slate-50;
+  background: var(--color-surface2);
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  color: $text-slate-600;
+  color: var(--color-text2);
   transition: $transition-fast;
   margin-left: auto;
-  
-  &:hover { 
-    background: #e2e8f0; 
-    color: $text-slate-900; 
-    transform: rotate(90deg); 
+
+  &:hover {
+    background: var(--color-surface3);
+    color: var(--color-text1);
+    transform: rotate(90deg);
   }
 }
 
@@ -217,8 +216,8 @@ button {
 .badgeInactivo {
   display: inline-block;
   padding: 0.3rem 0.8rem;
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--color-surface2);
+  color: var(--color-text3);
   border-radius: 99px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -244,19 +243,19 @@ button {
 }
 
 .card {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: $radius-lg;
   padding: 1.5rem;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: $shadow-soft;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
   transition: $transition-smooth;
   display: flex;
   flex-direction: column;
 
-  &:hover { 
+  &:hover {
     transform: translateY(-4px);
-    box-shadow: $shadow-hover;
-    border-color: rgba(203, 213, 225, 0.8);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--color-input-border);
   }
 
   .cardHeader {
@@ -266,10 +265,10 @@ button {
     margin-bottom: 1rem;
     gap: 0.75rem;
 
-    .nombre { 
-      font-weight: 700; 
-      color: $text-slate-900; 
-      font-size: 1.1rem; 
+    .nombre {
+      font-weight: 700;
+      color: var(--color-text1);
+      font-size: 1.1rem;
       line-height: 1.3;
     }
   }
@@ -279,11 +278,11 @@ button {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-    
+
     p {
       margin: 0;
       font-size: 0.875rem;
-      color: $text-slate-600;
+      color: var(--color-text2);
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -295,7 +294,7 @@ button {
     gap: 0.5rem;
     margin-top: 1.5rem;
     padding-top: 1rem;
-    border-top: 1px dashed #e2e8f0;
+    border-top: 1px dashed var(--color-border);
 
     button {
       flex: 1;
@@ -305,10 +304,10 @@ button {
 
 /* ── Tablas Elegantes ── */
 .tableContainer {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: $radius-lg;
-  border: 1px solid #e2e8f0;
-  box-shadow: $shadow-soft;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
   width: 100%;
 }
@@ -320,37 +319,37 @@ button {
   font-size: 0.9rem;
   text-align: left;
 
-  thead tr { 
-    background: $bg-slate-50;
+  thead tr {
+    background: var(--color-surface2);
   }
 
   th {
     padding: 1rem 1.25rem;
     font-size: 0.75rem;
     font-weight: 700;
-    color: $text-slate-600;
+    color: var(--color-text2);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border);
     white-space: nowrap;
   }
 
   td {
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid #f1f5f9;
-    color: $text-slate-900;
+    border-bottom: 1px solid var(--color-border2);
+    color: var(--color-text1);
     vertical-align: middle;
   }
 
   tbody tr {
     transition: $transition-fast;
-    &:hover { background: $bg-slate-50; }
+    &:hover { background: var(--color-surface2); }
     &:last-child td { border-bottom: none; }
   }
 
   .tdSub {
     font-size: 0.8rem;
-    color: $text-slate-400;
+    color: var(--color-text3);
     margin-top: 0.2rem;
   }
 
@@ -368,7 +367,7 @@ button {
 .wizardOverlay, .formOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(15, 23, 42, 0.5);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: $z-modal;
@@ -380,10 +379,10 @@ button {
 }
 
 .wizardCard, .formModal {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 20px;
   width: 100%;
-  box-shadow: $shadow-modal;
+  box-shadow: var(--shadow-modal);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -398,20 +397,20 @@ button {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
-  background: #fff;
-  
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+
   .wizardTitle, h3 {
     font-size: 1.25rem;
     font-weight: 800;
-    color: $text-slate-900;
+    color: var(--color-text1);
     margin: 0;
     letter-spacing: -0.02em;
   }
-  
+
   .wizardSubtitle {
     font-size: 0.875rem;
-    color: $text-slate-400;
+    color: var(--color-text3);
     margin: 0.25rem 0 0 0;
   }
 }
@@ -433,25 +432,25 @@ button {
   label, .formFieldLabel {
     font-size: 0.85rem;
     font-weight: 600;
-    color: $text-slate-600;
+    color: var(--color-text2);
   }
 
   input, select, textarea {
     width: 100%;
     padding: 0.75rem 1rem;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--color-input-border);
     border-radius: $radius-sm;
     font-size: 0.95rem;
-    color: $text-slate-900;
-    background: #fff;
+    color: var(--color-text1);
+    background: var(--color-input-bg);
     transition: $transition-smooth;
     outline: none;
     font-family: inherit;
 
-    &::placeholder { color: $text-slate-400; }
-    
-    &:focus { 
-      border-color: $brand-primary; 
+    &::placeholder { color: var(--color-text3); }
+
+    &:focus {
+      border-color: $brand-primary;
       box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
     }
   }
@@ -460,7 +459,7 @@ button {
 .formRow {
   display: flex;
   gap: 1.25rem;
-  
+
   > * {
     flex: 1;
   }
@@ -471,8 +470,8 @@ button {
   justify-content: flex-end;
   gap: 1rem;
   padding: 1.5rem 2rem;
-  background: $bg-slate-50;
-  border-top: 1px solid #e2e8f0;
+  background: var(--color-surface2);
+  border-top: 1px solid var(--color-border);
   border-radius: 0 0 20px 20px;
 }
 
@@ -480,8 +479,8 @@ button {
 .searchBar {
   display: flex;
   align-items: center;
-  background: #fff;
-  border: 1px solid #cbd5e1;
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
   border-radius: $radius-md;
   padding: 0 1rem;
   transition: $transition-smooth;
@@ -491,7 +490,7 @@ button {
     box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
   }
 
-  .searchIcon { color: $text-slate-400; }
+  .searchIcon { color: var(--color-text3); }
 
   .searchInput {
     flex: 1;
@@ -500,9 +499,9 @@ button {
     padding: 0.75rem 0.5rem;
     font-size: 0.95rem;
     background: transparent;
-    color: $text-slate-900;
+    color: var(--color-text1);
 
-    &::placeholder { color: $text-slate-400; }
+    &::placeholder { color: var(--color-text3); }
   }
 }
 
@@ -517,7 +516,7 @@ button {
   .toggleTrack {
     width: 44px;
     height: 24px;
-    background: #cbd5e1;
+    background: var(--color-surface3);
     border-radius: 99px;
     position: relative;
     transition: background 0.3s ease;

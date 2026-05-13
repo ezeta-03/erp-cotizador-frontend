@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import "./variables";
+@import "./_theme";
 
 * {
   box-sizing: border-box;
@@ -8,8 +9,9 @@
 body {
   margin: 0;
   font-family: "Inter", system-ui, sans-serif;
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--color-bg);
+  color: var(--color-text1);
+  transition: var(--theme-transition);
 }
 
 a {

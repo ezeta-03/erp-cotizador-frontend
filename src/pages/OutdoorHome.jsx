@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Layers, Monitor, FileText, Truck, TrendingUp, LogOut, ChevronLeft } from "lucide-react";
+import { Layers, Monitor, FileText, Truck, TrendingUp, LogOut, ChevronLeft, Moon, Sun } from "lucide-react";
 import useAuth from "../auth/useAuth";
+import useDarkMode from "../hooks/useDarkMode";
 import styles from "./OutdoorHome.module.scss";
 
 const SECCIONES = [
@@ -49,6 +50,7 @@ const SECCIONES = [
 export default function OutdoorHome() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [dark, toggleDark] = useDarkMode();
   const role = user?.role?.toLowerCase() ?? "";
   const initials = user?.nombre?.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
 
@@ -75,6 +77,9 @@ export default function OutdoorHome() {
             <span className={styles.userRole}>{user?.role}</span>
           </div>
           <div className={styles.userAvatar} aria-hidden="true">{initials}</div>
+          <button className={styles.btnTheme} onClick={toggleDark} title={dark ? "Modo claro" : "Modo oscuro"}>
+            {dark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           <button className={styles.btnLogout} onClick={logout} title="Cerrar sesión">
             <LogOut size={18} />
           </button>
@@ -118,10 +123,10 @@ export default function OutdoorHome() {
               <div
                 className={styles.cardIcon}
                 style={{
-                  background: sec.available ? `${sec.color}18` : "#f1f5f9",
+                  background: sec.available ? `${sec.color}18` : "var(--color-surface2)",
                 }}
               >
-                <Icon size={32} color={sec.available ? sec.color : "#94a3b8"} />
+                <Icon size={32} color={sec.available ? sec.color : "var(--color-text3)"} />
               </div>
               <h2 className={styles.cardTitle}>{sec.label}</h2>
               <p className={styles.cardDesc}>{sec.description}</p>

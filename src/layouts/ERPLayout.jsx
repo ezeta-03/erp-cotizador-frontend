@@ -1,6 +1,7 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { LogOut, ChevronLeft } from "lucide-react";
+import { LogOut, ChevronLeft, Moon, Sun } from "lucide-react";
 import useAuth from "../auth/useAuth";
+import useDarkMode from "../hooks/useDarkMode";
 import styles from "./ERPLayout.module.scss";
 
 const SECTION_LABELS = {
@@ -21,6 +22,7 @@ export default function ERPLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [dark, toggleDark] = useDarkMode();
   const role = user?.role?.toLowerCase() ?? "";
 
   const segment = pathname.split("/").filter(Boolean).pop();
@@ -44,6 +46,9 @@ export default function ERPLayout() {
             <span className={styles.userRole}>{user?.role}</span>
           </div>
           <div className={styles.userAvatar} aria-hidden="true">{initials}</div>
+          <button className={styles.btnTheme} onClick={toggleDark} title={dark ? "Modo claro" : "Modo oscuro"}>
+            {dark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           <button className={styles.btnLogout} onClick={logout} title="Cerrar sesión">
             <LogOut size={18} />
           </button>
