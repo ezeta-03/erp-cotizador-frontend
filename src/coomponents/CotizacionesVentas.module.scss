@@ -58,9 +58,9 @@
   }
 
   &.active {
-    background: $brand-primary;
-    border-color: $brand-primary;
-    color: #ffffff;
+    background: var(--color-text1);
+    border-color: var(--color-text1);
+    color: var(--color-bg);
   }
 }
 
