@@ -3,6 +3,7 @@ import useAuth from "../auth/useAuth";
 
 import Login from "../pages/Login";
 import ERPHome from "../pages/ERPHome";
+import OutdoorHome from "../pages/OutdoorHome";
 import Dashboard from "../pages/Dashboard";
 import Clientes from "../pages/Clientes";
 import ActivarCuenta from "../pages/ActivarCuenta";
@@ -14,7 +15,6 @@ import MiCotizacion from "../pages/MiCotizacion";
 import CambiarContrasena from "../pages/CambiarContrasena";
 import CotizacionesVentas from "../coomponents/CotizacionesVentas";
 import ActividadClientes from "../coomponents/ActividadClientes";
-import OutdoorHome from "../pages/OutdoorHome";
 import AdminLayout from "../layouts/AdminLayout";
 import VentasLayout from "../layouts/VentasLayout";
 import ClienteLayout from "../layouts/ClienteLayout";
@@ -33,10 +33,9 @@ export default function AppRouter() {
       <Route path="/erp" element={<Login />} />
       <Route path="/activar" element={<ActivarCuenta />} />
       <Route path="/login" element={<Navigate to="/erp" replace />} />
-      {/* Compatibilidad con links viejos */}
       <Route path="/cotizador" element={<Navigate to="/erp" replace />} />
 
-      {/* ================= ADMIN ================= */}
+      {/* ================= ADMIN - Home ================= */}
       <Route
         path="/erp/admin"
         element={
@@ -45,26 +44,8 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/erp/admin/cotizador"
-        element={
-          <ProtectedRoute roles={["ADMIN"]}>
-            <AdminLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="clientes" element={<Clientes />} />
-        <Route path="productos" element={<Productos />} />
-        <Route path="cotizaciones" element={<Cotizaciones />} />
-        <Route path="usuarios" element={<Usuarios />} />
-        <Route path="historial" element={<CotizacionesHistorial />} />
-        <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
-        <Route path="actividad" element={<ActividadClientes />} />
-        <Route path="perfil" element={<CambiarContrasena />} />
-      </Route>
 
-      {/* ADMIN - Outdoor module */}
+      {/* ADMIN - Outdoor (standalone, sin sidebar) */}
       <Route
         path="/erp/admin/outdoor"
         element={
@@ -74,7 +55,26 @@ export default function AppRouter() {
         }
       />
 
-      {/* ================= VENTAS ================= */}
+      {/* ADMIN - Secciones con sidebar (pathless layout route) */}
+      <Route
+        element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/erp/admin/dashboard" element={<Dashboard />} />
+        <Route path="/erp/admin/clientes" element={<Clientes />} />
+        <Route path="/erp/admin/usuarios" element={<Usuarios />} />
+        <Route path="/erp/admin/productos" element={<Productos />} />
+        <Route path="/erp/admin/cotizaciones" element={<Cotizaciones />} />
+        <Route path="/erp/admin/historial" element={<CotizacionesHistorial />} />
+        <Route path="/erp/admin/facturar" element={<CotizacionesVentas />} />
+        <Route path="/erp/admin/actividad" element={<ActividadClientes />} />
+        <Route path="/erp/admin/perfil" element={<CambiarContrasena />} />
+      </Route>
+
+      {/* ================= VENTAS - Home ================= */}
       <Route
         path="/erp/ventas"
         element={
@@ -83,25 +83,8 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/erp/ventas/cotizador"
-        element={
-          <ProtectedRoute roles={["VENTAS"]}>
-            <VentasLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="clientes" element={<Clientes />} />
-        <Route path="productos" element={<Productos />} />
-        <Route path="cotizaciones" element={<Cotizaciones />} />
-        <Route path="historial" element={<CotizacionesHistorial />} />
-        <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
-        <Route path="actividad" element={<ActividadClientes />} />
-        <Route path="perfil" element={<CambiarContrasena />} />
-      </Route>
 
-      {/* VENTAS - Outdoor module */}
+      {/* VENTAS - Outdoor (standalone) */}
       <Route
         path="/erp/ventas/outdoor"
         element={
@@ -111,8 +94,25 @@ export default function AppRouter() {
         }
       />
 
+      {/* VENTAS - Secciones con sidebar */}
+      <Route
+        element={
+          <ProtectedRoute roles={["VENTAS"]}>
+            <VentasLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/erp/ventas/dashboard" element={<Dashboard />} />
+        <Route path="/erp/ventas/clientes" element={<Clientes />} />
+        <Route path="/erp/ventas/productos" element={<Productos />} />
+        <Route path="/erp/ventas/cotizaciones" element={<Cotizaciones />} />
+        <Route path="/erp/ventas/historial" element={<CotizacionesHistorial />} />
+        <Route path="/erp/ventas/facturar" element={<CotizacionesVentas />} />
+        <Route path="/erp/ventas/actividad" element={<ActividadClientes />} />
+        <Route path="/erp/ventas/perfil" element={<CambiarContrasena />} />
+      </Route>
+
       {/* ================= CLIENTE ================= */}
-      {/* Cliente solo tiene cotizador → va directo */}
       <Route
         path="/erp/cliente"
         element={
@@ -122,16 +122,15 @@ export default function AppRouter() {
         }
       />
       <Route
-        path="/erp/cliente/cotizador"
         element={
           <ProtectedRoute roles={["CLIENTE"]}>
             <ClienteLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<MiCotizacion />} />
-        <Route path="mia" element={<MiCotizacion />} />
-        <Route path="perfil" element={<CambiarContrasena />} />
+        <Route path="/erp/cliente/cotizador" element={<MiCotizacion />} />
+        <Route path="/erp/cliente/cotizador/mia" element={<MiCotizacion />} />
+        <Route path="/erp/cliente/perfil" element={<CambiarContrasena />} />
       </Route>
 
       {/* ================= CONTABLE ================= */}
@@ -139,21 +138,20 @@ export default function AppRouter() {
         path="/erp/contable"
         element={
           <ProtectedRoute roles={["CONTABLE"]}>
-            <Navigate to="/erp/contable/cotizador" replace />
+            <Navigate to="/erp/contable/facturar" replace />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/erp/contable/cotizador"
         element={
           <ProtectedRoute roles={["CONTABLE"]}>
             <ContableLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<Dashboard />} />
-        <Route path="cotizaciones-ventas" element={<CotizacionesVentas />} />
-        <Route path="perfil" element={<CambiarContrasena />} />
+        <Route path="/erp/contable/dashboard" element={<Dashboard />} />
+        <Route path="/erp/contable/facturar" element={<CotizacionesVentas />} />
+        <Route path="/erp/contable/perfil" element={<CambiarContrasena />} />
       </Route>
 
       {/* Fallback */}

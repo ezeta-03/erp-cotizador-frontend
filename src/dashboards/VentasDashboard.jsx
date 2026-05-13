@@ -89,7 +89,7 @@ export default function VentasDashboard() {
           <h1 className={styles.pageTitle}>Dashboard de Ventas</h1>
           <p className={styles.pageSubtitle}>Monitorea tu desempeño y progreso hacia la meta mensual</p>
         </div>
-        <button className={styles.btnPrimary} onClick={() => navigate('/cotizador/ventas/historial')}>
+        <button className={styles.btnPrimary} onClick={() => navigate('/erp/ventas/historial')}>
           <Plus size={20} />
           Nueva Cotización
         </button>
@@ -185,7 +185,7 @@ export default function VentasDashboard() {
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>Cotizaciones Recientes</h2>
-            <button className={styles.btnSecondary} onClick={() => navigate('/cotizador/ventas/historial')}>
+            <button className={styles.btnSecondary} onClick={() => navigate('/erp/ventas/historial')}>
               <Eye size={16} />
               Ver todas
             </button>
@@ -203,7 +203,7 @@ export default function VentasDashboard() {
                 <div 
                   key={cot.id} 
                   className={styles.recentItem}
-                  onClick={() => navigate('/cotizador/ventas/historial')}
+                  onClick={() => navigate('/erp/ventas/historial')}
                 >
                   <div className={styles.recentItemMain}>
                     <div className={styles.recentItemLeft}>

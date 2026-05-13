@@ -165,7 +165,7 @@ export default function ClienteDashboard() {
                 <p>Esta cotización está esperando tu respuesta.</p>
                 <button
                   className={styles.btnPrimary}
-                  onClick={() => navigate("/cotizador/cliente/mia")}
+                  onClick={() => navigate("/erp/cliente/cotizador/mia")}
                 >
                   Responder cotización
                 </button>

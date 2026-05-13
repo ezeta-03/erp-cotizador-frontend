@@ -1,15 +1,66 @@
 import { useNavigate } from "react-router-dom";
-import { FileText, Megaphone, MapPin, LogOut } from "lucide-react";
+import {
+  BarChart3, FileText, UserCircle, Users, Package,
+  DollarSign, MapPin, Megaphone, KeyRound, LogOut,
+} from "lucide-react";
 import useAuth from "../auth/useAuth";
 import styles from "./ERPHome.module.scss";
 
-const MODULES = [
+const MODULES_ADMIN = [
   {
-    id: "cotizador",
+    id: "dashboard",
+    label: "Dashboard",
+    description: "KPIs, metas y actividad del equipo",
+    icon: BarChart3,
+    color: "#f97316",
+    available: true,
+  },
+  {
+    id: "cotizaciones",
     label: "Cotizador",
-    description: "Cotizaciones, clientes y productos",
+    description: "Crea y gestiona cotizaciones",
     icon: FileText,
     color: "#f97316",
+    available: true,
+  },
+  {
+    id: "clientes",
+    label: "Clientes",
+    description: "Directorio y actividad de clientes",
+    icon: UserCircle,
+    color: "#3b82f6",
+    available: true,
+  },
+  {
+    id: "usuarios",
+    label: "Usuarios",
+    description: "Gestión de accesos y roles",
+    icon: Users,
+    color: "#6366f1",
+    available: true,
+  },
+  {
+    id: "productos",
+    label: "Productos",
+    description: "Catálogo de productos y precios",
+    icon: Package,
+    color: "#10b981",
+    available: true,
+  },
+  {
+    id: "facturar",
+    label: "Facturar",
+    description: "Aprobación y facturación de cotizaciones",
+    icon: DollarSign,
+    color: "#10b981",
+    available: true,
+  },
+  {
+    id: "outdoor",
+    label: "Outdoor",
+    description: "Paneles, mupis, proveedores y rentabilidad",
+    icon: MapPin,
+    color: "#10b981",
     available: true,
   },
   {
@@ -21,6 +72,57 @@ const MODULES = [
     available: false,
   },
   {
+    id: "perfil",
+    label: "Cambiar Contraseña",
+    description: "Configuración de seguridad de tu cuenta",
+    icon: KeyRound,
+    color: "#6b7280",
+    available: true,
+  },
+];
+
+const MODULES_VENTAS = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    description: "Tus KPIs y actividad de ventas",
+    icon: BarChart3,
+    color: "#f97316",
+    available: true,
+  },
+  {
+    id: "cotizaciones",
+    label: "Cotizador",
+    description: "Crea y gestiona cotizaciones",
+    icon: FileText,
+    color: "#f97316",
+    available: true,
+  },
+  {
+    id: "clientes",
+    label: "Clientes",
+    description: "Directorio y actividad de clientes",
+    icon: UserCircle,
+    color: "#3b82f6",
+    available: true,
+  },
+  {
+    id: "productos",
+    label: "Productos",
+    description: "Catálogo de productos y precios",
+    icon: Package,
+    color: "#10b981",
+    available: true,
+  },
+  {
+    id: "facturar",
+    label: "Facturar",
+    description: "Historial y seguimiento de facturación",
+    icon: DollarSign,
+    color: "#10b981",
+    available: true,
+  },
+  {
     id: "outdoor",
     label: "Outdoor",
     description: "Paneles, mupis, proveedores y rentabilidad",
@@ -28,12 +130,34 @@ const MODULES = [
     color: "#10b981",
     available: true,
   },
+  {
+    id: "btl",
+    label: "BTL",
+    description: "Campañas Below The Line",
+    icon: Megaphone,
+    color: "#8b5cf6",
+    available: false,
+  },
+  {
+    id: "perfil",
+    label: "Cambiar Contraseña",
+    description: "Configuración de seguridad de tu cuenta",
+    icon: KeyRound,
+    color: "#6b7280",
+    available: true,
+  },
 ];
+
+const MODULES_BY_ROLE = {
+  admin: MODULES_ADMIN,
+  ventas: MODULES_VENTAS,
+};
 
 export default function ERPHome() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const role = user?.role?.toLowerCase() ?? "";
+  const modules = MODULES_BY_ROLE[role] ?? [];
 
   const handleModule = (mod) => {
     if (!mod.available) return;
@@ -64,12 +188,12 @@ export default function ERPHome() {
         <h1 className={styles.heroTitle}>
           Bienvenido, {user?.nombre?.split(" ")[0]}
         </h1>
-        <p className={styles.heroSub}>Selecciona un módulo para comenzar</p>
+        <p className={styles.heroSub}>Selecciona una sección para comenzar</p>
       </section>
 
       {/* Módulos */}
       <section className={styles.grid}>
-        {MODULES.map((mod) => {
+        {modules.map((mod) => {
           const Icon = mod.icon;
           return (
             <button

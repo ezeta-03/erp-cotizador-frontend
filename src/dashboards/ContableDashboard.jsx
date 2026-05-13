@@ -66,7 +66,7 @@ export default function ContableDashboard() {
         </div>
         <button
           className={styles.btnPrimary}
-          onClick={() => navigate('/cotizador/contable/cotizaciones-ventas')}
+          onClick={() => navigate('/erp/contable/facturar')}
         >
           <DollarSign size={20} />
           Ir a Facturar
@@ -138,7 +138,7 @@ export default function ContableDashboard() {
           <h2 className={styles.cardTitle}>Cotizaciones aprobadas para facturar</h2>
           <button
             className={styles.btnSecondary}
-            onClick={() => navigate('/cotizador/contable/cotizaciones-ventas')}
+            onClick={() => navigate('/erp/contable/facturar')}
           >
             Ver todas
             <ArrowRight size={16} />
