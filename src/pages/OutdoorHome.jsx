@@ -50,6 +50,7 @@ export default function OutdoorHome() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const role = user?.role?.toLowerCase() ?? "";
+  const initials = user?.nombre?.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
 
   const handleSeccion = (sec) => {
     if (!sec.available) return;
@@ -73,6 +74,7 @@ export default function OutdoorHome() {
             <span className={styles.userName}>{user?.nombre}</span>
             <span className={styles.userRole}>{user?.role}</span>
           </div>
+          <div className={styles.userAvatar} aria-hidden="true">{initials}</div>
           <button className={styles.btnLogout} onClick={logout} title="Cerrar sesión">
             <LogOut size={18} />
           </button>

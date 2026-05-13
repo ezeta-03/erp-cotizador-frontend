@@ -24,6 +24,7 @@ export default function ERPLayout() {
   const role = user?.role?.toLowerCase() ?? "";
 
   const segment = pathname.split("/").filter(Boolean).pop();
+  const initials = user?.nombre?.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
   const sectionLabel = SECTION_LABELS[segment] ?? segment;
 
   // Solo ADMIN y VENTAS tienen un home multi-módulo
@@ -42,6 +43,7 @@ export default function ERPLayout() {
             <span className={styles.userName}>{user?.nombre}</span>
             <span className={styles.userRole}>{user?.role}</span>
           </div>
+          <div className={styles.userAvatar} aria-hidden="true">{initials}</div>
           <button className={styles.btnLogout} onClick={logout} title="Cerrar sesión">
             <LogOut size={18} />
           </button>

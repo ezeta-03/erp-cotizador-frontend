@@ -66,6 +66,11 @@
   letter-spacing: 0.06em;
 }
 
+/* Iniciales — oculto en desktop, visible en mobile */
+.userAvatar {
+  display: none;
+}
+
 .btnLogout {
   display: flex;
   align-items: center;
@@ -217,8 +222,24 @@
     padding: 1rem 1.25rem;
   }
 
-  .userRole {
+  /* Ocultar nombre completo, mostrar avatar con iniciales */
+  .userInfo {
     display: none;
+  }
+
+  .userAvatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: $brand-primary;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
   }
 
   .hero {

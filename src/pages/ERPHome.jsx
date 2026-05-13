@@ -158,6 +158,7 @@ export default function ERPHome() {
   const navigate = useNavigate();
   const role = user?.role?.toLowerCase() ?? "";
   const modules = MODULES_BY_ROLE[role] ?? [];
+  const initials = user?.nombre?.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
 
   const handleModule = (mod) => {
     if (!mod.available) return;
@@ -177,6 +178,7 @@ export default function ERPHome() {
             <span className={styles.userName}>{user?.nombre}</span>
             <span className={styles.userRole}>{user?.role}</span>
           </div>
+          <div className={styles.userAvatar} aria-hidden="true">{initials}</div>
           <button className={styles.btnLogout} onClick={logout} title="Cerrar sesión">
             <LogOut size={18} />
           </button>

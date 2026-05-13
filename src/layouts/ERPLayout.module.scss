@@ -69,6 +69,10 @@
   letter-spacing: 0.06em;
 }
 
+.userAvatar {
+  display: none;
+}
+
 .btnLogout {
   display: flex;
   align-items: center;
@@ -143,11 +147,22 @@
     padding-right: 1.25rem;
   }
 
-  .userRole {
+  .userInfo {
     display: none;
   }
 
-  .userName {
-    font-size: 0.825rem;
+  .userAvatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: $brand-primary;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
   }
 }

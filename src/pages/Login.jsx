@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import useAuth from "../auth/useAuth";
 import styles from "./Login.module.scss";
@@ -16,6 +17,7 @@ export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [progreso, setProgreso] = useState(0);
   const loginDataRef = useRef(null);
@@ -59,7 +61,7 @@ export default function Login() {
       <div className={styles.loaderOverlay}>
         <div className={styles.loaderContent}>
           <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.loaderLogo} />
-          <div className={styles.loaderModulo}>ERP · Módulo de Cotización</div>
+          <div className={styles.loaderModulo}>Zaazmago ERP</div>
           <div className={styles.loaderPct}>{progreso}%</div>
           <div className={styles.progressBar}>
             <div className={styles.progressFill} style={{ width: `${progreso}%` }} />
@@ -73,7 +75,8 @@ export default function Login() {
   return (
     <div className={styles.loginPage}>
       <div className={styles.loginCard}>
-        {/* Panel izquierdo oscuro con video */}
+
+        {/* Panel izquierdo — video background (solo desktop) */}
         <div className={styles.leftPanel}>
           <video
             className={styles.videoBg}
@@ -84,47 +87,60 @@ export default function Login() {
             playsInline
           />
           <div className={styles.leftContent}>
-            <img src="/zaazmago_holding.png" alt="Zaazmago Holding" className={styles.leftLogo} />
-            <div className={styles.leftModuleName}>
-              ERP<br />
-              Módulo de<br />
-              Cotización
-            </div>
+            <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.leftLogo} />
           </div>
         </div>
 
-        {/* Panel derecho claro */}
+        {/* Panel derecho — formulario */}
         <div className={styles.rightPanel}>
+
+          {/* Logo visible solo en mobile, encima del card */}
+          <div className={styles.mobileLogoArea}>
+            <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.mobileLogo} />
+          </div>
+
           <div className={styles.formWrapper}>
             <div className={styles.formIcon}>
               <img src="/square.jpeg" alt="Logo" />
             </div>
-            <h1 className={styles.formTitle}>Bienvenido</h1>
+            <h1 className={styles.formTitle}>Iniciar sesión</h1>
             <p className={styles.formSubtitle}>Ingresa tus credenciales para continuar</p>
 
             <form className={styles.loginForm} onSubmit={handleSubmit}>
               <div className={styles.formField}>
-                <label>Email</label>
+                <label>Correo electrónico</label>
                 <input
                   type="email"
-                  placeholder="zaazmago@zaazmago.com"
+                  placeholder="correo@empresa.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
+
               <div className={styles.formField}>
                 <label>Contraseña</label>
-                <input
-                  type="password"
-                  placeholder="••••••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className={styles.inputWrapper}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className={styles.eyeBtn}
+                    onClick={() => setShowPassword(p => !p)}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
+
               <button type="submit" className={styles.btnPrimary}>
-                Iniciar Sesión
+                Ingresar
               </button>
             </form>
           </div>

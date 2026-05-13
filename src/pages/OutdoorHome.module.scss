@@ -66,6 +66,10 @@
   letter-spacing: 0.06em;
 }
 
+.userAvatar {
+  display: none;
+}
+
 .btnLogout {
   display: flex;
   align-items: center;
@@ -299,6 +303,24 @@
 
   .cardTitle {
     font-size: 0.95rem;
+  }
+
+  .userInfo {
+    display: none;
+  }
+
+  .userAvatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #10b981;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    flex-shrink: 0;
   }
 
   .cardDesc,
