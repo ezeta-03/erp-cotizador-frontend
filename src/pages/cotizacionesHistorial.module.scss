@@ -9,21 +9,22 @@
 
   button {
     padding: 0.35rem 0.875rem;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--color-border);
     border-radius: $radius-sm;
-    background: #fff;
+    background: var(--color-surface);
     font-size: 0.8rem;
     font-weight: 500;
-    color: $text-slate-600;
+    color: var(--color-text2);
     cursor: pointer;
     transition: $transition-fast;
-    &:hover { background: $bg-slate-50; }
+
+    &:hover { background: var(--color-surface2); }
   }
 
   .active {
-    background: $text-slate-900;
-    color: #fff;
-    border-color: $text-slate-900;
+    background: var(--color-text1);
+    color: var(--color-bg);
+    border-color: var(--color-text1);
     font-weight: 600;
   }
 }
@@ -38,12 +39,20 @@
     flex: 1;
     min-width: 180px;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--color-input-border);
     border-radius: $radius-sm;
     font-size: 0.875rem;
+    background: var(--color-input-bg);
+    color: var(--color-text1);
     outline: none;
+    font-family: inherit;
     transition: $transition-smooth;
-    &:focus { border-color: $brand-primary; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15); }
+
+    &::placeholder { color: var(--color-text3); }
+    &:focus {
+      border-color: $brand-primary;
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+    }
   }
 }
 
@@ -57,15 +66,15 @@
   align-items: center;
   gap: 0.5rem;
   padding: 3rem 1rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   font-size: 0.875rem;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: $radius-sm;
-  border: 1px dashed #e2e8f0;
+  border: 1px dashed var(--color-border);
   margin-top: 0.5rem;
 
   .emptyIcon { font-size: 2rem; opacity: 0.4; line-height: 1; }
-  strong { color: $text-slate-600; font-size: 0.9rem; }
+  strong { color: var(--color-text2); font-size: 0.9rem; }
 }
 
 /* ── Truncado de celdas largas ── */
@@ -88,11 +97,11 @@
   white-space: nowrap;
 }
 
-.PENDIENTE      { background: #fef9c3; color: #854d0e; }
-.APROBADA       { background: #dbeafe; color: #1e40af; }
-.FACTURADA      { background: #dcfce7; color: #166534; }
-.RECHAZADA      { background: #fee2e2; color: #991b1b; }
-.RENEGOCIACION  { background: #ffedd5; color: #9a3412; }
+.PENDIENTE     { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
+.APROBADA      { background: var(--badge-blue-bg);   color: var(--badge-blue-text); }
+.FACTURADA     { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+.RECHAZADA     { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+.RENEGOCIACION { background: var(--badge-orange-bg); color: var(--badge-orange-text); }
 
 /* ── Overlay de preview PDF ── */
 .previewOverlay {
@@ -124,8 +133,8 @@
 
 /* ── Editar y Re-enviar (overlay) ── */
 .comentarioCliente {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
+  background: var(--badge-orange-bg);
+  border: 1px solid var(--badge-orange-text);
   border-radius: $radius-sm;
   padding: 0.875rem 1.125rem;
   display: flex;
@@ -136,7 +145,7 @@
 .comentarioClienteLabel {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #9a3412;
+  color: var(--badge-orange-text);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -144,14 +153,14 @@
 .comentarioCliente p {
   margin: 0;
   font-size: 0.875rem;
-  color: #c2410c;
+  color: var(--badge-orange-text);
   font-style: italic;
 }
 
 /* ── Renegociar ── */
 .tdComentario {
   font-size: 0.72rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   margin-top: 0.2rem;
   font-style: italic;
   max-width: 220px;
@@ -162,7 +171,7 @@
 
 .cardComentario {
   font-size: 0.78rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   font-style: italic;
   margin: 0.2rem 0 0.5rem;
 }
@@ -171,8 +180,8 @@
 .timeline {
   margin: 1rem 1.5rem;
   padding: 1rem 1.25rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
 }
 
@@ -181,7 +190,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: $text-slate-400;
+  color: var(--color-text3);
   margin: 0 0 0.875rem;
 }
 
@@ -216,7 +225,7 @@
   top: 16px;
   bottom: 0;
   width: 2px;
-  background: #e2e8f0;
+  background: var(--color-border);
 }
 
 .timelineContent {
@@ -234,7 +243,7 @@
 }
 
 .timelineArrow {
-  color: $text-slate-400;
+  color: var(--color-text3);
   font-size: 0.85rem;
 }
 
@@ -242,18 +251,18 @@
   display: flex;
   gap: 0.75rem;
   font-size: 0.78rem;
-  color: #374151;
+  color: var(--color-text2);
   font-weight: 500;
 }
 
 .timelineFecha {
-  color: $text-slate-400;
+  color: var(--color-text3);
   font-weight: 400;
 }
 
 .timelineComentario {
   font-size: 0.78rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   font-style: italic;
   margin: 0.15rem 0 0;
 }

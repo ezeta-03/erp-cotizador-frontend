@@ -1,8 +1,8 @@
-@import "../styles/variables";
+@import "../styles/_ui.scss";
 
 .page {
   padding: 2rem;
-  background-color: $gray-50;
+  background: var(--color-bg);
   min-height: 100vh;
 }
 
@@ -13,21 +13,21 @@
 .pageTitle {
   font-size: 2rem;
   font-weight: 700;
-  color: $gray-900;
+  color: var(--color-text1);
   margin: 0 0 0.25rem;
 }
 
 .pageSubtitle {
   font-size: 0.875rem;
-  color: $gray-400;
+  color: var(--color-text3);
   margin: 0;
 }
 
 .card {
-  background: $white;
-  border-radius: $radius;
-  border: 1px solid $gray-200;
-  box-shadow: $shadow;
+  background: var(--color-surface);
+  border-radius: $radius-lg;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
   padding: 2rem;
   max-width: 480px;
 }
@@ -38,10 +38,11 @@
   justify-content: center;
   width: 52px;
   height: 52px;
-  background: $gray-50;
-  border: 1px solid $gray-200;
-  border-radius: $radius;
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
   margin-bottom: 1.5rem;
+  color: var(--color-text2);
 }
 
 .successBanner {
@@ -49,9 +50,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: #d1fae5;
-  color: #065f46;
-  border-radius: $radius;
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+  border-radius: $radius-sm;
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 1.25rem;
@@ -59,9 +60,9 @@
 
 .errorBanner {
   padding: 0.75rem 1rem;
-  background: #fee2e2;
-  color: #991b1b;
-  border-radius: $radius;
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  border-radius: $radius-sm;
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 1.25rem;
@@ -82,7 +83,7 @@
 .label {
   font-size: 0.8rem;
   font-weight: 600;
-  color: $gray-700;
+  color: var(--color-text2);
 }
 
 .inputWrap {
@@ -94,17 +95,22 @@
 .input {
   width: 100%;
   padding: 0.65rem 2.5rem 0.65rem 0.875rem;
-  border: 1px solid $gray-200;
-  border-radius: $radius;
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-sm;
   font-size: 0.875rem;
-  color: $gray-900;
-  background: $white;
+  color: var(--color-text1);
+  background: var(--color-input-bg);
   outline: none;
   box-sizing: border-box;
+  font-family: inherit;
   transition: border-color 0.15s;
 
-  &:focus { border-color: $black; box-shadow: 0 0 0 3px rgba(0,0,0,.05); }
-  &::placeholder { color: $gray-400; }
+  &:focus {
+    border-color: $brand-primary;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  }
+
+  &::placeholder { color: var(--color-text3); }
 }
 
 .eyeBtn {
@@ -113,28 +119,34 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: $gray-400;
+  color: var(--color-text3);
   display: flex;
   align-items: center;
   padding: 0;
   transition: color 0.15s;
-  &:hover { color: $gray-700; }
+
+  &:hover { color: var(--color-text2); }
 }
 
 .btnSubmit {
   margin-top: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: $black;
-  color: $white;
+  background: $brand-primary;
+  color: #ffffff;
   border: none;
-  border-radius: $radius;
+  border-radius: $radius-sm;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: #374151; }
-  &:disabled { background: $gray-200; color: $gray-400; cursor: not-allowed; }
+  &:hover:not(:disabled) { background: $brand-primary-hover; }
+  &:disabled {
+    background: var(--color-surface2);
+    color: var(--color-text3);
+    cursor: not-allowed;
+  }
 }
 
 @media (max-width: 768px) {

@@ -1,214 +1,139 @@
 @import '../styles/_ui.scss';
 
 /* ===== PÁGINA ===== */
-.loginPage {
+.page {
   min-height: 100vh;
-  background: #1a1a1a;
+  background: #f0ebe4;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
 }
 
-/* ===== CARD PRINCIPAL ===== */
-.loginCard {
-  display: flex;
+/* ===== CARD ===== */
+.card {
   width: 100%;
-  max-width: 1400px;
-  min-height: 600px;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4);
-}
-
-/* ===== PANEL IZQUIERDO (video) ===== */
-.leftPanel {
-  width: 42%;
-  position: relative;
-  overflow: hidden;
-  background: #111111;
-}
-
-.videoBg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.6;
-}
-
-.leftContent {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 2.5rem;
-}
-
-.leftLogo {
-  height: 2rem;
-  width: auto;
-  object-fit: contain;
-  object-position: left;
-  filter: brightness(0) invert(1);
-}
-
-/* ===== PANEL DERECHO ===== */
-.rightPanel {
-  flex: 1;
-  background: $bg-slate-50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 2.5rem;
-}
-
-/* Logo mobile — oculto en desktop */
-.mobileLogoArea {
-  display: none;
-}
-
-.mobileLogo {
-  height: 2.25rem;
-  filter: brightness(0) invert(1);
-}
-
-/* ===== CARD FORMULARIO ===== */
-.formWrapper {
-  width: 100%;
-  max-width: 22rem;
-  padding: 2.25rem;
+  max-width: 400px;
   background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
+  border-radius: 20px;
+  padding: 2.5rem 2.25rem;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
 }
 
-.formIcon {
+/* ===== LOGO MARK ===== */
+.logoMark {
   margin-bottom: 1.5rem;
 
   img {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 0.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     object-fit: cover;
+    display: block;
   }
 }
 
-.formTitle {
-  font-size: 2rem;
+/* ===== TÍTULOS ===== */
+.title {
+  font-size: 1.75rem;
   font-weight: 800;
-  color: $text-slate-900;
-  margin: 0 0 0.4rem;
+  color: #111111;
+  margin: 0 0 0.35rem;
   letter-spacing: -0.03em;
 }
 
-.formSubtitle {
+.subtitle {
   font-size: 0.875rem;
-  color: $text-slate-600;
+  color: #888888;
   margin: 0 0 2rem;
 }
 
 /* ===== FORMULARIO ===== */
-.loginForm {
+.form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
-.formField {
+.field {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.45rem;
 
   label {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 600;
-    color: $text-slate-600;
+    color: #333333;
   }
 
   input {
     width: 100%;
-    padding: 0.9rem 1rem;
-    border: 1.5px solid #d1d5db;
-    border-radius: 0.9rem;
-    background: #ffffff;
-    color: $text-slate-900;
+    padding: 0.85rem 1rem;
+    background: #eef2f8;
+    border: none;
+    border-radius: 10px;
     font-size: 0.95rem;
-    font-family: inherit;
+    color: #111111;
     outline: none;
-    transition: $transition-smooth;
+    font-family: inherit;
+    transition: background 0.15s, box-shadow 0.15s;
     box-sizing: border-box;
 
-    &::placeholder {
-      color: #94a3b8;
-    }
+    &::placeholder { color: #aab4c4; }
 
     &:focus {
-      border-color: $brand-primary;
-      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+      background: #e5ecf6;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
     }
   }
 }
 
-/* Input con ojo de visibilidad */
+/* ===== EYE TOGGLE ===== */
 .inputWrapper {
   position: relative;
 
-  input {
-    padding-right: 2.75rem;
-  }
+  input { padding-right: 2.5rem; }
 }
 
 .eyeBtn {
   position: absolute;
-  right: 0.75rem;
+  right: 0.8rem;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #94a3b8;
+  color: #9aabb8;
   display: flex;
   align-items: center;
   padding: 0;
   transition: color 0.15s;
 
-  &:hover {
-    color: $text-slate-600;
-  }
+  &:hover { color: #555; }
 }
 
-/* ===== BOTÓN PRIMARIO ===== */
-.btnPrimary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ===== BOTÓN ===== */
+.btnSubmit {
   width: 100%;
-  padding: 1rem;
-  background: $brand-primary;
-  color: #fff;
+  padding: 0.95rem;
+  background: #111111;
+  color: #ffffff;
   border: none;
-  border-radius: 1rem;
-  font-size: 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: $transition-smooth;
-  margin-top: 0.25rem;
   font-family: inherit;
+  margin-top: 0.5rem;
+  transition: background 0.15s, transform 0.15s;
 
   &:hover:not(:disabled) {
-    background: $brand-primary-hover;
+    background: #2a2a2a;
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
   }
 
-  &:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-  }
+  &:active:not(:disabled) { transform: translateY(0); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
 /* ===== LOADER POST-LOGIN ===== */
@@ -284,123 +209,18 @@
 }
 
 /* ===== RESPONSIVE MOBILE ===== */
-@media (max-width: 768px) {
-
-  /* Página: fondo oscuro, sin padding */
-  .loginPage {
+@media (max-width: 480px) {
+  .page {
     padding: 0;
-    align-items: stretch;
-    background: #0d0d0f;
+    background: #f0ebe4;
+    align-items: flex-start;
   }
 
-  .loginCard {
-    flex-direction: column;
+  .card {
+    max-width: none;
+    min-height: 100vh;
     border-radius: 0;
-    min-height: 100vh;
+    padding: 3rem 1.75rem;
     box-shadow: none;
-    background: transparent;
-    position: relative;
-  }
-
-  /* Video: fondo fijo de pantalla completa */
-  .leftPanel {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    min-height: unset;
-    z-index: 0;
-  }
-
-  .videoBg {
-    opacity: 0.35;
-  }
-
-  /* Ocultar logo del panel izquierdo */
-  .leftContent {
-    display: none;
-  }
-
-  /* Panel derecho: se centra sobre el video */
-  .rightPanel {
-    position: relative;
-    z-index: 1;
-    flex: unset;
-    min-height: 100vh;
-    background: transparent;
-    flex-direction: column;
-    padding: 3rem 1.5rem;
-    gap: 2rem;
-  }
-
-  /* Logo sobre el card — visible solo mobile */
-  .mobileLogoArea {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .mobileLogo {
-    height: 2.5rem;
-    filter: brightness(0) invert(1);
-    opacity: 0.9;
-  }
-
-  /* Card oscuro glassmorphism */
-  .formWrapper {
-    max-width: 100%;
-    background: rgba(10, 10, 16, 0.82);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
-  }
-
-  /* Ocultar el square.jpeg dentro del card en mobile */
-  .formIcon {
-    display: none;
-  }
-
-  /* Textos del card en blanco */
-  .formTitle {
-    color: #ffffff;
-    font-size: 1.75rem;
-  }
-
-  .formSubtitle {
-    color: rgba(255, 255, 255, 0.42);
-  }
-
-  /* Labels e inputs dark theme */
-  .formField {
-
-    label {
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    input {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #ffffff;
-
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.25);
-      }
-
-      &:focus {
-        border-color: $brand-primary;
-        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.22);
-        background: rgba(255, 255, 255, 0.1);
-      }
-    }
-  }
-
-  /* Ojo de contraseña en dark */
-  .eyeBtn {
-    color: rgba(255, 255, 255, 0.35);
-
-    &:hover {
-      color: rgba(255, 255, 255, 0.7);
-    }
   }
 }

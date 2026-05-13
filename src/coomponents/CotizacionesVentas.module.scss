@@ -1,8 +1,8 @@
-@import "../styles/_variables.scss";
+@import "../styles/_ui.scss";
 
 .container {
   padding: 2rem;
-  background: $gray-50;
+  background: var(--color-bg);
   min-height: 100vh;
 }
 
@@ -19,13 +19,13 @@
 .heading {
   font-size: 1.75rem;
   font-weight: 700;
-  color: $gray-900;
+  color: var(--color-text1);
   margin: 0 0 0.2rem;
 }
 
 .subtitle {
   font-size: 0.875rem;
-  color: $gray-400;
+  color: var(--color-text3);
   margin: 0;
 }
 
@@ -42,21 +42,25 @@
   align-items: center;
   gap: 0.3rem;
   padding: 0.3rem 0.75rem;
-  border: 1px solid $gray-200;
+  border: 1px solid var(--color-border);
   border-radius: 99px;
-  background: $white;
-  color: $gray-600;
+  background: var(--color-surface);
+  color: var(--color-text2);
   font-size: 0.775rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
 
-  &:hover { border-color: $gray-400; background: $gray-50; }
+  &:hover {
+    border-color: var(--color-input-border);
+    background: var(--color-surface2);
+  }
+
   &.active {
-    background: #f97316;
-    border-color: #f97316;
-    color: $white;
+    background: $brand-primary;
+    border-color: $brand-primary;
+    color: #ffffff;
   }
 }
 
@@ -64,17 +68,17 @@
 .filtrosAvanzados {
   display: flex;
   align-items: center;
-  background: $white;
-  border: 1px solid $gray-200;
-  border-radius: $radius;
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-md;
   padding: 0 0.75rem;
   margin-bottom: 1.25rem;
   gap: 0.5rem;
   transition: border-color 0.15s;
 
   &:focus-within {
-    border-color: $gray-400;
-    box-shadow: 0 0 0 3px rgba(0,0,0,.05);
+    border-color: $brand-primary;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
   }
 }
 
@@ -85,13 +89,13 @@
   padding: 0.65rem 0.5rem;
   font-size: 0.875rem;
   background: transparent;
-  color: $gray-900;
+  color: var(--color-text1);
   min-width: 0;
 
-  &::placeholder { color: $gray-400; }
+  &::placeholder { color: var(--color-text3); }
 
   & + & {
-    border-left: 1px solid $gray-100;
+    border-left: 1px solid var(--color-border);
     padding-left: 0.75rem;
   }
 }
@@ -100,7 +104,7 @@
 .info {
   text-align: center;
   padding: 3rem 1rem;
-  color: $gray-400;
+  color: var(--color-text3);
   font-size: 0.9rem;
 }
 
@@ -110,11 +114,11 @@
   align-items: center;
   gap: 0.5rem;
   padding: 3rem 1rem;
-  color: $gray-400;
+  color: var(--color-text3);
   font-size: 0.875rem;
-  background: $white;
-  border-radius: $radius;
-  border: 1px dashed $gray-200;
+  background: var(--color-surface);
+  border-radius: $radius-md;
+  border: 1px dashed var(--color-border);
 
   .emptyIcon {
     font-size: 2rem;
@@ -123,18 +127,18 @@
   }
 
   strong {
-    color: $gray-600;
+    color: var(--color-text2);
     font-size: 0.9rem;
   }
 }
 
 /* ── Tabla ── */
 .tableWrapper {
-  background: $white;
-  border-radius: $radius;
-  border: 1px solid $gray-200;
+  background: var(--color-surface);
+  border-radius: $radius-md;
+  border: 1px solid var(--color-border);
   overflow-x: auto;
-  box-shadow: $shadow;
+  box-shadow: var(--shadow-soft);
 }
 
 .table {
@@ -145,8 +149,8 @@
   table-layout: fixed;
 
   thead {
-    background: $gray-50;
-    border-bottom: 1px solid $gray-200;
+    background: var(--color-surface2);
+    border-bottom: 1px solid var(--color-border);
   }
 
   th {
@@ -154,7 +158,7 @@
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
-    color: $gray-600;
+    color: var(--color-text2);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     white-space: nowrap;
@@ -162,16 +166,16 @@
   }
 
   tbody tr {
-    border-bottom: 1px solid $gray-100;
+    border-bottom: 1px solid var(--color-border2);
     transition: background 0.15s;
 
     &:last-child { border-bottom: none; }
-    &:hover { background: $gray-50; }
+    &:hover { background: var(--color-surface2); }
   }
 
   td {
     padding: 0.75rem 1rem;
-    color: $gray-700;
+    color: var(--color-text1);
     vertical-align: middle;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -187,11 +191,11 @@
   font-size: 0.75rem;
   font-weight: 600;
 
-  &.PENDIENTE      { background: #fef3c7; color: #92400e; }
-  &.APROBADA       { background: #d1fae5; color: #065f46; }
-  &.FACTURADA      { background: #dbeafe; color: #1e40af; }
-  &.RECHAZADA      { background: #fee2e2; color: #991b1b; }
-  &.RENEGOCIACION  { background: #ffedd5; color: #9a3412; }
+  &.PENDIENTE     { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
+  &.APROBADA      { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+  &.FACTURADA     { background: var(--badge-blue-bg);   color: var(--badge-blue-text); }
+  &.RECHAZADA     { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+  &.RENEGOCIACION { background: var(--badge-orange-bg); color: var(--badge-orange-text); }
 }
 
 /* ── Botón facturar ── */
@@ -200,21 +204,21 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.4rem 0.875rem;
-  background: $black;
-  color: $white;
+  background: $brand-primary;
+  color: #ffffff;
   border: none;
-  border-radius: $radius;
+  border-radius: $radius-sm;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: #374151; }
+  &:hover:not(:disabled) { background: $brand-primary-hover; }
   &:disabled {
-    background: $gray-200;
-    color: $gray-500;
+    background: var(--color-surface2);
+    color: var(--color-text3);
     cursor: not-allowed;
-    border: 1px solid $gray-300;
+    border: 1px solid var(--color-border);
   }
 }
 

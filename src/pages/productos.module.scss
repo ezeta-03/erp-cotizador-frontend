@@ -1,10 +1,7 @@
 @import "../styles/_ui.scss";
 
 /* ── Animación spinner ── */
-.spin {
-  animation: spin 1s linear infinite;
-}
-
+.spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Resultado de importación ── */
@@ -16,15 +13,15 @@
 }
 
 .resultadoOk {
-  background: #f0fdf4;
-  border-color: #86efac;
-  color: #166534;
+  background: var(--badge-green-bg);
+  border-color: var(--badge-green-text);
+  color: var(--badge-green-text);
 }
 
 .resultadoWarn {
-  background: #fffbeb;
-  border-color: #fcd34d;
-  color: #92400e;
+  background: var(--badge-yellow-bg);
+  border-color: var(--badge-yellow-text);
+  color: var(--badge-yellow-text);
 }
 
 .resultadoHeader {
@@ -43,11 +40,7 @@
   gap: 1.25rem;
   font-size: 0.8rem;
 
-  li {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
+  li { display: flex; align-items: center; gap: 0.3rem; }
 }
 
 .erroresDetail, .erroresDetailWarn {
@@ -68,10 +61,10 @@
 .erroresDetailWarn {
   margin: 0 1.5rem 0.5rem;
   padding: 0.75rem 1rem;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
+  background: var(--badge-orange-bg);
+  border: 1px solid var(--badge-orange-text);
   border-radius: $radius-md;
-  color: #9a3412;
+  color: var(--badge-orange-text);
 }
 
 /* ── Chips de categoría ── */
@@ -87,30 +80,33 @@
   align-items: center;
   gap: 0.3rem;
   padding: 0.3rem 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 99px;
-  background: #fff;
-  color: $text-slate-600;
+  background: var(--color-surface);
+  color: var(--color-text2);
   font-size: 0.775rem;
   font-weight: 500;
   cursor: pointer;
   transition: $transition-smooth;
   white-space: nowrap;
 
-  &:hover { border-color: #cbd5e1; background: $bg-slate-50; }
+  &:hover {
+    border-color: var(--color-input-border);
+    background: var(--color-surface2);
+  }
 }
 
 .catChipActive {
-  background: $text-slate-900;
-  border-color: $text-slate-900;
-  color: #fff;
+  background: var(--color-text1);
+  border-color: var(--color-text1);
+  color: var(--color-bg);
 
-  .catCount { background: rgba(255,255,255,.18); color: #fff; }
+  .catCount { background: rgba(255,255,255,.18); color: var(--color-bg); }
 }
 
 .catCount {
-  background: $bg-slate-100;
-  color: $text-slate-600;
+  background: var(--color-surface2);
+  color: var(--color-text2);
   border-radius: 99px;
   padding: 0 0.35rem;
   font-size: 0.68rem;
@@ -123,7 +119,7 @@
 .productoNombreText {
   display: block;
   font-weight: 600;
-  color: $text-slate-900;
+  color: var(--color-text1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -139,8 +135,8 @@
 .badgeCat {
   display: inline-block;
   padding: 0.1rem 0.4rem;
-  background: $bg-slate-100;
-  color: $text-slate-600;
+  background: var(--badge-gray-bg);
+  color: var(--badge-gray-text);
   border-radius: 3px;
   font-size: 0.65rem;
   font-weight: 700;
@@ -151,8 +147,8 @@
 .badgeTipo {
   display: inline-block;
   padding: 0.1rem 0.4rem;
-  background: #e0f2fe;
-  color: #0369a1;
+  background: var(--badge-blue-bg);
+  color: var(--badge-blue-text);
   border-radius: 3px;
   font-size: 0.65rem;
   font-weight: 600;
@@ -160,35 +156,35 @@
 
 /* ── Extras para tabla ── */
 .tdIdx {
-  color: $text-slate-400;
+  color: var(--color-text3);
   font-size: 0.8rem;
   width: 2.5rem;
 }
 
 .tdNombre {
   font-weight: 500;
-  color: $text-slate-900;
+  color: var(--color-text1);
   overflow: hidden;
 }
 
 .tdPrecio {
   font-weight: 600;
-  color: $text-slate-900;
+  color: var(--color-text1);
   white-space: nowrap;
 }
 
 .tdNA {
-  color: $text-slate-400;
+  color: var(--color-text3);
   font-size: 0.85rem;
 }
 
 .selectTipo {
   padding: 0.3rem 0.5rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-input-border);
   border-radius: $radius-sm;
   font-size: 0.8rem;
-  color: $text-slate-900;
-  background: #fff;
+  color: var(--color-text1);
+  background: var(--color-input-bg);
   cursor: pointer;
   outline: none;
   width: 100%;
@@ -200,22 +196,23 @@
 .inputUnidad {
   width: 72px;
   padding: 0.3rem 0.5rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-input-border);
   border-radius: $radius-sm;
   font-size: 0.8rem;
-  color: $text-slate-900;
+  color: var(--color-text1);
+  background: var(--color-input-bg);
   outline: none;
   text-align: center;
 
   &:focus { border-color: $brand-primary; }
 }
 
-/* ── Badges preview ── */
+/* ── Badges preview CSV ── */
 .badgeNuevo {
   display: inline-block;
   padding: 0.2rem 0.55rem;
-  background: #dcfce7;
-  color: #166534;
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
   border-radius: 99px;
   font-size: 0.72rem;
   font-weight: 600;
@@ -224,8 +221,8 @@
 .badgeActualizar {
   display: inline-block;
   padding: 0.2rem 0.55rem;
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--badge-blue-bg);
+  color: var(--badge-blue-text);
   border-radius: 99px;
   font-size: 0.72rem;
   font-weight: 600;
@@ -235,11 +232,11 @@
 .emptyState {
   text-align: center;
   padding: 3rem 1rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   font-size: 0.9rem;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: $radius-lg;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed var(--color-border);
 }
 
 .loadingRow {
@@ -248,7 +245,7 @@
   gap: 0.5rem;
   justify-content: center;
   padding: 2rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   font-size: 0.875rem;
 }
 
@@ -260,7 +257,7 @@
   justify-content: center;
   padding: 4rem 2rem;
   gap: 1rem;
-  color: $text-slate-600;
+  color: var(--color-text2);
   font-size: 0.9rem;
 
   svg { color: $brand-primary; }
@@ -268,7 +265,7 @@
 
 .wizardHint {
   font-size: 0.8rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
 }
 
 .btnIcon {
@@ -277,10 +274,10 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: $text-slate-400;
+  color: var(--color-text3);
   padding: 0.25rem;
   border-radius: 6px;
-  &:hover { background: $bg-slate-100; color: $text-slate-600; }
+  &:hover { background: var(--color-surface2); color: var(--color-text2); }
 }
 
 /* ── Stats chips preview ── */
@@ -301,15 +298,15 @@
   border-radius: 99px;
   font-size: 0.8rem;
 
-  &.statChipGreen  { background: #dcfce7; color: #166534; }
-  &.statChipBlue   { background: #dbeafe; color: #1e40af; }
-  &.statChipGray   { background: $bg-slate-100; color: $text-slate-600; }
-  &.statChipRed    { background: #fee2e2; color: #991b1b; }
+  &.statChipGreen  { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+  &.statChipBlue   { background: var(--badge-blue-bg);   color: var(--badge-blue-text); }
+  &.statChipGray   { background: var(--badge-gray-bg);   color: var(--badge-gray-text); }
+  &.statChipRed    { background: var(--badge-red-bg);    color: var(--badge-red-text); }
 }
 
 .statTotal {
   font-size: 0.8rem;
-  color: $text-slate-600;
+  color: var(--color-text2);
   margin-left: auto;
 }
 
@@ -326,8 +323,8 @@
   display: inline-block;
   margin-left: 0.5rem;
   padding: 0.15rem 0.45rem;
-  background: #ede9fe;
-  color: #5b21b6;
+  background: var(--badge-purple-bg);
+  color: var(--badge-purple-text);
   border-radius: 99px;
   font-size: 0.68rem;
   font-weight: 600;
@@ -346,7 +343,7 @@
 
 .paginaInfo {
   font-size: 0.8rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
 }
 
 .paginaBtns {
@@ -362,30 +359,33 @@
   min-width: 2rem;
   height: 2rem;
   padding: 0 0.4rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   border-radius: $radius-sm;
-  background: #fff;
-  color: $text-slate-600;
+  background: var(--color-surface);
+  color: var(--color-text2);
   font-size: 0.8rem;
   cursor: pointer;
   transition: $transition-smooth;
 
-  &:hover:not(:disabled) { border-color: $text-slate-400; background: $bg-slate-50; }
+  &:hover:not(:disabled) {
+    border-color: var(--color-input-border);
+    background: var(--color-surface2);
+  }
   &:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 .pagBtnActive {
-  background: $text-slate-900;
-  color: #fff;
-  border-color: $text-slate-900;
+  background: var(--color-text1);
+  color: var(--color-bg);
+  border-color: var(--color-text1);
   font-weight: 600;
 
-  &:hover { background: $text-slate-900; }
+  &:hover { background: var(--color-text1); }
 }
 
 .pagEllipsis {
   font-size: 0.8rem;
-  color: $text-slate-400;
+  color: var(--color-text3);
   padding: 0 0.2rem;
 }
 

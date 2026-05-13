@@ -28,33 +28,65 @@
   --shadow-hover: 0 20px 40px -10px rgba(0,0,0,0.12);
   --shadow-modal: 0 25px 60px -15px rgba(0,0,0,0.25);
 
+  /* Badges / etiquetas de estado */
+  --badge-green-bg:   #dcfce7;
+  --badge-green-text: #166534;
+  --badge-blue-bg:    #dbeafe;
+  --badge-blue-text:  #1e40af;
+  --badge-yellow-bg:  #fef9c3;
+  --badge-yellow-text:#854d0e;
+  --badge-red-bg:     #fee2e2;
+  --badge-red-text:   #991b1b;
+  --badge-orange-bg:  #ffedd5;
+  --badge-orange-text:#9a3412;
+  --badge-gray-bg:    #f1f5f9;
+  --badge-gray-text:  #64748b;
+  --badge-purple-bg:  #ede9fe;
+  --badge-purple-text:#5b21b6;
+
   /* Transición global de tema */
   --theme-transition: background-color 0.25s ease, color 0.25s ease,
                       border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 [data-theme="dark"] {
-  /* Fondos */
-  --color-bg:       #0f1117;
-  --color-surface:  #1a1d2e;
-  --color-surface2: #242840;
-  --color-surface3: #2d3255;
+  /* Fondos — navy profundo, claramente no negro */
+  --color-bg:       #1a1d2e;
+  --color-surface:  #21263d;
+  --color-surface2: #292f4a;
+  --color-surface3: #333a58;
 
   /* Bordes */
-  --color-border:   rgba(255,255,255,0.08);
+  --color-border:   rgba(255,255,255,0.09);
   --color-border2:  rgba(255,255,255,0.04);
 
   /* Texto */
-  --color-text1:    #f1f5f9;
-  --color-text2:    #94a3b8;
-  --color-text3:    #64748b;
+  --color-text1:    #e8ecf8;
+  --color-text2:    #8a9dc4;
+  --color-text3:    #4e5c7e;
 
   /* Inputs */
   --color-input-bg:     rgba(255,255,255,0.06);
-  --color-input-border: rgba(255,255,255,0.12);
+  --color-input-border: rgba(255,255,255,0.14);
 
   /* Sombras */
-  --shadow-soft:  0 10px 40px -10px rgba(0,0,0,0.35);
-  --shadow-hover: 0 20px 40px -10px rgba(0,0,0,0.45);
-  --shadow-modal: 0 25px 60px -15px rgba(0,0,0,0.6);
+  --shadow-soft:  0 10px 40px -10px rgba(0,0,0,0.45);
+  --shadow-hover: 0 20px 40px -10px rgba(0,0,0,0.55);
+  --shadow-modal: 0 25px 60px -15px rgba(0,0,0,0.7);
+
+  /* Badges — tonos pastel adaptados al fondo navy */
+  --badge-green-bg:   rgba(16, 185, 129, 0.18);
+  --badge-green-text: #4ade80;
+  --badge-blue-bg:    rgba(59, 130, 246, 0.18);
+  --badge-blue-text:  #60a5fa;
+  --badge-yellow-bg:  rgba(234, 179, 8, 0.18);
+  --badge-yellow-text:#facc15;
+  --badge-red-bg:     rgba(239, 68, 68, 0.18);
+  --badge-red-text:   #f87171;
+  --badge-orange-bg:  rgba(249, 115, 22, 0.18);
+  --badge-orange-text:#fb923c;
+  --badge-gray-bg:    rgba(255,255,255,0.08);
+  --badge-gray-text:  #94a3b8;
+  --badge-purple-bg:  rgba(139, 92, 246, 0.18);
+  --badge-purple-text:#c4b5fd;
 }

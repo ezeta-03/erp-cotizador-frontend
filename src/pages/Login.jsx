@@ -73,78 +73,52 @@ export default function Login() {
   }
 
   return (
-    <div className={styles.loginPage}>
-      <div className={styles.loginCard}>
-
-        {/* Panel izquierdo — video background (solo desktop) */}
-        <div className={styles.leftPanel}>
-          <video
-            className={styles.videoBg}
-            src="/background.webm"
-            autoPlay
-            loop
-            muted
-            playsInline
-          />
-          <div className={styles.leftContent}>
-            <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.leftLogo} />
-          </div>
+    <div className={styles.page}>
+      <div className={styles.card}>
+        <div className={styles.logoMark}>
+          <img src="/square.jpeg" alt="Zaazmago" />
         </div>
 
-        {/* Panel derecho — formulario */}
-        <div className={styles.rightPanel}>
+        <h1 className={styles.title}>Bienvenido</h1>
+        <p className={styles.subtitle}>Ingresa tus credenciales para continuar</p>
 
-          {/* Logo visible solo en mobile, encima del card */}
-          <div className={styles.mobileLogoArea}>
-            <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.mobileLogo} />
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <div className={styles.field}>
+            <label>Email</label>
+            <input
+              type="email"
+              placeholder="correo@empresa.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
 
-          <div className={styles.formWrapper}>
-            <div className={styles.formIcon}>
-              <img src="/square.jpeg" alt="Logo" />
-            </div>
-            <h1 className={styles.formTitle}>Iniciar sesión</h1>
-            <p className={styles.formSubtitle}>Ingresa tus credenciales para continuar</p>
-
-            <form className={styles.loginForm} onSubmit={handleSubmit}>
-              <div className={styles.formField}>
-                <label>Correo electrónico</label>
-                <input
-                  type="email"
-                  placeholder="correo@empresa.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.formField}>
-                <label>Contraseña</label>
-                <div className={styles.inputWrapper}>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className={styles.eyeBtn}
-                    onClick={() => setShowPassword(p => !p)}
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              <button type="submit" className={styles.btnPrimary}>
-                Ingresar
+          <div className={styles.field}>
+            <label>Contraseña</label>
+            <div className={styles.inputWrapper}>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className={styles.eyeBtn}
+                onClick={() => setShowPassword(p => !p)}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
-            </form>
+            </div>
           </div>
-        </div>
+
+          <button type="submit" className={styles.btnSubmit}>
+            Iniciar Sesión
+          </button>
+        </form>
       </div>
     </div>
   );
