@@ -23,10 +23,10 @@ const MODULES = [
   {
     id: "outdoor",
     label: "Outdoor",
-    description: "Publicidad exterior y eventos",
+    description: "Paneles, mupis, proveedores y rentabilidad",
     icon: MapPin,
     color: "#10b981",
-    available: false,
+    available: true,
   },
 ];
 

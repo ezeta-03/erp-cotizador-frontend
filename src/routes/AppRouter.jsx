@@ -14,6 +14,7 @@ import MiCotizacion from "../pages/MiCotizacion";
 import CambiarContrasena from "../pages/CambiarContrasena";
 import CotizacionesVentas from "../coomponents/CotizacionesVentas";
 import ActividadClientes from "../coomponents/ActividadClientes";
+import OutdoorHome from "../pages/OutdoorHome";
 import AdminLayout from "../layouts/AdminLayout";
 import VentasLayout from "../layouts/VentasLayout";
 import ClienteLayout from "../layouts/ClienteLayout";
@@ -63,6 +64,16 @@ export default function AppRouter() {
         <Route path="perfil" element={<CambiarContrasena />} />
       </Route>
 
+      {/* ADMIN - Outdoor module */}
+      <Route
+        path="/erp/admin/outdoor"
+        element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <OutdoorHome />
+          </ProtectedRoute>
+        }
+      />
+
       {/* ================= VENTAS ================= */}
       <Route
         path="/erp/ventas"
@@ -89,6 +100,16 @@ export default function AppRouter() {
         <Route path="actividad" element={<ActividadClientes />} />
         <Route path="perfil" element={<CambiarContrasena />} />
       </Route>
+
+      {/* VENTAS - Outdoor module */}
+      <Route
+        path="/erp/ventas/outdoor"
+        element={
+          <ProtectedRoute roles={["VENTAS"]}>
+            <OutdoorHome />
+          </ProtectedRoute>
+        }
+      />
 
       {/* ================= CLIENTE ================= */}
       {/* Cliente solo tiene cotizador → va directo */}
