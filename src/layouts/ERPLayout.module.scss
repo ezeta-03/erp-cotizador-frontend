@@ -136,14 +136,18 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .header,
   .breadcrumb {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
   }
 
-  .userInfo {
+  .userRole {
     display: none;
+  }
+
+  .userName {
+    font-size: 0.825rem;
   }
 }

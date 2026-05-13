@@ -198,26 +198,78 @@
   color: $brand-primary;
 }
 
-/* ── Responsive ── */
-@media (max-width: 640px) {
+/* ── Responsive: tablet (3 cols) ── */
+@media (max-width: 900px) {
+  .grid {
+    gap: 1.25rem;
+    padding: 1.75rem 1.75rem 3rem;
+  }
+
+  .card {
+    width: 220px;
+    padding: 1.75rem 1.5rem;
+  }
+}
+
+/* ── Responsive: mobile (2 cols compactos) ── */
+@media (max-width: 600px) {
   .header {
     padding: 1rem 1.25rem;
   }
 
+  .userRole {
+    display: none;
+  }
+
   .hero {
-    padding: 2.5rem 1.25rem 1.5rem;
+    padding: 2rem 1.25rem 1.25rem;
   }
 
   .heroTitle {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
   }
 
+  .heroSub {
+    font-size: 0.875rem;
+  }
+
+  /* Grid de 2 columnas */
   .grid {
-    padding: 1.5rem 1.25rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+    padding: 1rem 1rem 3rem;
+    justify-items: stretch;
   }
 
   .card {
-    width: 100%;
-    max-width: 360px;
+    width: auto;
+    padding: 1.25rem 1rem;
+    border-radius: 16px;
+    gap: 0.5rem;
+  }
+
+  .cardIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    margin-bottom: 0;
+  }
+
+  .cardTitle {
+    font-size: 0.95rem;
+  }
+
+  /* Ocultar descripción y flecha en mobile — el icono + título ya comunican suficiente */
+  .cardDesc,
+  .cardEnter {
+    display: none;
+  }
+
+  .soon {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.45rem;
+    top: 0.6rem;
+    right: 0.6rem;
   }
 }
