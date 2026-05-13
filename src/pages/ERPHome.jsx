@@ -16,7 +16,7 @@ const MODULES_ADMIN = [
     available: true,
   },
   {
-    id: "cotizaciones",
+    id: "historial",
     label: "Cotizador",
     description: "Crea y gestiona cotizaciones",
     icon: FileText,
@@ -91,7 +91,7 @@ const MODULES_VENTAS = [
     available: true,
   },
   {
-    id: "cotizaciones",
+    id: "historial",
     label: "Cotizador",
     description: "Crea y gestiona cotizaciones",
     icon: FileText,

@@ -54,7 +54,7 @@ export default function OutdoorHome() {
   const handleSeccion = (sec) => {
     if (!sec.available) return;
     if (sec.id === "cotizador") {
-      navigate(`/erp/${role}/cotizador`);
+      navigate(`/erp/${role}/historial`);
     } else {
       navigate(`/erp/${role}/outdoor/${sec.id}`);
     }
