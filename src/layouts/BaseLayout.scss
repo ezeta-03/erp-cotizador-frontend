@@ -372,8 +372,28 @@
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 0.75rem; // 🔥 AGREGAR
-  // ... resto del código igual ...
+  gap: 0.75rem;
+}
+
+// Botón "Inicio ERP" — vuelve al selector de módulos
+.nav-link-home {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid $gray-200;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  color: $gray-500;
+
+  &:hover {
+    color: $primary;
+    background: transparent;
+    transform: translateX(4px);
+  }
 }
 
 .nav-icon {

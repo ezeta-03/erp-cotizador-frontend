@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import useAuth from "../auth/useAuth";
 import {
@@ -11,12 +11,14 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
+  LayoutGrid,
 } from "lucide-react";
 import "./BaseLayout.scss";
 import "../styles/_buttons.scss";
 
-export default function BaseLayout({ menu }) {
+export default function BaseLayout({ menu, homeLink }) {
   const { logout, user } = useAuth();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -70,6 +72,18 @@ export default function BaseLayout({ menu }) {
               )}
             </button>
           </div>
+
+          {/* Botón volver al ERP home (solo si hay homeLink) */}
+          {homeLink && (
+            <button
+              className="nav-link nav-link-home"
+              onClick={() => navigate(homeLink)}
+              title={isCollapsed ? "Inicio ERP" : ""}
+            >
+              <span className="nav-icon"><LayoutGrid size={20} /></span>
+              <span className="nav-text">Inicio ERP</span>
+            </button>
+          )}
 
           {/* Navegación */}
           <nav className="nav">

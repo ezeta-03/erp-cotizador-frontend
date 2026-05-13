@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import useAuth from "../auth/useAuth";
 
 import Login from "../pages/Login";
+import ERPHome from "../pages/ERPHome";
 import Dashboard from "../pages/Dashboard";
 import Clientes from "../pages/Clientes";
 import ActivarCuenta from "../pages/ActivarCuenta";
@@ -24,17 +25,27 @@ export default function AppRouter() {
 
   return (
     <Routes>
-      {/* Redirige raíz al módulo cotizador */}
-      <Route path="/" element={<Navigate to="/cotizador" replace />} />
+      {/* Raíz → login ERP */}
+      <Route path="/" element={<Navigate to="/erp" replace />} />
 
       {/* ================= PÚBLICAS ================= */}
-      <Route path="/cotizador" element={<Login moduleName="Módulo de\nCotización" />} />
+      <Route path="/erp" element={<Login />} />
       <Route path="/activar" element={<ActivarCuenta />} />
-      <Route path="/login" element={<Navigate to="/cotizador" replace />} />
+      <Route path="/login" element={<Navigate to="/erp" replace />} />
+      {/* Compatibilidad con links viejos */}
+      <Route path="/cotizador" element={<Navigate to="/erp" replace />} />
 
       {/* ================= ADMIN ================= */}
       <Route
-        path="/cotizador/admin"
+        path="/erp/admin"
+        element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <ERPHome />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/erp/admin/cotizador"
         element={
           <ProtectedRoute roles={["ADMIN"]}>
             <AdminLayout />
@@ -54,7 +65,15 @@ export default function AppRouter() {
 
       {/* ================= VENTAS ================= */}
       <Route
-        path="/cotizador/ventas"
+        path="/erp/ventas"
+        element={
+          <ProtectedRoute roles={["VENTAS"]}>
+            <ERPHome />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/erp/ventas/cotizador"
         element={
           <ProtectedRoute roles={["VENTAS"]}>
             <VentasLayout />
@@ -72,8 +91,17 @@ export default function AppRouter() {
       </Route>
 
       {/* ================= CLIENTE ================= */}
+      {/* Cliente solo tiene cotizador → va directo */}
       <Route
-        path="/cotizador/cliente"
+        path="/erp/cliente"
+        element={
+          <ProtectedRoute roles={["CLIENTE"]}>
+            <Navigate to="/erp/cliente/cotizador" replace />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/erp/cliente/cotizador"
         element={
           <ProtectedRoute roles={["CLIENTE"]}>
             <ClienteLayout />
@@ -87,7 +115,15 @@ export default function AppRouter() {
 
       {/* ================= CONTABLE ================= */}
       <Route
-        path="/cotizador/contable"
+        path="/erp/contable"
+        element={
+          <ProtectedRoute roles={["CONTABLE"]}>
+            <Navigate to="/erp/contable/cotizador" replace />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/erp/contable/cotizador"
         element={
           <ProtectedRoute roles={["CONTABLE"]}>
             <ContableLayout />
@@ -99,13 +135,13 @@ export default function AppRouter() {
         <Route path="perfil" element={<CambiarContrasena />} />
       </Route>
 
-      {/* fallback */}
+      {/* Fallback */}
       <Route
         path="*"
         element={
           user
-            ? <Navigate to={`/cotizador/${user.role.toLowerCase()}`} />
-            : <Navigate to="/cotizador" />
+            ? <Navigate to={`/erp/${user.role.toLowerCase()}`} replace />
+            : <Navigate to="/erp" replace />
         }
       />
     </Routes>

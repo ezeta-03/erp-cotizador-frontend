@@ -15,7 +15,7 @@ export default function AuthProvider({ children }) {
     localStorage.setItem("role", user.role);
     localStorage.setItem("nombre", user.nombre);
     setUser(user);
-    navigate(`/cotizador/${user.role.toLowerCase()}`);
+    navigate(`/erp/${user.role.toLowerCase()}`);
   };
 
   const logout = () => {

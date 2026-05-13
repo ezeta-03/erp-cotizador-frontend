@@ -3,12 +3,12 @@ import { BarChart3, UserCircle, Package, FileText, KeyRound } from "lucide-react
 
 export default function VentasLayout() {
   const menu = [
-    { path: "/cotizador/ventas", label: "Dashboard", icon: BarChart3 },
-    { path: "/cotizador/ventas/clientes", label: "Clientes", icon: UserCircle },
-    { path: "/cotizador/ventas/productos", label: "Productos", icon: Package },
-    { path: "/cotizador/ventas/historial", label: "Cotizaciones", icon: FileText },
-    { path: "/cotizador/ventas/perfil", label: "Cambiar contraseña", icon: KeyRound },
+    { path: "/erp/ventas/cotizador", label: "Dashboard", icon: BarChart3 },
+    { path: "/erp/ventas/cotizador/clientes", label: "Clientes", icon: UserCircle },
+    { path: "/erp/ventas/cotizador/productos", label: "Productos", icon: Package },
+    { path: "/erp/ventas/cotizador/historial", label: "Cotizaciones", icon: FileText },
+    { path: "/erp/ventas/cotizador/perfil", label: "Cambiar contraseña", icon: KeyRound },
   ];
 
-  return <BaseLayout menu={menu} />;
+  return <BaseLayout menu={menu} homeLink="/erp/ventas" />;
 }
