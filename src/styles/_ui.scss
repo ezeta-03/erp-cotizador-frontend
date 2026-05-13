@@ -115,11 +115,10 @@ button {
   transition: $transition-smooth;
 
   &:hover {
-    border-color: var(--color-input-border);
-    background: var(--color-surface2);
+    border-color: var(--color-hover-border);
+    background: var(--color-hover);
     color: var(--color-text1);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
   }
 }
 
@@ -160,8 +159,8 @@ button {
   transition: $transition-fast;
 
   &:hover {
-    background: var(--color-surface2);
-    color: var(--color-text1);
+    background: var(--color-hover);
+    color: $brand-primary;
   }
 }
 

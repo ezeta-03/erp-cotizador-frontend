@@ -87,8 +87,9 @@
   transition: $transition-fast;
 
   &:hover {
-    background: var(--color-surface2);
-    color: var(--color-text1);
+    background: var(--color-hover);
+    border-color: var(--color-hover-border);
+    color: $brand-primary;
   }
 }
 

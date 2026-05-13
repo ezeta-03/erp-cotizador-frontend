@@ -18,14 +18,20 @@
     cursor: pointer;
     transition: $transition-fast;
 
-    &:hover { background: var(--color-surface2); }
+    &:hover {
+      background: var(--color-hover);
+      border-color: var(--color-hover-border);
+      color: $brand-primary;
+    }
   }
 
   .active {
-    background: var(--color-text1);
-    color: var(--color-bg);
-    border-color: var(--color-text1);
+    background: $brand-primary;
+    color: #ffffff;
+    border-color: $brand-primary;
     font-weight: 600;
+
+    &:hover { background: $brand-primary-hover; border-color: $brand-primary-hover; color: #fff; }
   }
 }
 
@@ -49,6 +55,7 @@
     transition: $transition-smooth;
 
     &::placeholder { color: var(--color-text3); }
+    &:hover { border-color: var(--color-hover-border); }
     &:focus {
       border-color: $brand-primary;
       box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);

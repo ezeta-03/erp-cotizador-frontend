@@ -44,6 +44,10 @@
   --badge-purple-bg:  #ede9fe;
   --badge-purple-text:#5b21b6;
 
+  /* Hover — tinte naranja suave, coherente con el acento */
+  --color-hover:        rgba(249, 115, 22, 0.06);
+  --color-hover-border: rgba(249, 115, 22, 0.28);
+
   /* Transición global de tema */
   --theme-transition: background-color 0.25s ease, color 0.25s ease,
                       border-color 0.25s ease, box-shadow 0.25s ease;
@@ -73,6 +77,10 @@
   --shadow-soft:  0 10px 40px -10px rgba(0,0,0,0.45);
   --shadow-hover: 0 20px 40px -10px rgba(0,0,0,0.55);
   --shadow-modal: 0 25px 60px -15px rgba(0,0,0,0.7);
+
+  /* Hover en dark — tinte naranja más visible sobre navy */
+  --color-hover:        rgba(249, 115, 22, 0.11);
+  --color-hover-border: rgba(249, 115, 22, 0.38);
 
   /* Badges — tonos pastel adaptados al fondo navy */
   --badge-green-bg:   rgba(16, 185, 129, 0.18);

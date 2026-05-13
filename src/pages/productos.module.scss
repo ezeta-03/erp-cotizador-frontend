@@ -91,17 +91,20 @@
   white-space: nowrap;
 
   &:hover {
-    border-color: var(--color-input-border);
-    background: var(--color-surface2);
+    background: var(--color-hover);
+    border-color: var(--color-hover-border);
+    color: $brand-primary;
   }
 }
 
 .catChipActive {
-  background: var(--color-text1);
-  border-color: var(--color-text1);
-  color: var(--color-bg);
+  background: $brand-primary;
+  border-color: $brand-primary;
+  color: #ffffff;
 
-  .catCount { background: rgba(255,255,255,.18); color: var(--color-bg); }
+  .catCount { background: rgba(255,255,255,.18); color: #fff; }
+
+  &:hover { background: $brand-primary-hover; border-color: $brand-primary-hover; color: #fff; }
 }
 
 .catCount {
@@ -368,19 +371,20 @@
   transition: $transition-smooth;
 
   &:hover:not(:disabled) {
-    border-color: var(--color-input-border);
-    background: var(--color-surface2);
+    background: var(--color-hover);
+    border-color: var(--color-hover-border);
+    color: $brand-primary;
   }
   &:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 .pagBtnActive {
-  background: var(--color-text1);
-  color: var(--color-bg);
-  border-color: var(--color-text1);
+  background: $brand-primary;
+  color: #ffffff;
+  border-color: $brand-primary;
   font-weight: 600;
 
-  &:hover { background: var(--color-text1); }
+  &:hover { background: $brand-primary-hover !important; border-color: $brand-primary-hover !important; color: #fff !important; }
 }
 
 .pagEllipsis {

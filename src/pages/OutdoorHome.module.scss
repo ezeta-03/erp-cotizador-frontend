@@ -84,8 +84,9 @@
   transition: $transition-fast;
 
   &:hover {
-    background: var(--color-surface2);
-    color: var(--color-text1);
+    background: var(--color-hover);
+    border-color: var(--color-hover-border);
+    color: $brand-primary;
   }
 }
 
@@ -209,7 +210,7 @@
   &:hover:not(:disabled) {
     transform: translateY(-6px);
     box-shadow: var(--shadow-hover);
-    border-color: var(--color-border);
+    border-color: var(--color-hover-border);
   }
 
   &:active:not(:disabled) {

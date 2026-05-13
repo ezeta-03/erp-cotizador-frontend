@@ -116,13 +116,20 @@
   font-family: inherit;
   transition: $transition-smooth;
   white-space: nowrap;
-  &:hover { border-color: var(--color-input-border); background: var(--color-surface2); }
+
+  &:hover {
+    background: var(--color-hover);
+    border-color: var(--color-hover-border);
+    color: $brand-primary;
+  }
 }
 
 .chipActive {
-  background: var(--color-text1);
-  border-color: var(--color-text1);
-  color: var(--color-bg);
+  background: $brand-primary;
+  border-color: $brand-primary;
+  color: #ffffff;
+
+  &:hover { background: $brand-primary-hover; border-color: $brand-primary-hover; color: #fff; }
 }
 
 /* ── Body ── */
@@ -204,7 +211,11 @@
   color: var(--color-text2);
   cursor: pointer;
   transition: $transition-smooth;
-  &:hover { background: var(--color-surface2); color: var(--color-text1); }
+  &:hover {
+    background: var(--color-hover);
+    border-color: var(--color-hover-border);
+    color: $brand-primary;
+  }
 }
 
 /* ── Fila de detalle expandible ── */
@@ -318,15 +329,19 @@
   transition: $transition-smooth;
   min-width: 32px;
 
-  &:hover:not(:disabled) { background: var(--color-surface2); border-color: var(--color-input-border); }
+  &:hover:not(:disabled) {
+    background: var(--color-hover);
+    border-color: var(--color-hover-border);
+    color: $brand-primary;
+  }
   &:disabled { color: var(--color-text3); cursor: not-allowed; }
 }
 
 .btnPagActive {
-  background: var(--color-text1);
-  border-color: var(--color-text1);
-  color: var(--color-bg);
-  &:hover { background: var(--color-text1) !important; }
+  background: $brand-primary;
+  border-color: $brand-primary;
+  color: #ffffff;
+  &:hover { background: $brand-primary-hover !important; border-color: $brand-primary-hover !important; color: #fff !important; }
 }
 
 /* ── Responsive ── */

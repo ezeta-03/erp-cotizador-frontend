@@ -24,15 +24,21 @@
   transition: $transition-smooth;
   white-space: nowrap;
 
-  &:hover { border-color: var(--color-input-border); background: var(--color-surface2); }
+  &:hover {
+    background: var(--color-hover);
+    border-color: var(--color-hover-border);
+    color: $brand-primary;
+  }
 }
 
 .catChipActive {
-  background: var(--color-text1);
-  border-color: var(--color-text1);
-  color: var(--color-bg);
+  background: $brand-primary;
+  border-color: $brand-primary;
+  color: #ffffff;
 
-  .catCount { background: rgba(255,255,255,.2); color: var(--color-bg); }
+  .catCount { background: rgba(255,255,255,.2); color: #fff; }
+
+  &:hover { background: $brand-primary-hover; border-color: $brand-primary-hover; color: #fff; }
 }
 
 .catCount {
