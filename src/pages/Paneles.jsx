@@ -1,5 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
-import { Plus, MapPin, Edit2, Trash2, RefreshCw, X } from "lucide-react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { Plus, MapPin, Edit2, Trash2, RefreshCw, X, ExternalLink } from "lucide-react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import useAuth from "../auth/useAuth";
 import {
   getPaneles,
@@ -34,10 +36,55 @@ function EstadoBadge({ estado }) {
   return <span className={`${styles.badge} ${styles[meta.cls]}`}>{meta.label}</span>;
 }
 
+/* ── Mapa ────────────────────────────────────────────────────────────────── */
+function parseCoords(panel) {
+  const lat = parseFloat(panel.lat);
+  const lng = parseFloat(panel.lng);
+  return isFinite(lat) && isFinite(lng) ? { lat, lng } : null;
+}
+
+const MARKER_ICON = L.divIcon({
+  className: "",
+  html: `<svg width="28" height="40" viewBox="0 0 28 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 40 14 40C14 40 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="#f97316"/>
+    <circle cx="14" cy="14" r="6" fill="white"/>
+  </svg>`,
+  iconSize: [28, 40],
+  iconAnchor: [14, 40],
+});
+
 function MapModal({ panel, onClose }) {
-  const src = panel.lat && panel.lng
-    ? `https://maps.google.com/maps?q=${panel.lat},${panel.lng}&z=16&output=embed`
-    : `https://maps.google.com/maps?q=${encodeURIComponent(panel.ubicacion)}&z=15&output=embed`;
+  const coords = parseCoords(panel);
+  const hasCoords = !!coords;
+  const { lat, lng } = coords ?? {};
+  const containerRef = useRef(null);
+
+  const gmapsUrl = hasCoords
+    ? `https://www.google.com/maps?q=${lat},${lng}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(panel.ubicacion)}`;
+
+  useEffect(() => {
+    if (!hasCoords || !containerRef.current) return;
+
+    const el = containerRef.current;
+    let map = null;
+
+    // Esperar a que la animación del modal termine antes de inicializar Leaflet
+    const timer = setTimeout(() => {
+      if (!el) return;
+      map = L.map(el, { center: [lat, lng], zoom: 16, zoomControl: true });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '© <a href="https://www.openstreetmap.org">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(map);
+      L.marker([lat, lng], { icon: MARKER_ICON }).addTo(map);
+    }, 320);
+
+    return () => {
+      clearTimeout(timer);
+      if (map) map.remove();
+    };
+  }, [lat, lng, hasCoords]);
 
   return (
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -47,16 +94,25 @@ function MapModal({ panel, onClose }) {
             <p className={styles.mapTitle}>{panel.codigo} — {panel.nombre}</p>
             <p className={styles.mapSub}>{panel.ubicacion}</p>
           </div>
-          <button className={styles.btnClose} onClick={onClose}><X size={18} /></button>
+          <div className={styles.mapHeaderActions}>
+            <a href={gmapsUrl} target="_blank" rel="noopener noreferrer" className={styles.btnMapLink}>
+              <ExternalLink size={13} /> Abrir en Maps
+            </a>
+            <button className={styles.btnClose} onClick={onClose}><X size={18} /></button>
+          </div>
         </div>
-        <iframe
-          title="Mapa del panel"
-          src={src}
-          className={styles.mapIframe}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        />
+
+        {hasCoords ? (
+          <div ref={containerRef} className={styles.mapIframe} />
+        ) : (
+          <div className={styles.mapNoCoords}>
+            <MapPin size={28} />
+            <p>Sin coordenadas GPS registradas.</p>
+            <a href={gmapsUrl} target="_blank" rel="noopener noreferrer">
+              Buscar "{panel.ubicacion}" en Google Maps →
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -109,11 +165,11 @@ function PanelFormModal({ inicial, onSave, onCancel }) {
           <div className={styles.formRow}>
             <div className={styles.formField}>
               <label>Latitud <span className={styles.opcional}>(opcional)</span></label>
-              <input type="number" step="any" value={form.lat} onChange={set("lat")} placeholder="-12.1234" />
+              <input type="text" inputMode="decimal" value={form.lat} onChange={set("lat")} placeholder="-12.093638" />
             </div>
             <div className={styles.formField}>
               <label>Longitud <span className={styles.opcional}>(opcional)</span></label>
-              <input type="number" step="any" value={form.lng} onChange={set("lng")} placeholder="-77.0234" />
+              <input type="text" inputMode="decimal" value={form.lng} onChange={set("lng")} placeholder="-76.963586" />
             </div>
           </div>
 
