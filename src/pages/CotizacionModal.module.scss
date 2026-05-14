@@ -117,6 +117,107 @@
   &:hover { color: var(--color-text1); }
 }
 
+/* ── Sección Outdoor ── */
+.outdoorSection {
+  border: 1px solid var(--color-border);
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+
+.outdoorHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.875rem;
+  background: var(--color-surface2);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.outdoorForm {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  flex-wrap: wrap;
+}
+
+.outdoorSelect {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-sm;
+  background: var(--color-input-bg);
+  color: var(--color-text1);
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+
+  &:focus { border-color: $brand-primary; }
+}
+
+.outdoorMeses {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--color-text2);
+  white-space: nowrap;
+}
+
+.outdoorMesesInput {
+  width: 56px;
+  padding: 0.5rem 0.5rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-sm;
+  background: var(--color-input-bg);
+  color: var(--color-text1);
+  font-size: 0.85rem;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+
+  &:focus { border-color: $brand-primary; }
+}
+
+.outdoorChecks {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.outdoorCheck {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--color-text2);
+  cursor: pointer;
+  white-space: nowrap;
+
+  input { cursor: pointer; accent-color: $brand-primary; }
+}
+
+.outdoorBtn {
+  padding: 0.5rem 1rem;
+  background: $brand-primary;
+  color: #fff;
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) { background: $brand-primary-hover; }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
 .productosSelectorHeader {
   display: flex;
   justify-content: space-between;

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Fragment } from "react";
 import { X, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { actividadesClientes } from "../api/clientes";
 import styles from "./actividadClienteModal.module.scss";
@@ -192,8 +192,8 @@ export default function ActividadClienteModal({ cliente, onClose }) {
                       (i) => i.producto?.nombre || i.producto?.material || i.producto?.servicio || "—"
                     );
                     return (
-                      <>
-                        <tr key={c.id} className={expanded ? styles.trExpanded : ""}>
+                      <Fragment key={c.id}>
+                        <tr className={expanded ? styles.trExpanded : ""}>
                           <td className={styles.tdNumero}>#{c.numero}</td>
                           <td>{c.usuario?.nombre || "—"}</td>
                           <td className={styles.tdProductos}>
@@ -221,7 +221,7 @@ export default function ActividadClienteModal({ cliente, onClose }) {
                         </tr>
 
                         {expanded && (
-                          <tr key={`${c.id}-detail`} className={styles.trDetail}>
+                          <tr className={styles.trDetail}>
                             <td colSpan={7}>
                               <div className={styles.detailBox}>
                                 <p className={styles.detailLabel}>Detalle de productos</p>
@@ -254,7 +254,7 @@ export default function ActividadClienteModal({ cliente, onClose }) {
                             </td>
                           </tr>
                         )}
-                      </>
+                      </Fragment>
                     );
                   })}
                 </tbody>

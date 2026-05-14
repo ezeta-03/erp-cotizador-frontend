@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { getClientes } from "../api/clientes";
 import { getProductos } from "../api/productos";
+import { getPaneles } from "../api/paneles";
 import { getMisAprobadas, crearSolicitud } from "../api/solicitudesMargen";
 import styles from "./CotizacionModal.module.scss";
-import { X, ChevronLeft, Eye, FileText, Trash2 } from "lucide-react";
+import { X, ChevronLeft, Eye, FileText, Trash2, Layers } from "lucide-react";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
 import { MARGEN_MINIMO, IGV_RATE } from "../config/negocio";
 
@@ -46,12 +47,19 @@ function DecimalInput({ value, onChange, className, disabled, min = 0.01, placeh
 export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, title, saveLabel }) {
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
+  const [paneles, setPaneles] = useState([]);
   const [clienteId, setClienteId] = useState(initialClienteId || "");
   const [items, setItems] = useState(initialItems || []);
   const [showPreview, setShowPreview] = useState(false);
   const [busquedaProducto, setBusquedaProducto] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("TODOS");
   const [mostrarModalProductos, setMostrarModalProductos] = useState(false);
+
+  // Outdoor
+  const [panelSelId, setPanelSelId] = useState("");
+  const [mesesAlquiler, setMesesAlquiler] = useState(1);
+  const [inclProduccion, setInclProduccion] = useState(true);
+  const [inclInstalacion, setInclInstalacion] = useState(true);
 
   // IGV
   const [conIgv, setConIgv] = useState(true);
@@ -71,6 +79,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   useEffect(() => {
     getClientes().then(setClientes);
     getProductos().then(setProductos);
+    getPaneles().then((data) => setPaneles(data.filter((p) => p.activo))).catch(() => {});
     getMisAprobadas().then(setAprobaciones).catch(() => {});
   }, []);
 
@@ -175,6 +184,53 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   };
 
   const eliminarProducto = (idx) => setItems((prev) => prev.filter((_, i) => i !== idx));
+
+  // ── Agregar panel outdoor (1-3 ítems) ────────────────────────────────────
+  const agregarPanel = () => {
+    const panel = paneles.find((p) => String(p.id) === String(panelSelId));
+    if (!panel) return;
+    const nuevos = [];
+
+    const mkItem = (nombre, precio, cantidad, descripcion, panelId) => ({
+      panelId,
+      productoId: null,
+      nombre,
+      precio_final: precio,
+      unidad: "",
+      tipoMedida: "UNIDAD",
+      medida: 1,
+      medidaAncho: null,
+      medidaAlto: null,
+      precioBase: parseFloat((precio * (1 + margen / 100)).toFixed(2)),
+      precio: parseFloat((precio * (1 + margen / 100)).toFixed(2)),
+      cantidad,
+      descripcion,
+      subtotalBase: parseFloat((precio * (1 + margen / 100) * cantidad).toFixed(2)),
+      subtotal: parseFloat((precio * (1 + margen / 100) * cantidad).toFixed(2)),
+      adicionales: [],
+      esOutdoor: true,
+    });
+
+    nuevos.push(mkItem(
+      `Alquiler ${panel.codigo} — ${panel.nombre}`,
+      panel.precioMes,
+      mesesAlquiler,
+      `${panel.ubicacion} · ${panel.ancho} × ${panel.alto} m`,
+      panel.id,
+    ));
+    if (inclProduccion && panel.costoProduccion > 0) {
+      nuevos.push(mkItem(`Producción ${panel.codigo}`, panel.costoProduccion, 1, "", panel.id));
+    }
+    if (inclInstalacion && panel.costoInstalacion > 0) {
+      nuevos.push(mkItem(`Instalación ${panel.codigo}`, panel.costoInstalacion, 1, "", panel.id));
+    }
+
+    setItems((prev) => [...prev, ...nuevos]);
+    setPanelSelId("");
+    setMesesAlquiler(1);
+    setInclProduccion(true);
+    setInclInstalacion(true);
+  };
 
   // ── Adicionales ────────────────────────────────────────────────────────────
   const toggleAdicional = (idx, j, checked) => {
@@ -474,6 +530,69 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                 {conIgv ? "Precios con IGV" : "Precios sin IGV"}
               </span>
             </div>
+
+            {/* ── Sección Outdoor ─────────────────────────────────────── */}
+            {paneles.length > 0 && (
+              <div className={styles.outdoorSection}>
+                <div className={styles.outdoorHeader}>
+                  <Layers size={15} />
+                  <span>Agregar panel outdoor</span>
+                </div>
+                <div className={styles.outdoorForm}>
+                  <select
+                    className={styles.outdoorSelect}
+                    value={panelSelId}
+                    onChange={(e) => setPanelSelId(e.target.value)}
+                  >
+                    <option value="">Selecciona panel…</option>
+                    {paneles.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.codigo} — {p.nombre} ({p.ancho}×{p.alto}m · {fmt(p.precioMes)}/mes)
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className={styles.outdoorMeses}>
+                    <label>Meses</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={mesesAlquiler}
+                      onChange={(e) => setMesesAlquiler(Math.max(1, Number(e.target.value)))}
+                      className={styles.outdoorMesesInput}
+                    />
+                  </div>
+
+                  <div className={styles.outdoorChecks}>
+                    <label className={styles.outdoorCheck}>
+                      <input
+                        type="checkbox"
+                        checked={inclProduccion}
+                        onChange={(e) => setInclProduccion(e.target.checked)}
+                      />
+                      Producción
+                    </label>
+                    <label className={styles.outdoorCheck}>
+                      <input
+                        type="checkbox"
+                        checked={inclInstalacion}
+                        onChange={(e) => setInclInstalacion(e.target.checked)}
+                      />
+                      Instalación
+                    </label>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={styles.outdoorBtn}
+                    onClick={agregarPanel}
+                    disabled={!panelSelId}
+                  >
+                    + Agregar
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Buscar y agregar producto */}
             <div className={styles.productosSelectorHeader}>

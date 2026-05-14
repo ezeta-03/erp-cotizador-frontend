@@ -17,6 +17,8 @@ import CambiarContrasena from "../pages/CambiarContrasena";
 import CotizacionesVentas from "../coomponents/CotizacionesVentas";
 import ActividadClientes from "../coomponents/ActividadClientes";
 import ProtectedRoute from "./ProtectedRoute";
+import Paneles from "../pages/Paneles";
+import Proveedores from "../pages/Proveedores";
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -48,9 +50,11 @@ export default function AppRouter() {
         <Route path="/erp/admin/clientes"     element={<Clientes />} />
         <Route path="/erp/admin/usuarios"     element={<Usuarios />} />
         <Route path="/erp/admin/productos"    element={<Productos />} />
-        <Route path="/erp/admin/facturar"     element={<CotizacionesVentas />} />
-        <Route path="/erp/admin/actividad"    element={<ActividadClientes />} />
-        <Route path="/erp/admin/perfil"       element={<CambiarContrasena />} />
+        <Route path="/erp/admin/facturar"           element={<CotizacionesVentas />} />
+        <Route path="/erp/admin/actividad"          element={<ActividadClientes />} />
+        <Route path="/erp/admin/outdoor/paneles"      element={<Paneles />} />
+        <Route path="/erp/admin/outdoor/proveedores" element={<Proveedores />} />
+        <Route path="/erp/admin/perfil"             element={<CambiarContrasena />} />
       </Route>
 
       {/* ================= VENTAS ================= */}
@@ -68,9 +72,11 @@ export default function AppRouter() {
         <Route path="/erp/ventas/cotizaciones" element={<Cotizaciones />} />
         <Route path="/erp/ventas/clientes"     element={<Clientes />} />
         <Route path="/erp/ventas/productos"    element={<Productos />} />
-        <Route path="/erp/ventas/facturar"     element={<CotizacionesVentas />} />
-        <Route path="/erp/ventas/actividad"    element={<ActividadClientes />} />
-        <Route path="/erp/ventas/perfil"       element={<CambiarContrasena />} />
+        <Route path="/erp/ventas/facturar"           element={<CotizacionesVentas />} />
+        <Route path="/erp/ventas/actividad"          element={<ActividadClientes />} />
+        <Route path="/erp/ventas/outdoor/paneles"      element={<Paneles />} />
+        <Route path="/erp/ventas/outdoor/proveedores" element={<Proveedores />} />
+        <Route path="/erp/ventas/perfil"             element={<CambiarContrasena />} />
       </Route>
 
       {/* ================= CLIENTE ================= */}

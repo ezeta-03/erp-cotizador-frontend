@@ -113,12 +113,12 @@ export default function CotizacionesVentas() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th style={{ width: "130px" }}>Número</th>
+                <th>Número</th>
                 <th>Cliente</th>
-                <th style={{ width: "140px" }}>Vendedor</th>
-                <th style={{ width: "110px" }}>Estado</th>
-                <th style={{ width: "110px" }}>Total</th>
-                <th style={{ width: "110px" }}>Acción</th>
+                <th>Vendedor</th>
+                <th>Estado</th>
+                <th>Total</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody>

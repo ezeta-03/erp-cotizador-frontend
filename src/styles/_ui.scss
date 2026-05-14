@@ -307,12 +307,13 @@ button {
   border-radius: $radius-lg;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-soft);
-  overflow: hidden;
+  overflow-x: auto;
   width: 100%;
 }
 
 .table {
   width: 100%;
+  min-width: 560px;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.9rem;

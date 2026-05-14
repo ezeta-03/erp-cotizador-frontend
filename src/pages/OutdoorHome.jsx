@@ -11,7 +11,7 @@ const SECCIONES = [
     description: "Gestión y disponibilidad de paneles publicitarios",
     icon: Layers,
     color: "#10b981",
-    available: false,
+    available: true,
   },
   {
     id: "mupis",
@@ -35,7 +35,7 @@ const SECCIONES = [
     description: "Directorio y gestión de proveedores outdoor",
     icon: Truck,
     color: "#10b981",
-    available: false,
+    available: true,
   },
   {
     id: "rentabilidad",

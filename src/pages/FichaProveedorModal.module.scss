@@ -1,0 +1,359 @@
+@import "../styles/_ui.scss";
+
+/* ── Overlay ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: $z-modal;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow-y: auto;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Modal container ── */
+.fichaModal {
+  background: var(--color-surface);
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 960px;
+  overflow: hidden;
+  box-shadow: var(--shadow-modal);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: auto;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── Barra de título amarilla ── */
+.fichaTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1.5rem;
+  background: #f59e0b;
+  gap: 1rem;
+}
+
+.fichaTitleText {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.fichaTitleSub {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  margin-left: 0.75rem;
+}
+
+.btnClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  transition: background 0.15s;
+  flex-shrink: 0;
+
+  &:hover { background: rgba(255, 255, 255, 0.4); }
+}
+
+/* ── Sección de info del proveedor ── */
+.fichaInfo {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.fichaInfoLeft {
+  padding: 1.25rem 1.5rem;
+  border-right: 1px solid var(--color-border);
+}
+
+.fichaInfoHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.fichaCity {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-text1);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fichaYear {
+  font-size: 0.82rem;
+  color: var(--color-text3);
+  font-weight: 600;
+}
+
+.fichaGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.3rem 1rem;
+  font-size: 0.82rem;
+
+  > span:nth-child(odd) {
+    font-weight: 700;
+    color: var(--color-text3);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    padding-top: 0.1rem;
+  }
+
+  > span:nth-child(even) {
+    color: var(--color-text1);
+    font-weight: 500;
+  }
+}
+
+.fichaInfoRight {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-width: 220px;
+}
+
+.fichaInfoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.fichaInfoLabel {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text3);
+}
+
+.fichaInfoVal {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text1);
+}
+
+/* ── Badges de ficha ── */
+.fichaBadge {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.fichaBadgeVigente { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+.fichaBadgeVencido { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+.fichaRelAlto      { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+.fichaRelMedio     { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
+.fichaRelBajo      { background: var(--badge-gray-bg);   color: var(--badge-gray-text); }
+
+/* ── Tabla de cuotas ── */
+.cuotasSection {
+  overflow: hidden;
+}
+
+.cuotasTableWrap {
+  overflow-x: auto;
+}
+
+.cuotasTable {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+
+  thead tr { background: var(--color-surface2); }
+
+  th {
+    padding: 0.6rem 0.875rem;
+    text-align: left;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--color-text2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.5rem 0.875rem;
+    border-bottom: 1px solid var(--color-border2);
+    color: var(--color-text1);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 0.12s;
+    &:hover { background: var(--color-surface2); }
+  }
+}
+
+.tdNum {
+  font-weight: 700;
+  color: var(--color-text3);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.tdMoney {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.tdAcct {
+  font-size: 0.78rem;
+  color: var(--color-text2);
+  white-space: nowrap;
+}
+
+.tdTotal {
+  font-weight: 700;
+  color: #059669;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rowCancelado {
+  opacity: 0.55;
+  text-decoration: line-through;
+  text-decoration-color: var(--color-text3);
+}
+
+/* ── Inputs inline en tabla ── */
+.inputInline {
+  width: 100%;
+  min-width: 120px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-sm;
+  background: var(--color-input-bg);
+  color: var(--color-text1);
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+
+  &:focus { border-color: $brand-primary; }
+}
+
+.selectEstado {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-sm;
+  background: var(--color-input-bg);
+  color: var(--color-text1);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+
+  &:focus { border-color: $brand-primary; }
+}
+
+.selectCancelado { color: #ef4444; }
+.selectPendiente { color: #f59e0b; }
+
+/* ── Badge de estado en tabla ── */
+.estadoBadge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.estadoPendiente { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
+.estadoCancelado { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+
+/* ── Botón guardar cuota ── */
+.btnSave {
+  padding: 0.25rem 0.65rem;
+  background: $brand-primary;
+  color: #fff;
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) { background: $brand-primary-hover; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+/* ── Fila de totales ── */
+.tfootRow {
+  background: var(--color-surface2);
+
+  td {
+    border-top: 2px solid var(--color-border);
+    border-bottom: none;
+    padding: 0.65rem 0.875rem;
+  }
+}
+
+.tdTotalLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text2);
+  text-align: right;
+}
+
+.tdTotalMoney {
+  font-weight: 700;
+  color: var(--color-text1);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tdTotalFinal {
+  font-weight: 800;
+  color: #059669;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .fichaInfo { grid-template-columns: 1fr; }
+  .fichaInfoLeft { border-right: none; border-bottom: 1px solid var(--color-border); }
+  .fichaInfoRight { min-width: unset; }
+}

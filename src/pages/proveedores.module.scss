@@ -1,0 +1,239 @@
+@import "../styles/_ui.scss";
+
+/* ── Tabla ── */
+.tableContainer {
+  background: var(--color-surface);
+  border-radius: $radius-lg;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  thead tr { background: var(--color-surface2); }
+
+  th {
+    padding: 0.875rem 1.1rem;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-text2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.875rem 1.1rem;
+    border-bottom: 1px solid var(--color-border2);
+    color: var(--color-text1);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 0.15s;
+    &:hover { background: var(--color-surface2); }
+    &:last-child td { border-bottom: none; }
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text3);
+  font-size: 0.9rem;
+}
+
+/* ── Celdas ── */
+.tdCodigo {
+  font-weight: 700;
+  color: var(--color-text1);
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tdProveedor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 160px;
+}
+
+.provNombre {
+  font-weight: 600;
+  color: var(--color-text1);
+  font-size: 0.875rem;
+}
+
+.provRazon {
+  font-size: 0.75rem;
+  color: var(--color-text3);
+}
+
+.tdPropiedad {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 180px;
+}
+
+.propCiudad {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text3);
+}
+
+.propUbicacion {
+  font-size: 0.85rem;
+  color: var(--color-text1);
+}
+
+.tdContrato {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.tdFecha {
+  font-size: 0.82rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text2);
+}
+
+/* ── Badges ── */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badgeVigente { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+.badgeVencido { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+
+/* ── Botón ficha ── */
+.btnFicha {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.7rem;
+  background: var(--badge-blue-bg);
+  color: var(--badge-blue-text);
+  border: none;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+
+  &:hover { opacity: 0.8; }
+}
+
+.tdActions {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.btnDanger {
+  &:hover { color: #ef4444 !important; background: var(--badge-red-bg) !important; }
+}
+
+/* ── Overlay y modal del formulario ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: $z-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.formModal {
+  background: var(--color-surface);
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-modal);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.formTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text1);
+}
+
+.formBody {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.formError {
+  padding: 0.65rem 0.875rem;
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  border-radius: $radius-sm;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.opcional {
+  font-weight: 400;
+  color: var(--color-text3);
+  font-size: 0.78rem;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .formRow { flex-direction: column; }
+}

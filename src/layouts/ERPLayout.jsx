@@ -5,17 +5,19 @@ import useDarkMode from "../hooks/useDarkMode";
 import styles from "./ERPLayout.module.scss";
 
 const SECTION_LABELS = {
-  dashboard:   "Dashboard",
-  historial:   "Cotizador",
+  dashboard:    "Dashboard",
+  historial:    "Cotizador",
   cotizaciones: "Nueva Cotización",
-  clientes:    "Clientes",
-  usuarios:    "Usuarios",
-  productos:   "Productos",
-  facturar:    "Facturar",
-  perfil:      "Cambiar Contraseña",
-  actividad:   "Actividad",
-  cotizador:   "Cotizador",
-  mia:         "Mis Cotizaciones",
+  clientes:     "Clientes",
+  usuarios:     "Usuarios",
+  productos:    "Productos",
+  facturar:     "Facturar",
+  perfil:       "Cambiar Contraseña",
+  actividad:    "Actividad",
+  cotizador:    "Cotizador",
+  mia:          "Mis Cotizaciones",
+  paneles:      "Paneles",
+  proveedores:  "Proveedores",
 };
 
 export default function ERPLayout() {
@@ -25,12 +27,14 @@ export default function ERPLayout() {
   const [dark, toggleDark] = useDarkMode();
   const role = user?.role?.toLowerCase() ?? "";
 
-  const segment = pathname.split("/").filter(Boolean).pop();
+  const segments = pathname.split("/").filter(Boolean);
+  const segment = segments[segments.length - 1];
+  const isOutdoor = segments.includes("outdoor");
   const initials = user?.nombre?.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
   const sectionLabel = SECTION_LABELS[segment] ?? segment;
 
-  // Solo ADMIN y VENTAS tienen un home multi-módulo
-  const homeLink = (role === "admin" || role === "ventas") ? `/erp/${role}` : null;
+  const homeLink    = (role === "admin" || role === "ventas") ? `/erp/${role}` : null;
+  const outdoorLink = isOutdoor ? `/erp/${role}/outdoor` : null;
 
   return (
     <div className={styles.page}>
@@ -62,6 +66,14 @@ export default function ERPLayout() {
             <button className={styles.btnBack} onClick={() => navigate(homeLink)}>
               <ChevronLeft size={16} />
               Inicio ERP
+            </button>
+            <span className={styles.breadcrumbSep}>/</span>
+          </>
+        )}
+        {outdoorLink && (
+          <>
+            <button className={styles.btnBack} onClick={() => navigate(outdoorLink)}>
+              Outdoor
             </button>
             <span className={styles.breadcrumbSep}>/</span>
           </>

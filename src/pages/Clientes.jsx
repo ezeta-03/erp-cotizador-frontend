@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { LayoutGrid, List, Plus } from "lucide-react";
+import { LayoutGrid, List, Plus, Activity } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import {
   getClientes,
@@ -162,7 +162,7 @@ export default function Clientes() {
       {vista === "cards" && (
         <div className={styles.lista}>
           {clientes.filter((c) => c.activo !== false).map((c) => (
-            <div key={c.id} className={styles.card} onClick={() => handleActividad(c)}>
+            <div key={c.id} className={styles.card}>
               <div className={styles.cardHeader}>
                 <span className={styles.nombre}>{c.nombreComercial}</span>
                 <EstadoUsuarioBadge usuario={c.usuario} />
@@ -174,25 +174,31 @@ export default function Clientes() {
                 <p className={styles.telefono}>{c.telefono}</p>
               </div>
 
-              {puedeGestionar && (
-                <div className={styles.cardActions}>
+              <div className={styles.cardActions}>
+                <button
+                  className={styles.btnOutline}
+                  onClick={() => handleActividad(c)}
+                >
+                  <Activity size={15} /> Actividad
+                </button>
+                {puedeGestionar && (
                   <button
                     className={styles.btnOutline}
-                    onClick={(e) => { e.stopPropagation(); handleEdit(c); }}
+                    onClick={() => handleEdit(c)}
                   >
                     Editar
                   </button>
-                  {(!c.usuario || !c.usuario.activo) && (
-                    <button
-                      className={styles.btnOutline}
-                      disabled={invitandoId === c.id}
-                      onClick={(e) => { e.stopPropagation(); handleInvitar(c); }}
-                    >
-                      {c.usuario ? "Reinvitar" : "Invitar"}
-                    </button>
-                  )}
-                </div>
-              )}
+                )}
+                {puedeGestionar && (!c.usuario || !c.usuario.activo) && (
+                  <button
+                    className={styles.btnOutline}
+                    disabled={invitandoId === c.id}
+                    onClick={() => handleInvitar(c)}
+                  >
+                    {c.usuario ? "Reinvitar" : "Invitar"}
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -233,6 +239,9 @@ export default function Clientes() {
                   </td>
                   <td>
                     <div className={styles.tdActions}>
+                      <button className={styles.btnGhost} onClick={() => handleActividad(c)}>
+                        <Activity size={14} /> Actividad
+                      </button>
                       {puedeGestionar && (
                         <button className={styles.btnGhost} onClick={() => handleEdit(c)}>Editar</button>
                       )}

@@ -1,0 +1,304 @@
+@import "../styles/_ui.scss";
+
+/* ── Tabla ── */
+.tableContainer {
+  background: var(--color-surface);
+  border-radius: $radius-lg;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  thead tr { background: var(--color-surface2); }
+
+  th {
+    padding: 0.875rem 1.1rem;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-text2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.875rem 1.1rem;
+    border-bottom: 1px solid var(--color-border2);
+    color: var(--color-text1);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 0.15s;
+    &:hover { background: var(--color-surface2); }
+    &:last-child td { border-bottom: none; }
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text3);
+  font-size: 0.9rem;
+}
+
+/* ── Celdas específicas ── */
+.tdCodigo {
+  font-weight: 700;
+  color: var(--color-text1);
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tdUbicacion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 200px;
+}
+
+.panelNombre {
+  font-weight: 600;
+  color: var(--color-text1);
+  font-size: 0.875rem;
+}
+
+.panelDir {
+  font-size: 0.775rem;
+  color: var(--color-text2);
+}
+
+.btnMap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.2rem;
+  padding: 0.2rem 0.55rem;
+  background: var(--badge-blue-bg);
+  color: var(--badge-blue-text);
+  border: none;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 0.8; }
+}
+
+.tdMedidas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.medidas {
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.area {
+  font-size: 0.75rem;
+  color: var(--color-text3);
+  white-space: nowrap;
+}
+
+.tdCostos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--color-text2);
+  white-space: nowrap;
+}
+
+.tdPrecio {
+  font-weight: 700;
+  color: #059669;
+  white-space: nowrap;
+}
+
+.tdActions {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.btnDanger {
+  &:hover { color: #ef4444 !important; background: var(--badge-red-bg) !important; }
+}
+
+/* ── Selector de estado inline ── */
+.selectEstado {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-sm;
+  background: var(--color-input-bg);
+  color: var(--color-text1);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: $brand-primary; }
+}
+
+/* ── Badges de estado ── */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badgeDisponible { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+.badgeReservado  { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
+.badgeEnUso      { background: var(--badge-blue-bg);   color: var(--badge-blue-text); }
+.badgeManto      { background: var(--badge-gray-bg);   color: var(--badge-gray-text); }
+
+/* ── Modal de mapa ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: $z-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.mapModal {
+  background: var(--color-surface);
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 740px;
+  overflow: hidden;
+  box-shadow: var(--shadow-modal);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.mapHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mapTitle {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-text1);
+}
+
+.mapSub {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text2);
+}
+
+.mapIframe {
+  display: block;
+  width: 100%;
+  height: 420px;
+  border: none;
+}
+
+/* ── Modal de formulario ── */
+.formModal {
+  background: var(--color-surface);
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-modal);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.formTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text1);
+}
+
+.formBody {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.formError {
+  padding: 0.65rem 0.875rem;
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  border-radius: $radius-sm;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.formRow {
+  display: flex;
+  gap: 1rem;
+
+  > * { flex: 1; }
+}
+
+.opcional {
+  font-weight: 400;
+  color: var(--color-text3);
+  font-size: 0.78rem;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .formRow { flex-direction: column; }
+  .mapIframe { height: 280px; }
+}

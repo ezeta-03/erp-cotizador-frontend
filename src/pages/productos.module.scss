@@ -316,6 +316,7 @@
 /* ── Tabla dentro del wizard ── */
 .previewTableWrapper {
   flex: 1;
+  overflow-x: auto;
   overflow-y: auto;
   padding: 0 1.5rem;
   min-height: 0;
@@ -332,6 +333,12 @@
   font-size: 0.68rem;
   font-weight: 600;
   vertical-align: middle;
+}
+
+/* ── Wrapper tabla principal ── */
+.tableWrapper {
+  overflow-x: auto;
+  width: 100%;
 }
 
 /* ── Paginación ── */
@@ -408,7 +415,4 @@
 
     button { justify-content: center; }
   }
-
-  .table th:first-child,
-  .table td:first-child { display: none; }
 }

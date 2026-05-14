@@ -1,10 +1,10 @@
 @import "../styles/_ui.scss";
 
 .panel {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: $radius-md;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
   margin-top: 1.5rem;
 }
@@ -15,7 +15,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .panelTitle {
@@ -27,7 +27,7 @@
     margin: 0;
     font-weight: 700;
     font-size: 1rem;
-    color: #111;
+    color: var(--color-text1);
   }
 }
 
@@ -52,11 +52,12 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--color-text2);
   font-size: 0.8rem;
+  font-family: inherit;
   transition: $transition-fast;
 
-  &:hover { color: #111; }
+  &:hover { color: var(--color-text1); }
 }
 
 /* ── Filtros ── */
@@ -64,22 +65,23 @@
   display: flex;
   gap: 0.4rem;
   padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--color-border);
   flex-wrap: wrap;
 }
 
 .filtroBtn {
   padding: 0.3rem 0.75rem;
   border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
-  color: #374151;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface2);
+  color: var(--color-text2);
   font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
+  font-family: inherit;
   transition: $transition-fast;
 
-  &:hover { background: #f3f4f6; }
+  &:hover { background: var(--color-surface3); color: var(--color-text1); }
 }
 
 .filtroBtnActivo {
@@ -95,7 +97,7 @@
 .empty {
   padding: 1.5rem;
   text-align: center;
-  color: #9ca3af;
+  color: var(--color-text3);
   font-size: 0.875rem;
 }
 
@@ -106,6 +108,7 @@
 
 .table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
@@ -115,36 +118,36 @@
   text-align: left;
   font-weight: 600;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--color-text2);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface2);
   white-space: nowrap;
 }
 
-.tdNombre { padding: 0.7rem 1rem; }
-.tdNombreMain { font-weight: 500; }
-.tdNombreSub { font-size: 0.78rem; color: #9ca3af; }
+.tdNombre      { padding: 0.7rem 1rem; }
+.tdNombreMain  { font-weight: 500; color: var(--color-text1); }
+.tdNombreSub   { font-size: 0.78rem; color: var(--color-text3); }
 
-.tdMargen { padding: 0.7rem 1rem; }
-.margenValor { font-weight: 700; font-size: 1rem; }
-.margenBajo  { color: #dc2626; }
-.margenMedio { color: #ea580c; }
-.margenHint  { font-size: 0.75rem; color: #9ca3af; margin-left: 0.3rem; }
+.tdMargen      { padding: 0.7rem 1rem; }
+.margenValor   { font-weight: 700; font-size: 1rem; color: var(--color-text1); }
+.margenBajo    { color: #dc2626; }
+.margenMedio   { color: #ea580c; }
+.margenHint    { font-size: 0.75rem; color: var(--color-text3); margin-left: 0.3rem; }
 
-.tdComentario { padding: 0.7rem 1rem; max-width: 220px; color: #374151; }
-.tdFecha      { padding: 0.7rem 1rem; color: #6b7280; white-space: nowrap; }
-.tdEstado     { padding: 0.7rem 1rem; }
+.tdComentario  { padding: 0.7rem 1rem; max-width: 220px; color: var(--color-text2); }
+.tdFecha       { padding: 0.7rem 1rem; color: var(--color-text2); white-space: nowrap; }
+.tdEstado      { padding: 0.7rem 1rem; }
 
-.tdResueltoPor { padding: 0.7rem 1rem; }
-.resueltoPorNombre { font-size: 0.8rem; font-weight: 500; color: #374151; }
-.resueltoPorFecha  { font-size: 0.75rem; color: #9ca3af; }
-.resueltoPorMotivo { font-size: 0.75rem; color: #dc2626; margin-top: 0.2rem; }
-.resueltoPorVacio  { color: #d1d5db; font-size: 0.8rem; }
+.tdResueltoPor      { padding: 0.7rem 1rem; }
+.resueltoPorNombre  { font-size: 0.8rem; font-weight: 500; color: var(--color-text1); }
+.resueltoPorFecha   { font-size: 0.75rem; color: var(--color-text3); }
+.resueltoPorMotivo  { font-size: 0.75rem; color: #dc2626; margin-top: 0.2rem; }
+.resueltoPorVacio   { color: var(--color-text3); font-size: 0.8rem; }
 
-.tdAcciones { padding: 0.7rem 1rem; }
-.accionesWrap { display: flex; gap: 0.4rem; }
+.tdAcciones    { padding: 0.7rem 1rem; }
+.accionesWrap  { display: flex; gap: 0.4rem; }
 
 /* ── Badges de estado ── */
 .estadoBadge {
@@ -152,10 +155,10 @@
   white-space: nowrap;
 }
 
-.PENDIENTE  { background: #fef9c3; color: #854d0e; }
-.APROBADA   { background: #dcfce7; color: #166534; }
-.RECHAZADA  { background: #fee2e2; color: #991b1b; }
-.USADA      { background: #f3f4f6; color: #6b7280; }
+.PENDIENTE { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
+.APROBADA  { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+.RECHAZADA { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+.USADA     { background: var(--badge-gray-bg);   color: var(--badge-gray-text); }
 
 /* ── Botones de acción en tabla ── */
 .btnAprobar {
@@ -170,6 +173,7 @@
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
   transition: $transition-fast;
   white-space: nowrap;
 
@@ -179,25 +183,17 @@
 .btnRechazar {
   @extend .btnAprobar;
   background: #ef4444;
-
   &:hover { background: #dc2626; }
 }
 
-.estadoTexto {
-  font-size: 0.8rem;
-  color: #9ca3af;
-}
-
-.estadoTextoAprobado {
-  @extend .estadoTexto;
-  color: #059669;
-}
+.estadoTexto         { font-size: 0.8rem; color: var(--color-text3); }
+.estadoTextoAprobado { @extend .estadoTexto; color: #059669; }
 
 /* ── Fila de rechazo inline ── */
 .filaRechazo td {
   padding: 0.75rem 1rem;
-  background: #fef2f2;
-  border-bottom: 1px solid #f3f4f6;
+  background: var(--badge-red-bg);
+  border-bottom: 1px solid var(--color-border2);
 }
 
 .rechazoInner {
@@ -210,7 +206,7 @@
   display: block;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #991b1b;
+  color: var(--badge-red-text);
   margin-bottom: 0.35rem;
 }
 
@@ -218,12 +214,14 @@
   width: 100%;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--badge-red-text);
   font-size: 0.85rem;
   resize: vertical;
   outline: none;
   font-family: inherit;
   box-sizing: border-box;
+  background: var(--color-input-bg);
+  color: var(--color-text1);
   transition: border-color 0.15s;
 
   &:focus { border-color: #ef4444; }
@@ -246,58 +244,39 @@
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  font-family: inherit;
   transition: $transition-fast;
 
-  &:disabled {
-    background: #fca5a5;
-    cursor: not-allowed;
-  }
-
+  &:disabled { background: var(--color-surface3); color: var(--color-text3); cursor: not-allowed; }
   &:not(:disabled):hover { background: #dc2626; }
 }
 
 .btnCancelarRechazo {
   padding: 0.4rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: var(--color-surface2);
+  color: var(--color-text2);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
+  font-family: inherit;
   transition: $transition-fast;
 
-  &:hover { background: #e5e7eb; }
+  &:hover { background: var(--color-surface3); }
 }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .tableWrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+  .tableWrap { -webkit-overflow-scrolling: touch; }
 
-  .table {
-    min-width: 600px;
-  }
+  .filtros { padding: 0.6rem 0.875rem; gap: 0.3rem; }
 
-  .filtros {
-    padding: 0.6rem 0.875rem;
-    gap: 0.3rem;
-  }
+  .filtroBtn, .filtroBtnActivo { padding: 0.25rem 0.6rem; font-size: 0.72rem; }
 
-  .filtroBtn, .filtroBtnActivo {
-    padding: 0.25rem 0.6rem;
-    font-size: 0.72rem;
-  }
+  .panelHeader { padding: 0.75rem 0.875rem; }
 
-  .panelHeader {
-    padding: 0.75rem 0.875rem;
-  }
-
-  .rechazoInner {
-    flex-direction: column;
-  }
+  .rechazoInner { flex-direction: column; }
 
   .rechazoAcciones {
     flex-direction: row;
@@ -306,8 +285,5 @@
   }
 
   .btnConfirmarRechazo,
-  .btnCancelarRechazo {
-    flex: 1;
-    text-align: center;
-  }
+  .btnCancelarRechazo { flex: 1; text-align: center; }
 }

@@ -4,6 +4,8 @@
    ============================================= */
 
 :root {
+  color-scheme: light;
+
   /* Fondos */
   --color-bg:       #f8fafc;
   --color-surface:  #ffffff;
@@ -54,6 +56,8 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
+
   /* Fondos — navy profundo, claramente no negro */
   --color-bg:       #1a1d2e;
   --color-surface:  #21263d;

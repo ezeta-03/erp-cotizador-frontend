@@ -23,3 +23,11 @@ button {
   font-family: inherit;
   cursor: pointer;
 }
+
+/* Inputs y selects heredan el tema correctamente */
+input, select, textarea {
+  background: var(--color-input-bg);
+  color: var(--color-text1);
+  border-color: var(--color-input-border);
+  font-family: inherit;
+}

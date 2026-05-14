@@ -90,7 +90,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className={styles.dashboardPage} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", minHeight: "40vh", color: "#6b7280" }}>
+      <div className={styles.dashboardPage} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", minHeight: "40vh", color: "var(--color-text2)" }}>
         <Spinner size={24} /> Cargando estadísticas...
       </div>
     );
@@ -195,7 +195,7 @@ export default function AdminDashboard() {
             <>
               {/* Header Tabla */}
               <div className={styles.tableHeader}>
-                <h3 style={{ margin: 0, fontWeight: 700, fontSize: "1rem", color: "#111" }}>
+                <h3 style={{ margin: 0, fontWeight: 700, fontSize: "1rem", color: "var(--color-text1)" }}>
                   Desempeño por Vendedor
                 </h3>
                 <button onClick={cargarDatos} className={styles.btnRefresh}>
@@ -204,49 +204,28 @@ export default function AdminDashboard() {
               </div>
 
               {/* Tabla */}
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
+              <table className={styles.vendedoresTable}>
                   <thead>
-                    <tr style={{ background: "#f9fafb" }}>
+                    <tr>
                       {["Vendedor", "Meta", "Aprobado", "Progreso", "Acciones"].map((h) => (
-                        <th
-                          key={h}
-                          style={{
-                            padding: "0.6rem 1rem",
-                            textAlign: "left",
-                            fontWeight: 600,
-                            fontSize: "0.75rem",
-                            color: "#6b7280",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.04em",
-                            borderBottom: "1px solid #e5e7eb",
-                          }}
-                        >
-                          {h}
-                        </th>
+                        <th key={h}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {datos.vendedores.map((vendedor) => (
-                      <tr key={vendedor.vendedorId} style={{ borderBottom: "1px solid #f3f4f6" }}>
-                        <td style={{ padding: "0.7rem 1rem" }}>
-                          <div style={{ fontWeight: 500 }}>{vendedor.vendedor}</div>
-                          <div style={{ fontSize: "0.78rem", color: "#9ca3af" }}>{vendedor.email}</div>
+                      <tr key={vendedor.vendedorId}>
+                        <td>
+                          <div className={styles.vendedorNombre}>{vendedor.vendedor}</div>
+                          <div className={styles.vendedorEmail}>{vendedor.email}</div>
                         </td>
-                        <td style={{ padding: "0.7rem 1rem" }}>
+                        <td>
                           {editandoMeta === vendedor.vendedorId ? (
                             <input
                               type="number"
                               value={nuevoMonto}
                               onChange={(e) => setNuevoMonto(e.target.value)}
-                              style={{
-                                padding: "0.4rem 0.6rem",
-                                border: "1px solid #d1d5db",
-                                borderRadius: "6px",
-                                width: "100px",
-                                fontSize: "0.875rem",
-                              }}
+                              className={styles.metaInput}
                               placeholder="Monto"
                             />
                           ) : (
@@ -255,19 +234,19 @@ export default function AdminDashboard() {
                             </span>
                           )}
                         </td>
-                        <td style={{ padding: "0.7rem 1rem" }}>
-                          <span style={{ fontWeight: 600, color: "#059669" }}>
+                        <td>
+                          <span className={styles.vendedorAvance}>
                             {new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", notation: "compact" }).format(vendedor.avance)}
                           </span>
                         </td>
-                        <td style={{ padding: "0.7rem 1rem", minWidth: "120px" }}>
+                        <td style={{ minWidth: "120px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                            <div style={{ flex: 1, height: "6px", backgroundColor: "#e5e7eb", borderRadius: "999px", overflow: "hidden" }}>
+                            <div className={styles.progressTrack}>
                               <div
                                 style={{
                                   width: `${Math.min(vendedor.porcentaje, 100)}%`,
                                   height: "100%",
-                                  backgroundColor: vendedor.porcentaje >= 100 ? "#10b981" : 
+                                  backgroundColor: vendedor.porcentaje >= 100 ? "#10b981" :
                                                    vendedor.porcentaje >= 70 ? "#f59e0b" : "#ef4444",
                                   transition: "width 0.3s",
                                 }}
@@ -278,7 +257,7 @@ export default function AdminDashboard() {
                                 fontSize: "0.75rem",
                                 fontWeight: 700,
                                 minWidth: "35px",
-                                color: vendedor.porcentaje >= 100 ? "#059669" : 
+                                color: vendedor.porcentaje >= 100 ? "#059669" :
                                        vendedor.porcentaje >= 70 ? "#d97706" : "#dc2626",
                               }}
                             >
@@ -286,7 +265,7 @@ export default function AdminDashboard() {
                             </span>
                           </div>
                         </td>
-                        <td style={{ padding: "0.7rem 1rem" }}>
+                        <td>
                           {editandoMeta === vendedor.vendedorId ? (
                             <div style={{ display: "flex", gap: "0.4rem" }}>
                               <button
@@ -324,7 +303,6 @@ export default function AdminDashboard() {
                     ))}
                   </tbody>
                 </table>
-              </div>
             </>
           )}
         </div>
@@ -341,40 +319,40 @@ export default function AdminDashboard() {
           display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem",
         }}>
           <div style={{
-            background: "#fff", borderRadius: "12px", width: "100%", maxWidth: "480px",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.2)", overflow: "hidden",
+            background: "var(--color-surface)", borderRadius: "12px", width: "100%", maxWidth: "480px",
+            boxShadow: "var(--shadow-modal)", overflow: "hidden",
           }}>
             <div style={{
               display: "flex", justifyContent: "space-between", alignItems: "center",
-              padding: "1rem 1.25rem", borderBottom: "1px solid #e5e7eb",
+              padding: "1rem 1.25rem", borderBottom: "1px solid var(--color-border)",
             }}>
               <div>
-                <p style={{ margin: 0, fontWeight: 700, fontSize: "0.95rem" }}>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: "0.95rem", color: "var(--color-text1)" }}>
                   Historial de meta — {logVendedor.vendedor}
                 </p>
-                <p style={{ margin: 0, fontSize: "0.78rem", color: "#6b7280" }}>Últimos 20 cambios</p>
+                <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--color-text2)" }}>Últimos 20 cambios</p>
               </div>
               <button
                 onClick={() => setLogVendedor(null)}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#6b7280" }}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text2)" }}
               >
                 <X size={18} />
               </button>
             </div>
             <div style={{ padding: "1rem 1.25rem", maxHeight: "400px", overflowY: "auto" }}>
               {loadingLog ? (
-                <p style={{ color: "#9ca3af", fontSize: "0.875rem" }}>Cargando...</p>
+                <p style={{ color: "var(--color-text3)", fontSize: "0.875rem" }}>Cargando...</p>
               ) : logEntradas.length === 0 ? (
-                <p style={{ color: "#9ca3af", fontSize: "0.875rem" }}>Sin cambios registrados aún.</p>
+                <p style={{ color: "var(--color-text3)", fontSize: "0.875rem" }}>Sin cambios registrados aún.</p>
               ) : (
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" }}>
                   <thead>
-                    <tr style={{ background: "#f9fafb" }}>
+                    <tr style={{ background: "var(--color-surface2)" }}>
                       {["Anterior", "Nuevo", "Cambiado por", "Fecha"].map((h) => (
                         <th key={h} style={{
                           padding: "0.4rem 0.6rem", textAlign: "left", fontWeight: 600,
-                          fontSize: "0.72rem", color: "#6b7280", textTransform: "uppercase",
-                          letterSpacing: "0.04em", borderBottom: "1px solid #e5e7eb",
+                          fontSize: "0.72rem", color: "var(--color-text2)", textTransform: "uppercase",
+                          letterSpacing: "0.04em", borderBottom: "1px solid var(--color-border)",
                         }}>{h}</th>
                       ))}
                     </tr>
@@ -385,11 +363,11 @@ export default function AdminDashboard() {
                         ? new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", notation: "compact" }).format(v)
                         : "—";
                       return (
-                        <tr key={e.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
-                          <td style={{ padding: "0.5rem 0.6rem", color: "#6b7280" }}>{fmt(e.montoAnterior)}</td>
-                          <td style={{ padding: "0.5rem 0.6rem", fontWeight: 600, color: "#111827" }}>{fmt(e.montoNuevo)}</td>
-                          <td style={{ padding: "0.5rem 0.6rem" }}>{e.cambiadoPor?.nombre}</td>
-                          <td style={{ padding: "0.5rem 0.6rem", color: "#9ca3af", whiteSpace: "nowrap" }}>
+                        <tr key={e.id} style={{ borderBottom: "1px solid var(--color-border2)" }}>
+                          <td style={{ padding: "0.5rem 0.6rem", color: "var(--color-text2)" }}>{fmt(e.montoAnterior)}</td>
+                          <td style={{ padding: "0.5rem 0.6rem", fontWeight: 600, color: "var(--color-text1)" }}>{fmt(e.montoNuevo)}</td>
+                          <td style={{ padding: "0.5rem 0.6rem", color: "var(--color-text1)" }}>{e.cambiadoPor?.nombre}</td>
+                          <td style={{ padding: "0.5rem 0.6rem", color: "var(--color-text3)", whiteSpace: "nowrap" }}>
                             {new Date(e.createdAt).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })}
                             {" · "}
                             {new Date(e.createdAt).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
