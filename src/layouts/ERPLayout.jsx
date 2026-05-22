@@ -18,6 +18,7 @@ const SECTION_LABELS = {
   mia:          "Mis Cotizaciones",
   paneles:      "Paneles",
   proveedores:  "Proveedores",
+  ocupacion:    "Ocupación",
 };
 
 export default function ERPLayout() {

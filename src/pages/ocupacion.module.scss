@@ -1,0 +1,679 @@
+@import "../styles/_ui.scss";
+
+/* ── Layout ── */
+.container { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title    { margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--color-text1); }
+.subtitle { margin: 0.15rem 0 0; font-size: 0.85rem; color: var(--color-text2); }
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* ── Selector de año ── */
+.anioSelector {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-sm;
+  padding: 0.2rem 0.35rem;
+  background: var(--color-surface);
+}
+.anioLabel { font-size: 0.9rem; font-weight: 700; min-width: 40px; text-align: center; }
+.btnIcon {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0.2rem; background: none; border: none; cursor: pointer;
+  color: var(--color-text2); border-radius: $radius-sm;
+  &:hover { background: var(--color-surface2); color: var(--color-text1); }
+}
+
+.selectDistrito {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-sm;
+  background: var(--color-input-bg);
+  color: var(--color-text1);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ── Barra de filtros ── */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  padding: 0.9rem 1.1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  box-shadow: var(--shadow-soft);
+}
+
+.filtroGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filtroLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.filtroBtns {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.filtroBtn {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text2);
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-sm;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+  &:hover { border-color: $brand-primary; color: $brand-primary; }
+}
+
+.filtroBtnActive {
+  background: $brand-primary;
+  color: #fff;
+  border-color: $brand-primary;
+}
+
+.filtroSearch {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-sm;
+  background: var(--color-input-bg);
+  padding: 0.25rem 0.5rem;
+  color: var(--color-text2);
+
+  input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 0.82rem;
+    color: var(--color-text1);
+    width: 150px;
+    font-family: inherit;
+    &::placeholder { color: var(--color-text3); }
+  }
+}
+
+.filtroSearchClear {
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer;
+  color: var(--color-text3); padding: 0;
+  &:hover { color: var(--color-text1); }
+}
+
+.filtroRango {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  input {
+    width: 110px;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--color-input-border);
+    border-radius: $radius-sm;
+    background: var(--color-input-bg);
+    color: var(--color-text1);
+    font-size: 0.82rem;
+    font-family: inherit;
+    outline: none;
+    &:focus { border-color: $brand-primary; }
+
+    &[type="date"] { width: 130px; }
+    &[type="number"] { width: 90px; }
+  }
+}
+
+.filtroSep {
+  font-size: 0.8rem;
+  color: var(--color-text3);
+}
+
+.btnLimpiar {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text2);
+  background: none;
+  border: 1px dashed var(--color-border);
+  border-radius: $radius-sm;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 1.05rem;
+  transition: all 0.12s;
+  &:hover { color: var(--color-text1); border-color: var(--color-text2); }
+}
+
+/* ── Nuevo cliente inline (modal) ── */
+.clienteRow {
+  display: flex;
+  gap: 0.4rem;
+  align-items: stretch;
+
+  select { flex: 1; }
+}
+
+.btnAddCliente {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  min-width: 34px;
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-sm;
+  cursor: pointer;
+  color: var(--color-text2);
+  transition: all 0.12s;
+  &:hover { background: $brand-primary; color: #fff; border-color: $brand-primary; }
+}
+
+.btnAddClienteActive {
+  background: $brand-primary;
+  color: #fff;
+  border-color: $brand-primary;
+}
+
+.nuevoClienteBox {
+  margin-top: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-sm;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nuevoClienteTitle {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.nuevoClienteInput {
+  width: 100%;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-sm;
+  background: var(--color-input-bg);
+  color: var(--color-text1);
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  &:focus { border-color: $brand-primary; }
+}
+
+.nuevoClienteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 0;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text2);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  font-family: inherit;
+
+  &:hover { color: var(--color-text1); }
+}
+
+.tabActive {
+  color: $brand-primary;
+  border-bottom-color: $brand-primary;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text3);
+  font-size: 0.9rem;
+}
+
+/* ── Timeline ── */
+.tlWrap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  box-shadow: var(--shadow-soft);
+  overflow-x: auto;
+}
+
+.tlHead {
+  display: flex;
+  border-bottom: 2px solid var(--color-border);
+  background: var(--color-surface2);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.tlMeses {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+}
+
+.tlMes {
+  padding: 0.6rem 0.25rem;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-left: 1px solid var(--color-border2);
+  &:first-child { border-left: none; }
+}
+
+.tlPanelCol {
+  width: 160px;
+  min-width: 160px;
+  padding: 0.5rem 0.75rem;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+}
+
+.tlRow {
+  display: flex;
+  border-bottom: 1px solid var(--color-border2);
+  min-height: 44px;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: var(--color-surface2); }
+}
+
+.tlCodigo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text1);
+  font-variant-numeric: tabular-nums;
+}
+
+.tlNombre {
+  font-size: 0.68rem;
+  color: var(--color-text3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.tlCeldas {
+  flex: 1;
+  position: relative;
+  cursor: crosshair;
+  min-height: 44px;
+}
+
+.tlLinea {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-border2);
+  pointer-events: none;
+}
+
+.tlBar {
+  position: absolute;
+  top: 7px;
+  height: calc(100% - 14px);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  overflow: hidden;
+  cursor: grab;
+  transition: filter 0.15s, box-shadow 0.15s;
+  min-width: 4px;
+  user-select: none;
+
+  &:hover {
+    filter: brightness(1.1);
+    .tlHandleL, .tlHandleR { opacity: 1; }
+  }
+}
+
+.tlBarDragging {
+  z-index: 10 !important;
+  opacity: 0.88;
+  cursor: grabbing !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  transition: none !important;
+  filter: brightness(1.08);
+}
+
+.tlBarLabel {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  flex: 1;
+}
+
+/* ── Handles de resize ── */
+.tlHandleL, .tlHandleR {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  min-width: 10px;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.15s;
+  cursor: ew-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 2px;
+  }
+}
+
+.tlHandleL { left: 0; }
+.tlHandleR { right: 0; }
+
+/* ── Tooltip flotante de fechas ── */
+.dragTooltip {
+  position: fixed;
+  background: rgba(15, 23, 42, 0.92);
+  color: #fff;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 10px));
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Dashboard ── */
+.dash {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.cardLabel {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cardValue {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-text1);
+  font-variant-numeric: tabular-nums;
+}
+
+.chartBox {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.chartTitle {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text1);
+}
+
+/* ── Top clientes ── */
+.topClientes {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.topList { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.topItem {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  grid-template-rows: auto 6px;
+  column-gap: 0.6rem;
+  row-gap: 0.3rem;
+  align-items: center;
+}
+
+.topBullet {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  grid-row: 1;
+}
+
+.topNombre {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text1);
+  grid-row: 1;
+}
+
+.topTotal {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text1);
+  font-variant-numeric: tabular-nums;
+  grid-row: 1;
+}
+
+.topBar {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 6px;
+  background: var(--color-border2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.topBarFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ── Modal ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: $z-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: var(--color-surface);
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-modal);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  gap: 1rem;
+}
+
+.modalTitle { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--color-text1); }
+.modalSub   { margin: 0.2rem 0 0; font-size: 0.8rem; color: var(--color-text2); }
+
+.modalBody {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  label { font-size: 0.8rem; font-weight: 600; color: var(--color-text2); }
+  input, select { width: 100%; }
+}
+
+.formRow {
+  display: flex;
+  gap: 1rem;
+  > * { flex: 1; }
+}
+
+.opcional { font-weight: 400; color: var(--color-text3); font-size: 0.78rem; }
+
+.formError {
+  padding: 0.65rem 0.875rem;
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  border-radius: $radius-sm;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding-top: 0.25rem;
+}
+
+.btnDanger {
+  margin-right: auto;
+  padding: 0.45rem 0.875rem;
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+  &:hover { opacity: 0.8; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .formRow { flex-direction: column; }
+  .cards   { grid-template-columns: 1fr; }
+}

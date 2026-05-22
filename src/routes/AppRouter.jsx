@@ -19,6 +19,7 @@ import ActividadClientes from "../coomponents/ActividadClientes";
 import ProtectedRoute from "./ProtectedRoute";
 import Paneles from "../pages/Paneles";
 import Proveedores from "../pages/Proveedores";
+import Ocupacion from "../pages/Ocupacion";
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -53,7 +54,8 @@ export default function AppRouter() {
         <Route path="/erp/admin/facturar"           element={<CotizacionesVentas />} />
         <Route path="/erp/admin/actividad"          element={<ActividadClientes />} />
         <Route path="/erp/admin/outdoor/paneles"      element={<Paneles />} />
-        <Route path="/erp/admin/outdoor/proveedores" element={<Proveedores />} />
+        <Route path="/erp/admin/outdoor/proveedores"  element={<Proveedores />} />
+        <Route path="/erp/admin/outdoor/ocupacion"    element={<Ocupacion />} />
         <Route path="/erp/admin/perfil"             element={<CambiarContrasena />} />
       </Route>
 
@@ -75,7 +77,8 @@ export default function AppRouter() {
         <Route path="/erp/ventas/facturar"           element={<CotizacionesVentas />} />
         <Route path="/erp/ventas/actividad"          element={<ActividadClientes />} />
         <Route path="/erp/ventas/outdoor/paneles"      element={<Paneles />} />
-        <Route path="/erp/ventas/outdoor/proveedores" element={<Proveedores />} />
+        <Route path="/erp/ventas/outdoor/proveedores"  element={<Proveedores />} />
+        <Route path="/erp/ventas/outdoor/ocupacion"    element={<Ocupacion />} />
         <Route path="/erp/ventas/perfil"             element={<CambiarContrasena />} />
       </Route>
 

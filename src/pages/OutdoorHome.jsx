@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Layers, Monitor, FileText, Truck, TrendingUp, LogOut, ChevronLeft, Moon, Sun } from "lucide-react";
+import { Layers, Monitor, FileText, Truck, TrendingUp, LogOut, ChevronLeft, Moon, Sun, CalendarDays } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import useDarkMode from "../hooks/useDarkMode";
 import styles from "./OutdoorHome.module.scss";
@@ -35,6 +35,14 @@ const SECCIONES = [
     description: "Directorio y gestión de proveedores outdoor",
     icon: Truck,
     color: "#10b981",
+    available: true,
+  },
+  {
+    id: "ocupacion",
+    label: "Ocupación",
+    description: "Timeline de reservas, clientes y rentabilidad por panel",
+    icon: CalendarDays,
+    color: "#6366f1",
     available: true,
   },
   {

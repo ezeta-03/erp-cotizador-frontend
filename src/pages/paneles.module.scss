@@ -167,10 +167,44 @@
   letter-spacing: 0.03em;
 }
 
-.badgeDisponible { background: var(--badge-green-bg);  color: var(--badge-green-text); }
-.badgeReservado  { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
-.badgeEnUso      { background: var(--badge-blue-bg);   color: var(--badge-blue-text); }
-.badgeManto      { background: var(--badge-gray-bg);   color: var(--badge-gray-text); }
+.badgeLibre     { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+.badgeLibreExt  { background: var(--badge-orange-bg); color: var(--badge-orange-text); }
+.badgeOcupado   { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+.badgeReemplazo { background: var(--badge-blue-bg);   color: var(--badge-blue-text); }
+
+.badgeLed {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #7c3aed22;
+  color: #7c3aed;
+  letter-spacing: 0.04em;
+}
+
+/* ── Alertas importación ── */
+.alertOk {
+  padding: 0.65rem 1rem;
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+  border-radius: $radius-sm;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.alertError {
+  padding: 0.65rem 1rem;
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  border-radius: $radius-sm;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
 
 /* ── Modal de mapa ── */
 .overlay {
