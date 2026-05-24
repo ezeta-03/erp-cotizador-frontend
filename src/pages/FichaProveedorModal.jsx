@@ -33,10 +33,10 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
   const setEdit = (cuotaId, field, val) =>
     setEdits((eds) => ({ ...eds, [cuotaId]: { ...eds[cuotaId], [field]: val } }));
 
-  const handleSaveCuota = async (cuota) => {
+  const saveCuota = async (cuota, patch) => {
     setSaving((s) => ({ ...s, [cuota.id]: true }));
     try {
-      const updated = await updateCuota(proveedor.id, cuota.id, edits[cuota.id]);
+      const updated = await updateCuota(proveedor.id, cuota.id, patch);
       const merged = { ...cuota, ...updated };
       setCuotas((prev) => prev.map((c) => (c.id === cuota.id ? merged : c)));
       onCuotaUpdated?.(merged);
@@ -165,7 +165,6 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                   {tieneNombre && <th>A nombre de</th>}
                   <th>Detalle</th>
                   <th>Total</th>
-                  {isAdmin && <th></th>}
                 </tr>
               </thead>
 
@@ -175,7 +174,7 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                   const estado = edit.estado ?? c.estado;
 
                   return (
-                    <tr key={c.id} className={estado === "CANCELADO" ? styles.rowCancelado : ""}>
+                    <tr key={c.id} className={`${estado === "CANCELADO" ? styles.rowCancelado : ""} ${saving[c.id] ? styles.rowSaving : ""}`}>
                       <td className={styles.tdNum}>{c.numero}</td>
                       <td className={styles.tdMoney}>{fmtMoney(c.monto)}</td>
                       <td className={styles.tdMoney}>{fmtMoney(c.igv)}</td>
@@ -187,6 +186,7 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                             className={styles.inputInline}
                             value={edit.fecha ?? c.fecha}
                             onChange={(e) => setEdit(c.id, "fecha", e.target.value)}
+                            onBlur={() => saveCuota(c, edits[c.id])}
                           />
                         ) : (
                           <span>{c.fecha}</span>
@@ -199,7 +199,11 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                           <select
                             className={`${styles.selectEstado} ${estado === "CANCELADO" ? styles.selectCancelado : styles.selectPendiente}`}
                             value={estado}
-                            onChange={(e) => setEdit(c.id, "estado", e.target.value)}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setEdit(c.id, "estado", val);
+                              saveCuota(c, { ...edits[c.id], estado: val });
+                            }}
                           >
                             <option value="PENDIENTE">Pendiente</option>
                             <option value="CANCELADO">Cancelado</option>
@@ -222,6 +226,7 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                             value={edit.detalle ?? ""}
                             placeholder="Notas…"
                             onChange={(e) => setEdit(c.id, "detalle", e.target.value)}
+                            onBlur={() => saveCuota(c, edits[c.id])}
                           />
                         ) : (
                           <span>{c.detalle || "—"}</span>
@@ -229,18 +234,6 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                       </td>
 
                       <td className={styles.tdTotal}>{fmtMoney(c.monto + c.igv)}</td>
-
-                      {isAdmin && (
-                        <td>
-                          <button
-                            className={styles.btnSave}
-                            disabled={saving[c.id]}
-                            onClick={() => handleSaveCuota(c)}
-                          >
-                            {saving[c.id] ? "…" : "Guardar"}
-                          </button>
-                        </td>
-                      )}
                     </tr>
                   );
                 })}
@@ -253,7 +246,6 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                   <td className={styles.tdTotalMoney}>{fmtMoney(totalIgv)}</td>
                   <td colSpan={colsAntes - 3}></td>
                   <td className={styles.tdTotalFinal}>{fmtMoney(totalGeneral)}</td>
-                  {isAdmin && <td></td>}
                 </tr>
               </tfoot>
             </table>

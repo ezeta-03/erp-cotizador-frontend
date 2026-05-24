@@ -252,6 +252,11 @@
   text-decoration-color: var(--color-text3);
 }
 
+.rowSaving {
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
 /* ── Inputs inline en tabla ── */
 .inputInline {
   width: 100%;
