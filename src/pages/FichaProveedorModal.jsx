@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { updateCuota } from "../api/proveedores";
+import { updateCuota, cambiarEstadoContrato } from "../api/proveedores";
 import styles from "./FichaProveedorModal.module.scss";
 
 const fmtDate = (d) => {
@@ -13,19 +13,41 @@ const fmtDate = (d) => {
 const fmtMoney = (n) =>
   `S/ ${Number(n || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-const esVigente = (fin) => new Date(fin) >= new Date();
-
 const REL_CLASS = { ALTO: "fichaRelAlto", MEDIO: "fichaRelMedio", BAJO: "fichaRelBajo" };
 
-export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuotaUpdated }) {
+const ESTADO_BADGE_CLASS = {
+  VIGENTE:    "fichaBadgeVigente",
+  VENCIDO:    "fichaBadgeVencido",
+  CANCELADO:  "fichaBadgeCancelado",
+  SUSPENDIDO: "fichaBadgeSuspendido",
+};
+
+export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuotaUpdated, onEstadoUpdated }) {
   const [cuotas, setCuotas] = useState(proveedor.cuotas ?? []);
   const [saving, setSaving] = useState({});
+  const [estadoContrato, setEstadoContrato] = useState(proveedor.estadoContrato ?? "VIGENTE");
+  const [savingEstado, setSavingEstado] = useState(false);
+
+  const handleCambiarEstado = async (nuevoEstado) => {
+    setSavingEstado(true);
+    try {
+      await cambiarEstadoContrato(proveedor.id, nuevoEstado);
+      setEstadoContrato(nuevoEstado ?? (new Date(proveedor.fin) >= new Date() ? "VIGENTE" : "VENCIDO"));
+      onEstadoUpdated?.(proveedor.id, nuevoEstado);
+    } catch { /* silencioso */ }
+    setSavingEstado(false);
+  };
+
+  const puedeEditar = isAdmin && estadoContrato !== "SUSPENDIDO" && estadoContrato !== "CANCELADO";
 
   const [edits, setEdits] = useState(() =>
     Object.fromEntries(
       (proveedor.cuotas ?? []).map((c) => [
         c.id,
-        { estado: c.estado, detalle: c.detalle ?? "", fecha: c.fecha },
+        {
+          estado:  c.estado,
+          detalle: c.detalle ?? "",
+        },
       ])
     )
   );
@@ -33,10 +55,10 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
   const setEdit = (cuotaId, field, val) =>
     setEdits((eds) => ({ ...eds, [cuotaId]: { ...eds[cuotaId], [field]: val } }));
 
-  const handleSaveCuota = async (cuota) => {
+  const saveCuota = async (cuota, patch) => {
     setSaving((s) => ({ ...s, [cuota.id]: true }));
     try {
-      const updated = await updateCuota(proveedor.id, cuota.id, edits[cuota.id]);
+      const updated = await updateCuota(proveedor.id, cuota.id, patch);
       const merged = { ...cuota, ...updated };
       setCuotas((prev) => prev.map((c) => (c.id === cuota.id ? merged : c)));
       onCuotaUpdated?.(merged);
@@ -44,7 +66,6 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
     setSaving((s) => ({ ...s, [cuota.id]: false }));
   };
 
-  const vigente = esVigente(proveedor.fin);
   const totalMonto   = cuotas.reduce((s, c) => s + c.monto, 0);
   const totalIgv     = cuotas.reduce((s, c) => s + c.igv, 0);
   const totalGeneral = totalMonto + totalIgv;
@@ -52,7 +73,7 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
   const tieneCuenta = !!proveedor.numeroCuenta;
   const tieneNombre = !!proveedor.nombreCuenta;
 
-  /* colspan para la fila TOTAL: # + Monto + IGV + Fecha + Estado + [cuenta] + [nombre] + Detalle */
+  /* colspan para la fila TOTAL: # + Monto + IGV + FechaCobro + Estado + [cuenta] + [nombre] + Detalle */
   const colsAntes = 6 + (tieneCuenta ? 1 : 0) + (tieneNombre ? 1 : 0);
 
   return (
@@ -115,9 +136,26 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
           <div className={styles.fichaInfoRight}>
             <div className={styles.fichaInfoItem}>
               <span className={styles.fichaInfoLabel}>Situación del contrato</span>
-              <span className={`${styles.fichaBadge} ${vigente ? styles.fichaBadgeVigente : styles.fichaBadgeVencido}`}>
-                {vigente ? "VIGENTE" : "VENCIDO"}
+              <span className={`${styles.fichaBadge} ${styles[ESTADO_BADGE_CLASS[estadoContrato]]}`}>
+                {estadoContrato}
               </span>
+              {isAdmin && (
+                <div className={styles.estadoControls}>
+                  {estadoContrato === "VIGENTE" || estadoContrato === "VENCIDO" ? (
+                    <button
+                      className={styles.btnEstadoSuspender}
+                      disabled={savingEstado}
+                      onClick={() => handleCambiarEstado("SUSPENDIDO")}
+                    >Suspender</button>
+                  ) : estadoContrato === "SUSPENDIDO" ? (
+                    <button
+                      className={styles.btnEstadoReactivar}
+                      disabled={savingEstado}
+                      onClick={() => handleCambiarEstado(null)}
+                    >Reactivar</button>
+                  ) : null}
+                </div>
+              )}
             </div>
 
             <div className={styles.fichaInfoItem}>
@@ -152,6 +190,14 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
 
         {/* Tabla de cuotas */}
         <div className={styles.cuotasSection}>
+          <div className={styles.cuotasSectionHeader}>
+            <p className={styles.cuotasSectionTitle}>CALENDARIO DE CUOTAS</p>
+            {isAdmin && !puedeEditar && (
+              <span className={styles.cuotasLocked}>
+                Contrato {estadoContrato.toLowerCase()} — reactiva el contrato para editar cuotas
+              </span>
+            )}
+          </div>
           <div className={styles.cuotasTableWrap}>
             <table className={styles.cuotasTable}>
               <thead>
@@ -159,13 +205,12 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                   <th>#</th>
                   <th>Monto</th>
                   <th>IGV</th>
-                  <th>Fecha</th>
+                  <th>Fecha cobro</th>
                   <th>Estado</th>
                   {tieneCuenta && <th>N° Cuenta</th>}
                   {tieneNombre && <th>A nombre de</th>}
                   <th>Detalle</th>
                   <th>Total</th>
-                  {isAdmin && <th></th>}
                 </tr>
               </thead>
 
@@ -175,31 +220,27 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                   const estado = edit.estado ?? c.estado;
 
                   return (
-                    <tr key={c.id} className={estado === "CANCELADO" ? styles.rowCancelado : ""}>
+                    <tr key={c.id} className={`${estado === "CANCELADO" ? styles.rowCancelado : ""} ${saving[c.id] ? styles.rowSaving : ""}`}>
                       <td className={styles.tdNum}>{c.numero}</td>
                       <td className={styles.tdMoney}>{fmtMoney(c.monto)}</td>
                       <td className={styles.tdMoney}>{fmtMoney(c.igv)}</td>
 
-                      {/* Fecha editable */}
+                      {/* Fecha cobro — solo lectura, se actualiza desde el formulario del proveedor */}
                       <td>
-                        {isAdmin ? (
-                          <input
-                            className={styles.inputInline}
-                            value={edit.fecha ?? c.fecha}
-                            onChange={(e) => setEdit(c.id, "fecha", e.target.value)}
-                          />
-                        ) : (
-                          <span>{c.fecha}</span>
-                        )}
+                        <span>{c.fechaCobro ? String(c.fechaCobro).slice(0, 10).split("-").reverse().join("/") : "—"}</span>
                       </td>
 
                       {/* Estado editable */}
                       <td>
-                        {isAdmin ? (
+                        {puedeEditar ? (
                           <select
                             className={`${styles.selectEstado} ${estado === "CANCELADO" ? styles.selectCancelado : styles.selectPendiente}`}
                             value={estado}
-                            onChange={(e) => setEdit(c.id, "estado", e.target.value)}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setEdit(c.id, "estado", val);
+                              saveCuota(c, { ...edits[c.id], estado: val });
+                            }}
                           >
                             <option value="PENDIENTE">Pendiente</option>
                             <option value="CANCELADO">Cancelado</option>
@@ -216,12 +257,13 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
 
                       {/* Detalle editable */}
                       <td>
-                        {isAdmin ? (
+                        {puedeEditar ? (
                           <input
                             className={styles.inputInline}
                             value={edit.detalle ?? ""}
                             placeholder="Notas…"
                             onChange={(e) => setEdit(c.id, "detalle", e.target.value)}
+                            onBlur={() => saveCuota(c, edits[c.id])}
                           />
                         ) : (
                           <span>{c.detalle || "—"}</span>
@@ -229,18 +271,6 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                       </td>
 
                       <td className={styles.tdTotal}>{fmtMoney(c.monto + c.igv)}</td>
-
-                      {isAdmin && (
-                        <td>
-                          <button
-                            className={styles.btnSave}
-                            disabled={saving[c.id]}
-                            onClick={() => handleSaveCuota(c)}
-                          >
-                            {saving[c.id] ? "…" : "Guardar"}
-                          </button>
-                        </td>
-                      )}
                     </tr>
                   );
                 })}
@@ -253,7 +283,6 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                   <td className={styles.tdTotalMoney}>{fmtMoney(totalIgv)}</td>
                   <td colSpan={colsAntes - 3}></td>
                   <td className={styles.tdTotalFinal}>{fmtMoney(totalGeneral)}</td>
-                  {isAdmin && <td></td>}
                 </tr>
               </tfoot>
             </table>

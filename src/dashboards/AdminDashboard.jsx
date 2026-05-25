@@ -20,18 +20,13 @@ export default function AdminDashboard() {
   const [logVendedor, setLogVendedor] = useState(null);
   const [logEntradas, setLogEntradas] = useState([]);
   const [loadingLog, setLoadingLog] = useState(false);
-
   const cargarDatos = async () => {
     try {
       setLoading(true);
       const [progresosRes, cotizacionesRes] = await Promise.all([
         getProgresoTodosVendedores(),
-        getCotizacionesPorDia()
+        getCotizacionesPorDia(),
       ]);
-      
-      console.log('📊 Datos recibidos de progreso:', progresosRes);
-      console.log('📊 Datos recibidos de cotizaciones:', cotizacionesRes);
-      
       setDatos(progresosRes);
       setCotizacionesPorDia(cotizacionesRes);
     } catch (error) {
