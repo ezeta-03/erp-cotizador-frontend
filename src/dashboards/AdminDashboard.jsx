@@ -320,7 +320,7 @@ export default function AdminDashboard() {
 
       {/* Widget pagos proveedores */}
       {resumenPagos && (
-        <div className={styles.card} style={{ marginTop: '1.5rem', height: '320px' }}>
+        <div className={styles.card} style={{ marginTop: '1.5rem', height: '400px' }}>
           <BarChart data={resumenPagos.meses} anio={resumenPagos.anio} />
         </div>
       )}

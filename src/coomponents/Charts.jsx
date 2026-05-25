@@ -130,42 +130,60 @@ export function DonutChart({ meta, avance, titulo = 'Meta Mensual' }) {
   );
 }
 
-// ── BarChart (pagos proveedores por mes) ───────────────────────────────────
+// ── BarChart apilado (pagos proveedores por mes, un dataset por proveedor) ──
+const PALETTE = [
+  '#f97316','#3b82f6','#10b981','#8b5cf6','#ef4444',
+  '#06b6d4','#f59e0b','#ec4899','#84cc16','#6366f1',
+];
+
 export function BarChart({ data, anio }) {
   const chartRef      = useRef(null);
   const chartInstance = useRef(null);
   const isDark        = useIsDark();
 
   useEffect(() => {
-    if (!chartRef.current || !data) return;
+    if (!chartRef.current || !data?.datasets) return;
     if (chartInstance.current) chartInstance.current.destroy();
 
     const ctx    = chartRef.current.getContext('2d');
     const c      = chartColors(isDark);
-    const labels = data.map(d => d.label);
-    const totals = data.map(d => d.total);
+    const labels = data.meses.map(m => m.label);
+    const fmt    = (v) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(v);
 
-    const barColor = isDark ? 'rgba(251,146,60,0.85)' : 'rgba(234,88,12,0.80)';
-    const barHover = isDark ? 'rgba(251,146,60,1)'    : 'rgba(234,88,12,1)';
+    const datasets = data.datasets.map((ds, i) => {
+      const color = PALETTE[i % PALETTE.length];
+      return {
+        label:            ds.codigo,
+        data:             ds.data,
+        backgroundColor:  color + (isDark ? 'cc' : 'bb'),
+        hoverBackgroundColor: color,
+        borderRadius:     3,
+        borderSkipped:    false,
+        // guardamos metadata para el tooltip
+        _ubicacion:       ds.ubicacion,
+        _ciudad:          ds.ciudad,
+      };
+    });
 
     chartInstance.current = new Chart(ctx, {
       type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Total a pagar',
-          data: totals,
-          backgroundColor: barColor,
-          hoverBackgroundColor: barHover,
-          borderRadius: 5,
-          borderSkipped: false,
-        }],
-      },
+      data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: { display: false },
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'rect',
+              padding: 12,
+              font: { size: 11 },
+              color: c.text2,
+            },
+          },
           tooltip: {
             backgroundColor: c.tooltipBg,
             titleColor: c.text1,
@@ -174,15 +192,26 @@ export function BarChart({ data, anio }) {
             borderWidth: 1,
             callbacks: {
               label: (ctx) => {
-                const row = data[ctx.dataIndex];
-                const fmt = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(ctx.raw);
-                return [`Total: ${fmt}`, `Cuotas: ${row.cuotas}`];
+                if (ctx.raw === 0) return null;
+                const ds = data.datasets[ctx.datasetIndex];
+                const loc = ds.ciudad ? `${ds.ciudad}` : ds.ubicacion.split(' - ')[0];
+                return `${ds.codigo} (${loc}): ${fmt(ctx.raw)}`;
+              },
+              footer: (items) => {
+                const total = items.reduce((s, i) => s + i.raw, 0);
+                return total > 0 ? `Total: ${fmt(total)}` : '';
               },
             },
           },
         },
         scales: {
+          x: {
+            stacked: true,
+            grid: { display: false },
+            ticks: { color: c.text2 },
+          },
           y: {
+            stacked: true,
             beginAtZero: true,
             grid: { color: c.gridLine },
             ticks: {
@@ -190,10 +219,6 @@ export function BarChart({ data, anio }) {
               callback: (v) =>
                 new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', notation: 'compact' }).format(v),
             },
-          },
-          x: {
-            grid: { display: false },
-            ticks: { color: c.text2 },
           },
         },
       },
@@ -204,10 +229,10 @@ export function BarChart({ data, anio }) {
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-      <h3 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: '600', color: 'var(--color-text1)' }}>
+      <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600', color: 'var(--color-text1)' }}>
         Costo mensual proveedores — {anio}
         <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--color-text3)', marginLeft: '0.5rem' }}>
-          (cuotas pendientes)
+          cuotas pendientes · clic en leyenda para aislar
         </span>
       </h3>
       <div style={{ position: 'relative', flex: 1, minHeight: '220px', width: '100%' }}>
