@@ -130,6 +130,93 @@ export function DonutChart({ meta, avance, titulo = 'Meta Mensual' }) {
   );
 }
 
+// ── BarChart (pagos proveedores por mes) ───────────────────────────────────
+export function BarChart({ data, anio }) {
+  const chartRef      = useRef(null);
+  const chartInstance = useRef(null);
+  const isDark        = useIsDark();
+
+  useEffect(() => {
+    if (!chartRef.current || !data) return;
+    if (chartInstance.current) chartInstance.current.destroy();
+
+    const ctx    = chartRef.current.getContext('2d');
+    const c      = chartColors(isDark);
+    const labels = data.map(d => d.label);
+    const totals = data.map(d => d.total);
+
+    const barColor = isDark ? 'rgba(251,146,60,0.85)' : 'rgba(234,88,12,0.80)';
+    const barHover = isDark ? 'rgba(251,146,60,1)'    : 'rgba(234,88,12,1)';
+
+    chartInstance.current = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Total a pagar',
+          data: totals,
+          backgroundColor: barColor,
+          hoverBackgroundColor: barHover,
+          borderRadius: 5,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: c.tooltipBg,
+            titleColor: c.text1,
+            bodyColor: c.text2,
+            borderColor: c.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => {
+                const row = data[ctx.dataIndex];
+                const fmt = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(ctx.raw);
+                return [`Total: ${fmt}`, `Cuotas: ${row.cuotas}`];
+              },
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: c.gridLine },
+            ticks: {
+              color: c.text2,
+              callback: (v) =>
+                new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', notation: 'compact' }).format(v),
+            },
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: c.text2 },
+          },
+        },
+      },
+    });
+
+    return () => { if (chartInstance.current) chartInstance.current.destroy(); };
+  }, [data, isDark]);
+
+  return (
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <h3 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: '600', color: 'var(--color-text1)' }}>
+        Costo mensual proveedores — {anio}
+        <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--color-text3)', marginLeft: '0.5rem' }}>
+          (cuotas pendientes)
+        </span>
+      </h3>
+      <div style={{ position: 'relative', flex: 1, minHeight: '220px', width: '100%' }}>
+        <canvas ref={chartRef} />
+      </div>
+    </div>
+  );
+}
+
 // ── LineChart ───────────────────────────────────────────────────────────────
 export function LineChart({ data }) {
   const chartRef = useRef(null);

@@ -25,7 +25,12 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
     Object.fromEntries(
       (proveedor.cuotas ?? []).map((c) => [
         c.id,
-        { estado: c.estado, detalle: c.detalle ?? "", fecha: c.fecha },
+        {
+          estado:     c.estado,
+          detalle:    c.detalle ?? "",
+          fecha:      c.fecha,
+          fechaCobro: c.fechaCobro ? String(c.fechaCobro).slice(0, 10) : "",
+        },
       ])
     )
   );
@@ -52,8 +57,8 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
   const tieneCuenta = !!proveedor.numeroCuenta;
   const tieneNombre = !!proveedor.nombreCuenta;
 
-  /* colspan para la fila TOTAL: # + Monto + IGV + Fecha + Estado + [cuenta] + [nombre] + Detalle */
-  const colsAntes = 6 + (tieneCuenta ? 1 : 0) + (tieneNombre ? 1 : 0);
+  /* colspan para la fila TOTAL: # + Monto + IGV + FechaCobro + NotaFecha + Estado + [cuenta] + [nombre] + Detalle */
+  const colsAntes = 7 + (tieneCuenta ? 1 : 0) + (tieneNombre ? 1 : 0);
 
   return (
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -159,7 +164,8 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                   <th>#</th>
                   <th>Monto</th>
                   <th>IGV</th>
-                  <th>Fecha</th>
+                  <th>Fecha cobro</th>
+                  <th>Nota fecha</th>
                   <th>Estado</th>
                   {tieneCuenta && <th>N° Cuenta</th>}
                   {tieneNombre && <th>A nombre de</th>}
@@ -179,7 +185,22 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                       <td className={styles.tdMoney}>{fmtMoney(c.monto)}</td>
                       <td className={styles.tdMoney}>{fmtMoney(c.igv)}</td>
 
-                      {/* Fecha editable */}
+                      {/* Fecha cobro (date picker) */}
+                      <td>
+                        {isAdmin ? (
+                          <input
+                            type="date"
+                            className={styles.inputInline}
+                            value={edit.fechaCobro ?? ""}
+                            onChange={(e) => setEdit(c.id, "fechaCobro", e.target.value)}
+                            onBlur={() => saveCuota(c, edits[c.id])}
+                          />
+                        ) : (
+                          <span>{c.fechaCobro ? String(c.fechaCobro).slice(0, 10).split("-").reverse().join("/") : "—"}</span>
+                        )}
+                      </td>
+
+                      {/* Nota de fecha (texto libre) */}
                       <td>
                         {isAdmin ? (
                           <input

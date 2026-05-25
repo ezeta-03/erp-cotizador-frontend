@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Edit2, Trash2, RefreshCw, X, FileText } from "lucide-react";
+import { Plus, Edit2, Trash2, RefreshCw, X, FileText, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import {
-  getProveedores, createProveedor, updateProveedor, deleteProveedor,
+  getProveedores, createProveedor, updateProveedor, deleteProveedor, getAlertasPagos,
 } from "../api/proveedores";
 import FichaProveedorModal from "./FichaProveedorModal";
 import styles from "./proveedores.module.scss";
@@ -23,6 +23,48 @@ const FORM_VACIO = {
   inicio: "", fin: "", costoMensual: "", costoLuzMes: "",
   numeroCuenta: "", nombreCuenta: "", relevanciaComercial: "ALTO", razonSocial: "",
 };
+
+const fmtDMY = (iso) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" });
+};
+
+const fmtMoney = (n) =>
+  `S/ ${Number(n || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+/* ── Banner de alertas de pagos próximos ─────────────────────────────────── */
+function AlertasBanner({ alertas }) {
+  const [abierto, setAbierto] = useState(false);
+  if (!alertas || alertas.length === 0) return null;
+
+  return (
+    <div className={styles.alertaBanner}>
+      <button className={styles.alertaHeader} onClick={() => setAbierto((v) => !v)}>
+        <span className={styles.alertaIcono}><AlertTriangle size={16} /></span>
+        <span className={styles.alertaTexto}>
+          {alertas.length === 1
+            ? "1 pago vence esta semana"
+            : `${alertas.length} pagos vencen esta semana`}
+        </span>
+        {abierto ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+      </button>
+
+      {abierto && (
+        <ul className={styles.alertaLista}>
+          {alertas.map((a) => (
+            <li key={a.cuotaId} className={styles.alertaItem}>
+              <span className={styles.alertaCodigo}>{a.proveedor.codigo}</span>
+              <span className={styles.alertaUbic}>{a.proveedor.ubicacion}</span>
+              <span className={styles.alertaMonto}>{fmtMoney(a.total)}</span>
+              <span className={styles.alertaFecha}>{fmtDMY(a.fechaCobro)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 /* ── Campo de formulario (debe estar fuera del componente para no recrearse) */
 function F({ label, children, optional }) {
@@ -154,13 +196,20 @@ export default function Proveedores() {
   const [fichaPanel, setFichaPanel]   = useState(null);
   const [editProv, setEditProv]       = useState(null);
   const [showForm, setShowForm]       = useState(false);
+  const [alertas, setAlertas]         = useState([]);
 
   const cargar = useCallback(async () => {
     setLoading(true);
-    try { setProveedores(await getProveedores()); }
-    catch { /* silencioso */ }
+    try {
+      const [provs, alts] = await Promise.all([
+        getProveedores(),
+        isAdmin ? getAlertasPagos() : Promise.resolve([]),
+      ]);
+      setProveedores(provs);
+      setAlertas(alts);
+    } catch { /* silencioso */ }
     finally { setLoading(false); }
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => { cargar(); }, [cargar]);
 
@@ -184,6 +233,8 @@ export default function Proveedores() {
 
   return (
     <div className={styles.container}>
+      {isAdmin && <AlertasBanner alertas={alertas} />}
+
       {/* Header */}
       <div className={styles.header}>
         <div>
