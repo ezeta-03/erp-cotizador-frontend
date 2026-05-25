@@ -141,8 +141,10 @@ export function BarChart({ data, anio }) {
   const chartInstance = useRef(null);
   const isDark        = useIsDark();
 
+  const hasData = Array.isArray(data?.datasets) && data.datasets.length > 0;
+
   useEffect(() => {
-    if (!chartRef.current || !data?.datasets) return;
+    if (!chartRef.current || !hasData) return;
     if (chartInstance.current) chartInstance.current.destroy();
 
     const ctx    = chartRef.current.getContext('2d');
@@ -225,7 +227,7 @@ export function BarChart({ data, anio }) {
     });
 
     return () => { if (chartInstance.current) chartInstance.current.destroy(); };
-  }, [data, isDark]);
+  }, [data, isDark, hasData]);
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
@@ -235,9 +237,15 @@ export function BarChart({ data, anio }) {
           cuotas pendientes · clic en leyenda para aislar
         </span>
       </h3>
-      <div style={{ position: 'relative', flex: 1, minHeight: '220px', width: '100%' }}>
-        <canvas ref={chartRef} />
-      </div>
+      {hasData ? (
+        <div style={{ position: 'relative', flex: 1, minHeight: '220px', width: '100%' }}>
+          <canvas ref={chartRef} />
+        </div>
+      ) : (
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text3)', fontSize: '0.875rem' }}>
+          Sin cuotas pendientes para {anio}
+        </div>
+      )}
     </div>
   );
 }

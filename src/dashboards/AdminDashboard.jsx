@@ -28,23 +28,25 @@ export default function AdminDashboard() {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [progresosRes, cotizacionesRes, pagosRes] = await Promise.all([
+      const [progresosRes, cotizacionesRes] = await Promise.all([
         getProgresoTodosVendedores(),
         getCotizacionesPorDia(),
-        getResumenPagos(anioActual),
       ]);
-      
-      console.log('📊 Datos recibidos de progreso:', progresosRes);
-      console.log('📊 Datos recibidos de cotizaciones:', cotizacionesRes);
-      
       setDatos(progresosRes);
       setCotizacionesPorDia(cotizacionesRes);
-      setResumenPagos(pagosRes);
     } catch (error) {
       console.error('Error al cargar datos:', error);
       alert('Error al cargar datos: ' + error.message);
     } finally {
       setLoading(false);
+    }
+
+    // Carga independiente: si falla no rompe el resto del dashboard
+    try {
+      const pagosRes = await getResumenPagos(anioActual);
+      setResumenPagos(pagosRes);
+    } catch {
+      /* el widget simplemente no aparece */
     }
   };
 
