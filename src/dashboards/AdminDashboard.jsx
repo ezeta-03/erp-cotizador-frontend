@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { DonutChart, LineChart, BarChart } from '../coomponents/Charts';
+import { DonutChart, LineChart } from '../coomponents/Charts';
 import {
   getProgresoTodosVendedores,
   getCotizacionesPorDia,
   setMetaMensual,
   getMetaMensualLog,
 } from '../api/stats';
-import { getResumenPagos } from '../api/proveedores';
 import { Target, TrendingUp, Users, Edit2, Save, X, RefreshCw, History } from 'lucide-react';
 import Spinner from '../coomponents/Spinner';
 import SolicitudesMargenPanel from '../coomponents/SolicitudesMargenPanel';
 import styles from './AdminDashboard.module.scss';
 
 export default function AdminDashboard() {
-  const anioActual = new Date().getFullYear();
-
   const [datos, setDatos] = useState(null);
   const [cotizacionesPorDia, setCotizacionesPorDia] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,8 +20,6 @@ export default function AdminDashboard() {
   const [logVendedor, setLogVendedor] = useState(null);
   const [logEntradas, setLogEntradas] = useState([]);
   const [loadingLog, setLoadingLog] = useState(false);
-  const [resumenPagos, setResumenPagos] = useState(null);
-
   const cargarDatos = async () => {
     try {
       setLoading(true);
@@ -39,14 +34,6 @@ export default function AdminDashboard() {
       alert('Error al cargar datos: ' + error.message);
     } finally {
       setLoading(false);
-    }
-
-    // Carga independiente: si falla no rompe el resto del dashboard
-    try {
-      const pagosRes = await getResumenPagos(anioActual);
-      setResumenPagos(pagosRes);
-    } catch {
-      /* el widget simplemente no aparece */
     }
   };
 
@@ -319,13 +306,6 @@ export default function AdminDashboard() {
           <SolicitudesMargenPanel />
         </div>
       </div>
-
-      {/* Widget pagos proveedores */}
-      {resumenPagos && (
-        <div className={styles.card} style={{ marginTop: '1.5rem', height: '400px' }}>
-          <BarChart data={resumenPagos.meses} anio={resumenPagos.anio} />
-        </div>
-      )}
 
       {logVendedor && (
         <div style={{

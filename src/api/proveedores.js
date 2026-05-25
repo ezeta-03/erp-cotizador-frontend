@@ -7,3 +7,4 @@ export const updateCuota         = (id, cuotaId, data)      => api.patch(`/prove
 export const deleteProveedor     = (id)                     => api.delete(`/proveedores/${id}`).then(r => r.data);
 export const getResumenPagos     = (anio)                   => api.get("/proveedores/resumen-pagos", { params: { anio } }).then(r => r.data);
 export const getAlertasPagos     = ()                       => api.get("/proveedores/alertas").then(r => r.data);
+export const cambiarEstadoContrato = (id, estado)           => api.patch(`/proveedores/${id}/estado`, { estado }).then(r => r.data);

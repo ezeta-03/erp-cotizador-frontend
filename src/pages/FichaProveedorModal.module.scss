@@ -22,11 +22,12 @@
   background: var(--color-surface);
   border-radius: $radius-lg;
   width: 100%;
-  max-width: 960px;
+  max-width: 1020px;
   overflow: hidden;
   box-shadow: var(--shadow-modal);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   margin: auto;
+  border: 1px solid var(--color-border);
 }
 
 @keyframes slideUp {
@@ -39,7 +40,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.875rem 1.5rem;
+  padding: 1rem 2rem;
   background: #f59e0b;
   gap: 1rem;
 }
@@ -85,7 +86,7 @@
 }
 
 .fichaInfoLeft {
-  padding: 1.25rem 1.5rem;
+  padding: 1.75rem 2rem;
   border-right: 1px solid var(--color-border);
 }
 
@@ -93,7 +94,7 @@
   display: flex;
   align-items: baseline;
   gap: 0.75rem;
-  margin-bottom: 0.875rem;
+  margin-bottom: 1.1rem;
 }
 
 .fichaCity {
@@ -133,11 +134,11 @@
 }
 
 .fichaInfoRight {
-  padding: 1.25rem 1.5rem;
+  padding: 1.75rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
-  min-width: 220px;
+  gap: 1rem;
+  min-width: 260px;
 }
 
 .fichaInfoItem {
@@ -172,19 +173,90 @@
   white-space: nowrap;
 }
 
-.fichaBadgeVigente { background: var(--badge-green-bg);  color: var(--badge-green-text); }
-.fichaBadgeVencido { background: var(--badge-red-bg);    color: var(--badge-red-text); }
-.fichaRelAlto      { background: var(--badge-red-bg);    color: var(--badge-red-text); }
-.fichaRelMedio     { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
-.fichaRelBajo      { background: var(--badge-gray-bg);   color: var(--badge-gray-text); }
+.fichaBadgeVigente    { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+.fichaBadgeVencido    { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+.fichaBadgeCancelado  { background: var(--badge-gray-bg);   color: var(--badge-gray-text); }
+.fichaBadgeSuspendido { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
+.fichaRelAlto         { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+.fichaRelMedio        { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
+.fichaRelBajo         { background: var(--badge-gray-bg);   color: var(--badge-gray-text); }
+
+/* ── Controles de estado de contrato ── */
+.estadoControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+%btnEstadoBase {
+  padding: 0.25rem 0.65rem;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) { opacity: 0.8; }
+}
+
+.btnEstadoSuspender {
+  @extend %btnEstadoBase;
+  background: var(--badge-yellow-bg);
+  color: var(--badge-yellow-text);
+}
+
+.btnEstadoCancelar {
+  @extend %btnEstadoBase;
+  background: var(--badge-gray-bg);
+  color: var(--badge-gray-text);
+}
+
+.btnEstadoReactivar {
+  @extend %btnEstadoBase;
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+}
 
 /* ── Tabla de cuotas ── */
 .cuotasSection {
   overflow: hidden;
+  padding: 0 1.5rem 1.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.cuotasSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.25rem 0 0.875rem;
+  flex-wrap: wrap;
+}
+
+.cuotasSectionTitle {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text3);
+}
+
+.cuotasLocked {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--badge-yellow-text);
+  background: var(--badge-yellow-bg);
+  padding: 0.2rem 0.65rem;
+  border-radius: 99px;
 }
 
 .cuotasTableWrap {
   overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
 }
 
 .cuotasTable {
@@ -260,7 +332,8 @@
 /* ── Inputs inline en tabla ── */
 .inputInline {
   width: 100%;
-  min-width: 120px;
+  min-width: 80px;
+  max-width: 152px;
   padding: 0.3rem 0.5rem;
   border: 1px solid var(--color-input-border);
   border-radius: $radius-sm;

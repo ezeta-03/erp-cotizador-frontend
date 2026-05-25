@@ -286,10 +286,20 @@
 /* ================== MAIN GRID ================== */
 .dashboardGrid {
   display: grid;
-  grid-template-columns: 2fr 3fr;
+  grid-template-columns: 2fr 1fr;
   gap: 2rem;
 
   @media (max-width: 1024px) { grid-template-columns: 1fr; }
+}
+
+/* ── Sección gráfico + KPI proveedores ── */
+.pagosGrid {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
 }
 
 /* ================== BADGES ================== */

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { updateCuota } from "../api/proveedores";
+import { updateCuota, cambiarEstadoContrato } from "../api/proveedores";
 import styles from "./FichaProveedorModal.module.scss";
 
 const fmtDate = (d) => {
@@ -13,23 +13,40 @@ const fmtDate = (d) => {
 const fmtMoney = (n) =>
   `S/ ${Number(n || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-const esVigente = (fin) => new Date(fin) >= new Date();
-
 const REL_CLASS = { ALTO: "fichaRelAlto", MEDIO: "fichaRelMedio", BAJO: "fichaRelBajo" };
 
-export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuotaUpdated }) {
+const ESTADO_BADGE_CLASS = {
+  VIGENTE:    "fichaBadgeVigente",
+  VENCIDO:    "fichaBadgeVencido",
+  CANCELADO:  "fichaBadgeCancelado",
+  SUSPENDIDO: "fichaBadgeSuspendido",
+};
+
+export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuotaUpdated, onEstadoUpdated }) {
   const [cuotas, setCuotas] = useState(proveedor.cuotas ?? []);
   const [saving, setSaving] = useState({});
+  const [estadoContrato, setEstadoContrato] = useState(proveedor.estadoContrato ?? "VIGENTE");
+  const [savingEstado, setSavingEstado] = useState(false);
+
+  const handleCambiarEstado = async (nuevoEstado) => {
+    setSavingEstado(true);
+    try {
+      await cambiarEstadoContrato(proveedor.id, nuevoEstado);
+      setEstadoContrato(nuevoEstado ?? (new Date(proveedor.fin) >= new Date() ? "VIGENTE" : "VENCIDO"));
+      onEstadoUpdated?.(proveedor.id, nuevoEstado);
+    } catch { /* silencioso */ }
+    setSavingEstado(false);
+  };
+
+  const puedeEditar = isAdmin && estadoContrato !== "SUSPENDIDO" && estadoContrato !== "CANCELADO";
 
   const [edits, setEdits] = useState(() =>
     Object.fromEntries(
       (proveedor.cuotas ?? []).map((c) => [
         c.id,
         {
-          estado:     c.estado,
-          detalle:    c.detalle ?? "",
-          fecha:      c.fecha,
-          fechaCobro: c.fechaCobro ? String(c.fechaCobro).slice(0, 10) : "",
+          estado:  c.estado,
+          detalle: c.detalle ?? "",
         },
       ])
     )
@@ -49,7 +66,6 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
     setSaving((s) => ({ ...s, [cuota.id]: false }));
   };
 
-  const vigente = esVigente(proveedor.fin);
   const totalMonto   = cuotas.reduce((s, c) => s + c.monto, 0);
   const totalIgv     = cuotas.reduce((s, c) => s + c.igv, 0);
   const totalGeneral = totalMonto + totalIgv;
@@ -57,8 +73,8 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
   const tieneCuenta = !!proveedor.numeroCuenta;
   const tieneNombre = !!proveedor.nombreCuenta;
 
-  /* colspan para la fila TOTAL: # + Monto + IGV + FechaCobro + NotaFecha + Estado + [cuenta] + [nombre] + Detalle */
-  const colsAntes = 7 + (tieneCuenta ? 1 : 0) + (tieneNombre ? 1 : 0);
+  /* colspan para la fila TOTAL: # + Monto + IGV + FechaCobro + Estado + [cuenta] + [nombre] + Detalle */
+  const colsAntes = 6 + (tieneCuenta ? 1 : 0) + (tieneNombre ? 1 : 0);
 
   return (
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -120,9 +136,26 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
           <div className={styles.fichaInfoRight}>
             <div className={styles.fichaInfoItem}>
               <span className={styles.fichaInfoLabel}>Situación del contrato</span>
-              <span className={`${styles.fichaBadge} ${vigente ? styles.fichaBadgeVigente : styles.fichaBadgeVencido}`}>
-                {vigente ? "VIGENTE" : "VENCIDO"}
+              <span className={`${styles.fichaBadge} ${styles[ESTADO_BADGE_CLASS[estadoContrato]]}`}>
+                {estadoContrato}
               </span>
+              {isAdmin && (
+                <div className={styles.estadoControls}>
+                  {estadoContrato === "VIGENTE" || estadoContrato === "VENCIDO" ? (
+                    <button
+                      className={styles.btnEstadoSuspender}
+                      disabled={savingEstado}
+                      onClick={() => handleCambiarEstado("SUSPENDIDO")}
+                    >Suspender</button>
+                  ) : estadoContrato === "SUSPENDIDO" ? (
+                    <button
+                      className={styles.btnEstadoReactivar}
+                      disabled={savingEstado}
+                      onClick={() => handleCambiarEstado(null)}
+                    >Reactivar</button>
+                  ) : null}
+                </div>
+              )}
             </div>
 
             <div className={styles.fichaInfoItem}>
@@ -157,6 +190,14 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
 
         {/* Tabla de cuotas */}
         <div className={styles.cuotasSection}>
+          <div className={styles.cuotasSectionHeader}>
+            <p className={styles.cuotasSectionTitle}>CALENDARIO DE CUOTAS</p>
+            {isAdmin && !puedeEditar && (
+              <span className={styles.cuotasLocked}>
+                Contrato {estadoContrato.toLowerCase()} — reactiva el contrato para editar cuotas
+              </span>
+            )}
+          </div>
           <div className={styles.cuotasTableWrap}>
             <table className={styles.cuotasTable}>
               <thead>
@@ -165,7 +206,6 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                   <th>Monto</th>
                   <th>IGV</th>
                   <th>Fecha cobro</th>
-                  <th>Nota fecha</th>
                   <th>Estado</th>
                   {tieneCuenta && <th>N° Cuenta</th>}
                   {tieneNombre && <th>A nombre de</th>}
@@ -185,38 +225,14 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
                       <td className={styles.tdMoney}>{fmtMoney(c.monto)}</td>
                       <td className={styles.tdMoney}>{fmtMoney(c.igv)}</td>
 
-                      {/* Fecha cobro (date picker) */}
+                      {/* Fecha cobro — solo lectura, se actualiza desde el formulario del proveedor */}
                       <td>
-                        {isAdmin ? (
-                          <input
-                            type="date"
-                            className={styles.inputInline}
-                            value={edit.fechaCobro ?? ""}
-                            onChange={(e) => setEdit(c.id, "fechaCobro", e.target.value)}
-                            onBlur={() => saveCuota(c, edits[c.id])}
-                          />
-                        ) : (
-                          <span>{c.fechaCobro ? String(c.fechaCobro).slice(0, 10).split("-").reverse().join("/") : "—"}</span>
-                        )}
-                      </td>
-
-                      {/* Nota de fecha (texto libre) */}
-                      <td>
-                        {isAdmin ? (
-                          <input
-                            className={styles.inputInline}
-                            value={edit.fecha ?? c.fecha}
-                            onChange={(e) => setEdit(c.id, "fecha", e.target.value)}
-                            onBlur={() => saveCuota(c, edits[c.id])}
-                          />
-                        ) : (
-                          <span>{c.fecha}</span>
-                        )}
+                        <span>{c.fechaCobro ? String(c.fechaCobro).slice(0, 10).split("-").reverse().join("/") : "—"}</span>
                       </td>
 
                       {/* Estado editable */}
                       <td>
-                        {isAdmin ? (
+                        {puedeEditar ? (
                           <select
                             className={`${styles.selectEstado} ${estado === "CANCELADO" ? styles.selectCancelado : styles.selectPendiente}`}
                             value={estado}
@@ -241,7 +257,7 @@ export default function FichaProveedorModal({ proveedor, isAdmin, onClose, onCuo
 
                       {/* Detalle editable */}
                       <td>
-                        {isAdmin ? (
+                        {puedeEditar ? (
                           <input
                             className={styles.inputInline}
                             value={edit.detalle ?? ""}
