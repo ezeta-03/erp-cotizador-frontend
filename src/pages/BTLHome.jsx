@@ -1,61 +1,29 @@
 import { useNavigate } from "react-router-dom";
-import { Layers, Monitor, FileText, Truck, TrendingUp, LogOut, ChevronLeft, Moon, Sun, CalendarDays } from "lucide-react";
+import { Package, FileText, Megaphone, LogOut, ChevronLeft, Moon, Sun } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import useDarkMode from "../hooks/useDarkMode";
-import styles from "./OutdoorHome.module.scss";
+import styles from "./BTLHome.module.scss";
 
 const SECCIONES = [
   {
-    id: "paneles",
-    label: "Paneles",
-    description: "Gestión y disponibilidad de paneles publicitarios",
-    icon: Layers,
-    color: "#10b981",
-    available: true,
-  },
-  {
-    id: "mupis",
-    label: "Mupis",
-    description: "Mobiliario urbano de publicidad e información",
-    icon: Monitor,
+    id: "productos",
+    label: "Productos",
+    description: "Catálogo de productos y precios para campañas BTL",
+    icon: Package,
     color: "#10b981",
     available: true,
   },
   {
     id: "cotizador",
     label: "Cotizador",
-    description: "Genera cotizaciones para campañas outdoor",
+    description: "Genera cotizaciones para campañas BTL",
     icon: FileText,
     color: "#f97316",
     available: true,
   },
-  {
-    id: "proveedores",
-    label: "Proveedores",
-    description: "Directorio y gestión de proveedores outdoor",
-    icon: Truck,
-    color: "#10b981",
-    available: true,
-  },
-  {
-    id: "ocupacion",
-    label: "Ocupación",
-    description: "Timeline de reservas, clientes y rentabilidad por panel",
-    icon: CalendarDays,
-    color: "#6366f1",
-    available: true,
-  },
-  {
-    id: "rentabilidad",
-    label: "Rentabilidad",
-    description: "Análisis de márgenes y rentabilidad de campañas",
-    icon: TrendingUp,
-    color: "#10b981",
-    available: false,
-  },
 ];
 
-export default function OutdoorHome() {
+export default function BTLHome() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [dark, toggleDark] = useDarkMode();
@@ -64,10 +32,10 @@ export default function OutdoorHome() {
 
   const handleSeccion = (sec) => {
     if (!sec.available) return;
-    if (sec.id === "cotizador") {
-      navigate(`/erp/${role}/outdoor/cotizador`);
+    if (sec.id === "productos") {
+      navigate(`/erp/${role}/btl/productos`);
     } else {
-      navigate(`/erp/${role}/outdoor/${sec.id}`);
+      navigate(`/erp/${role}/btl/${sec.id}`);
     }
   };
 
@@ -101,16 +69,16 @@ export default function OutdoorHome() {
           Inicio ERP
         </button>
         <span className={styles.breadcrumbSep}>/</span>
-        <span className={styles.breadcrumbCurrent}>Outdoor</span>
+        <span className={styles.breadcrumbCurrent}>BTL</span>
       </div>
 
       {/* Hero */}
       <section className={styles.hero}>
         <div className={styles.moduleTag}>
-          <TrendingUp size={16} />
-          Módulo Outdoor
+          <Megaphone size={16} />
+          Módulo BTL
         </div>
-        <h1 className={styles.heroTitle}>Outdoor</h1>
+        <h1 className={styles.heroTitle}>BTL</h1>
         <p className={styles.heroSub}>Selecciona una sección para continuar</p>
       </section>
 

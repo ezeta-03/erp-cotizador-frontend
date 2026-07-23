@@ -485,6 +485,7 @@ export default function Ocupacion() {
   const isAdmin  = user?.role === "ADMIN";
 
   const [tab,     setTab]     = useState("timeline");
+  const [seccion, setSeccion] = useState("paneles");
   const [anio,    setAnio]    = useState(new Date().getFullYear());
   const [paneles, setPaneles] = useState([]);
   const [clientes,setClientes]= useState([]);
@@ -512,14 +513,17 @@ export default function Ocupacion() {
 
   /* ── Filtrado ── */
   const panelesFiltrados = paneles.filter(p => {
+    const esMupi = p.tipo === "MUPI";
+    if (seccion === "mupis" ? !esMupi : esMupi) return false;
     if (filtros.distrito && p.distrito !== filtros.distrito) return false;
-    if (filtros.tipo     && p.tipo     !== filtros.tipo)     return false;
+    if (seccion === "paneles" && filtros.tipo && p.tipo !== filtros.tipo) return false;
     return true;
   });
 
   const hayFiltroReserva = filtros.cliente || filtros.precioMin || filtros.precioMax || filtros.fechaIni || filtros.fechaFin;
 
   const reservasFiltradas = reservas.filter(r => {
+    if (!panelesFiltrados.some(p => p.id === r.panelId)) return false;
     if (filtros.cliente) {
       const q = filtros.cliente.toLowerCase();
       if (!r.cliente.nombreComercial.toLowerCase().includes(q)) return false;
@@ -534,6 +538,8 @@ export default function Ocupacion() {
   const panelesMostrados = hayFiltroReserva
     ? panelesFiltrados.filter(p => reservasFiltradas.some(r => r.panelId === p.id))
     : panelesFiltrados;
+
+  const reservasSeccion = reservas.filter(r => panelesFiltrados.some(p => p.id === r.panelId));
 
   /* ── Acciones ── */
   const handleSave = async (form) => {
@@ -562,9 +568,9 @@ export default function Ocupacion() {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Ocupación de Paneles</h1>
+          <h1 className={styles.title}>Ocupación de {seccion === "mupis" ? "Mupis" : "Paneles"}</h1>
           <p className={styles.subtitle}>
-            {loading ? "Cargando…" : `${reservas.filter(r => r.estado === "OCUPADO").length} contratos activos · ${panelesMostrados.length} paneles`}
+            {loading ? "Cargando…" : `${reservasSeccion.filter(r => r.estado === "OCUPADO").length} contratos activos · ${panelesMostrados.length} ${seccion === "mupis" ? "mupis" : "paneles"}`}
           </p>
         </div>
         <div className={styles.headerActions}>
@@ -577,23 +583,41 @@ export default function Ocupacion() {
         </div>
       </div>
 
+      {/* Sección: Paneles / Mupis */}
+      <div className={styles.seccionTabs}>
+        <button
+          className={`${styles.seccionTab} ${seccion === "paneles" ? styles.seccionTabActive : ""}`}
+          onClick={() => setSeccion("paneles")}
+        >
+          Paneles
+        </button>
+        <button
+          className={`${styles.seccionTab} ${seccion === "mupis" ? styles.seccionTabActive : ""}`}
+          onClick={() => setSeccion("mupis")}
+        >
+          Mupis
+        </button>
+      </div>
+
       {/* Barra de filtros */}
       <div className={styles.filtros}>
-        {/* Tipo */}
-        <div className={styles.filtroGroup}>
-          <span className={styles.filtroLabel}>Tipo</span>
-          <div className={styles.filtroBtns}>
-            {TIPOS.map(t => (
-              <button
-                key={t}
-                className={`${styles.filtroBtn} ${filtros.tipo === t ? styles.filtroBtnActive : ""}`}
-                onClick={() => setFiltros(f => ({ ...f, tipo: t }))}
-              >
-                {TIPO_L[t]}
-              </button>
-            ))}
+        {/* Tipo (solo aplica a Paneles: Estático/LED) */}
+        {seccion === "paneles" && (
+          <div className={styles.filtroGroup}>
+            <span className={styles.filtroLabel}>Tipo</span>
+            <div className={styles.filtroBtns}>
+              {TIPOS.map(t => (
+                <button
+                  key={t}
+                  className={`${styles.filtroBtn} ${filtros.tipo === t ? styles.filtroBtnActive : ""}`}
+                  onClick={() => setFiltros(f => ({ ...f, tipo: t }))}
+                >
+                  {TIPO_L[t]}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Ciudad */}
         <div className={styles.filtroGroup}>

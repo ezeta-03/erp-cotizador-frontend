@@ -4,11 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { DonutChart, LineChart } from '../coomponents/Charts';
 import { getProgresoMeta, getCotizacionesPorDia, getEstadisticasCotizaciones } from '../api/stats';
 import { getCotizaciones } from '../api/cotizaciones';
-import { 
-  FileText, 
-  CheckCircle, 
+import {
+  FileText,
+  CheckCircle,
   Clock,
-  Plus,
   Eye,
   DollarSign,
   Target,
@@ -89,10 +88,6 @@ export default function VentasDashboard() {
           <h1 className={styles.pageTitle}>Dashboard de Ventas</h1>
           <p className={styles.pageSubtitle}>Monitorea tu desempeño y progreso hacia la meta mensual</p>
         </div>
-        <button className={styles.btnPrimary} onClick={() => navigate('/erp/ventas/historial')}>
-          <Plus size={20} />
-          Nueva Cotización
-        </button>
       </div>
 
       {/* KPIs Grid */}

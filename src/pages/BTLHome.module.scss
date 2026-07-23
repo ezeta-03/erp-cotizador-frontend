@@ -1,0 +1,357 @@
+@import '../styles/_ui.scss';
+
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 2.5rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  height: 1.75rem;
+  width: auto;
+  object-fit: contain;
+  object-position: left;
+}
+
+.erpLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text3);
+  padding-left: 1rem;
+  border-left: 1px solid var(--color-border);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.userName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text1);
+}
+
+.userRole {
+  font-size: 0.75rem;
+  color: var(--color-text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.userAvatar {
+  display: none;
+}
+
+.btnTheme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-text3);
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover {
+    background: var(--color-hover);
+    border-color: var(--color-hover-border);
+    color: $brand-primary;
+  }
+}
+
+.btnLogout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-text3);
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover {
+    background: #fef2f2;
+    border-color: #fee2e2;
+    color: #ef4444;
+  }
+}
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2.5rem 0;
+}
+
+.btnBack {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text3);
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: $transition-fast;
+
+  &:hover {
+    color: $brand-primary;
+  }
+}
+
+.breadcrumbSep {
+  color: var(--color-text3);
+  font-size: 0.875rem;
+}
+
+.breadcrumbCurrent {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text1);
+}
+
+/* ── Hero ── */
+.hero {
+  padding: 2.5rem 2.5rem 2rem;
+  text-align: center;
+}
+
+.moduleTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8b5cf6;
+  background: #ede9fe;
+  padding: 0.35rem 0.9rem;
+  border-radius: 99px;
+  margin-bottom: 1rem;
+}
+
+.heroTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--color-text1);
+  letter-spacing: -0.03em;
+  margin: 0 0 0.5rem;
+}
+
+.heroSub {
+  font-size: 1rem;
+  color: var(--color-text3);
+  margin: 0;
+}
+
+/* ── Grid de secciones ── */
+.grid {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 1.5rem 2.5rem 4rem;
+  flex-wrap: wrap;
+}
+
+.card {
+  position: relative;
+  width: 220px;
+  padding: 1.75rem 1.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+  text-align: left;
+  cursor: pointer;
+  transition: $transition-smooth;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--color-hover-border);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(-2px);
+  }
+}
+
+.cardDisabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+
+  &:hover {
+    transform: none !important;
+    box-shadow: var(--shadow-soft) !important;
+  }
+}
+
+.soon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--color-surface2);
+  color: var(--color-text3);
+  padding: 0.2rem 0.55rem;
+  border-radius: 99px;
+}
+
+.cardIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.15rem;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-text1);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.cardDesc {
+  font-size: 0.825rem;
+  color: var(--color-text3);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cardEnter {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: $brand-primary;
+}
+
+/* ── Responsive: mobile (2 cols compactos) ── */
+@media (max-width: 600px) {
+  .header,
+  .breadcrumb {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .userRole {
+    display: none;
+  }
+
+  .hero {
+    padding: 1.75rem 1.25rem 1.25rem;
+  }
+
+  .heroTitle {
+    font-size: 1.5rem;
+  }
+
+  .heroSub {
+    font-size: 0.875rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+    padding: 1rem 1rem 3rem;
+    justify-items: stretch;
+  }
+
+  .card {
+    width: auto;
+    padding: 1.25rem 1rem;
+    border-radius: 16px;
+    gap: 0.5rem;
+  }
+
+  .cardIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    margin-bottom: 0;
+  }
+
+  .cardTitle {
+    font-size: 0.95rem;
+  }
+
+  .userInfo {
+    display: none;
+  }
+
+  .userAvatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #8b5cf6;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .cardDesc,
+  .cardEnter {
+    display: none;
+  }
+
+  .soon {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.45rem;
+    top: 0.6rem;
+    right: 0.6rem;
+  }
+}

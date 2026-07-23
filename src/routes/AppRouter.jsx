@@ -4,6 +4,7 @@ import useAuth from "../auth/useAuth";
 import Login from "../pages/Login";
 import ERPHome from "../pages/ERPHome";
 import OutdoorHome from "../pages/OutdoorHome";
+import BTLHome from "../pages/BTLHome";
 import ERPLayout from "../layouts/ERPLayout";
 import Dashboard from "../pages/Dashboard";
 import Clientes from "../pages/Clientes";
@@ -18,6 +19,7 @@ import CotizacionesVentas from "../coomponents/CotizacionesVentas";
 import ActividadClientes from "../coomponents/ActividadClientes";
 import ProtectedRoute from "./ProtectedRoute";
 import Paneles from "../pages/Paneles";
+import Mupis from "../pages/Mupis";
 import Proveedores from "../pages/Proveedores";
 import Ocupacion from "../pages/Ocupacion";
 
@@ -44,6 +46,10 @@ export default function AppRouter() {
         path="/erp/admin/outdoor"
         element={<ProtectedRoute roles={["ADMIN"]}><OutdoorHome /></ProtectedRoute>}
       />
+      <Route
+        path="/erp/admin/btl"
+        element={<ProtectedRoute roles={["ADMIN"]}><BTLHome /></ProtectedRoute>}
+      />
       <Route element={<ProtectedRoute roles={["ADMIN"]}><ERPLayout /></ProtectedRoute>}>
         <Route path="/erp/admin/dashboard"    element={<Dashboard />} />
         <Route path="/erp/admin/historial"    element={<CotizacionesHistorial />} />
@@ -54,8 +60,12 @@ export default function AppRouter() {
         <Route path="/erp/admin/facturar"           element={<CotizacionesVentas />} />
         <Route path="/erp/admin/actividad"          element={<ActividadClientes />} />
         <Route path="/erp/admin/outdoor/paneles"      element={<Paneles />} />
+        <Route path="/erp/admin/outdoor/mupis"        element={<Mupis />} />
         <Route path="/erp/admin/outdoor/proveedores"  element={<Proveedores />} />
         <Route path="/erp/admin/outdoor/ocupacion"    element={<Ocupacion />} />
+        <Route path="/erp/admin/outdoor/cotizador"    element={<CotizacionesHistorial modulo="outdoor" />} />
+        <Route path="/erp/admin/btl/cotizador"        element={<CotizacionesHistorial modulo="btl" />} />
+        <Route path="/erp/admin/btl/productos"        element={<Productos />} />
         <Route path="/erp/admin/perfil"             element={<CambiarContrasena />} />
       </Route>
 
@@ -68,6 +78,10 @@ export default function AppRouter() {
         path="/erp/ventas/outdoor"
         element={<ProtectedRoute roles={["VENTAS"]}><OutdoorHome /></ProtectedRoute>}
       />
+      <Route
+        path="/erp/ventas/btl"
+        element={<ProtectedRoute roles={["VENTAS"]}><BTLHome /></ProtectedRoute>}
+      />
       <Route element={<ProtectedRoute roles={["VENTAS"]}><ERPLayout /></ProtectedRoute>}>
         <Route path="/erp/ventas/dashboard"    element={<Dashboard />} />
         <Route path="/erp/ventas/historial"    element={<CotizacionesHistorial />} />
@@ -77,8 +91,12 @@ export default function AppRouter() {
         <Route path="/erp/ventas/facturar"           element={<CotizacionesVentas />} />
         <Route path="/erp/ventas/actividad"          element={<ActividadClientes />} />
         <Route path="/erp/ventas/outdoor/paneles"      element={<Paneles />} />
+        <Route path="/erp/ventas/outdoor/mupis"        element={<Mupis />} />
         <Route path="/erp/ventas/outdoor/proveedores"  element={<Proveedores />} />
         <Route path="/erp/ventas/outdoor/ocupacion"    element={<Ocupacion />} />
+        <Route path="/erp/ventas/outdoor/cotizador"    element={<CotizacionesHistorial modulo="outdoor" />} />
+        <Route path="/erp/ventas/btl/cotizador"        element={<CotizacionesHistorial modulo="btl" />} />
+        <Route path="/erp/ventas/btl/productos"        element={<Productos />} />
         <Route path="/erp/ventas/perfil"             element={<CambiarContrasena />} />
       </Route>
 

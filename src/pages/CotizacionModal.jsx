@@ -44,7 +44,10 @@ function DecimalInput({ value, onChange, className, disabled, min = 0.01, placeh
   );
 }
 
-export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, title, saveLabel }) {
+export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, title, saveLabel, modulo }) {
+  const mostrarProductos = modulo !== "outdoor";
+  const mostrarOutdoor = modulo !== "btl";
+
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
   const [paneles, setPaneles] = useState([]);
@@ -78,9 +81,10 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
 
   useEffect(() => {
     getClientes().then(setClientes);
-    getProductos().then(setProductos);
-    getPaneles().then((data) => setPaneles(data.filter((p) => p.activo))).catch(() => {});
+    if (mostrarProductos) getProductos().then(setProductos);
+    if (mostrarOutdoor) getPaneles().then((data) => setPaneles(data.filter((p) => p.activo))).catch(() => {});
     getMisAprobadas().then(setAprobaciones).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const margenAprobado = aprobaciones.length > 0
@@ -532,7 +536,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
             </div>
 
             {/* ── Sección Outdoor ─────────────────────────────────────── */}
-            {paneles.length > 0 && (
+            {mostrarOutdoor && paneles.length > 0 && (
               <div className={styles.outdoorSection}>
                 <div className={styles.outdoorHeader}>
                   <Layers size={15} />
@@ -595,20 +599,22 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
             )}
 
             {/* Buscar y agregar producto */}
-            <div className={styles.productosSelectorHeader}>
-              <label style={{ fontWeight: 600, fontSize: "0.85rem", color: "#475569" }}>
-                Agregar producto
-              </label>
-              <button
-                type="button"
-                className={styles.buscadorButton}
-                onClick={() => setMostrarModalProductos(true)}
-              >
-                Buscar productos
-              </button>
-            </div>
+            {mostrarProductos && (
+              <div className={styles.productosSelectorHeader}>
+                <label style={{ fontWeight: 600, fontSize: "0.85rem", color: "#475569" }}>
+                  Agregar producto
+                </label>
+                <button
+                  type="button"
+                  className={styles.buscadorButton}
+                  onClick={() => setMostrarModalProductos(true)}
+                >
+                  Buscar productos
+                </button>
+              </div>
+            )}
 
-            {mostrarModalProductos && (
+            {mostrarProductos && mostrarModalProductos && (
               <div
                 className={styles.productosOverlay}
                 onClick={(e) => { if (e.target === e.currentTarget) setMostrarModalProductos(false); }}

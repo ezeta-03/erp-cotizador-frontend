@@ -17,6 +17,7 @@ const SECTION_LABELS = {
   cotizador:    "Cotizador",
   mia:          "Mis Cotizaciones",
   paneles:      "Paneles",
+  mupis:        "Mupis",
   proveedores:  "Proveedores",
   ocupacion:    "Ocupación",
 };
@@ -31,11 +32,13 @@ export default function ERPLayout() {
   const segments = pathname.split("/").filter(Boolean);
   const segment = segments[segments.length - 1];
   const isOutdoor = segments.includes("outdoor");
+  const isBtl = segments.includes("btl");
   const initials = user?.nombre?.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
   const sectionLabel = SECTION_LABELS[segment] ?? segment;
 
   const homeLink    = (role === "admin" || role === "ventas") ? `/erp/${role}` : null;
   const outdoorLink = isOutdoor ? `/erp/${role}/outdoor` : null;
+  const btlLink     = isBtl ? `/erp/${role}/btl` : null;
 
   return (
     <div className={styles.page}>
@@ -75,6 +78,14 @@ export default function ERPLayout() {
           <>
             <button className={styles.btnBack} onClick={() => navigate(outdoorLink)}>
               Outdoor
+            </button>
+            <span className={styles.breadcrumbSep}>/</span>
+          </>
+        )}
+        {btlLink && (
+          <>
+            <button className={styles.btnBack} onClick={() => navigate(btlLink)}>
+              BTL
             </button>
             <span className={styles.breadcrumbSep}>/</span>
           </>

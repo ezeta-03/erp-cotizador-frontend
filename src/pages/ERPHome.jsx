@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import {
-  BarChart3, FileText, UserCircle, Users, Package,
+  BarChart3, UserCircle, Users,
   DollarSign, MapPin, Megaphone, KeyRound, LogOut, Moon, Sun,
 } from "lucide-react";
 import useAuth from "../auth/useAuth";
@@ -13,14 +13,6 @@ const MODULES_ADMIN = [
     label: "Dashboard",
     description: "KPIs, metas y actividad del equipo",
     icon: BarChart3,
-    color: "#f97316",
-    available: true,
-  },
-  {
-    id: "historial",
-    label: "Cotizador",
-    description: "Crea y gestiona cotizaciones",
-    icon: FileText,
     color: "#f97316",
     available: true,
   },
@@ -38,14 +30,6 @@ const MODULES_ADMIN = [
     description: "Gestión de accesos y roles",
     icon: Users,
     color: "#6366f1",
-    available: true,
-  },
-  {
-    id: "productos",
-    label: "Productos",
-    description: "Catálogo de productos y precios",
-    icon: Package,
-    color: "#10b981",
     available: true,
   },
   {
@@ -67,10 +51,10 @@ const MODULES_ADMIN = [
   {
     id: "btl",
     label: "BTL",
-    description: "Campañas Below The Line",
+    description: "Productos y cotizador para campañas Below The Line",
     icon: Megaphone,
     color: "#8b5cf6",
-    available: false,
+    available: true,
   },
   {
     id: "perfil",
@@ -92,27 +76,11 @@ const MODULES_VENTAS = [
     available: true,
   },
   {
-    id: "historial",
-    label: "Cotizador",
-    description: "Crea y gestiona cotizaciones",
-    icon: FileText,
-    color: "#f97316",
-    available: true,
-  },
-  {
     id: "clientes",
     label: "Clientes",
     description: "Directorio y actividad de clientes",
     icon: UserCircle,
     color: "#3b82f6",
-    available: true,
-  },
-  {
-    id: "productos",
-    label: "Productos",
-    description: "Catálogo de productos y precios",
-    icon: Package,
-    color: "#10b981",
     available: true,
   },
   {
@@ -134,10 +102,10 @@ const MODULES_VENTAS = [
   {
     id: "btl",
     label: "BTL",
-    description: "Campañas Below The Line",
+    description: "Productos y cotizador para campañas Below The Line",
     icon: Megaphone,
     color: "#8b5cf6",
-    available: false,
+    available: true,
   },
   {
     id: "perfil",

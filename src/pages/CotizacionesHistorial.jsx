@@ -22,7 +22,12 @@ function EstadoBadge({ estado }) {
 const fmt = (v) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
 
-export default function CotizacionesHistorial() {
+const SUBTITULOS = {
+  outdoor: "Historial de cotizaciones outdoor (paneles y mupis)",
+  btl: "Historial de cotizaciones BTL (productos)",
+};
+
+export default function CotizacionesHistorial({ modulo }) {
   const { user } = useAuth();
   const token = localStorage.getItem("token");
   const { show: showToast, ToastNode } = useToast();
@@ -46,11 +51,14 @@ export default function CotizacionesHistorial() {
     getCotizacionLog(selectedCotizacion.id).then(setLogCotizacion).catch(() => {});
   }, [selectedCotizacion]);
 
+  const esCotizacionOutdoor = (c) => (c.items || []).some((i) => i.panelId != null);
+
   const filtradas = cotizaciones.filter((c) => {
     const matchEstado = filtroEstado === "TODAS" || c.estado === filtroEstado;
     const matchCliente = !filtroCliente || c.cliente.nombreComercial.toLowerCase().includes(filtroCliente.toLowerCase());
     const matchVendedor = !filtroVendedor || c.usuario?.nombre.toLowerCase().includes(filtroVendedor.toLowerCase());
-    return matchEstado && matchCliente && matchVendedor;
+    const matchModulo = !modulo || (modulo === "outdoor" ? esCotizacionOutdoor(c) : !esCotizacionOutdoor(c));
+    return matchEstado && matchCliente && matchVendedor && matchModulo;
   });
 
   const guardarCotizacion = async ({ clienteId, items, margen, conIgv }) => {
@@ -61,6 +69,7 @@ export default function CotizacionesHistorial() {
       conIgv,
       items: items.map((i) => ({
         productoId: i.productoId,
+        panelId: i.panelId || null,
         cantidad: i.cantidad,
         medida: i.medida || 1,
         medidaAncho: i.medidaAncho || null,
@@ -97,6 +106,7 @@ export default function CotizacionesHistorial() {
       const precioBase = parseFloat(((p?.precio_final || 0) * medida + sumaAdicionales).toFixed(2));
       return {
         productoId: p?.id,
+        panelId: item.panelId || null,
         nombre: p?.nombre || p?.servicio || p?.material || "(sin nombre)",
         precio_final: p?.precio_final || 0,
         unidad: p?.unidad || "",
@@ -127,6 +137,7 @@ export default function CotizacionesHistorial() {
       conIgv,
       items: items.map((i) => ({
         productoId: i.productoId,
+        panelId: i.panelId || null,
         cantidad: i.cantidad,
         medida: i.medida || 1,
         medidaAncho: i.medidaAncho || null,
@@ -171,7 +182,7 @@ export default function CotizacionesHistorial() {
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Cotizaciones</h1>
-          <p className={styles.subtitle}>Historial de cotizaciones emitidas</p>
+          <p className={styles.subtitle}>{SUBTITULOS[modulo] || "Historial de cotizaciones emitidas"}</p>
         </div>
         <div className={styles.headerActions}>
           <button
@@ -330,6 +341,7 @@ export default function CotizacionesHistorial() {
 
       {showModal && (
         <CotizacionModal
+          modulo={modulo}
           onClose={() => setShowModal(false)}
           onSave={guardarCotizacion}
         />
@@ -337,6 +349,7 @@ export default function CotizacionesHistorial() {
 
       {cotizacionARenegociar && (
         <CotizacionModal
+          modulo={modulo}
           onClose={() => setCotizacionARenegociar(null)}
           onSave={guardarRenegociacion}
           initialClienteId={String(cotizacionARenegociar.clienteId)}

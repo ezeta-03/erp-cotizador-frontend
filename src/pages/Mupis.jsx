@@ -15,7 +15,6 @@ const ESTADOS = ESTADOS_PANEL;
 
 const DISTRITOS = ["HUANCAYO", "EL_TAMBO", "CHILCA"];
 const DISTRITO_LABEL = { HUANCAYO: "Huancayo", EL_TAMBO: "El Tambo", CHILCA: "Chilca" };
-const TIPOS = ["ESTATICO", "LED"];
 
 const fmt = (v) =>
   v != null && v !== ""
@@ -23,50 +22,26 @@ const fmt = (v) =>
     : "—";
 
 const FORM_VACIO = {
-  codigo: "", nombre: "", distrito: "HUANCAYO", tipo: "ESTATICO",
+  codigo: "", nombre: "", distrito: "", tipo: "MUPI",
   ubicacion: "", lat: "", lng: "",
   ancho: "", alto: "", costoProduccion: "0", costoInstalacion: "0",
   precioMes: "", estado: "LIBRE",
 };
 
-/* ── Datos plantilla CSV (36 paneles de Huancayo) ──────────────────────────── */
+/* ── Datos plantilla CSV (12 mupis — hoja "MUPIS - PALETAS") ───────────────── */
 const CSV_FILAS = [
-  ["HYO-01","Portico Giraldez Cara 01","HUANCAYO","ESTATICO"],
-  ["HYO-02","Portico Giraldez Cara 02","HUANCAYO","ESTATICO"],
-  ["HYO-03","FFCC y Puno","HUANCAYO","ESTATICO"],
-  ["HYO-04","Ica y FFCC Cara A","HUANCAYO","ESTATICO"],
-  ["HYO-05","Ica y FFCC Cara B","HUANCAYO","ESTATICO"],
-  ["HYO-06","Cajamarca y Mantaro Modelo","HUANCAYO","ESTATICO"],
-  ["HYO-07","Cajamarca y FFCC Cara A","HUANCAYO","ESTATICO"],
-  ["HYO-08","Cajamarca y FFCC Cara B","HUANCAYO","ESTATICO"],
-  ["HYO-09","Giraldez y Guido Aguirre","HUANCAYO","ESTATICO"],
-  ["HYO-10","Giraldez y Huancas","HUANCAYO","ESTATICO"],
-  ["HYO-11","Uruguay y Leandra Torres Cara A","HUANCAYO","ESTATICO"],
-  ["HYO-12","Uruguay y Leandra Torres Cara B","HUANCAYO","ESTATICO"],
-  ["HYO-13","FFCC y Centenario","HUANCAYO","ESTATICO"],
-  ["HYO-14","FFCC y Centenario Torre Cara A","HUANCAYO","ESTATICO"],
-  ["HYO-15","FFCC y Centenario Torre Cara B","HUANCAYO","ESTATICO"],
-  ["HYOL-01","Panel LED Buho Frente Real Plaza","HUANCAYO","LED"],
-  ["HYO-16","Bajada del Tambo","EL_TAMBO","ESTATICO"],
-  ["HYO-17","Mariategui","EL_TAMBO","ESTATICO"],
-  ["HYO-18","Real Frente a Comisaria del Tambo","EL_TAMBO","ESTATICO"],
-  ["HYO-19","Real y Sumar","EL_TAMBO","ESTATICO"],
-  ["HYO-20","Real y Circunvalacion Torre Petty Cara A","EL_TAMBO","ESTATICO"],
-  ["HYO-21","Real y Circunvalacion Torre Petty Cara B","EL_TAMBO","ESTATICO"],
-  ["HYO-22","Real y Circunvalacion Esquina","EL_TAMBO","ESTATICO"],
-  ["HYO-23","Real y Evitamiento Torre Cara A","EL_TAMBO","ESTATICO"],
-  ["HYO-24","Real y Evitamiento Torre Cara B","EL_TAMBO","ESTATICO"],
-  ["HYO-25","Huancavelica y 13 de Nov Cara A JMT","EL_TAMBO","ESTATICO"],
-  ["HYO-26","Huancavelica y 13 de Nov Cara B JMT","EL_TAMBO","ESTATICO"],
-  ["HYO-27","","EL_TAMBO","ESTATICO"],
-  ["HYO-28","","EL_TAMBO","ESTATICO"],
-  ["HYO-29","","EL_TAMBO","ESTATICO"],
-  ["HYO-30","","EL_TAMBO","ESTATICO"],
-  ["HYOL-02","Panel LED Buho Bajada del Tambo","EL_TAMBO","LED"],
-  ["HYO-31","Parque Los Heroes (Panel Valla)","CHILCA","ESTATICO"],
-  ["HYO-32","Leoncio Prado y Huancavelica","CHILCA","ESTATICO"],
-  ["HYO-33","Huancavelica y FFCC (Esquina)","CHILCA","ESTATICO"],
-  ["HYO-34","FFCC y Huancavelica (Hacia Pared Cli Mira)","CHILCA","ESTATICO"],
+  ["MUPI-01","Giraldez y FFCC","","MUPI"],
+  ["MUPI-02","Giraldez y Huancas","","MUPI"],
+  ["MUPI-03","FFCC y Centenario","","MUPI"],
+  ["MUPI-04","Huancas y Centenario","","MUPI"],
+  ["MUPI-05","Solano y Centenario","","MUPI"],
+  ["MUPI-06","Solano y Abancay (Parque Tupac)","","MUPI"],
+  ["MUPI-07","Uruguay y Leandra Torres (Parque Tupac)","","MUPI"],
+  ["MUPI-08","San Carlos y Aurora","","MUPI"],
+  ["MUPI-09","FFCC Cdra 01 (Open Plaza)","","MUPI"],
+  ["MUPI-10","Prol. San Carlos Cdra 01 (Open Plaza)","","MUPI"],
+  ["MUPI-11","Puno y Junin (Hospital El Carmen)","","MUPI"],
+  ["MUPI-12","Carrion y Tacna","","MUPI"],
 ];
 
 const CSV_HEADERS = "codigo,nombre,distrito,tipo,ubicacion,lat,lng,ancho,alto,costoProduccion,costoInstalacion,precioMes,estado";
@@ -79,7 +54,7 @@ function descargarPlantilla() {
   const blob = new Blob(["﻿" + contenido], { type: "text/csv;charset=utf-8;" });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement("a");
-  a.href = url; a.download = "paneles_huancayo.csv"; a.click();
+  a.href = url; a.download = "mupis.csv"; a.click();
   URL.revokeObjectURL(url);
 }
 
@@ -96,7 +71,7 @@ function parseCSV(text) {
     }
     values.push(cur.trim().replace(/^"|"$/g, ""));
     return Object.fromEntries(headers.map((h, i) => [h, values[i] ?? ""]));
-  });
+  }).map((fila) => ({ ...fila, tipo: "MUPI" }));
 }
 
 /* ── Mapa (Leaflet) ──────────────────────────────────────────────────────── */
@@ -148,7 +123,7 @@ function MapModal({ panel, onClose }) {
         <div className={styles.mapHeader}>
           <div>
             <p className={styles.mapTitle}>{panel.codigo} — {panel.nombre || "(sin nombre)"}</p>
-            <p className={styles.mapSub}>{panel.ubicacion || DISTRITO_LABEL[panel.distrito]}</p>
+            <p className={styles.mapSub}>{panel.ubicacion || DISTRITO_LABEL[panel.distrito] || "—"}</p>
           </div>
           <div className={styles.mapHeaderActions}>
             <a href={gmapsUrl} target="_blank" rel="noopener noreferrer" className={styles.btnMapLink}>
@@ -183,7 +158,7 @@ function F({ label, children, optional }) {
   );
 }
 
-function PanelFormModal({ inicial, onSave, onCancel }) {
+function MupiFormModal({ inicial, onSave, onCancel }) {
   const [form, setForm]     = useState(inicial ?? FORM_VACIO);
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState("");
@@ -195,7 +170,7 @@ function PanelFormModal({ inicial, onSave, onCancel }) {
     setError("");
     if (!form.codigo) { setError("El código es obligatorio."); return; }
     setSaving(true);
-    try { await onSave(form); }
+    try { await onSave({ ...form, tipo: "MUPI" }); }
     catch (err) {
       setError(err.response?.data?.message ?? "Error al guardar");
       setSaving(false);
@@ -206,7 +181,7 @@ function PanelFormModal({ inicial, onSave, onCancel }) {
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
       <div className={styles.formModal}>
         <div className={styles.formHeader}>
-          <h2 className={styles.formTitle}>{inicial ? "Editar panel" : "Nuevo panel"}</h2>
+          <h2 className={styles.formTitle}>{inicial ? "Editar mupi" : "Nuevo mupi"}</h2>
           <button className={styles.btnClose} onClick={onCancel}><X size={18} /></button>
         </div>
 
@@ -215,20 +190,19 @@ function PanelFormModal({ inicial, onSave, onCancel }) {
 
           <div className={styles.formRow}>
             <F label="Código">
-              <input value={form.codigo} onChange={set("codigo")} placeholder="HYO-01" style={{ textTransform: "uppercase" }} />
+              <input value={form.codigo} onChange={set("codigo")} placeholder="MUPI-01" style={{ textTransform: "uppercase" }} />
             </F>
-            <F label="Tipo">
-              <select value={form.tipo} onChange={set("tipo")}>
-                {TIPOS.map(t => <option key={t} value={t}>{t === "ESTATICO" ? "Estático" : "LED"}</option>)}
+            <F label="Distrito" optional>
+              <select value={form.distrito} onChange={set("distrito")}>
+                <option value="">Sin distrito</option>
+                {DISTRITOS.map(d => <option key={d} value={d}>{DISTRITO_LABEL[d]}</option>)}
               </select>
             </F>
           </div>
 
           <div className={styles.formRow}>
-            <F label="Distrito">
-              <select value={form.distrito} onChange={set("distrito")}>
-                {DISTRITOS.map(d => <option key={d} value={d}>{DISTRITO_LABEL[d]}</option>)}
-              </select>
+            <F label="Nombre / ubicación">
+              <input value={form.nombre} onChange={set("nombre")} placeholder="Ej. Giraldez y FFCC" />
             </F>
             <F label="Estado">
               <select value={form.estado} onChange={set("estado")}>
@@ -237,12 +211,8 @@ function PanelFormModal({ inicial, onSave, onCancel }) {
             </F>
           </div>
 
-          <F label="Nombre del panel" optional>
-            <input value={form.nombre} onChange={set("nombre")} placeholder="Ej. Portico Giraldez Cara 01" />
-          </F>
-
-          <F label="Dirección / Ubicación" optional>
-            <input value={form.ubicacion} onChange={set("ubicacion")} placeholder="Ej. Av. Real 340, El Tambo" />
+          <F label="Dirección / referencia" optional>
+            <input value={form.ubicacion} onChange={set("ubicacion")} placeholder="Ej. Frente a Real Plaza" />
           </F>
 
           <div className={styles.formRow}>
@@ -256,10 +226,10 @@ function PanelFormModal({ inicial, onSave, onCancel }) {
 
           <div className={styles.formRow}>
             <F label="Ancho (m)" optional>
-              <input type="number" step="0.1" min="0" value={form.ancho} onChange={set("ancho")} placeholder="6" />
+              <input type="number" step="0.1" min="0" value={form.ancho} onChange={set("ancho")} placeholder="1.2" />
             </F>
             <F label="Alto (m)" optional>
-              <input type="number" step="0.1" min="0" value={form.alto} onChange={set("alto")} placeholder="3" />
+              <input type="number" step="0.1" min="0" value={form.alto} onChange={set("alto")} placeholder="1.8" />
             </F>
           </div>
 
@@ -273,13 +243,13 @@ function PanelFormModal({ inicial, onSave, onCancel }) {
           </div>
 
           <F label="Precio de alquiler / mes (S/)" optional>
-            <input type="number" step="0.01" min="0" value={form.precioMes} onChange={set("precioMes")} placeholder="2500" />
+            <input type="number" step="0.01" min="0" value={form.precioMes} onChange={set("precioMes")} placeholder="562.50" />
           </F>
 
           <div className={styles.formActions}>
             <button type="button" className={styles.btnOutline} onClick={onCancel}>Cancelar</button>
             <button type="submit" className={styles.btnPrimary} disabled={saving}>
-              {saving ? "Guardando…" : "Guardar panel"}
+              {saving ? "Guardando…" : "Guardar mupi"}
             </button>
           </div>
         </form>
@@ -295,12 +265,12 @@ function EstadoBadge({ estado }) {
 }
 
 /* ── Página principal ────────────────────────────────────────────────────── */
-export default function Paneles() {
+export default function Mupis() {
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
   const fileRef = useRef(null);
 
-  const [paneles, setPaneles]     = useState([]);
+  const [mupis, setMupis]         = useState([]);
   const [loading, setLoading]     = useState(true);
   const [mapPanel, setMapPanel]   = useState(null);
   const [editPanel, setEditPanel] = useState(null);
@@ -310,14 +280,14 @@ export default function Paneles() {
 
   const cargar = useCallback(async () => {
     setLoading(true);
-    try { setPaneles((await getPaneles()).filter((p) => p.tipo !== "MUPI")); }
+    try { setMupis((await getPaneles()).filter((p) => p.tipo === "MUPI")); }
     catch { /* silencioso */ }
     finally { setLoading(false); }
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);
 
-  const handleCrear  = async (form) => { await createPanel(form);          setShowForm(false); cargar(); };
+  const handleCrear  = async (form) => { await createPanel(form);              setShowForm(false); cargar(); };
   const handleEditar = async (form) => { await updatePanel(editPanel.id, form); setEditPanel(null); cargar(); };
   const handleEstado = async (panel, estado) => { await cambiarEstadoPanel(panel.id, estado); cargar(); };
   const handleEliminar = async (panel) => {
@@ -336,7 +306,7 @@ export default function Paneles() {
       const text  = await file.text();
       const filas = parseCSV(text);
       const res   = await importarPaneles(filas);
-      setImportMsg({ ok: true, texto: `${res.creados} paneles importados${res.errores.length ? `, ${res.errores.length} con error` : ""}.` });
+      setImportMsg({ ok: true, texto: `${res.creados} mupis importados${res.errores.length ? `, ${res.errores.length} con error` : ""}.` });
       cargar();
     } catch (err) {
       setImportMsg({ ok: false, texto: err.response?.data?.message ?? "Error al importar" });
@@ -347,7 +317,7 @@ export default function Paneles() {
 
   const formInicial = editPanel ? {
     codigo: editPanel.codigo, nombre: editPanel.nombre ?? "",
-    distrito: editPanel.distrito ?? "HUANCAYO", tipo: editPanel.tipo ?? "ESTATICO",
+    distrito: editPanel.distrito ?? "", tipo: "MUPI",
     ubicacion: editPanel.ubicacion ?? "", lat: editPanel.lat ?? "", lng: editPanel.lng ?? "",
     ancho: editPanel.ancho ?? "", alto: editPanel.alto ?? "",
     costoProduccion: editPanel.costoProduccion ?? "0",
@@ -360,9 +330,9 @@ export default function Paneles() {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Paneles Publicitarios</h1>
+          <h1 className={styles.title}>Mupis</h1>
           <p className={styles.subtitle}>
-            {loading ? "Cargando…" : `${paneles.length} panel${paneles.length !== 1 ? "es" : ""} registrado${paneles.length !== 1 ? "s" : ""}`}
+            {loading ? "Cargando…" : `${mupis.length} mupi${mupis.length !== 1 ? "s" : ""} registrado${mupis.length !== 1 ? "s" : ""}`}
           </p>
         </div>
         <div className={styles.headerActions}>
@@ -381,7 +351,7 @@ export default function Paneles() {
             </button>
             <input ref={fileRef} type="file" accept=".csv" style={{ display: "none" }} onChange={handleImportarCSV} />
             <button className={styles.btnPrimary} onClick={() => setShowForm(true)}>
-              <Plus size={18} /> Nuevo panel
+              <Plus size={18} /> Nuevo mupi
             </button>
           </>)}
         </div>
@@ -398,17 +368,16 @@ export default function Paneles() {
       {/* Tabla */}
       <div className={styles.tableContainer}>
         {loading ? (
-          <p className={styles.empty}>Cargando paneles…</p>
-        ) : paneles.length === 0 ? (
-          <p className={styles.empty}>No hay paneles registrados. Usa "Importar CSV" o "Nuevo panel".</p>
+          <p className={styles.empty}>Cargando mupis…</p>
+        ) : mupis.length === 0 ? (
+          <p className={styles.empty}>No hay mupis registrados. Usa "Importar CSV" o "Nuevo mupi".</p>
         ) : (
           <table className={styles.table}>
             <thead>
               <tr>
                 <th>Código</th>
-                <th>Panel</th>
+                <th>Mupi</th>
                 <th>Distrito</th>
-                <th>Tipo</th>
                 <th>Medidas</th>
                 <th>Precio / mes</th>
                 <th>Estado</th>
@@ -417,7 +386,7 @@ export default function Paneles() {
               </tr>
             </thead>
             <tbody>
-              {paneles.map((p) => (
+              {mupis.map((p) => (
                 <tr key={p.id}>
                   <td className={styles.tdCodigo}>{p.codigo}</td>
 
@@ -430,10 +399,6 @@ export default function Paneles() {
 
                   <td style={{ fontSize: "0.82rem", color: "var(--color-text2)", whiteSpace: "nowrap" }}>
                     {DISTRITO_LABEL[p.distrito] ?? "—"}
-                  </td>
-
-                  <td style={{ fontSize: "0.8rem", whiteSpace: "nowrap" }}>
-                    {p.tipo === "LED" ? <span className={styles.badgeLed}>LED</span> : "Estático"}
                   </td>
 
                   <td>
@@ -490,8 +455,8 @@ export default function Paneles() {
 
       {/* Modales */}
       {mapPanel  && <MapModal panel={mapPanel} onClose={() => setMapPanel(null)} />}
-      {showForm  && <PanelFormModal inicial={null}       onSave={handleCrear}  onCancel={() => setShowForm(false)} />}
-      {editPanel && <PanelFormModal inicial={formInicial} onSave={handleEditar} onCancel={() => setEditPanel(null)} />}
+      {showForm  && <MupiFormModal inicial={null}       onSave={handleCrear}  onCancel={() => setShowForm(false)} />}
+      {editPanel && <MupiFormModal inicial={formInicial} onSave={handleEditar} onCancel={() => setEditPanel(null)} />}
     </div>
   );
 }
