@@ -1,3 +1,5 @@
+import { nombreItem } from "../utils/cotizacionItem";
+
 export const descargarPDF = async (cotizacionId, token, numero = null) => {
   const pdfUrl = `${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacionId}/pdf?token=${token}`;
 
@@ -8,13 +10,16 @@ export const descargarPDF = async (cotizacionId, token, numero = null) => {
 
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("pdf")) throw new Error(`Respuesta inesperada del servidor (${contentType})`);
+
   const pdfBlob = await response.blob();
   if (pdfBlob.size === 0) throw new Error("PDF vacío recibido del servidor");
 
   const url = URL.createObjectURL(pdfBlob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `COT-${numero || cotizacionId}.pdf`;
+  link.download = numero ? `${numero}.pdf` : `COT-${cotizacionId}.pdf`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -134,7 +139,7 @@ export const generarPDFCliente = async (cotizacion) => {
 
   // ── Items table ──
   const tableData = (cotizacion.items || []).map((item, i) => {
-    const nombre = item.producto?.nombre || item.producto?.servicio || item.producto?.material || "Producto";
+    const nombre = nombreItem(item);
     const glosa  = item.descripcion || item.glosa || "";
     const unidad = item.producto?.unidad || "";
     let medidaStr = null;
@@ -252,7 +257,7 @@ export const generarPDFCliente = async (cotizacion) => {
   doc.setTextColor(...LGRAY);
   doc.text("ZAAZMAGO", PW - MR, PH - 12, { align: "right" });
 
-  doc.save(`COT-${cotizacion.numero || cotizacion.id || "NUEVA"}.pdf`);
+  doc.save(cotizacion.numero ? `${cotizacion.numero}.pdf` : `COT-${cotizacion.id || "NUEVA"}.pdf`);
 };
 
 export const descargarPDFInteligente = async (cotizacion, token) => {

@@ -3,6 +3,7 @@ import { Download, X } from "lucide-react";
 import { getMisCotizaciones, responderCotizacion } from "../api/cotizaciones";
 import { descargarPDFInteligente } from "../api/pdf";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
+import { nombreItem } from "../utils/cotizacionItem";
 import styles from "./MiCotizacion.module.scss";
 
 const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "RECHAZADA", "FACTURADA"];
@@ -154,7 +155,7 @@ export default function MiCotizacion() {
           year: "numeric",
         });
         const previewItems = (cot.items || []).map((item) => ({
-          nombre: item.producto?.nombre || item.producto?.servicio || "(sin nombre)",
+          nombre: nombreItem(item),
           descripcion: item.descripcion,
           medidaAncho: item.medidaAncho,
           medidaAlto: item.medidaAlto,

@@ -9,6 +9,7 @@ import ConvertirReservaModal from "./ConvertirReservaModal";
 import { crearCotizacion } from "../api/cotizaciones";
 import useAuth from "../auth/useAuth";
 import { useToast } from "../coomponents/Toast";
+import { nombreItem } from "../utils/cotizacionItem";
 
 const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "FACTURADA", "RENEGOCIACION", "RECHAZADA"];
 
@@ -30,6 +31,7 @@ const SUBTITULOS = {
 
 export default function CotizacionesHistorial({ modulo }) {
   const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
   const token = localStorage.getItem("token");
   const { show: showToast, ToastNode } = useToast();
 
@@ -72,6 +74,8 @@ export default function CotizacionesHistorial({ modulo }) {
       items: items.map((i) => ({
         productoId: i.productoId,
         panelId: i.panelId || null,
+        nombre: i.nombre || null,
+        descripcion: i.descripcion || "",
         cantidad: i.cantidad,
         medida: i.medida || 1,
         medidaAncho: i.medidaAncho || null,
@@ -109,7 +113,7 @@ export default function CotizacionesHistorial({ modulo }) {
       return {
         productoId: p?.id,
         panelId: item.panelId || null,
-        nombre: p?.nombre || p?.servicio || p?.material || "(sin nombre)",
+        nombre: nombreItem(item),
         precio_final: p?.precio_final || 0,
         unidad: p?.unidad || "",
         tipoMedida,
@@ -140,6 +144,7 @@ export default function CotizacionesHistorial({ modulo }) {
       items: items.map((i) => ({
         productoId: i.productoId,
         panelId: i.panelId || null,
+        nombre: i.nombre || null,
         cantidad: i.cantidad,
         medida: i.medida || 1,
         medidaAncho: i.medidaAncho || null,
@@ -259,7 +264,7 @@ export default function CotizacionesHistorial({ modulo }) {
                 <button className={styles.btnOutline} onClick={() => handlePreview(c)}>
                   Vista previa / PDF
                 </button>
-                {modulo === "outdoor" && c.estado === "APROBADA" && (
+                {isAdmin && modulo === "outdoor" && c.estado === "APROBADA" && (
                   <button className={styles.btnOutline} onClick={() => setCotAConvertir(c)}>
                     Crear reserva
                   </button>
@@ -327,7 +332,7 @@ export default function CotizacionesHistorial({ modulo }) {
                       <button className={styles.btnGhost} onClick={() => handlePreview(c)}>
                         PDF
                       </button>
-                      {modulo === "outdoor" && c.estado === "APROBADA" && (
+                      {isAdmin && modulo === "outdoor" && c.estado === "APROBADA" && (
                         <button className={styles.btnGhost} onClick={() => setCotAConvertir(c)}>
                           Reserva
                         </button>
@@ -385,7 +390,7 @@ export default function CotizacionesHistorial({ modulo }) {
         const valorVenta = cot.conIgv ? parseFloat((total / 1.18).toFixed(2)) : total;
         const fecha = new Date(cot.createdAt).toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" });
         const previewItems = (cot.items || []).map((item) => ({
-          nombre: item.producto?.nombre || item.producto?.servicio || "(sin nombre)",
+          nombre: nombreItem(item),
           descripcion: item.descripcion,
           medidaAncho: item.medidaAncho,
           medidaAlto: item.medidaAlto,
