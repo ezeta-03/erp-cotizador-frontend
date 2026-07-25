@@ -5,6 +5,7 @@ import { descargarPDFInteligente } from "../api/pdf";
 import styles from "./cotizacionesHistorial.module.scss";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
 import CotizacionModal from "./CotizacionModal";
+import ConvertirReservaModal from "./ConvertirReservaModal";
 import { crearCotizacion } from "../api/cotizaciones";
 import useAuth from "../auth/useAuth";
 import { useToast } from "../coomponents/Toast";
@@ -41,6 +42,7 @@ export default function CotizacionesHistorial({ modulo }) {
   const [logCotizacion, setLogCotizacion] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [cotizacionARenegociar, setCotizacionARenegociar] = useState(null);
+  const [cotAConvertir, setCotAConvertir] = useState(null);
 
   const cargarCotizaciones = () => getCotizaciones().then(setCotizaciones);
 
@@ -257,6 +259,11 @@ export default function CotizacionesHistorial({ modulo }) {
                 <button className={styles.btnOutline} onClick={() => handlePreview(c)}>
                   Vista previa / PDF
                 </button>
+                {modulo === "outdoor" && c.estado === "APROBADA" && (
+                  <button className={styles.btnOutline} onClick={() => setCotAConvertir(c)}>
+                    Crear reserva
+                  </button>
+                )}
                 {c.estado === "RENEGOCIACION" && (
                   <button
                     className={styles.btnDanger}
@@ -320,6 +327,11 @@ export default function CotizacionesHistorial({ modulo }) {
                       <button className={styles.btnGhost} onClick={() => handlePreview(c)}>
                         PDF
                       </button>
+                      {modulo === "outdoor" && c.estado === "APROBADA" && (
+                        <button className={styles.btnGhost} onClick={() => setCotAConvertir(c)}>
+                          Reserva
+                        </button>
+                      )}
                       {c.estado === "RENEGOCIACION" && (
                         <button
                           className={styles.btnDanger}
@@ -344,6 +356,13 @@ export default function CotizacionesHistorial({ modulo }) {
           modulo={modulo}
           onClose={() => setShowModal(false)}
           onSave={guardarCotizacion}
+        />
+      )}
+
+      {cotAConvertir && (
+        <ConvertirReservaModal
+          cotizacion={cotAConvertir}
+          onClose={() => setCotAConvertir(null)}
         />
       )}
 
