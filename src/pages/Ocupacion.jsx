@@ -62,19 +62,21 @@ function computeStats(reservas, paneles, anio) {
     if (r.estado === "LIBRE") continue;
     const s = new Date(r.fechaInicio);
     const e = new Date(r.fechaFin);
+
+    // Duración en meses de calendario (mes de inicio inclusive, mes de fin exclusivo,
+    // igual que el cálculo de cuotas de proveedores). Mínimo 1 mes.
+    const mesInicioAbs = s.getFullYear() * 12 + s.getMonth();
+    const mesFinAbs     = Math.max(mesInicioAbs + 1, e.getFullYear() * 12 + e.getMonth());
+    const meses = mesFinAbs - mesInicioAbs;
+
     for (let m = 0; m < 12; m++) {
-      const ms = new Date(anio, m, 1);
-      const me = new Date(anio, m + 1, 0, 23, 59, 59);
-      if (s <= me && e >= ms) {
+      const mAbs = anio * 12 + m;
+      if (mAbs >= mesInicioAbs && mAbs < mesFinAbs) {
         byMonth[m].ingreso  += r.precioMensual;
         byMonth[m].ocupados += 1;
       }
     }
-    let meses = 0;
-    for (let m = 0; m < 12; m++) {
-      const ms = new Date(anio, m, 1), me = new Date(anio, m + 1, 0, 23, 59, 59);
-      if (s <= me && e >= ms) meses++;
-    }
+
     const cid = r.clienteId;
     if (!clienteMap[cid]) clienteMap[cid] = { nombre: r.cliente.nombreComercial, total: 0, color: clienteColor(cid) };
     clienteMap[cid].total += r.precioMensual * meses;

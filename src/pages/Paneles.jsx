@@ -5,14 +5,12 @@ import "leaflet/dist/leaflet.css";
 import useAuth from "../auth/useAuth";
 import {
   getPaneles, createPanel, updatePanel,
-  cambiarEstadoPanel, deletePanel, importarPaneles,
+  deletePanel, importarPaneles,
 } from "../api/paneles";
 import styles from "./paneles.module.scss";
-import { ESTADOS_PANEL, ESTADO_META } from "../constants/estados";
+import { ESTADO_META } from "../constants/estados";
 
 /* ── Constantes ────────────────────────────────────────────────────────────── */
-const ESTADOS = ESTADOS_PANEL;
-
 const DISTRITOS = ["HUANCAYO", "EL_TAMBO", "CHILCA"];
 const DISTRITO_LABEL = { HUANCAYO: "Huancayo", EL_TAMBO: "El Tambo", CHILCA: "Chilca" };
 const TIPOS = ["ESTATICO", "LED"];
@@ -26,7 +24,7 @@ const FORM_VACIO = {
   codigo: "", nombre: "", distrito: "HUANCAYO", tipo: "ESTATICO",
   ubicacion: "", lat: "", lng: "",
   ancho: "", alto: "", costoProduccion: "0", costoInstalacion: "0",
-  precioMes: "", estado: "LIBRE",
+  precioMes: "",
 };
 
 /* ── Datos plantilla CSV (36 paneles de Huancayo) ──────────────────────────── */
@@ -224,18 +222,11 @@ function PanelFormModal({ inicial, onSave, onCancel }) {
             </F>
           </div>
 
-          <div className={styles.formRow}>
-            <F label="Distrito">
-              <select value={form.distrito} onChange={set("distrito")}>
-                {DISTRITOS.map(d => <option key={d} value={d}>{DISTRITO_LABEL[d]}</option>)}
-              </select>
-            </F>
-            <F label="Estado">
-              <select value={form.estado} onChange={set("estado")}>
-                {ESTADOS.map(est => <option key={est} value={est}>{ESTADO_META[est].label}</option>)}
-              </select>
-            </F>
-          </div>
+          <F label="Distrito">
+            <select value={form.distrito} onChange={set("distrito")}>
+              {DISTRITOS.map(d => <option key={d} value={d}>{DISTRITO_LABEL[d]}</option>)}
+            </select>
+          </F>
 
           <F label="Nombre del panel" optional>
             <input value={form.nombre} onChange={set("nombre")} placeholder="Ej. Portico Giraldez Cara 01" />
@@ -256,10 +247,10 @@ function PanelFormModal({ inicial, onSave, onCancel }) {
 
           <div className={styles.formRow}>
             <F label="Ancho (m)" optional>
-              <input type="number" step="0.1" min="0" value={form.ancho} onChange={set("ancho")} placeholder="6" />
+              <input type="number" step="0.01" min="0" value={form.ancho} onChange={set("ancho")} placeholder="6" />
             </F>
             <F label="Alto (m)" optional>
-              <input type="number" step="0.1" min="0" value={form.alto} onChange={set("alto")} placeholder="3" />
+              <input type="number" step="0.01" min="0" value={form.alto} onChange={set("alto")} placeholder="3" />
             </F>
           </div>
 
@@ -319,7 +310,6 @@ export default function Paneles() {
 
   const handleCrear  = async (form) => { await createPanel(form);          setShowForm(false); cargar(); };
   const handleEditar = async (form) => { await updatePanel(editPanel.id, form); setEditPanel(null); cargar(); };
-  const handleEstado = async (panel, estado) => { await cambiarEstadoPanel(panel.id, estado); cargar(); };
   const handleEliminar = async (panel) => {
     if (!confirm(`¿Eliminar "${panel.codigo}"? Esta acción no se puede deshacer.`)) return;
     await deletePanel(panel.id);
@@ -352,7 +342,7 @@ export default function Paneles() {
     ancho: editPanel.ancho ?? "", alto: editPanel.alto ?? "",
     costoProduccion: editPanel.costoProduccion ?? "0",
     costoInstalacion: editPanel.costoInstalacion ?? "0",
-    precioMes: editPanel.precioMes ?? "", estado: editPanel.estado ?? "LIBRE",
+    precioMes: editPanel.precioMes ?? "",
   } : null;
 
   return (
@@ -448,19 +438,7 @@ export default function Paneles() {
                   <td className={styles.tdPrecio}>{fmt(p.precioMes)}</td>
 
                   <td>
-                    {isAdmin ? (
-                      <select
-                        className={styles.selectEstado}
-                        value={p.estado}
-                        onChange={(e) => handleEstado(p, e.target.value)}
-                      >
-                        {ESTADOS.map(est => (
-                          <option key={est} value={est}>{ESTADO_META[est].label}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <EstadoBadge estado={p.estado} />
-                    )}
+                    <EstadoBadge estado={p.estado} />
                   </td>
 
                   <td>

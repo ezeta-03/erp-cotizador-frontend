@@ -5,14 +5,12 @@ import "leaflet/dist/leaflet.css";
 import useAuth from "../auth/useAuth";
 import {
   getPaneles, createPanel, updatePanel,
-  cambiarEstadoPanel, deletePanel, importarPaneles,
+  deletePanel, importarPaneles,
 } from "../api/paneles";
 import styles from "./paneles.module.scss";
-import { ESTADOS_PANEL, ESTADO_META } from "../constants/estados";
+import { ESTADO_META } from "../constants/estados";
 
 /* ── Constantes ────────────────────────────────────────────────────────────── */
-const ESTADOS = ESTADOS_PANEL;
-
 const DISTRITOS = ["HUANCAYO", "EL_TAMBO", "CHILCA"];
 const DISTRITO_LABEL = { HUANCAYO: "Huancayo", EL_TAMBO: "El Tambo", CHILCA: "Chilca" };
 
@@ -25,7 +23,7 @@ const FORM_VACIO = {
   codigo: "", nombre: "", distrito: "", tipo: "MUPI",
   ubicacion: "", lat: "", lng: "",
   ancho: "", alto: "", costoProduccion: "0", costoInstalacion: "0",
-  precioMes: "", estado: "LIBRE",
+  precioMes: "",
 };
 
 /* ── Datos plantilla CSV (12 mupis — hoja "MUPIS - PALETAS") ───────────────── */
@@ -200,16 +198,9 @@ function MupiFormModal({ inicial, onSave, onCancel }) {
             </F>
           </div>
 
-          <div className={styles.formRow}>
-            <F label="Nombre / ubicación">
-              <input value={form.nombre} onChange={set("nombre")} placeholder="Ej. Giraldez y FFCC" />
-            </F>
-            <F label="Estado">
-              <select value={form.estado} onChange={set("estado")}>
-                {ESTADOS.map(est => <option key={est} value={est}>{ESTADO_META[est].label}</option>)}
-              </select>
-            </F>
-          </div>
+          <F label="Nombre / ubicación">
+            <input value={form.nombre} onChange={set("nombre")} placeholder="Ej. Giraldez y FFCC" />
+          </F>
 
           <F label="Dirección / referencia" optional>
             <input value={form.ubicacion} onChange={set("ubicacion")} placeholder="Ej. Frente a Real Plaza" />
@@ -226,10 +217,10 @@ function MupiFormModal({ inicial, onSave, onCancel }) {
 
           <div className={styles.formRow}>
             <F label="Ancho (m)" optional>
-              <input type="number" step="0.1" min="0" value={form.ancho} onChange={set("ancho")} placeholder="1.2" />
+              <input type="number" step="0.01" min="0" value={form.ancho} onChange={set("ancho")} placeholder="1.2" />
             </F>
             <F label="Alto (m)" optional>
-              <input type="number" step="0.1" min="0" value={form.alto} onChange={set("alto")} placeholder="1.8" />
+              <input type="number" step="0.01" min="0" value={form.alto} onChange={set("alto")} placeholder="1.8" />
             </F>
           </div>
 
@@ -289,7 +280,6 @@ export default function Mupis() {
 
   const handleCrear  = async (form) => { await createPanel(form);              setShowForm(false); cargar(); };
   const handleEditar = async (form) => { await updatePanel(editPanel.id, form); setEditPanel(null); cargar(); };
-  const handleEstado = async (panel, estado) => { await cambiarEstadoPanel(panel.id, estado); cargar(); };
   const handleEliminar = async (panel) => {
     if (!confirm(`¿Eliminar "${panel.codigo}"? Esta acción no se puede deshacer.`)) return;
     await deletePanel(panel.id);
@@ -322,7 +312,7 @@ export default function Mupis() {
     ancho: editPanel.ancho ?? "", alto: editPanel.alto ?? "",
     costoProduccion: editPanel.costoProduccion ?? "0",
     costoInstalacion: editPanel.costoInstalacion ?? "0",
-    precioMes: editPanel.precioMes ?? "", estado: editPanel.estado ?? "LIBRE",
+    precioMes: editPanel.precioMes ?? "",
   } : null;
 
   return (
@@ -413,19 +403,7 @@ export default function Mupis() {
                   <td className={styles.tdPrecio}>{fmt(p.precioMes)}</td>
 
                   <td>
-                    {isAdmin ? (
-                      <select
-                        className={styles.selectEstado}
-                        value={p.estado}
-                        onChange={(e) => handleEstado(p, e.target.value)}
-                      >
-                        {ESTADOS.map(est => (
-                          <option key={est} value={est}>{ESTADO_META[est].label}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <EstadoBadge estado={p.estado} />
-                    )}
+                    <EstadoBadge estado={p.estado} />
                   </td>
 
                   <td>
