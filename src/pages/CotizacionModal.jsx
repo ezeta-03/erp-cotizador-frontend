@@ -83,9 +83,15 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
     getClientes().then(setClientes);
     if (mostrarProductos) getProductos().then(setProductos);
     if (mostrarOutdoor) getPaneles().then((data) => setPaneles(data.filter((p) => p.activo))).catch(() => {});
-    getMisAprobadas().then(setAprobaciones).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Las aprobaciones de margen son por cliente — se recargan cada vez que
+  // cambia el cliente seleccionado, para que la de un cliente no se
+  // aplique por error a otro.
+  useEffect(() => {
+    getMisAprobadas(clienteId).then(setAprobaciones).catch(() => setAprobaciones([]));
+  }, [clienteId]);
 
   const margenAprobado = aprobaciones.length > 0
     ? Math.min(...aprobaciones.map((s) => s.margenSolicitado))
@@ -321,7 +327,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   const verificarAprobacion = async () => {
     setVerificando(true);
     try {
-      const data = await getMisAprobadas();
+      const data = await getMisAprobadas(clienteId);
       setAprobaciones(data);
     } catch {
       // silencioso
@@ -331,13 +337,17 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   };
 
   const enviarSolicitud = async () => {
+    if (!clienteId) {
+      alert("Selecciona un cliente antes de solicitar el margen.");
+      return;
+    }
     if (!comentarioSolicitud.trim()) {
       alert("Escribe un comentario para justificar el margen reducido.");
       return;
     }
     setEnviandoSolicitud(true);
     try {
-      await crearSolicitud({ margenSolicitado: margen, comentario: comentarioSolicitud });
+      await crearSolicitud({ margenSolicitado: margen, comentario: comentarioSolicitud, clienteId });
       setSolicitudEnviada(true);
       setMostrarFormSolicitud(false);
       setComentarioSolicitud("");
@@ -439,7 +449,6 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                   value={margen}
                   onChange={handleMargenChange}
                   min={0}
-                  disabled={margenBajoMinimo && margenPermitido}
                   className={`${styles.margenInput} ${margenBajoMinimo && !margenPermitido ? styles.margenInputError : ""}`}
                 />
                 <span className={styles.margenSuffix}>%</span>

@@ -101,6 +101,7 @@ export default function CotizacionesHistorial({ modulo }) {
   const buildModalItems = (cot) =>
     (cot.items || []).map((item) => {
       const p = item.producto;
+      const panel = item.panel;
       const tipoMedida = p?.tipoMedida || "UNIDAD";
       const medida = item.medida || 1;
       const medidaAncho = item.medidaAncho || 1;
@@ -108,12 +109,21 @@ export default function CotizacionesHistorial({ modulo }) {
       const sumaAdicionales = (item.adicionales || [])
         .filter((a) => a.seleccionado)
         .reduce((acc, a) => acc + Number(a.precio), 0);
-      const precioBase = parseFloat(((p?.precio_final || 0) * medida + sumaAdicionales).toFixed(2));
+
+      let precioFinalBase = p?.precio_final || 0;
+      if (!p && panel) {
+        const nombre = item.nombre || "";
+        if (nombre.startsWith("Producción")) precioFinalBase = panel.costoProduccion || 0;
+        else if (nombre.startsWith("Instalación")) precioFinalBase = panel.costoInstalacion || 0;
+        else precioFinalBase = panel.precioMes || 0;
+      }
+
+      const precioBase = parseFloat((precioFinalBase * medida + sumaAdicionales).toFixed(2));
       return {
         productoId: p?.id,
         panelId: item.panelId || null,
         nombre: nombreItem(item),
-        precio_final: p?.precio_final || 0,
+        precio_final: precioFinalBase,
         unidad: p?.unidad || "",
         tipoMedida,
         medida,

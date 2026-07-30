@@ -108,6 +108,7 @@ export default function SolicitudesMargenPanel() {
             <thead>
               <tr>
                 <th className={s.th}>Vendedor</th>
+                <th className={s.th}>Cliente</th>
                 <th className={s.th} style={{ width: "120px" }}>Margen</th>
                 <th className={s.th}>Comentario</th>
                 <th className={s.th} style={{ width: "110px" }}>Solicitado</th>
@@ -124,6 +125,7 @@ export default function SolicitudesMargenPanel() {
                       <div className={s.tdNombreMain}>{sol.usuario?.nombre}</div>
                       <div className={s.tdNombreSub}>{sol.usuario?.email}</div>
                     </td>
+                    <td className={s.tdNombre}>{sol.cliente?.nombreComercial || "—"}</td>
                     <td className={s.tdMargen}>
                       <span className={`${s.margenValor} ${sol.margenSolicitado < 20 ? s.margenBajo : s.margenMedio}`}>
                         {sol.margenSolicitado}%
@@ -175,7 +177,7 @@ export default function SolicitudesMargenPanel() {
                   {/* Fila inline de motivo de rechazo */}
                   {rechazando === sol.id && (
                     <tr key={`rechazo-${sol.id}`} className={s.filaRechazo}>
-                      <td colSpan={7}>
+                      <td colSpan={8}>
                         <div className={s.rechazoInner}>
                           <div style={{ flex: 1 }}>
                             <label className={s.rechazoLabel}>
