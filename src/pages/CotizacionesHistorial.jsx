@@ -94,7 +94,7 @@ export default function CotizacionesHistorial({ modulo }) {
       cargarCotizaciones();
     } catch (error) {
       console.error("Error creando cotización:", error);
-      showToast("Error creando cotización");
+      showToast(error.response?.data?.message ?? "Error creando cotización");
     }
   };
 
@@ -136,10 +136,11 @@ export default function CotizacionesHistorial({ modulo }) {
       };
     });
 
-  const guardarRenegociacion = async ({ items, conIgv }) => {
+  const guardarRenegociacion = async ({ items, conIgv, margen }) => {
     if (!cotizacionARenegociar) return;
     const payload = {
       conIgv,
+      margen,
       items: items.map((i) => ({
         productoId: i.productoId,
         panelId: i.panelId || null,
@@ -164,7 +165,7 @@ export default function CotizacionesHistorial({ modulo }) {
       cargarCotizaciones();
     } catch (error) {
       console.error("Error renegociando cotización:", error);
-      showToast("Error al re-enviar la cotización");
+      showToast(error.response?.data?.message ?? "Error al re-enviar la cotización");
     }
   };
 
