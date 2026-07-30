@@ -68,7 +68,6 @@ export default function CotizacionesHistorial({ modulo }) {
   const guardarCotizacion = async ({ clienteId, items, margen, conIgv }) => {
     const data = {
       clienteId,
-      usuarioId: user.id,
       margen,
       conIgv,
       items: items.map((i) => ({
