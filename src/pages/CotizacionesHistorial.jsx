@@ -65,11 +65,12 @@ export default function CotizacionesHistorial({ modulo }) {
     return matchEstado && matchCliente && matchVendedor && matchModulo;
   });
 
-  const guardarCotizacion = async ({ clienteId, items, margen, conIgv }) => {
+  const guardarCotizacion = async ({ clienteId, items, margen, conIgv, borradorId }) => {
     const data = {
       clienteId,
       margen,
       conIgv,
+      borradorId,
       items: items.map((i) => ({
         productoId: i.productoId,
         panelId: i.panelId || null,
@@ -388,6 +389,7 @@ export default function CotizacionesHistorial({ modulo }) {
           onSave={guardarRenegociacion}
           initialClienteId={String(cotizacionARenegociar.clienteId)}
           initialItems={buildModalItems(cotizacionARenegociar)}
+          cotizacionId={cotizacionARenegociar.id}
           title="Re-enviar Cotización"
           saveLabel="Re-enviar Cotización"
         />

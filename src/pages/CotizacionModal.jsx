@@ -44,9 +44,15 @@ function DecimalInput({ value, onChange, className, disabled, min = 0.01, placeh
   );
 }
 
-export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, title, saveLabel, modulo }) {
+export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, title, saveLabel, modulo, cotizacionId }) {
   const mostrarProductos = modulo !== "outdoor";
   const mostrarOutdoor = modulo !== "btl";
+
+  // Identifica esta cotización para las aprobaciones de margen: si ya existe
+  // (renegociación) se usa su id real; si es nueva, se genera un token de
+  // borrador que vive solo mientras el modal está abierto, para que una
+  // aprobación no se filtre a otra cotización del mismo cliente.
+  const [borradorId] = useState(() => (cotizacionId ? null : crypto.randomUUID()));
 
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -86,12 +92,12 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Las aprobaciones de margen son por cliente — se recargan cada vez que
-  // cambia el cliente seleccionado, para que la de un cliente no se
-  // aplique por error a otro.
+  // Las aprobaciones de margen son por cotización (cliente + cotizacionId o
+  // borradorId) — se recargan si cambia el cliente, para que la aprobación
+  // de una cotización no se aplique por error a otra.
   useEffect(() => {
-    getMisAprobadas(clienteId).then(setAprobaciones).catch(() => setAprobaciones([]));
-  }, [clienteId]);
+    getMisAprobadas({ clienteId, cotizacionId, borradorId }).then(setAprobaciones).catch(() => setAprobaciones([]));
+  }, [clienteId, cotizacionId, borradorId]);
 
   const margenAprobado = aprobaciones.length > 0
     ? Math.min(...aprobaciones.map((s) => s.margenSolicitado))
@@ -320,14 +326,14 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
       alert("El margen no puede ser negativo.");
       return;
     }
-    onSave({ clienteId, items, margen, conIgv });
+    onSave({ clienteId, items, margen, conIgv, borradorId });
     onClose();
   };
 
   const verificarAprobacion = async () => {
     setVerificando(true);
     try {
-      const data = await getMisAprobadas(clienteId);
+      const data = await getMisAprobadas({ clienteId, cotizacionId, borradorId });
       setAprobaciones(data);
     } catch {
       // silencioso
@@ -347,7 +353,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
     }
     setEnviandoSolicitud(true);
     try {
-      await crearSolicitud({ margenSolicitado: margen, comentario: comentarioSolicitud, clienteId });
+      await crearSolicitud({ margenSolicitado: margen, comentario: comentarioSolicitud, clienteId, cotizacionId, borradorId });
       setSolicitudEnviada(true);
       setMostrarFormSolicitud(false);
       setComentarioSolicitud("");

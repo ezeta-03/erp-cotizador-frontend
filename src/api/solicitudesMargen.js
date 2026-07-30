@@ -1,13 +1,17 @@
 import api from "./axios";
 
-export const crearSolicitud = async ({ margenSolicitado, comentario, clienteId }) => {
-  const { data } = await api.post("/solicitudes-margen", { margenSolicitado, comentario, clienteId });
+export const crearSolicitud = async ({ margenSolicitado, comentario, clienteId, cotizacionId, borradorId }) => {
+  const { data } = await api.post("/solicitudes-margen", {
+    margenSolicitado, comentario, clienteId, cotizacionId, borradorId,
+  });
   return data;
 };
 
-export const getMisAprobadas = async (clienteId) => {
-  if (!clienteId) return [];
-  const { data } = await api.get("/solicitudes-margen/mis-aprobadas", { params: { clienteId } });
+export const getMisAprobadas = async ({ clienteId, cotizacionId, borradorId } = {}) => {
+  if (!clienteId || (!cotizacionId && !borradorId)) return [];
+  const { data } = await api.get("/solicitudes-margen/mis-aprobadas", {
+    params: { clienteId, cotizacionId, borradorId },
+  });
   return data;
 };
 

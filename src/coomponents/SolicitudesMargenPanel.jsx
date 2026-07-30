@@ -125,7 +125,12 @@ export default function SolicitudesMargenPanel() {
                       <div className={s.tdNombreMain}>{sol.usuario?.nombre}</div>
                       <div className={s.tdNombreSub}>{sol.usuario?.email}</div>
                     </td>
-                    <td className={s.tdNombre}>{sol.cliente?.nombreComercial || "—"}</td>
+                    <td className={s.tdNombre}>
+                      <div>{sol.cliente?.nombreComercial || "—"}</div>
+                      {sol.cotizacion && (
+                        <div className={s.tdNombreSub}>{sol.cotizacion.numero}</div>
+                      )}
+                    </td>
                     <td className={s.tdMargen}>
                       <span className={`${s.margenValor} ${sol.margenSolicitado < 20 ? s.margenBajo : s.margenMedio}`}>
                         {sol.margenSolicitado}%
