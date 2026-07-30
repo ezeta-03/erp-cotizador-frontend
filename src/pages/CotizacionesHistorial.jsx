@@ -11,7 +11,7 @@ import useAuth from "../auth/useAuth";
 import { useToast } from "../coomponents/Toast";
 import { nombreItem } from "../utils/cotizacionItem";
 
-const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "FACTURADA", "RENEGOCIACION", "RECHAZADA"];
+const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "FACTURADA", "RENEGOCIACION"];
 
 function EstadoBadge({ estado }) {
   return (

@@ -8,7 +8,6 @@ const nombreProducto = (p) => p?.nombre || p?.material || "(producto)";
 const ESTADO_COLORS = {
   PENDIENTE: { bg: "#fef9c3", color: "#854d0e" },
   APROBADA: { bg: "#dcfce7", color: "#166534" },
-  RECHAZADA: { bg: "#fee2e2", color: "#991b1b" },
   FACTURADA: { bg: "#dbeafe", color: "#1e40af" },
 };
 

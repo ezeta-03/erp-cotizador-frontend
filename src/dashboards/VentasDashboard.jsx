@@ -63,7 +63,6 @@ export default function VentasDashboard() {
     const badges = {
       PENDIENTE: { class: styles.badgePendiente, text: 'Pendiente' },
       APROBADA: { class: styles.badgeAprobada, text: 'Aprobada' },
-      RECHAZADA: { class: styles.badgeRechazada, text: 'Rechazada' },
       FACTURADA: { class: styles.badgeFacturada, text: 'Facturada' },
     };
     const badge = badges[estado] || badges.PENDIENTE;

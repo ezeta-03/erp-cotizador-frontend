@@ -6,7 +6,7 @@ import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
 import { nombreItem } from "../utils/cotizacionItem";
 import styles from "./MiCotizacion.module.scss";
 
-const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "RECHAZADA", "FACTURADA"];
+const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "FACTURADA"];
 
 function EstadoBadge({ estado }) {
   return <span className={`${styles.estadoBadge} ${styles[estado]}`}>{estado}</span>;

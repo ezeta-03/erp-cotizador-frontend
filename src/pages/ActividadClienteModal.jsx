@@ -3,7 +3,7 @@ import { X, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { actividadesClientes } from "../api/clientes";
 import styles from "./actividadClienteModal.module.scss";
 
-const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "RECHAZADA", "FACTURADA"];
+const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "FACTURADA"];
 
 const fmt = (v) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
