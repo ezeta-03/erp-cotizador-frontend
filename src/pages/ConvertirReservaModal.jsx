@@ -6,22 +6,30 @@ import styles from "./convertirReservaModal.module.scss";
 const fmtFecha = (str) => new Date(str).toLocaleDateString("es-PE");
 
 const calcFechaFin = (fechaInicioStr, meses) => {
-  const d = new Date(`${fechaInicioStr}T00:00:00`);
-  d.setMonth(d.getMonth() + Number(meses || 1));
+  const [y, m, day] = fechaInicioStr.split("-").map(Number);
+  const totalMeses = m - 1 + Number(meses || 1);
+  const targetYear = y + Math.floor(totalMeses / 12);
+  const targetMonth = ((totalMeses % 12) + 12) % 12; // 0-indexado
+  // Si el día de inicio (ej. 31) no existe en el mes destino (ej. febrero),
+  // se usa el último día real de ese mes en vez de desbordar al mes siguiente.
+  const ultimoDiaMesDestino = new Date(targetYear, targetMonth + 1, 0).getDate();
+  const d = new Date(targetYear, targetMonth, Math.min(day, ultimoDiaMesDestino));
   d.setDate(d.getDate() - 1);
   return d.toISOString().slice(0, 10);
 };
 
-// Agrupa los items de la cotización por panel/mupi, usando la línea "Alquiler"
-// de cada uno como referencia de precio mensual y duración.
-function gruposPorPanel(cotizacion) {
+// Agrupa las líneas "Alquiler" de la cotización por panel/mupi. Si el mismo
+// panel aparece más de una vez (dos líneas de Alquiler para el mismo panel),
+// se conservan TODAS — antes se perdía silenciosamente todas menos la última.
+function itemsAlquilerPorPanel(cotizacion) {
   const map = new Map();
   for (const item of cotizacion.items || []) {
     if (item.panelId == null || !item.panel) continue;
-    if (!map.has(item.panelId)) map.set(item.panelId, { panel: item.panel, alquiler: null });
-    if ((item.nombre || "").startsWith("Alquiler")) map.get(item.panelId).alquiler = item;
+    if (!(item.nombre || "").startsWith("Alquiler")) continue;
+    if (!map.has(item.panelId)) map.set(item.panelId, []);
+    map.get(item.panelId).push(item);
   }
-  return Array.from(map.values()).filter((g) => g.alquiler);
+  return map;
 }
 
 function FilaPanel({ cotizacion, grupo, reservaExistente, onCreada }) {
@@ -109,7 +117,18 @@ export default function ConvertirReservaModal({ cotizacion, onClose }) {
 
   useEffect(() => { cargar(); }, [cargar]);
 
-  const grupos = gruposPorPanel(cotizacion);
+  // Empareja cada línea "Alquiler" con su reserva ya creada, por orden, dentro
+  // de su mismo panel — el modelo de Reserva no guarda a qué item exacto de
+  // la cotización corresponde, así que cuando un panel se repite se empareja
+  // la 1ra línea con la 1ra reserva de ese panel, la 2da con la 2da, etc.
+  const itemsPorPanel = itemsAlquilerPorPanel(cotizacion);
+  const grupos = [];
+  for (const itemsAlquiler of itemsPorPanel.values()) {
+    const reservasPanel = reservas.filter((r) => r.panelId === itemsAlquiler[0].panelId);
+    itemsAlquiler.forEach((alquiler, idx) => {
+      grupos.push({ panel: alquiler.panel, alquiler, reservaExistente: reservasPanel[idx] || null });
+    });
+  }
 
   return (
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -130,10 +149,10 @@ export default function ConvertirReservaModal({ cotizacion, onClose }) {
           ) : (
             grupos.map((g) => (
               <FilaPanel
-                key={g.panel.id}
+                key={g.alquiler.id}
                 cotizacion={cotizacion}
                 grupo={g}
-                reservaExistente={reservas.find((r) => r.panelId === g.panel.id)}
+                reservaExistente={g.reservaExistente}
                 onCreada={cargar}
               />
             ))

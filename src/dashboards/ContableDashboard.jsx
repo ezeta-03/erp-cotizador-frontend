@@ -98,6 +98,9 @@ export default function ContableDashboard() {
               <p className={styles.statChange}>
                 {formatCurrency(estadisticas.FACTURADA?.total || 0)}
               </p>
+              <p style={{ fontSize: "0.7rem", color: "var(--color-text3)", margin: "0.2rem 0 0" }}>
+                Suma cotizaciones con y sin IGV
+              </p>
             </div>
           </div>
 
@@ -127,6 +130,9 @@ export default function ContableDashboard() {
                 {formatCurrency(
                   Object.values(estadisticas).reduce((s, e) => s + e.total, 0)
                 )}
+              </p>
+              <p style={{ fontSize: "0.7rem", color: "var(--color-text3)", margin: "0.2rem 0 0" }}>
+                Suma cotizaciones con y sin IGV
               </p>
             </div>
           </div>

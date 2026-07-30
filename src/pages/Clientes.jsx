@@ -133,6 +133,7 @@ export default function Clientes() {
   };
 
   const puedeGestionar = user.role === "ADMIN" || user.role === "VENTAS";
+  const esAdmin = user.role === "ADMIN"; // activar/desactivar cliente sigue siendo solo ADMIN
 
   return (
     <div className={styles.container}>
@@ -230,7 +231,7 @@ export default function Clientes() {
                   </td>
                   <td><EstadoUsuarioBadge usuario={c.usuario} /></td>
                   <td>
-                    {puedeGestionar && (
+                    {esAdmin && (
                       <Toggle
                         checked={c.activo !== false}
                         onChange={(val) => handleToggleEstado(c, val)}
