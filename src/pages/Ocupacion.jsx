@@ -559,8 +559,13 @@ export default function Ocupacion() {
   };
 
   const handleBarUpdate = useCallback(async (id, dates) => {
-    await updateReserva(id, dates);
-    cargar();
+    try {
+      await updateReserva(id, dates);
+    } catch (err) {
+      alert(err.response?.data?.message ?? "Error al mover la reserva");
+    } finally {
+      cargar();
+    }
   }, [cargar]);
 
   const stats = computeStats(reservasFiltradas, panelesMostrados, anio);

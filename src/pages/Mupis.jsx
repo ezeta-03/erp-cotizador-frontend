@@ -296,7 +296,7 @@ export default function Mupis() {
       const text  = await file.text();
       const filas = parseCSV(text);
       const res   = await importarPaneles(filas);
-      setImportMsg({ ok: true, texto: `${res.creados} mupis importados${res.errores.length ? `, ${res.errores.length} con error` : ""}.` });
+      setImportMsg({ ok: true, texto: `${res.creados} mupis creados, ${res.actualizados} actualizados${res.errores.length ? `, ${res.errores.length} con error` : ""}.` });
       cargar();
     } catch (err) {
       setImportMsg({ ok: false, texto: err.response?.data?.message ?? "Error al importar" });
