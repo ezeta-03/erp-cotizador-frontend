@@ -51,7 +51,7 @@ const SECCIONES = [
     description: "Análisis de márgenes y rentabilidad de campañas",
     icon: TrendingUp,
     color: "#10b981",
-    available: false,
+    available: true,
   },
 ];
 

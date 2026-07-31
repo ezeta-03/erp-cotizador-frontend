@@ -22,6 +22,7 @@ import Paneles from "../pages/Paneles";
 import Mupis from "../pages/Mupis";
 import Proveedores from "../pages/Proveedores";
 import Ocupacion from "../pages/Ocupacion";
+import Rentabilidad from "../pages/Rentabilidad";
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -63,6 +64,7 @@ export default function AppRouter() {
         <Route path="/erp/admin/outdoor/mupis"        element={<Mupis />} />
         <Route path="/erp/admin/outdoor/proveedores"  element={<Proveedores />} />
         <Route path="/erp/admin/outdoor/ocupacion"    element={<Ocupacion />} />
+        <Route path="/erp/admin/outdoor/rentabilidad" element={<Rentabilidad />} />
         <Route path="/erp/admin/outdoor/cotizador"    element={<CotizacionesHistorial modulo="outdoor" />} />
         <Route path="/erp/admin/btl/cotizador"        element={<CotizacionesHistorial modulo="btl" />} />
         <Route path="/erp/admin/btl/productos"        element={<Productos />} />
@@ -94,6 +96,7 @@ export default function AppRouter() {
         <Route path="/erp/ventas/outdoor/mupis"        element={<Mupis />} />
         <Route path="/erp/ventas/outdoor/proveedores"  element={<Proveedores />} />
         <Route path="/erp/ventas/outdoor/ocupacion"    element={<Ocupacion />} />
+        <Route path="/erp/ventas/outdoor/rentabilidad" element={<Rentabilidad />} />
         <Route path="/erp/ventas/outdoor/cotizador"    element={<CotizacionesHistorial modulo="outdoor" />} />
         <Route path="/erp/ventas/btl/cotizador"        element={<CotizacionesHistorial modulo="btl" />} />
         <Route path="/erp/ventas/btl/productos"        element={<Productos />} />

@@ -1,0 +1,312 @@
+@import "../styles/_ui.scss";
+
+/* ── Pestañas ── */
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tabBtn {
+  padding: 0.6rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text2);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: $transition-fast;
+
+  &:hover { color: var(--color-text1); }
+}
+
+.tabBtnActive {
+  color: $brand-primary;
+  border-bottom-color: $brand-primary;
+}
+
+/* ── Línea de tiempo mensual ── */
+.chartWrap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  box-shadow: var(--shadow-soft);
+  padding: 0.75rem 1rem;
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.chartAnio {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text1);
+  min-width: 3.5rem;
+  text-align: center;
+}
+
+.chartLeyenda {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--color-text2);
+}
+
+.legendDot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-left: 0.75rem;
+
+  &:first-child { margin-left: 0; }
+}
+
+.chartSvgWrap {
+  position: relative;
+}
+
+.chartSvg {
+  width: 100%;
+  // Alto fijo (no "auto"): así el SVG no se estira verticalmente en pantallas anchas
+  // y el texto de los meses mantiene siempre el mismo tamaño pequeño.
+  height: 130px;
+  display: block;
+}
+
+.chartBaseline {
+  stroke: var(--color-border2);
+  stroke-width: 1;
+}
+
+.chartMesLabel {
+  font-size: 9px;
+  fill: var(--color-text3);
+}
+
+.chartTooltip {
+  position: absolute;
+  top: 0.5rem;
+  transform: translateX(-50%);
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-sm;
+  box-shadow: var(--shadow-soft);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.78rem;
+  color: var(--color-text2);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+
+  strong { display: block; margin-bottom: 0.25rem; color: var(--color-text1); }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-top: 1.75rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text1);
+}
+
+/* ── Barra de filtros ── */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  padding: 0.9rem 1.1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  box-shadow: var(--shadow-soft);
+  margin-top: 1.25rem;
+}
+
+.filtroGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filtroLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.filtroSearch {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: $radius-sm;
+  background: var(--color-input-bg);
+  padding: 0.25rem 0.5rem;
+  color: var(--color-text2);
+
+  input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 0.82rem;
+    color: var(--color-text1);
+    width: 220px;
+  }
+}
+
+.filtroSearchClear {
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer;
+  color: var(--color-text3); padding: 0;
+  &:hover { color: var(--color-text1); }
+}
+
+/* ── Resumen / parámetros tipo formulario (sin cajas sueltas) ── */
+.resumenForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem 2.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  box-shadow: var(--shadow-soft);
+  padding: 1.5rem 1.75rem;
+}
+
+.resumenGrupo {
+  display: flex;
+  flex-direction: column;
+}
+
+.resumenGrupoTitulo {
+  margin: 0 0 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--color-border2);
+}
+
+.resumenFila {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0;
+
+  & + & { border-top: 1px solid var(--color-border2); }
+}
+
+.resumenLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text2);
+}
+
+.resumenValor {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text1);
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.resumenPct {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text3);
+}
+
+/* ── Parámetros de costo (grid de campos tipo formulario, con leyenda global) ── */
+.parametrosGrid {
+  display: contents;
+}
+
+.parametrosGuardar {
+  display: flex;
+  align-items: flex-end;
+}
+
+/* ── Edición inline ── */
+.linkEdit {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-text1);
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  font-size: inherit;
+  font-family: inherit;
+
+  &:hover { color: $brand-primary; }
+}
+
+.editInline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  input {
+    width: 90px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-input-border);
+    border-radius: $radius-sm;
+    font-size: 0.85rem;
+    color: var(--color-text1);
+    background: var(--color-input-bg);
+    outline: none;
+    font-family: inherit;
+    transition: $transition-smooth;
+
+    &:focus {
+      border-color: $brand-primary;
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+    }
+  }
+}
+
+.bajoMinimo {
+  color: #ef4444;
+}
+
+.positivo { color: #10b981; }
+.negativo { color: #ef4444; }
+
+.empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--color-text3);
+  font-size: 0.9rem;
+}
+
+.errorMsg {
+  padding: 1.5rem;
+  text-align: center;
+  color: #ef4444;
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  border-radius: $radius-md;
+  font-size: 0.9rem;
+}
