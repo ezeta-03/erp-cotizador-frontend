@@ -6,7 +6,7 @@ import { getPaneles } from "../api/paneles";
 import { getClientes, createCliente } from "../api/clientes";
 import { getReservas, createReserva, updateReserva, deleteReserva } from "../api/reservas";
 import styles from "./ocupacion.module.scss";
-import { ESTADOS_PANEL, ESTADO_META } from "../constants/estados";
+import { ESTADOS_PROPIO, ESTADOS_EXTERNO, ESTADO_META, esEstadoExterno } from "../constants/estados";
 
 /* ── Constantes ─────────────────────────────────────────────────────────────── */
 const MESES   = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -59,7 +59,9 @@ function computeStats(reservas, paneles, anio) {
   const clienteMap = {};
 
   for (const r of reservas) {
-    if (r.estado === "LIBRE") continue;
+    // Libre y los estados *_EXTERNO (paneles de terceros, sin cliente/precio propio)
+    // no cuentan como ingreso nuestro.
+    if (r.estado === "LIBRE" || esEstadoExterno(r.estado)) continue;
     const s = new Date(r.fechaInicio);
     const e = new Date(r.fechaFin);
 
@@ -98,14 +100,19 @@ const NC0 = { nombreComercial: "", documento: "", nombreContacto: "" };
 
 function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave, onDelete, onClose, onClienteCreado }) {
   const esEdicion = !!reserva;
+  // Un panel Externo (gestionado por cuenta de un tercero) solo registra fechas + estado:
+  // no tiene cliente ni precio propio, por eso su formulario oculta esos campos.
+  const panelEsExterno = panel.propiedad === "EXTERNO";
+  const opcionesEstado = panelEsExterno ? ESTADOS_EXTERNO : ESTADOS_PROPIO;
+
   const [form, setForm]     = useState(esEdicion ? {
-    clienteId:     String(reserva.clienteId),
+    clienteId:     reserva.clienteId ? String(reserva.clienteId) : "",
     fechaInicio:   reserva.fechaInicio.slice(0, 10),
     fechaFin:      reserva.fechaFin.slice(0, 10),
-    precioMensual: String(reserva.precioMensual),
-    estado:        reserva.estado,
+    precioMensual: reserva.precioMensual != null ? String(reserva.precioMensual) : "",
+    estado:        opcionesEstado.includes(reserva.estado) ? reserva.estado : opcionesEstado[0],
     notas:         reserva.notas ?? "",
-  } : { ...FORM0, ...defaults });
+  } : { ...FORM0, estado: opcionesEstado[0], ...defaults });
   const [saving, setSaving] = useState(false);
   const [error,  setError]  = useState("");
 
@@ -141,8 +148,10 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
   const handleSubmit = async (ev) => {
     ev.preventDefault();
     setError("");
-    if (!form.clienteId || !form.fechaInicio || !form.fechaFin || !form.precioMensual)
-      return setError("Cliente, fechas y precio son obligatorios.");
+    if (!form.fechaInicio || !form.fechaFin)
+      return setError("Las fechas son obligatorias.");
+    if (!panelEsExterno && (!form.clienteId || !form.precioMensual))
+      return setError("Cliente y precio son obligatorios.");
     if (new Date(form.fechaFin) <= new Date(form.fechaInicio))
       return setError("La fecha de fin debe ser posterior al inicio.");
     setSaving(true);
@@ -164,59 +173,67 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
         <form className={styles.modalBody} onSubmit={handleSubmit}>
           {error && <p className={styles.formError}>{error}</p>}
 
-          {/* Cliente */}
-          <div className={styles.formField}>
-            <label>Cliente</label>
-            <div className={styles.clienteRow}>
-              <select value={form.clienteId} onChange={setf("clienteId")}>
-                <option value="">— Seleccionar cliente —</option>
-                {clientes.map(c => (
-                  <option key={c.id} value={c.id}>{c.nombreComercial} ({c.documento})</option>
-                ))}
-              </select>
-              <button
-                type="button"
-                className={`${styles.btnAddCliente} ${creando ? styles.btnAddClienteActive : ""}`}
-                onClick={() => { setCreando(v => !v); setErrorNc(""); setNc(NC0); }}
-                title={creando ? "Cancelar" : "Crear nuevo cliente"}
-              >
-                <Plus size={15} />
-              </button>
-            </div>
+          {panelEsExterno && (
+            <p className={styles.hintExterno}>
+              Panel externo: solo se registran fechas y estado, sin cliente ni precio propio.
+            </p>
+          )}
 
-            {creando && (
-              <div className={styles.nuevoClienteBox}>
-                <p className={styles.nuevoClienteTitle}>Nuevo cliente</p>
-                <input
-                  className={styles.nuevoClienteInput}
-                  placeholder="Nombre comercial *"
-                  value={nc.nombreComercial}
-                  onChange={e => setNc(n => ({ ...n, nombreComercial: e.target.value }))}
-                />
-                <input
-                  className={styles.nuevoClienteInput}
-                  placeholder="Nombre de contacto *"
-                  value={nc.nombreContacto}
-                  onChange={e => setNc(n => ({ ...n, nombreContacto: e.target.value }))}
-                />
-                <input
-                  className={styles.nuevoClienteInput}
-                  placeholder="RUC / Documento *"
-                  value={nc.documento}
-                  onChange={e => setNc(n => ({ ...n, documento: e.target.value }))}
-                />
-                {errorNc && <p className={styles.formError}>{errorNc}</p>}
-                <div className={styles.nuevoClienteActions}>
-                  <button type="button" className={styles.btnOutline} onClick={() => { setCreando(false); setNc(NC0); }}>
-                    Cancelar
-                  </button>
-                  <button type="button" className={styles.btnPrimary} disabled={savingNc} onClick={handleCrearCliente}>
-                    {savingNc ? "Creando…" : "Crear y seleccionar"}
-                  </button>
-                </div>
+          {/* Cliente (no aplica a paneles externos) */}
+          {!panelEsExterno && (
+            <div className={styles.formField}>
+              <label>Cliente</label>
+              <div className={styles.clienteRow}>
+                <select value={form.clienteId} onChange={setf("clienteId")}>
+                  <option value="">— Seleccionar cliente —</option>
+                  {clientes.map(c => (
+                    <option key={c.id} value={c.id}>{c.nombreComercial} ({c.documento})</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className={`${styles.btnAddCliente} ${creando ? styles.btnAddClienteActive : ""}`}
+                  onClick={() => { setCreando(v => !v); setErrorNc(""); setNc(NC0); }}
+                  title={creando ? "Cancelar" : "Crear nuevo cliente"}
+                >
+                  <Plus size={15} />
+                </button>
               </div>
-            )}
-          </div>
+
+              {creando && (
+                <div className={styles.nuevoClienteBox}>
+                  <p className={styles.nuevoClienteTitle}>Nuevo cliente</p>
+                  <input
+                    className={styles.nuevoClienteInput}
+                    placeholder="Nombre comercial *"
+                    value={nc.nombreComercial}
+                    onChange={e => setNc(n => ({ ...n, nombreComercial: e.target.value }))}
+                  />
+                  <input
+                    className={styles.nuevoClienteInput}
+                    placeholder="Nombre de contacto *"
+                    value={nc.nombreContacto}
+                    onChange={e => setNc(n => ({ ...n, nombreContacto: e.target.value }))}
+                  />
+                  <input
+                    className={styles.nuevoClienteInput}
+                    placeholder="RUC / Documento *"
+                    value={nc.documento}
+                    onChange={e => setNc(n => ({ ...n, documento: e.target.value }))}
+                  />
+                  {errorNc && <p className={styles.formError}>{errorNc}</p>}
+                  <div className={styles.nuevoClienteActions}>
+                    <button type="button" className={styles.btnOutline} onClick={() => { setCreando(false); setNc(NC0); }}>
+                      Cancelar
+                    </button>
+                    <button type="button" className={styles.btnPrimary} disabled={savingNc} onClick={handleCrearCliente}>
+                      {savingNc ? "Creando…" : "Crear y seleccionar"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className={styles.formRow}>
             <div className={styles.formField}>
@@ -230,14 +247,16 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
           </div>
 
           <div className={styles.formRow}>
-            <div className={styles.formField}>
-              <label>Precio mensual (S/)</label>
-              <input type="number" step="0.01" min="0" value={form.precioMensual} onChange={setf("precioMensual")} placeholder="2500" />
-            </div>
+            {!panelEsExterno && (
+              <div className={styles.formField}>
+                <label>Precio mensual (S/)</label>
+                <input type="number" step="0.01" min="0" value={form.precioMensual} onChange={setf("precioMensual")} placeholder="2500" />
+              </div>
+            )}
             <div className={styles.formField}>
               <label>Estado</label>
               <select value={form.estado} onChange={setf("estado")}>
-                {ESTADOS_PANEL.map(e => <option key={e} value={e}>{ESTADO_META[e].label}</option>)}
+                {opcionesEstado.map(e => <option key={e} value={e}>{ESTADO_META[e].label}</option>)}
               </select>
             </div>
           </div>
@@ -386,12 +405,14 @@ function Timeline({ paneles, reservas, anio, isAdmin, onClickBar, onClickCelda, 
                       style={{ left: pos.left, width: pos.width, background: color, cursor: isAdmin ? 'grab' : 'default' }}
                       onMouseDown={isAdmin ? (e) => { if (!e.target.dataset.handle) startDrag('move', r, e); } : undefined}
                       onClick={isAdmin ? (e) => { e.stopPropagation(); if (!dragMoved.current) onClickBar(r); } : undefined}
-                      title={`${r.cliente.nombreComercial} · ${fmt(r.precioMensual)}/mes · ${ESTADO_META[r.estado]?.label ?? r.estado}`}
+                      title={r.cliente
+                        ? `${r.cliente.nombreComercial} · ${fmt(r.precioMensual)}/mes · ${ESTADO_META[r.estado]?.label ?? r.estado}`
+                        : `${ESTADO_META[r.estado]?.label ?? r.estado} (externo)`}
                     >
                       {isAdmin && (
                         <div className={styles.tlHandleL} data-handle="L" onMouseDown={(e) => startDrag('L', r, e)} />
                       )}
-                      <span className={styles.tlBarLabel}>{r.cliente.nombreComercial}</span>
+                      <span className={styles.tlBarLabel}>{r.cliente?.nombreComercial ?? ESTADO_META[r.estado]?.label ?? "Externo"}</span>
                       {isAdmin && (
                         <div className={styles.tlHandleR} data-handle="R" onMouseDown={(e) => startDrag('R', r, e)} />
                       )}
@@ -528,10 +549,10 @@ export default function Ocupacion() {
     if (!panelesFiltrados.some(p => p.id === r.panelId)) return false;
     if (filtros.cliente) {
       const q = filtros.cliente.toLowerCase();
-      if (!r.cliente.nombreComercial.toLowerCase().includes(q)) return false;
+      if (!(r.cliente?.nombreComercial ?? "").toLowerCase().includes(q)) return false;
     }
-    if (filtros.precioMin && r.precioMensual < Number(filtros.precioMin)) return false;
-    if (filtros.precioMax && r.precioMensual > Number(filtros.precioMax)) return false;
+    if (filtros.precioMin && (r.precioMensual ?? 0) < Number(filtros.precioMin)) return false;
+    if (filtros.precioMax && (r.precioMensual ?? 0) > Number(filtros.precioMax)) return false;
     if (filtros.fechaIni && new Date(r.fechaFin)    < new Date(filtros.fechaIni)) return false;
     if (filtros.fechaFin && new Date(r.fechaInicio) > new Date(filtros.fechaFin)) return false;
     return true;
@@ -552,7 +573,8 @@ export default function Ocupacion() {
   };
 
   const handleDelete = async (reserva) => {
-    if (!confirm(`¿Eliminar esta reserva de ${reserva.cliente.nombreComercial}?`)) return;
+    const quien = reserva.cliente?.nombreComercial ?? ESTADO_META[reserva.estado]?.label ?? "este registro";
+    if (!confirm(`¿Eliminar esta reserva de ${quien}?`)) return;
     await deleteReserva(reserva.id);
     setModal(null);
     cargar();

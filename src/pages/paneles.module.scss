@@ -167,10 +167,11 @@
   letter-spacing: 0.03em;
 }
 
-.badgeLibre     { background: var(--badge-green-bg);  color: var(--badge-green-text); }
-.badgeLibreExt  { background: var(--badge-orange-bg); color: var(--badge-orange-text); }
-.badgeOcupado   { background: var(--badge-red-bg);    color: var(--badge-red-text); }
-.badgeReemplazo { background: var(--badge-blue-bg);   color: var(--badge-blue-text); }
+.badgeLibre       { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+.badgeLibreExt    { background: var(--badge-orange-bg); color: var(--badge-orange-text); }
+.badgeOcupado     { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+.badgeOcupadoExt  { background: var(--badge-purple-bg); color: var(--badge-purple-text); }
+.badgeReemplazo   { background: var(--badge-blue-bg);   color: var(--badge-blue-text); }
 
 .badgeLed {
   display: inline-block;

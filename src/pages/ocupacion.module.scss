@@ -682,6 +682,15 @@
   margin: 0;
 }
 
+.hintExterno {
+  padding: 0.65rem 0.875rem;
+  background: var(--badge-orange-bg);
+  color: var(--badge-orange-text);
+  border-radius: $radius-sm;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
 .formActions {
   display: flex;
   justify-content: flex-end;

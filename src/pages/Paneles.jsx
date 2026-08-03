@@ -24,7 +24,7 @@ const FORM_VACIO = {
   codigo: "", nombre: "", distrito: "HUANCAYO", tipo: "ESTATICO",
   ubicacion: "", lat: "", lng: "",
   ancho: "", alto: "", costoProduccion: "0", costoInstalacion: "0",
-  precioMes: "",
+  precioMes: "", propiedad: "PROPIO",
 };
 
 /* ── Datos plantilla CSV (36 paneles de Huancayo) ──────────────────────────── */
@@ -67,7 +67,7 @@ const CSV_FILAS = [
   ["HYO-34","FFCC y Huancavelica (Hacia Pared Cli Mira)","CHILCA","ESTATICO"],
 ];
 
-const CSV_HEADERS = "codigo,nombre,distrito,tipo,ubicacion,lat,lng,ancho,alto,costoProduccion,costoInstalacion,precioMes,estado";
+const CSV_HEADERS = "codigo,nombre,distrito,tipo,ubicacion,lat,lng,ancho,alto,costoProduccion,costoInstalacion,precioMes,estado,propiedad";
 
 function descargarPlantilla() {
   const filas = CSV_FILAS.map(([codigo, nombre, distrito, tipo]) =>
@@ -267,6 +267,13 @@ function PanelFormModal({ inicial, onSave, onCancel }) {
             <input type="number" step="0.01" min="0" value={form.precioMes} onChange={set("precioMes")} placeholder="2500" />
           </F>
 
+          <F label="Propiedad">
+            <select value={form.propiedad} onChange={set("propiedad")}>
+              <option value="PROPIO">Propio</option>
+              <option value="EXTERNO">Externo (gestionado por un tercero)</option>
+            </select>
+          </F>
+
           <div className={styles.formActions}>
             <button type="button" className={styles.btnOutline} onClick={onCancel}>Cancelar</button>
             <button type="submit" className={styles.btnPrimary} disabled={saving}>
@@ -343,6 +350,7 @@ export default function Paneles() {
     costoProduccion: editPanel.costoProduccion ?? "0",
     costoInstalacion: editPanel.costoInstalacion ?? "0",
     precioMes: editPanel.precioMes ?? "",
+    propiedad: editPanel.propiedad ?? "PROPIO",
   } : null;
 
   return (
@@ -402,6 +410,7 @@ export default function Paneles() {
                 <th>Medidas</th>
                 <th>Precio / mes</th>
                 <th>Estado</th>
+                <th>Propiedad</th>
                 <th>Mapa</th>
                 {isAdmin && <th>Acciones</th>}
               </tr>
@@ -439,6 +448,10 @@ export default function Paneles() {
 
                   <td>
                     <EstadoBadge estado={p.estado} />
+                  </td>
+
+                  <td style={{ fontSize: "0.8rem", color: "var(--color-text2)", whiteSpace: "nowrap" }}>
+                    {p.propiedad === "EXTERNO" ? "Externo" : "Propio"}
                   </td>
 
                   <td>

@@ -23,7 +23,7 @@ const FORM_VACIO = {
   codigo: "", nombre: "", distrito: "", tipo: "MUPI",
   ubicacion: "", lat: "", lng: "",
   ancho: "", alto: "", costoProduccion: "0", costoInstalacion: "0",
-  precioMes: "",
+  precioMes: "", propiedad: "PROPIO",
 };
 
 /* ── Datos plantilla CSV (12 mupis — hoja "MUPIS - PALETAS") ───────────────── */
@@ -42,7 +42,7 @@ const CSV_FILAS = [
   ["MUPI-12","Carrion y Tacna","","MUPI"],
 ];
 
-const CSV_HEADERS = "codigo,nombre,distrito,tipo,ubicacion,lat,lng,ancho,alto,costoProduccion,costoInstalacion,precioMes,estado";
+const CSV_HEADERS = "codigo,nombre,distrito,tipo,ubicacion,lat,lng,ancho,alto,costoProduccion,costoInstalacion,precioMes,estado,propiedad";
 
 function descargarPlantilla() {
   const filas = CSV_FILAS.map(([codigo, nombre, distrito, tipo]) =>
@@ -237,6 +237,13 @@ function MupiFormModal({ inicial, onSave, onCancel }) {
             <input type="number" step="0.01" min="0" value={form.precioMes} onChange={set("precioMes")} placeholder="562.50" />
           </F>
 
+          <F label="Propiedad">
+            <select value={form.propiedad} onChange={set("propiedad")}>
+              <option value="PROPIO">Propio</option>
+              <option value="EXTERNO">Externo (gestionado por un tercero)</option>
+            </select>
+          </F>
+
           <div className={styles.formActions}>
             <button type="button" className={styles.btnOutline} onClick={onCancel}>Cancelar</button>
             <button type="submit" className={styles.btnPrimary} disabled={saving}>
@@ -313,6 +320,7 @@ export default function Mupis() {
     costoProduccion: editPanel.costoProduccion ?? "0",
     costoInstalacion: editPanel.costoInstalacion ?? "0",
     precioMes: editPanel.precioMes ?? "",
+    propiedad: editPanel.propiedad ?? "PROPIO",
   } : null;
 
   return (
@@ -371,6 +379,7 @@ export default function Mupis() {
                 <th>Medidas</th>
                 <th>Precio / mes</th>
                 <th>Estado</th>
+                <th>Propiedad</th>
                 <th>Mapa</th>
                 {isAdmin && <th>Acciones</th>}
               </tr>
@@ -404,6 +413,10 @@ export default function Mupis() {
 
                   <td>
                     <EstadoBadge estado={p.estado} />
+                  </td>
+
+                  <td style={{ fontSize: "0.8rem", color: "var(--color-text2)", whiteSpace: "nowrap" }}>
+                    {p.propiedad === "EXTERNO" ? "Externo" : "Propio"}
                   </td>
 
                   <td>

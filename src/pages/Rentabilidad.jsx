@@ -3,11 +3,13 @@ import { RefreshCw, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import {
   getRentabilidadMupis,
+  getOportunidadPerdida,
   getParametrosCostoMupi,
   updateParametrosCostoMupi,
   updatePanelPrecioMes,
   updateReservaPrecioMensual,
 } from "../api/rentabilidad";
+import { getEventosProduccion, crearEventoProduccion, eliminarEventoProduccion } from "../api/eventosProduccion";
 import styles from "./rentabilidad.module.scss";
 
 const MESES_LABEL = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
@@ -456,6 +458,230 @@ function VistaPorTipo({ filasBase, isAdmin, anio, setAnio, onGuardadoParametros,
 }
 
 // Pestaña Todos: gráfico, resumen combinado y registro completo; mismo modal de parámetros al hacer clic en una fila.
+// Paneles "Libre externo" (de terceros, sin cliente/precio propio): estima cuánto se
+// pudo haber generado con el precio mínimo del panel mientras estuvo libre.
+function OportunidadPerdida() {
+  const [datos, setDatos] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await getOportunidadPerdida();
+      setDatos(data);
+    } catch (e) {
+      setError(e.response?.data?.message ?? "No se pudo cargar la oportunidad perdida");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  if (loading) return <p className={styles.empty}>Cargando…</p>;
+  if (error) return <p className={styles.errorMsg}>{error}</p>;
+
+  return (
+    <>
+      <div className={styles.resumenForm}>
+        <div className={styles.resumenGrupo}>
+          <FilaResumen label="Periodos Libre externo registrados" value={datos.filas.length} plain />
+          <FilaResumen label="Total que se pudo haber generado" value={datos.totalPerdido} />
+        </div>
+      </div>
+
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Panel / Mupi</th>
+              <th>Desde</th>
+              <th>Hasta</th>
+              <th>Meses</th>
+              <th>Precio de referencia</th>
+              <th>Monto que se pudo generar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {datos.filas.length === 0 && (
+              <tr><td colSpan={6} className={styles.empty}>Sin periodos "Libre externo" registrados.</td></tr>
+            )}
+            {datos.filas.map((f) => (
+              <tr key={f.reservaId}>
+                <td>
+                  <div>{f.panel.codigo}</div>
+                  <div className={styles.tdSub}>{f.panel.nombre} · {f.panel.tipo}</div>
+                </td>
+                <td>{mesLabel(f.fechaInicio)}</td>
+                <td>{mesLabel(f.fechaFin)}</td>
+                <td>{f.meses}</td>
+                <td>{fmt(f.precioReferencia)}</td>
+                <td>{fmt(f.montoPerdido)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+// Registro de cada trabajo de producción/instalación (el inicial y cualquier renovación
+// de banner durante el contrato). El costo sale de Panel.costoProduccion + costoInstalacion;
+// aquí solo se registra fecha y cuánto se cobró, para ver cuántas veces se renueva y la
+// rentabilidad de ese servicio — aplica igual a Paneles y Mupis.
+function ProduccionInstalacion({ filas, isAdmin }) {
+  const [eventos, setEventos] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({ reservaId: "", fecha: "", montoCobrado: "", notas: "" });
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await getEventosProduccion();
+      setEventos(data);
+    } catch (e) {
+      setError(e.response?.data?.message ?? "No se pudieron cargar los eventos");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+  useEffect(() => {
+    setForm((f) => (f.reservaId ? f : { ...f, reservaId: filas[0]?.reservaId ?? "" }));
+  }, [filas]);
+
+  const agregar = async (ev) => {
+    ev.preventDefault();
+    setFormError("");
+    if (!form.reservaId || !form.fecha || form.montoCobrado === "") {
+      setFormError("Contrato, fecha y monto cobrado son obligatorios.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await crearEventoProduccion({
+        reservaId: Number(form.reservaId),
+        fecha: form.fecha,
+        montoCobrado: Number(form.montoCobrado),
+        notas: form.notas || null,
+      });
+      setForm((f) => ({ ...f, fecha: "", montoCobrado: "", notas: "" }));
+      await cargar();
+    } catch (e) {
+      setFormError(e.response?.data?.message ?? "Error al registrar el evento");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const eliminar = async (id) => {
+    if (!confirm("¿Eliminar este evento?")) return;
+    await eliminarEventoProduccion(id);
+    cargar();
+  };
+
+  return (
+    <>
+      {isAdmin && (
+        <form className={styles.eventoForm} onSubmit={agregar}>
+          {formError && <p className={styles.errorMsg}>{formError}</p>}
+          <div className={styles.formField}>
+            <label>Contrato</label>
+            <select value={form.reservaId} onChange={(e) => setForm((f) => ({ ...f, reservaId: e.target.value }))}>
+              {filas.map((f) => (
+                <option key={f.reservaId} value={f.reservaId}>{f.panel.codigo} · {f.cliente} ({f.panel.tipo})</option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.formField}>
+            <label>Fecha</label>
+            <input type="date" value={form.fecha} onChange={(e) => setForm((f) => ({ ...f, fecha: e.target.value }))} />
+          </div>
+          <div className={styles.formField}>
+            <label>Monto cobrado (S/)</label>
+            <input type="number" step="0.01" min="0" value={form.montoCobrado} onChange={(e) => setForm((f) => ({ ...f, montoCobrado: e.target.value }))} placeholder="500" />
+          </div>
+          <div className={styles.formField}>
+            <label>Notas <span className={styles.opcional}>(opcional)</span></label>
+            <input value={form.notas} onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} placeholder="Ej. Renovación de banner" />
+          </div>
+          <button className={styles.btnPrimary} disabled={saving} type="submit">
+            {saving ? "Guardando…" : "Registrar evento"}
+          </button>
+        </form>
+      )}
+
+      {loading ? (
+        <p className={styles.empty}>Cargando…</p>
+      ) : error ? (
+        <p className={styles.errorMsg}>{error}</p>
+      ) : (
+        <>
+          <div className={styles.resumenForm}>
+            <div className={styles.resumenGrupo}>
+              <FilaResumen label="Eventos registrados" value={eventos.resumen.nEventos} plain />
+              <FilaResumen label="Total cobrado" value={eventos.resumen.totalCobrado} />
+            </div>
+            <div className={styles.resumenGrupo}>
+              <FilaResumen label="Total costo" value={eventos.resumen.totalCosto} />
+              <FilaResumen label="Rentabilidad total" value={eventos.resumen.totalRentabilidad} colored />
+            </div>
+          </div>
+
+          <div className={styles.tableContainer}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Panel / Mupi</th>
+                  <th>Cliente</th>
+                  <th>Fecha</th>
+                  <th>Cobrado</th>
+                  <th>Costo</th>
+                  <th>Rentabilidad</th>
+                  <th>Notas</th>
+                  {isAdmin && <th></th>}
+                </tr>
+              </thead>
+              <tbody>
+                {eventos.filas.length === 0 && (
+                  <tr><td colSpan={isAdmin ? 8 : 7} className={styles.empty}>Sin eventos de producción/instalación registrados.</td></tr>
+                )}
+                {eventos.filas.map((e) => (
+                  <tr key={e.id}>
+                    <td>
+                      <div>{e.panel.codigo}</div>
+                      <div className={styles.tdSub}>{e.panel.nombre} · {e.panel.tipo}</div>
+                    </td>
+                    <td>{e.cliente ?? "—"}</td>
+                    <td>{mesLabel(e.fecha)}</td>
+                    <td>{fmt(e.montoCobrado)}</td>
+                    <td>{fmt(e.costo)}</td>
+                    <td className={e.rentabilidad >= 0 ? styles.positivo : styles.negativo}>{fmt(e.rentabilidad)}</td>
+                    <td className={styles.tdSub}>{e.notas ?? "—"}</td>
+                    {isAdmin && (
+                      <td>
+                        <button className={styles.linkEdit} onClick={() => eliminar(e.id)}>Eliminar</button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
 function VistaTodos({ filas, isAdmin, anio, setAnio, onGuardadoParametros, onPatchPrecioMinimo, onPatchPrecioContratado }) {
   const [busqueda, setBusqueda] = useState("");
   const [modalFila, setModalFila] = useState(null);
@@ -492,6 +718,16 @@ function VistaTodos({ filas, isAdmin, anio, setAnio, onGuardadoParametros, onPat
           onPatchPrecioContratado={onPatchPrecioContratado}
           onSeleccionarPanel={setModalFila}
         />
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Oportunidad perdida (paneles Libre externo)</h2>
+        <OportunidadPerdida />
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Producción e instalación (renovaciones de banner)</h2>
+        <ProduccionInstalacion filas={filas} isAdmin={isAdmin} />
       </section>
 
       {modalFila && (
