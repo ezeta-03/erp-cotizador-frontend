@@ -54,7 +54,7 @@
     font-family: inherit;
     transition: $transition-smooth;
 
-    &::placeholder { color: var(--color-text3); }
+    &::placeholder { color: var(--color-text2); }
     &:hover { border-color: var(--color-hover-border); }
     &:focus {
       border-color: $brand-primary;

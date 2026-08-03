@@ -83,7 +83,7 @@
   background: transparent;
   font-family: inherit;
 
-  &::placeholder { color: var(--color-text3); }
+  &::placeholder { color: var(--color-text2); }
 }
 
 .buscadorButton {
@@ -501,7 +501,7 @@
   outline: none;
 
   &:focus { border-color: $brand-primary; }
-  &::placeholder { color: var(--color-text3); }
+  &::placeholder { color: var(--color-text2); }
 }
 
 .formSolicitudActions {
@@ -665,7 +665,7 @@
     color: var(--color-text1);
   }
 
-  &::placeholder { color: var(--color-text3); }
+  &::placeholder { color: var(--color-text2); }
 }
 
 /* ── Toggle IGV ── */

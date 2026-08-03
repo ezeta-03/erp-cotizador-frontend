@@ -447,12 +447,22 @@ button {
     outline: none;
     font-family: inherit;
 
-    &::placeholder { color: var(--color-text3); }
+    // --color-text3 es demasiado tenue como placeholder sobre el fondo de input en
+    // modo oscuro (contraste ~1.9:1); --color-text2 da un contraste legible (~4.5:1)
+    // manteniéndose más apagado que el texto real (--color-text1).
+    &::placeholder { color: var(--color-text2); }
 
     &:focus {
       border-color: $brand-primary;
       box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
     }
+  }
+
+  // El popup nativo de <select> no hereda los colores del tema por defecto en algunos
+  // navegadores; se fuerza aquí para que no aparezca claro sobre un layout oscuro.
+  select option {
+    background-color: var(--color-surface2);
+    color: var(--color-text1);
   }
 }
 
