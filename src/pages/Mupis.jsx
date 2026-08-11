@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Plus, MapPin, Edit2, Trash2, RefreshCw, X, ExternalLink, Upload, Download } from "lucide-react";
+import { Plus, MapPin, Edit2, Trash2, RefreshCw, X, ExternalLink, Upload, Download, Archive } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import useAuth from "../auth/useAuth";
@@ -9,6 +9,7 @@ import {
 } from "../api/paneles";
 import styles from "./paneles.module.scss";
 import { ESTADO_META } from "../constants/estados";
+import PapeleraPanelesModal from "../coomponents/PapeleraPanelesModal";
 
 /* ── Constantes ────────────────────────────────────────────────────────────── */
 const DISTRITOS = ["HUANCAYO", "EL_TAMBO", "CHILCA"];
@@ -275,6 +276,7 @@ export default function Mupis() {
   const [showForm, setShowForm]   = useState(false);
   const [importing, setImporting] = useState(false);
   const [importMsg, setImportMsg] = useState(null);
+  const [showEliminados, setShowEliminados] = useState(false);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -336,6 +338,9 @@ export default function Mupis() {
         <div className={styles.headerActions}>
           <button className={styles.btnOutline} onClick={cargar} title="Actualizar"><RefreshCw size={16} /></button>
           {isAdmin && (<>
+            <button className={styles.btnOutline} onClick={() => setShowEliminados(true)} title="Ver mupis eliminados">
+              <Archive size={16} /> Eliminados
+            </button>
             <button className={styles.btnOutline} onClick={descargarPlantilla} title="Descargar plantilla CSV">
               <Download size={16} /> Plantilla
             </button>
@@ -448,6 +453,9 @@ export default function Mupis() {
       {mapPanel  && <MapModal panel={mapPanel} onClose={() => setMapPanel(null)} />}
       {showForm  && <MupiFormModal inicial={null}       onSave={handleCrear}  onCancel={() => setShowForm(false)} />}
       {editPanel && <MupiFormModal inicial={formInicial} onSave={handleEditar} onCancel={() => setEditPanel(null)} />}
+      {showEliminados && (
+        <PapeleraPanelesModal esMupi={true} styles={styles} onClose={() => setShowEliminados(false)} onRestaurado={cargar} />
+      )}
     </div>
   );
 }
