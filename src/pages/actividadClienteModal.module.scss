@@ -1,4 +1,4 @@
-@import "../styles/_ui.scss";
+@use "../styles/_ui.scss" as *;
 
 /* ── Tamaño fijo del modal para que no se redimensione al expandir filas ── */
 .wizardCard {

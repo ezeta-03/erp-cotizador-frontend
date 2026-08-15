@@ -6,7 +6,7 @@ import { getPaneles } from "../api/paneles";
 import { getClientes, createCliente } from "../api/clientes";
 import { getReservas, createReserva, updateReserva, deleteReserva } from "../api/reservas";
 import styles from "./ocupacion.module.scss";
-import { ESTADOS_PROPIO, ESTADOS_EXTERNO, ESTADO_META, esEstadoExterno } from "../constants/estados";
+import { ESTADOS_PANEL, ESTADO_META, esEstadoExterno } from "../constants/estados";
 
 /* ── Constantes ─────────────────────────────────────────────────────────────── */
 const MESES   = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -100,21 +100,26 @@ const NC0 = { nombreComercial: "", documento: "", nombreContacto: "" };
 
 function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave, onDelete, onClose, onClienteCreado }) {
   const esEdicion = !!reserva;
-  // Un panel Externo (gestionado por cuenta de un tercero) solo registra fechas + estado:
-  // no tiene cliente ni precio propio, por eso su formulario oculta esos campos.
+  // "Externo" describe la PROPIEDAD del panel (no es nuestro), no la reserva: igual podemos
+  // conseguirlo para un cliente propio (Ocupado/Libre normales, con cliente y precio) o solo
+  // llevar registro de su estado mientras lo gestiona el tercero (Libre/Ocupado externo).
+  // Por eso las 4 opciones siempre están disponibles; solo cambia cuál viene preseleccionada.
   const panelEsExterno = panel.propiedad === "EXTERNO";
-  const opcionesEstado = panelEsExterno ? ESTADOS_EXTERNO : ESTADOS_PROPIO;
 
   const [form, setForm]     = useState(esEdicion ? {
     clienteId:     reserva.clienteId ? String(reserva.clienteId) : "",
     fechaInicio:   reserva.fechaInicio.slice(0, 10),
     fechaFin:      reserva.fechaFin.slice(0, 10),
     precioMensual: reserva.precioMensual != null ? String(reserva.precioMensual) : "",
-    estado:        opcionesEstado.includes(reserva.estado) ? reserva.estado : opcionesEstado[0],
+    estado:        reserva.estado,
     notas:         reserva.notas ?? "",
-  } : { ...FORM0, estado: opcionesEstado[0], ...defaults });
+  } : { ...FORM0, estado: panelEsExterno ? "LIBRE_EXTERNO" : FORM0.estado, ...defaults });
   const [saving, setSaving] = useState(false);
   const [error,  setError]  = useState("");
+
+  // El campo que realmente decide si hace falta cliente/precio es el ESTADO elegido en
+  // el formulario (reactivo), no la propiedad fija del panel.
+  const estadoEsExterno = esEstadoExterno(form.estado);
 
   /* ── Nuevo cliente inline ── */
   const [clientes,      setClientes]      = useState(clientesProp);
@@ -150,7 +155,7 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
     setError("");
     if (!form.fechaInicio || !form.fechaFin)
       return setError("Las fechas son obligatorias.");
-    if (!panelEsExterno && (!form.clienteId || !form.precioMensual))
+    if (!estadoEsExterno && (!form.clienteId || !form.precioMensual))
       return setError("Cliente y precio son obligatorios.");
     if (new Date(form.fechaFin) <= new Date(form.fechaInicio))
       return setError("La fecha de fin debe ser posterior al inicio.");
@@ -175,12 +180,14 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
 
           {panelEsExterno && (
             <p className={styles.hintExterno}>
-              Panel externo: solo se registran fechas y estado, sin cliente ni precio propio.
+              Este panel es de un tercero. Si ya lo conseguiste para un cliente propio, elige
+              "Libre" u "Ocupado" y complétalo normal; si solo llevas registro de su estado
+              mientras lo gestiona el tercero, usa "Libre externo" / "Ocupado externo".
             </p>
           )}
 
-          {/* Cliente (no aplica a paneles externos) */}
-          {!panelEsExterno && (
+          {/* Cliente y precio no aplican cuando el estado elegido es *_EXTERNO */}
+          {!estadoEsExterno && (
             <div className={styles.formField}>
               <label>Cliente</label>
               <div className={styles.clienteRow}>
@@ -247,7 +254,7 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
           </div>
 
           <div className={styles.formRow}>
-            {!panelEsExterno && (
+            {!estadoEsExterno && (
               <div className={styles.formField}>
                 <label>Precio mensual (S/)</label>
                 <input type="number" step="0.01" min="0" value={form.precioMensual} onChange={setf("precioMensual")} placeholder="2500" />
@@ -256,7 +263,7 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
             <div className={styles.formField}>
               <label>Estado</label>
               <select value={form.estado} onChange={setf("estado")}>
-                {opcionesEstado.map(e => <option key={e} value={e}>{ESTADO_META[e].label}</option>)}
+                {ESTADOS_PANEL.map(e => <option key={e} value={e}>{ESTADO_META[e].label}</option>)}
               </select>
             </div>
           </div>

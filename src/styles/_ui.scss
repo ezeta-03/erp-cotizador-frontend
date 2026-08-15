@@ -1,5 +1,5 @@
 /* ===== Premium UI System ===== */
-@import "./variables";
+@use "./variables" as *;
 
 $brand-primary: #f97316;
 $brand-primary-hover: #ea580c;

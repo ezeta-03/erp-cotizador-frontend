@@ -1,4 +1,4 @@
-@import "../styles/_ui.scss";
+@use "../styles/_ui.scss" as *;
 
 .container {
   padding: 2rem;
