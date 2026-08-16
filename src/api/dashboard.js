@@ -1,3 +1,4 @@
 import api from "./axios";
 
-export const getResumenDashboard = () => api.get("/dashboard/resumen").then(r => r.data);
+export const getResumenDashboard = (kinds) =>
+  api.get("/dashboard/resumen", { params: { kinds: kinds.join(",") } }).then(r => r.data);

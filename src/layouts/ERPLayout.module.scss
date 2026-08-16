@@ -193,14 +193,6 @@
   }
 }
 
-.navItemFlat {
-  padding: 0.6rem 0.7rem;
-  gap: 0.6rem;
-  font-size: 0.83rem;
-  text-decoration: none;
-  color: inherit;
-}
-
 .navItemActive {
   background: var(--color-accent-light);
   color: var(--color-accent);
@@ -269,18 +261,29 @@
   margin: 0.1rem 0 0.35rem;
 }
 
-.navChild {
-  padding: 0.42rem 0.6rem;
+.navChildRow {
+  display: flex;
+  align-items: center;
   border-radius: 6px;
-  font-size: 0.76rem;
   color: var(--color-text3);
-  text-decoration: none;
   transition: $transition-fast;
 
   &:hover {
     color: var(--color-text1);
     background: var(--color-hover);
   }
+}
+
+.navChild {
+  flex: 1;
+  padding: 0.42rem 0.6rem;
+  font-size: 0.76rem;
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navChildActive {
@@ -292,6 +295,35 @@
     color: var(--color-accent);
     background: var(--color-accent-light);
   }
+}
+
+/* ── Pin al Inicio ── */
+.pinBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 0.15rem;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--color-text3);
+  opacity: 0.55;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: $transition-fast;
+
+  &:hover {
+    opacity: 1;
+    background: var(--color-hover);
+    color: var(--color-accent);
+  }
+}
+
+.pinBtnActive {
+  opacity: 1;
+  color: var(--color-accent);
 }
 
 /* ── Usuario (pie de la sidebar) ── */

@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation, NavLink } from "react-router-dom";
 import {
-  LogOut, ChevronLeft, ChevronDown, Moon, Sun, Menu, X, Mail, Briefcase,
+  LogOut, ChevronLeft, ChevronDown, Moon, Sun, Menu, X, Mail, Briefcase, Pin, PinOff,
   BarChart3, UserCircle, Users, DollarSign, MapPin, Megaphone, KeyRound,
   Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package,
 } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import useDarkMode from "../hooks/useDarkMode";
+import { getPanelWidgets, savePanelWidgets } from "../api/panelWidgets";
 import styles from "./ERPLayout.module.scss";
 
 const SECTION_LABELS = {
@@ -124,6 +125,43 @@ export default function ERPLayout() {
   });
   const closeMobileMenu = () => setMenuOpen(false);
 
+  // Pin al Inicio: solo admin/ventas tienen un panel de bienvenida donde pinear.
+  const canPin = role === "admin" || role === "ventas";
+  const [pinnedWidgets, setPinnedWidgets] = useState([]);
+  const pinnedKinds = new Set(pinnedWidgets.map((w) => w.kind));
+
+  useEffect(() => {
+    if (!canPin) return;
+    let vivo = true;
+    getPanelWidgets().then((ws) => vivo && setPinnedWidgets(ws)).catch(() => {});
+    return () => { vivo = false; };
+  }, [canPin]);
+
+  const togglePin = (kind, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const next = pinnedKinds.has(kind)
+      ? pinnedWidgets.filter((w) => w.kind !== kind)
+      : [...pinnedWidgets, { kind, x: 0, y: pinnedWidgets.reduce((m, w) => Math.max(m, w.y + w.h), 0), w: 1, h: 1 }];
+    setPinnedWidgets(next);
+    savePanelWidgets(next).catch(() => setPinnedWidgets(pinnedWidgets));
+  };
+
+  const PinBtn = ({ kind }) => {
+    if (!canPin) return null;
+    const pinned = pinnedKinds.has(kind);
+    return (
+      <button
+        className={`${styles.pinBtn} ${pinned ? styles.pinBtnActive : ""}`}
+        onClick={(e) => togglePin(kind, e)}
+        aria-label={pinned ? `Quitar ${kind} del Inicio` : `Pinear ${kind} al Inicio`}
+        title={pinned ? "Quitar del Inicio" : "Pinear al Inicio"}
+      >
+        {pinned ? <Pin size={13} /> : <PinOff size={13} />}
+      </button>
+    );
+  };
+
   return (
     <div className={styles.page}>
       {/* Header idéntico al ERPHome */}
@@ -174,6 +212,7 @@ export default function ERPLayout() {
                         <Icon size={18} className={styles.navIcon} />
                         <span className={styles.navText}>{m.label}</span>
                       </NavLink>
+                      <PinBtn kind={m.base} />
                       <button
                         className={styles.navChevronBtn}
                         onClick={() => toggleGroup(m.label)}
@@ -185,14 +224,16 @@ export default function ERPLayout() {
                     {isOpen && (
                       <div className={styles.navChildren}>
                         {m.children.map((c) => (
-                          <NavLink
-                            key={c.seg}
-                            to={`${base}/${c.seg}`}
-                            onClick={closeMobileMenu}
-                            className={({ isActive }) => `${styles.navChild} ${isActive ? styles.navChildActive : ""}`}
-                          >
-                            {c.label}
-                          </NavLink>
+                          <div key={c.seg} className={`${styles.navChildRow} ${segment === c.seg ? styles.navChildActive : ""}`}>
+                            <NavLink
+                              to={`${base}/${c.seg}`}
+                              onClick={closeMobileMenu}
+                              className={styles.navChild}
+                            >
+                              {c.label}
+                            </NavLink>
+                            <PinBtn kind={`${m.base}.${c.seg}`} />
+                          </div>
                         ))}
                       </div>
                     )}
@@ -201,15 +242,17 @@ export default function ERPLayout() {
               }
 
               return (
-                <NavLink
-                  key={m.seg}
-                  to={`/erp/${role}/${m.seg}`}
-                  onClick={closeMobileMenu}
-                  className={({ isActive }) => `${styles.navItem} ${styles.navItemFlat} ${isActive ? styles.navItemActive : ""}`}
-                >
-                  <Icon size={18} className={styles.navIcon} />
-                  <span className={styles.navText}>{m.label}</span>
-                </NavLink>
+                <div key={m.seg} className={`${styles.navItem} ${segment === m.seg ? styles.navItemActive : ""}`}>
+                  <NavLink
+                    to={`/erp/${role}/${m.seg}`}
+                    onClick={closeMobileMenu}
+                    className={styles.navLinkPart}
+                  >
+                    <Icon size={18} className={styles.navIcon} />
+                    <span className={styles.navText}>{m.label}</span>
+                  </NavLink>
+                  <PinBtn kind={m.seg} />
+                </div>
               );
             })}
           </nav>
