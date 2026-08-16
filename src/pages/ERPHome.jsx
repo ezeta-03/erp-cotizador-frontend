@@ -20,14 +20,22 @@ const HOY = new Date().toLocaleDateString("es-PE", { weekday: "long", day: "nume
 
 // El resumen de cada kind trae una forma distinta; se despacha por qué campos
 // trae, no por el kind en sí — así varios kinds comparten la misma pinta sin
-// tener que enumerarlos todos a mano.
+// tener que enumerarlos todos a mano. Todas las formas tienen una versión
+// compacta (1 fila) y una completa (con la segunda cifra, a color según si es
+// buena noticia — "up" — o necesita atención — "warn").
 function TileContent({ data, compact }) {
   if (!data) return null;
+
   if (data.ocupados !== undefined && data.total !== undefined) {
-    if (compact) {
-      return <p className={styles.numSm}>{data.ocupados}<span className={styles.numSmTag}> / {data.total}</span></p>;
-    }
     const pct = data.total ? Math.round((data.ocupados / data.total) * 100) : 0;
+    if (compact) {
+      return (
+        <div>
+          <p className={styles.numSm}>{data.ocupados}<span className={styles.numSmTag}> / {data.total}</span></p>
+          <div className={styles.barSm}><span style={{ width: `${pct}%` }} /></div>
+        </div>
+      );
+    }
     return (
       <div>
         <p className={styles.bigNum}>{data.ocupados}<span className={styles.bigNumOf}> / {data.total}</span></p>
@@ -36,34 +44,61 @@ function TileContent({ data, compact }) {
       </div>
     );
   }
+
   if (data.utilidadMes !== undefined) {
-    return compact
-      ? <p className={styles.numSm}>{fmt(data.utilidadMes)}</p>
-      : <div><p className={styles.num}>{fmt(data.utilidadMes)}</p><p className={styles.lbl}>utilidad este mes</p></div>;
-  }
-  if (data.pendientes !== undefined && data.monto !== undefined) {
-    return <div><p className={styles.num}>{data.pendientes}</p><p className={styles.lbl}>pendientes · {fmt(data.monto)}</p></div>;
-  }
-  if (data.pendientes !== undefined) {
-    return <p className={styles.numSm}>{data.pendientes} <span className={styles.numSmTag}>pendientes</span></p>;
-  }
-  if (data.enCurso !== undefined) {
-    return <p className={styles.numSm}>{data.enCurso} <span className={styles.numSmTag}>en curso</span></p>;
-  }
-  if (data.activos !== undefined) {
-    return <p className={styles.numSm}>{data.activos} <span className={styles.numSmTag}>activos</span></p>;
-  }
-  if (data.activas !== undefined) {
     return (
       <div>
-        <p className={styles.num}>{data.activas}</p>
-        <p className={styles.lbl}>activas{data.porVencer > 0 ? ` · ${data.porVencer} por vencer` : ""}</p>
+        <p className={compact ? styles.numSm : styles.num}>{fmt(data.utilidadMes)}</p>
+        {data.margen !== undefined && <p className={styles.lbl} data-tone="up">{data.margen}% de margen</p>}
       </div>
     );
   }
-  if (data.total !== undefined) {
-    return <p className={styles.numSm}>{data.total} <span className={styles.numSmTag}>registrados</span></p>;
+
+  if (data.pendientes !== undefined) {
+    return (
+      <div>
+        <p className={compact ? styles.numSm : styles.num}>{data.pendientes} <span className={styles.numSmTag}>pendientes</span></p>
+        {data.monto !== undefined && data.monto > 0 && <p className={styles.lbl} data-tone="warn">{fmt(data.monto)}</p>}
+      </div>
+    );
   }
+
+  if (data.enCurso !== undefined) {
+    return (
+      <div>
+        <p className={compact ? styles.numSm : styles.num}>{data.enCurso} <span className={styles.numSmTag}>en curso</span></p>
+        {data.monto !== undefined && data.monto > 0 && <p className={styles.lbl} data-tone="warn">{fmt(data.monto)}</p>}
+      </div>
+    );
+  }
+
+  if (data.activos !== undefined) {
+    return (
+      <div>
+        <p className={compact ? styles.numSm : styles.num}>{data.activos} <span className={styles.numSmTag}>activos</span></p>
+        {data.nuevos > 0 && <p className={styles.lbl} data-tone="up">+{data.nuevos} esta semana</p>}
+      </div>
+    );
+  }
+
+  if (data.activas !== undefined) {
+    return (
+      <div>
+        <p className={compact ? styles.numSm : styles.num}>{data.activas} <span className={styles.numSmTag}>activas</span></p>
+        {data.porVencer > 0 && <p className={styles.lbl} data-tone="warn">{data.porVencer} por vencer</p>}
+      </div>
+    );
+  }
+
+  if (data.total !== undefined) {
+    return (
+      <div>
+        <p className={compact ? styles.numSm : styles.num}>{data.total} <span className={styles.numSmTag}>registrados</span></p>
+        {data.porPagar > 0 && <p className={styles.lbl} data-tone="warn">{fmt(data.porPagar)} por pagar</p>}
+      </div>
+    );
+  }
+
   return null;
 }
 
