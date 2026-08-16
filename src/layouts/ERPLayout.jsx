@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet, useNavigate, useLocation, NavLink } from "react-router-dom";
 import {
-  LogOut, ChevronLeft, ChevronDown, Moon, Sun, Menu, X,
+  LogOut, ChevronLeft, ChevronDown, Moon, Sun, Menu, X, Mail, Briefcase,
   BarChart3, UserCircle, Users, DollarSign, MapPin, Megaphone, KeyRound,
   Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package,
 } from "lucide-react";
@@ -41,6 +41,13 @@ const BTL_CHILDREN = [
   { label: "Cotizador", seg: "cotizador", icon: FileText },
   { label: "Productos", seg: "productos", icon: Package },
 ];
+
+const ROLE_LABELS = {
+  ADMIN: "Administrador",
+  VENTAS: "Ventas",
+  CLIENTE: "Cliente",
+  CONTABLE: "Contabilidad",
+};
 
 const item  = (label, seg, icon) => ({ label, seg, icon });
 const group = (label, icon, base, children) => ({ label, icon, base, children });
@@ -146,6 +153,10 @@ export default function ERPLayout() {
 
         {/* Sidebar de navegación */}
         <aside className={`${styles.sidebar} ${menuOpen ? styles.sidebarOpen : ""}`}>
+          <div className={styles.sidebarHeader}>
+            <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.sidebarLogo} />
+          </div>
+
           <nav className={styles.nav}>
             {menu.map((m) => {
               const Icon = m.icon;
@@ -200,6 +211,21 @@ export default function ERPLayout() {
               );
             })}
           </nav>
+
+          <div className={styles.sidebarUser}>
+            <div className={styles.sidebarAvatar} aria-hidden="true">{initials}</div>
+            <div className={styles.sidebarUserInfo}>
+              <p className={styles.sidebarUserName}>{user?.nombre}</p>
+              <div className={styles.sidebarUserMeta}>
+                <Mail size={12} />
+                <span>{user?.email}</span>
+              </div>
+              <div className={styles.sidebarUserMeta}>
+                <Briefcase size={12} />
+                <span>{ROLE_LABELS[user?.role] ?? user?.role}</span>
+              </div>
+            </div>
+          </div>
         </aside>
 
         <div className={styles.contentCol}>
