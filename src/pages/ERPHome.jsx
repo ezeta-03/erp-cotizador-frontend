@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import GridLayout, { WidthProvider } from "react-grid-layout/legacy";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import { LogOut, Moon, Sun, Settings2, Plus, X, Check } from "lucide-react";
+import { LogOut, Moon, Sun, Settings2, Plus, X, Check, ChevronUp, ChevronDown } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import useDarkMode from "../hooks/useDarkMode";
 import { getResumenDashboard } from "../api/dashboard";
@@ -81,6 +81,15 @@ export default function ERPHome() {
   const [showPicker, setShowPicker] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // La grilla de arrastrar/redimensionar (4 columnas) no entra en un celular —
+  // ahí se cambia por una lista simple con flechas para reordenar.
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   useEffect(() => {
     let vivo = true;
     getPanelWidgets()
@@ -132,12 +141,25 @@ export default function ERPHome() {
     }));
   };
 
+  // En la lista móvil, mover sube/baja el bloque y aplana todo a una sola
+  // columna (x:0, y secuencial) — el tamaño/posición de escritorio de los
+  // demás bloques no se toca a menos que el usuario reordene desde ahí.
+  const moveMobile = (kind, dir) => setWidgets((ws) => {
+    const sorted = [...ws].sort((a, b) => a.y - b.y || a.x - b.x);
+    const idx = sorted.findIndex((w) => w.kind === kind);
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= sorted.length) return ws;
+    [sorted[idx], sorted[swapIdx]] = [sorted[swapIdx], sorted[idx]];
+    return sorted.map((w, i) => ({ ...w, x: 0, y: i }));
+  });
+
   const cargando = widgets === null;
   const pinnedKinds = new Set((widgets ?? []).map((w) => w.kind));
   const available = kindsForRole(role).filter((k) => !pinnedKinds.has(k));
   const primaryKind = widgets && widgets.length
     ? widgets.reduce((a, b) => (a.w * a.h >= b.w * b.h ? a : b)).kind
     : null;
+  const sortedForMobile = widgets ? [...widgets].sort((a, b) => a.y - b.y || a.x - b.x) : [];
 
   const rglLayout = (widgets ?? []).map((w) => ({ i: w.kind, x: w.x, y: w.y, w: w.w, h: w.h, minW: 1, minH: 1, maxW: 4 }));
 
@@ -196,36 +218,67 @@ export default function ERPHome() {
           </div>
         ) : editing ? (
           <>
-            <div className={styles.editHint}>Arrastra para reordenar, estira la esquina para redimensionar.</div>
+            <div className={styles.editHint}>
+              {isMobile ? "Usa las flechas para reordenar." : "Arrastra para reordenar, estira la esquina para redimensionar."}
+            </div>
 
-            <Grid
-              className={styles.editGrid}
-              layout={rglLayout}
-              cols={4}
-              rowHeight={128}
-              margin={[16, 16]}
-              onLayoutChange={onLayoutChange}
-              draggableCancel={`.${styles.tileRemove}`}
-            >
-              {widgets.map((w) => {
-                const meta = WIDGET_REGISTRY[w.kind];
-                if (!meta) return null;
-                const Icon = meta.icon;
-                return (
-                  <div key={w.kind} className={styles.tile}>
-                    <button className={styles.tileRemove} onClick={() => removeWidget(w.kind)} aria-label={`Quitar ${meta.label}`}>
-                      <X size={13} />
-                    </button>
-                    <div className={styles.tileHead}>
+            {isMobile ? (
+              <div className={styles.mobileEditList}>
+                {sortedForMobile.map((w, i) => {
+                  const meta = WIDGET_REGISTRY[w.kind];
+                  if (!meta) return null;
+                  const Icon = meta.icon;
+                  return (
+                    <div key={w.kind} className={styles.mobileEditRow}>
                       <span className={styles.tileIcon} data-tono={w.kind === primaryKind ? "acento" : undefined}>
-                        <Icon size={w.h >= 2 ? 18 : 16} />
+                        <Icon size={16} />
                       </span>
-                      {meta.label}
+                      <span className={styles.mobileEditLabel}>{meta.label}</span>
+                      <div className={styles.mobileEditActions}>
+                        <button onClick={() => moveMobile(w.kind, -1)} disabled={i === 0} aria-label={`Subir ${meta.label}`}>
+                          <ChevronUp size={16} />
+                        </button>
+                        <button onClick={() => moveMobile(w.kind, 1)} disabled={i === sortedForMobile.length - 1} aria-label={`Bajar ${meta.label}`}>
+                          <ChevronDown size={16} />
+                        </button>
+                        <button onClick={() => removeWidget(w.kind)} aria-label={`Quitar ${meta.label}`}>
+                          <X size={15} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </Grid>
+                  );
+                })}
+              </div>
+            ) : (
+              <Grid
+                className={styles.editGrid}
+                layout={rglLayout}
+                cols={4}
+                rowHeight={128}
+                margin={[16, 16]}
+                onLayoutChange={onLayoutChange}
+                draggableCancel={`.${styles.tileRemove}`}
+              >
+                {widgets.map((w) => {
+                  const meta = WIDGET_REGISTRY[w.kind];
+                  if (!meta) return null;
+                  const Icon = meta.icon;
+                  return (
+                    <div key={w.kind} className={styles.tile}>
+                      <button className={styles.tileRemove} onClick={() => removeWidget(w.kind)} aria-label={`Quitar ${meta.label}`}>
+                        <X size={13} />
+                      </button>
+                      <div className={styles.tileHead}>
+                        <span className={styles.tileIcon} data-tono={w.kind === primaryKind ? "acento" : undefined}>
+                          <Icon size={w.h >= 2 ? 18 : 16} />
+                        </span>
+                        {meta.label}
+                      </div>
+                    </div>
+                  );
+                })}
+              </Grid>
+            )}
 
             <div className={styles.addModuleRow}>
               <button className={styles.btnAddModule} onClick={() => setShowPicker((v) => !v)}>

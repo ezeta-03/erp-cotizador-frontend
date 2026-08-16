@@ -344,6 +344,69 @@
   margin-bottom: 1.25rem;
 }
 
+.mobileEditList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.mobileEditRow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+}
+
+.mobileEditLabel {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileEditActions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    background: transparent;
+    border: none;
+    color: var(--color-text2);
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover:not(:disabled) {
+      background: var(--color-hover);
+      color: var(--color-text1);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    &:last-child:hover {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+  }
+}
+
 .tileRemove {
   position: absolute;
   top: 0.6rem;
