@@ -10,6 +10,8 @@ import useDarkMode from "../hooks/useDarkMode";
 import styles from "./ERPLayout.module.scss";
 
 const SECTION_LABELS = {
+  outdoor:      "Outdoor",
+  btl:          "BTL",
   dashboard:    "Dashboard",
   historial:    "Cotizador",
   cotizaciones: "Nueva Cotización",
@@ -106,8 +108,8 @@ export default function ERPLayout() {
   const sectionLabel = SECTION_LABELS[segment] ?? segment;
 
   const homeLink    = (role === "admin" || role === "ventas") ? `/erp/${role}` : null;
-  const outdoorLink = isOutdoor ? `/erp/${role}/outdoor` : null;
-  const btlLink     = isBtl ? `/erp/${role}/btl` : null;
+  const outdoorLink = (isOutdoor && segment !== "outdoor") ? `/erp/${role}/outdoor` : null;
+  const btlLink     = (isBtl && segment !== "btl") ? `/erp/${role}/btl` : null;
 
   const menu = buildMenu(role);
   const [expanded, setExpanded] = useState(() => {

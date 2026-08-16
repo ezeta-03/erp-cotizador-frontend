@@ -1,7 +1,7 @@
 @use "../styles/_ui.scss" as *;
 
 .page {
-  min-height: 100vh;
+  min-height: 100%;
   background: var(--color-bg);
   display: flex;
   flex-direction: column;

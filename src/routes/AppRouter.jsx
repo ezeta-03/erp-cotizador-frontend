@@ -43,14 +43,6 @@ export default function AppRouter() {
         path="/erp/admin"
         element={<ProtectedRoute roles={["ADMIN"]}><ERPHome /></ProtectedRoute>}
       />
-      <Route
-        path="/erp/admin/outdoor"
-        element={<ProtectedRoute roles={["ADMIN"]}><OutdoorHome /></ProtectedRoute>}
-      />
-      <Route
-        path="/erp/admin/btl"
-        element={<ProtectedRoute roles={["ADMIN"]}><BTLHome /></ProtectedRoute>}
-      />
       <Route element={<ProtectedRoute roles={["ADMIN"]}><ERPLayout /></ProtectedRoute>}>
         <Route path="/erp/admin/dashboard"    element={<Dashboard />} />
         <Route path="/erp/admin/historial"    element={<CotizacionesHistorial />} />
@@ -60,6 +52,8 @@ export default function AppRouter() {
         <Route path="/erp/admin/productos"    element={<Productos />} />
         <Route path="/erp/admin/facturar"           element={<CotizacionesVentas />} />
         <Route path="/erp/admin/actividad"          element={<ActividadClientes />} />
+        <Route path="/erp/admin/outdoor"              element={<OutdoorHome />} />
+        <Route path="/erp/admin/btl"                  element={<BTLHome />} />
         <Route path="/erp/admin/outdoor/paneles"      element={<Paneles />} />
         <Route path="/erp/admin/outdoor/mupis"        element={<Mupis />} />
         <Route path="/erp/admin/outdoor/proveedores"  element={<Proveedores />} />
@@ -76,14 +70,6 @@ export default function AppRouter() {
         path="/erp/ventas"
         element={<ProtectedRoute roles={["VENTAS"]}><ERPHome /></ProtectedRoute>}
       />
-      <Route
-        path="/erp/ventas/outdoor"
-        element={<ProtectedRoute roles={["VENTAS"]}><OutdoorHome /></ProtectedRoute>}
-      />
-      <Route
-        path="/erp/ventas/btl"
-        element={<ProtectedRoute roles={["VENTAS"]}><BTLHome /></ProtectedRoute>}
-      />
       <Route element={<ProtectedRoute roles={["VENTAS"]}><ERPLayout /></ProtectedRoute>}>
         <Route path="/erp/ventas/dashboard"    element={<Dashboard />} />
         <Route path="/erp/ventas/historial"    element={<CotizacionesHistorial />} />
@@ -92,6 +78,8 @@ export default function AppRouter() {
         <Route path="/erp/ventas/productos"    element={<Productos />} />
         <Route path="/erp/ventas/facturar"           element={<CotizacionesVentas />} />
         <Route path="/erp/ventas/actividad"          element={<ActividadClientes />} />
+        <Route path="/erp/ventas/outdoor"              element={<OutdoorHome />} />
+        <Route path="/erp/ventas/btl"                  element={<BTLHome />} />
         <Route path="/erp/ventas/outdoor/paneles"      element={<Paneles />} />
         <Route path="/erp/ventas/outdoor/mupis"        element={<Mupis />} />
         <Route path="/erp/ventas/outdoor/proveedores"  element={<Proveedores />} />
