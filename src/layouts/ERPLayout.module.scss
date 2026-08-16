@@ -1,10 +1,10 @@
 @use "../styles/_ui.scss" as *;
 
 .page {
-  min-height: 100vh;
-  background: var(--color-bg);
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--color-bg);
 }
 
 /* ── Header ── */
@@ -15,15 +15,33 @@
   padding: 1.25rem 2.5rem;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
-  position: sticky;
-  top: 0;
-  z-index: $z-sticky;
+  flex-shrink: 0;
 }
 
 .headerLeft {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text2);
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover {
+    background: var(--color-hover);
+    border-color: var(--color-hover-border);
+    color: var(--color-accent);
+  }
 }
 
 .logo {
@@ -113,6 +131,159 @@
   }
 }
 
+/* ── Shell: sidebar + contenido ── */
+.shell {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.overlay {
+  display: none;
+}
+
+/* ── Sidebar (acero, igual en claro y oscuro) ── */
+.sidebar {
+  width: 224px;
+  flex-shrink: 0;
+  background: #23272f;
+  padding: 1rem 0.65rem;
+  overflow-y: auto;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  border-radius: 7px;
+  color: #b6bdc7;
+  transition: $transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+  }
+}
+
+.navItemFlat {
+  padding: 0.6rem 0.7rem;
+  gap: 0.6rem;
+  font-size: 0.83rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.navItemActive {
+  background: rgba(255, 102, 0, 0.14);
+  color: #ff8a3d;
+  font-weight: 700;
+
+  &:hover {
+    background: rgba(255, 102, 0, 0.18);
+    color: #ff8a3d;
+  }
+}
+
+.navLinkPart {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.7rem;
+  font-size: 0.83rem;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
+.navIcon {
+  flex-shrink: 0;
+}
+
+.navText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navChevronBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 0.3rem;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 6px;
+  flex-shrink: 0;
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.navChevronOpen {
+  transform: rotate(180deg);
+}
+
+.navChildren {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  padding-left: 2rem;
+  margin: 0.1rem 0 0.35rem;
+}
+
+.navChild {
+  padding: 0.42rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  color: #8b93a0;
+  text-decoration: none;
+  transition: $transition-fast;
+
+  &:hover {
+    color: #d7dbe0;
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.navChildActive {
+  color: #ff8a3d;
+  font-weight: 700;
+  background: rgba(255, 102, 0, 0.1);
+
+  &:hover {
+    color: #ff8a3d;
+    background: rgba(255, 102, 0, 0.14);
+  }
+}
+
+/* ── Columna de contenido ── */
+.contentCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 /* ── Breadcrumb ── */
 .breadcrumb {
   display: flex;
@@ -121,6 +292,7 @@
   padding: 0.875rem 2.5rem;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border2);
+  flex-shrink: 0;
 }
 
 .btnBack {
@@ -159,7 +331,37 @@
   overflow-y: auto;
 }
 
-/* ── Responsive ── */
+/* ── Responsive: sidebar pasa a panel deslizable ── */
+@media (max-width: 1024px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: $z-overlay;
+    backdrop-filter: blur(2px);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -240px;
+    width: 240px;
+    z-index: $z-modal;
+    transition: left 0.3s ease;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
+  }
+
+  .sidebarOpen {
+    left: 0;
+  }
+}
+
 @media (max-width: 600px) {
   .header,
   .breadcrumb {
