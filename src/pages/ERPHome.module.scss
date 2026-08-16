@@ -111,132 +111,235 @@
   }
 }
 
-/* ── Hero ── */
-.hero {
-  padding: 4rem 2.5rem 2.5rem;
-  text-align: center;
+/* ── Bento ── */
+.bentoWrap {
+  padding: 2.5rem 2.5rem 4rem;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.bentoHero {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .heroTitle {
-  font-size: 2.25rem;
+  font-size: 1.7rem;
   font-weight: 800;
   color: var(--color-text1);
   letter-spacing: -0.03em;
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.25rem;
 }
 
 .heroSub {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--color-text3);
   margin: 0;
 }
 
-/* ── Grid de módulos ── */
-.grid {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  padding: 2rem 2.5rem 4rem;
-  flex-wrap: wrap;
+.heroDate {
+  font-size: 0.8rem;
+  color: var(--color-text3);
+  text-transform: capitalize;
 }
 
-.card {
-  position: relative;
-  width: 260px;
-  padding: 2rem 1.75rem;
-  background: var(--color-surface);
+.bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 128px;
+  gap: 1rem;
+}
+
+.tile {
+  background: var(--color-surface2);
   border: 1px solid var(--color-border);
-  border-radius: 20px;
-  box-shadow: var(--shadow-soft);
-  text-align: left;
-  cursor: pointer;
-  transition: $transition-smooth;
+  border-radius: $radius-lg;
+  padding: 1.15rem 1.3rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  justify-content: space-between;
+  text-align: left;
+  cursor: pointer;
+  transition: $transition-fast;
+  font-family: inherit;
+  color: inherit;
 
-  &:hover:not(:disabled) {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-hover);
+  &:hover {
     border-color: var(--color-hover-border);
-  }
-
-  &:active:not(:disabled) {
     transform: translateY(-2px);
   }
 }
 
-.cardDisabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-
-  &:hover {
-    transform: none !important;
-    box-shadow: var(--shadow-soft) !important;
-  }
+.tileBig {
+  grid-column: span 2;
+  grid-row: span 2;
 }
 
-.soon {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  font-size: 0.7rem;
+.tileTall {
+  grid-row: span 2;
+}
+
+.tileHead {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: var(--color-surface2);
-  color: var(--color-text3);
-  padding: 0.25rem 0.6rem;
-  border-radius: 99px;
+  color: var(--color-text2);
 }
 
-.cardIcon {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
+.tileIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.25rem;
+  flex-shrink: 0;
+  background: var(--color-surface3);
+  color: var(--color-text2);
+
+  &[data-tono="acento"] {
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+  }
 }
 
-.cardTitle {
-  font-size: 1.2rem;
+.bigNum {
+  font-size: 2.1rem;
   font-weight: 800;
+  margin: 0.5rem 0 0;
   color: var(--color-text1);
-  margin: 0;
-  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
-.cardDesc {
-  font-size: 0.875rem;
+.bigNumOf {
+  font-size: 1.1rem;
+  font-weight: 500;
+  opacity: 0.5;
+}
+
+.subNum {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--badge-green-text);
+  margin: 0.2rem 0 0;
+}
+
+.bar {
+  height: 5px;
+  border-radius: 99px;
+  background: var(--color-surface3);
+  overflow: hidden;
+  margin-top: 0.7rem;
+
+  span {
+    display: block;
+    height: 100%;
+    background: var(--color-accent);
+  }
+}
+
+.num {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--color-text1);
+  font-variant-numeric: tabular-nums;
+}
+
+.lbl {
+  font-size: 0.75rem;
   color: var(--color-text3);
+  margin: 0.15rem 0 0;
+}
+
+.numSm {
+  font-size: 1.15rem;
+  font-weight: 800;
   margin: 0;
-  line-height: 1.5;
+  color: var(--color-text1);
+  font-variant-numeric: tabular-nums;
 }
 
-.cardEnter {
-  display: inline-block;
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
+.numSmTag {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--color-text3);
+}
+
+.tileUtil {
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+
+  .tileIcon {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+.utilLabel {
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--color-text2);
 }
 
-/* ── Responsive: tablet (3 cols) ── */
+.tileErr {
+  font-size: 0.8rem;
+  color: var(--color-text3);
+  margin: 0.5rem 0 0;
+}
+
+.tileSkeleton,
+.tileSkeletonSm {
+  border-radius: 8px;
+  background: var(--color-surface3);
+  opacity: 0.5;
+  animation: bentoPulse 1.4s ease-in-out infinite;
+}
+
+.tileSkeleton {
+  height: 3.2rem;
+  margin-top: 0.5rem;
+}
+
+.tileSkeletonSm {
+  height: 1.4rem;
+  width: 60%;
+}
+
+@keyframes bentoPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.6; }
+}
+
+/* ── Responsive: tablet (2 cols) ── */
 @media (max-width: 900px) {
-  .grid {
-    gap: 1.25rem;
+  .bentoWrap {
     padding: 1.75rem 1.75rem 3rem;
   }
 
-  .card {
-    width: 220px;
-    padding: 1.75rem 1.5rem;
+  .bento {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 116px;
+  }
+
+  .tileBig {
+    grid-column: span 2;
+  }
+
+  .tileTall {
+    grid-row: span 1;
   }
 }
 
-/* ── Responsive: mobile (2 cols compactos) ── */
+/* ── Responsive: mobile (1 col) ── */
 @media (max-width: 600px) {
   .header {
     padding: 1rem 1.25rem;
@@ -261,53 +364,28 @@
     flex-shrink: 0;
   }
 
-  .hero {
-    padding: 2rem 1.25rem 1.25rem;
+  .bentoWrap {
+    padding: 1.25rem 1rem 2.5rem;
   }
 
   .heroTitle {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
   }
 
-  .heroSub {
-    font-size: 0.875rem;
+  .bento {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
   }
 
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.875rem;
-    padding: 1rem 1rem 3rem;
-    justify-items: stretch;
+  .tileBig,
+  .tileTall {
+    grid-column: span 1;
+    grid-row: span 1;
   }
 
-  .card {
-    width: auto;
-    padding: 1.25rem 1rem;
-    border-radius: 16px;
-    gap: 0.5rem;
-  }
-
-  .cardIcon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    margin-bottom: 0;
-  }
-
-  .cardTitle {
-    font-size: 0.95rem;
-  }
-
-  .cardDesc,
-  .cardEnter {
-    display: none;
-  }
-
-  .soon {
-    font-size: 0.6rem;
-    padding: 0.15rem 0.45rem;
-    top: 0.6rem;
-    right: 0.6rem;
+  .tileUtil {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 1rem 1.3rem;
   }
 }

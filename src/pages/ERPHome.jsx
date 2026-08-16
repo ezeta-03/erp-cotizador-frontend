@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BarChart3, UserCircle, Users,
@@ -5,135 +6,39 @@ import {
 } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import useDarkMode from "../hooks/useDarkMode";
+import { getResumenDashboard } from "../api/dashboard";
 import styles from "./ERPHome.module.scss";
 
-const MODULES_ADMIN = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    description: "KPIs, metas y actividad del equipo",
-    icon: BarChart3,
-    color: "#ff6600",
-    available: true,
-  },
-  {
-    id: "clientes",
-    label: "Clientes",
-    description: "Directorio y actividad de clientes",
-    icon: UserCircle,
-    color: "#3b82f6",
-    available: true,
-  },
-  {
-    id: "usuarios",
-    label: "Usuarios",
-    description: "Gestión de accesos y roles",
-    icon: Users,
-    color: "#6366f1",
-    available: true,
-  },
-  {
-    id: "facturar",
-    label: "Facturar",
-    description: "Aprobación y facturación de cotizaciones",
-    icon: DollarSign,
-    color: "#10b981",
-    available: true,
-  },
-  {
-    id: "outdoor",
-    label: "Outdoor",
-    description: "Paneles, mupis, proveedores y rentabilidad",
-    icon: MapPin,
-    color: "#10b981",
-    available: true,
-  },
-  {
-    id: "btl",
-    label: "BTL",
-    description: "Productos y cotizador para campañas Below The Line",
-    icon: Megaphone,
-    color: "#8b5cf6",
-    available: true,
-  },
-  {
-    id: "perfil",
-    label: "Cambiar Contraseña",
-    description: "Configuración de seguridad de tu cuenta",
-    icon: KeyRound,
-    color: "#6b7280",
-    available: true,
-  },
-];
+const fmt = (v) =>
+  new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", maximumFractionDigits: 0 }).format(v ?? 0);
 
-const MODULES_VENTAS = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    description: "Tus KPIs y actividad de ventas",
-    icon: BarChart3,
-    color: "#ff6600",
-    available: true,
-  },
-  {
-    id: "clientes",
-    label: "Clientes",
-    description: "Directorio y actividad de clientes",
-    icon: UserCircle,
-    color: "#3b82f6",
-    available: true,
-  },
-  {
-    id: "facturar",
-    label: "Facturar",
-    description: "Historial y seguimiento de facturación",
-    icon: DollarSign,
-    color: "#10b981",
-    available: true,
-  },
-  {
-    id: "outdoor",
-    label: "Outdoor",
-    description: "Paneles, mupis, proveedores y rentabilidad",
-    icon: MapPin,
-    color: "#10b981",
-    available: true,
-  },
-  {
-    id: "btl",
-    label: "BTL",
-    description: "Productos y cotizador para campañas Below The Line",
-    icon: Megaphone,
-    color: "#8b5cf6",
-    available: true,
-  },
-  {
-    id: "perfil",
-    label: "Cambiar Contraseña",
-    description: "Configuración de seguridad de tu cuenta",
-    icon: KeyRound,
-    color: "#6b7280",
-    available: true,
-  },
-];
-
-const MODULES_BY_ROLE = {
-  admin: MODULES_ADMIN,
-  ventas: MODULES_VENTAS,
-};
+const HOY = new Date().toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" });
 
 export default function ERPHome() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [dark, toggleDark] = useDarkMode();
   const role = user?.role?.toLowerCase() ?? "";
-  const modules = MODULES_BY_ROLE[role] ?? [];
+  const isAdmin = role === "admin";
   const initials = user?.nombre?.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
 
-  const handleModule = (mod) => {
-    if (!mod.available) return;
-    navigate(`/erp/${role}/${mod.id}`);
-  };
+  // null = cargando, false = error, objeto = datos
+  const [resumen, setResumen] = useState(null);
+
+  useEffect(() => {
+    let vivo = true;
+    getResumenDashboard()
+      .then((d) => vivo && setResumen(d))
+      .catch(() => vivo && setResumen(false));
+    return () => { vivo = false; };
+  }, []);
+
+  const ir = (id) => navigate(`/erp/${role}/${id}`);
+
+  const cargando = resumen === null;
+  const error = resumen === false;
+  const d = error ? null : resumen;
+  const ocupacionPct = d?.outdoor?.total ? Math.round((d.outdoor.ocupados / d.outdoor.total) * 100) : 0;
 
   return (
     <div className={styles.page}>
@@ -158,42 +63,104 @@ export default function ERPHome() {
         </div>
       </header>
 
-      {/* Hero */}
-      <section className={styles.hero}>
-        <h1 className={styles.heroTitle}>
-          Bienvenido, {user?.nombre?.split(" ")[0]}
-        </h1>
-        <p className={styles.heroSub}>Selecciona una sección para comenzar</p>
-      </section>
+      {/* Bento */}
+      <section className={styles.bentoWrap}>
+        <div className={styles.bentoHero}>
+          <div>
+            <h1 className={styles.heroTitle}>Bienvenido, {user?.nombre?.split(" ")[0]}</h1>
+            <p className={styles.heroSub}>Esto es Zaazmago hoy</p>
+          </div>
+          <span className={styles.heroDate}>{HOY}</span>
+        </div>
 
-      {/* Módulos */}
-      <section className={styles.grid}>
-        {modules.map((mod) => {
-          const Icon = mod.icon;
-          return (
-            <button
-              key={mod.id}
-              className={`${styles.card} ${!mod.available ? styles.cardDisabled : ""}`}
-              onClick={() => handleModule(mod)}
-              disabled={!mod.available}
-            >
-              {!mod.available && (
-                <span className={styles.soon}>Próximamente</span>
-              )}
-              <div
-                className={styles.cardIcon}
-                style={{ background: mod.available ? `${mod.color}18` : "var(--color-surface2)" }}
-              >
-                <Icon size={32} color={mod.available ? mod.color : "var(--color-text3)"} />
+        <div className={styles.bento}>
+          {/* Outdoor — tarjeta grande */}
+          <button className={`${styles.tile} ${styles.tileBig}`} onClick={() => ir("outdoor")}>
+            <div className={styles.tileHead}>
+              <span className={styles.tileIcon} data-tono="acento"><MapPin size={18} /></span>
+              Outdoor
+            </div>
+            {cargando ? (
+              <div className={styles.tileSkeleton} />
+            ) : error ? (
+              <p className={styles.tileErr}>No se pudo cargar</p>
+            ) : (
+              <div>
+                <p className={styles.bigNum}>{d.outdoor.ocupados}<span className={styles.bigNumOf}> / {d.outdoor.total}</span></p>
+                <p className={styles.subNum}>{fmt(d.outdoor.utilidadMes)} de utilidad este mes</p>
+                <div className={styles.bar}><span style={{ width: `${ocupacionPct}%` }} /></div>
               </div>
-              <h2 className={styles.cardTitle}>{mod.label}</h2>
-              <p className={styles.cardDesc}>{mod.description}</p>
-              {mod.available && (
-                <span className={styles.cardEnter}>Ingresar →</span>
+            )}
+          </button>
+
+          {/* Facturar — alta */}
+          <button className={`${styles.tile} ${styles.tileTall}`} onClick={() => ir("facturar")}>
+            <div className={styles.tileHead}><span className={styles.tileIcon}><DollarSign size={16} /></span>Facturar</div>
+            {cargando ? (
+              <div className={styles.tileSkeleton} />
+            ) : error ? (
+              <p className={styles.tileErr}>—</p>
+            ) : (
+              <div>
+                <p className={styles.num}>{d.facturar.pendientes}</p>
+                <p className={styles.lbl}>pendientes · {fmt(d.facturar.monto)}</p>
+              </div>
+            )}
+          </button>
+
+          {/* Clientes — alta */}
+          <button className={`${styles.tile} ${styles.tileTall}`} onClick={() => ir("clientes")}>
+            <div className={styles.tileHead}><span className={styles.tileIcon}><UserCircle size={16} /></span>Clientes</div>
+            {cargando ? (
+              <div className={styles.tileSkeleton} />
+            ) : error ? (
+              <p className={styles.tileErr}>—</p>
+            ) : (
+              <div>
+                <p className={styles.num}>{d.clientes.activos}</p>
+                <p className={styles.lbl}>activos</p>
+              </div>
+            )}
+          </button>
+
+          {/* BTL — normal */}
+          <button className={styles.tile} onClick={() => ir("btl")}>
+            <div className={styles.tileHead}><span className={styles.tileIcon}><Megaphone size={16} /></span>BTL</div>
+            {cargando ? (
+              <div className={styles.tileSkeletonSm} />
+            ) : error ? (
+              <p className={styles.lbl}>—</p>
+            ) : (
+              <p className={styles.numSm}>{d.btl.enCurso} <span className={styles.numSmTag}>en curso</span></p>
+            )}
+          </button>
+
+          {/* Usuarios — normal, solo ADMIN */}
+          {isAdmin && (
+            <button className={styles.tile} onClick={() => ir("usuarios")}>
+              <div className={styles.tileHead}><span className={styles.tileIcon}><Users size={16} /></span>Usuarios</div>
+              {cargando ? (
+                <div className={styles.tileSkeletonSm} />
+              ) : error ? (
+                <p className={styles.lbl}>—</p>
+              ) : (
+                <p className={styles.numSm}>{d.usuarios?.activos ?? 0} <span className={styles.numSmTag}>activos</span></p>
               )}
             </button>
-          );
-        })}
+          )}
+
+          {/* Dashboard — atajo */}
+          <button className={`${styles.tile} ${styles.tileUtil}`} onClick={() => ir("dashboard")}>
+            <span className={styles.tileIcon}><BarChart3 size={18} /></span>
+            <span className={styles.utilLabel}>Dashboard</span>
+          </button>
+
+          {/* Cambiar contraseña — atajo */}
+          <button className={`${styles.tile} ${styles.tileUtil}`} onClick={() => ir("perfil")}>
+            <span className={styles.tileIcon}><KeyRound size={18} /></span>
+            <span className={styles.utilLabel}>Contraseña</span>
+          </button>
+        </div>
       </section>
     </div>
   );
