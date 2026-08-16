@@ -8,7 +8,7 @@ import useAuth from "../auth/useAuth";
 import useDarkMode from "../hooks/useDarkMode";
 import { getResumenDashboard } from "../api/dashboard";
 import { getPanelWidgets, savePanelWidgets } from "../api/panelWidgets";
-import { WIDGET_REGISTRY, kindsForRole } from "../constants/widgets";
+import { WIDGET_REGISTRY, kindsForRole, nextFreeSlot } from "../constants/widgets";
 import styles from "./ERPHome.module.scss";
 
 const Grid = WidthProvider(GridLayout);
@@ -162,10 +162,7 @@ export default function ERPHome() {
   const removeWidget = (kind) => setWidgets((ws) => ws.filter((w) => w.kind !== kind));
 
   const addWidget = (kind) => {
-    setWidgets((ws) => {
-      const maxY = ws.reduce((m, w) => Math.max(m, w.y + w.h), 0);
-      return [...ws, { kind, x: 0, y: maxY, w: 1, h: 1 }];
-    });
+    setWidgets((ws) => [...ws, { kind, ...nextFreeSlot(ws), w: 1, h: 1 }]);
     setShowPicker(false);
   };
 

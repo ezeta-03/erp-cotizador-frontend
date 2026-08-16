@@ -8,6 +8,7 @@ import {
 import useAuth from "../auth/useAuth";
 import useDarkMode from "../hooks/useDarkMode";
 import { getPanelWidgets, savePanelWidgets } from "../api/panelWidgets";
+import { nextFreeSlot } from "../constants/widgets";
 import styles from "./ERPLayout.module.scss";
 
 const SECTION_LABELS = {
@@ -142,7 +143,7 @@ export default function ERPLayout() {
     e.stopPropagation();
     const next = pinnedKinds.has(kind)
       ? pinnedWidgets.filter((w) => w.kind !== kind)
-      : [...pinnedWidgets, { kind, x: 0, y: pinnedWidgets.reduce((m, w) => Math.max(m, w.y + w.h), 0), w: 1, h: 1 }];
+      : [...pinnedWidgets, { kind, ...nextFreeSlot(pinnedWidgets), w: 1, h: 1 }];
     setPinnedWidgets(next);
     savePanelWidgets(next).catch(() => setPinnedWidgets(pinnedWidgets));
   };

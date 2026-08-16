@@ -26,3 +26,25 @@ export const WIDGET_REGISTRY = {
 
 export const kindsForRole = (role) =>
   Object.keys(WIDGET_REGISTRY).filter((k) => role === "admin" || !WIDGET_REGISTRY[k].adminOnly);
+
+// Dónde cae un bloque nuevo de 1x1 (pin o "Agregar bloque"): el primer hueco
+// libre recorriendo fila por fila, izquierda a derecha — el mismo criterio
+// que ya usa el auto-placement de CSS Grid en modo lectura. Si el bloque
+// siempre cayera en x:0 de una fila nueva, se vería distinto ahí que en modo
+// edición (que sí respeta x/y explícitos) en cuanto hubiera 2+ bloques 1x1.
+export function nextFreeSlot(widgets, cols = 4) {
+  const occupied = new Set();
+  widgets.forEach((w) => {
+    for (let dx = 0; dx < w.w; dx++) {
+      for (let dy = 0; dy < w.h; dy++) {
+        occupied.add(`${w.x + dx},${w.y + dy}`);
+      }
+    }
+  });
+  for (let y = 0; y < 1000; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (!occupied.has(`${x},${y}`)) return { x, y };
+    }
+  }
+  return { x: 0, y: widgets.reduce((m, w) => Math.max(m, w.y + w.h), 0) };
+}
