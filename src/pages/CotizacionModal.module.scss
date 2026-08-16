@@ -27,18 +27,18 @@
   &:hover {
     background: var(--color-hover);
     border-color: var(--color-hover-border);
-    color: $brand-primary;
+    color: var(--color-accent);
   }
 }
 
 .catChipActive {
-  background: $brand-primary;
-  border-color: $brand-primary;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
   color: #ffffff;
 
   .catCount { background: rgba(255,255,255,.2); color: #fff; }
 
-  &:hover { background: $brand-primary-hover; border-color: $brand-primary-hover; color: #fff; }
+  &:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: #fff; }
 }
 
 .catCount {
@@ -64,8 +64,8 @@
   transition: $transition-smooth;
 
   &:focus-within {
-    border-color: $brand-primary;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15);
   }
 }
 
@@ -88,7 +88,7 @@
 
 .buscadorButton {
   padding: 0.45rem 0.9rem;
-  background: $brand-primary;
+  background: var(--color-accent);
   color: #fff;
   border: none;
   border-radius: $radius-sm;
@@ -98,7 +98,7 @@
   font-family: inherit;
   transition: background 0.2s ease;
 
-  &:hover { background: $brand-primary-hover; }
+  &:hover { background: var(--color-accent-hover); }
 }
 
 .buscadorClear {
@@ -157,7 +157,7 @@
   font-family: inherit;
   outline: none;
 
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
 }
 
 .outdoorMeses {
@@ -181,7 +181,7 @@
   text-align: center;
   outline: none;
 
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
 }
 
 .outdoorChecks {
@@ -198,12 +198,12 @@
   cursor: pointer;
   white-space: nowrap;
 
-  input { cursor: pointer; accent-color: $brand-primary; }
+  input { cursor: pointer; accent-color: var(--color-accent); }
 }
 
 .outdoorBtn {
   padding: 0.5rem 1rem;
-  background: $brand-primary;
+  background: var(--color-accent);
   color: #fff;
   border: none;
   border-radius: $radius-sm;
@@ -214,7 +214,7 @@
   white-space: nowrap;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: $brand-primary-hover; }
+  &:hover:not(:disabled) { background: var(--color-accent-hover); }
   &:disabled { opacity: 0.45; cursor: not-allowed; }
 }
 
@@ -382,7 +382,7 @@
   font-family: inherit;
   outline: none;
 
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
 
   &.margenInputError {
     border-color: #ef4444;
@@ -466,7 +466,7 @@
 .btnSolicitar {
   margin-top: 0.6rem;
   padding: 0.45rem 1rem;
-  background: $brand-primary;
+  background: var(--color-accent);
   color: #fff;
   border: none;
   border-radius: $radius-sm;
@@ -475,7 +475,7 @@
   cursor: pointer;
   font-family: inherit;
 
-  &:hover { background: $brand-primary-hover; }
+  &:hover { background: var(--color-accent-hover); }
 }
 
 .formSolicitud {
@@ -500,7 +500,7 @@
   font-family: inherit;
   outline: none;
 
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
   &::placeholder { color: var(--color-text2); }
 }
 
@@ -524,7 +524,7 @@
 
 .btnEnviarSolicitud {
   padding: 0.4rem 0.85rem;
-  background: $brand-primary;
+  background: var(--color-accent);
   color: #fff;
   border: none;
   border-radius: $radius-sm;
@@ -534,7 +534,7 @@
   font-family: inherit;
 
   &:disabled { opacity: 0.6; cursor: not-allowed; }
-  &:hover:not(:disabled) { background: $brand-primary-hover; }
+  &:hover:not(:disabled) { background: var(--color-accent-hover); }
 }
 
 /* Banner margen aprobado */
@@ -560,7 +560,7 @@
   color: var(--color-text1);
   font-family: inherit;
 
-  &:focus { outline: none; border-color: $brand-primary; }
+  &:focus { outline: none; border-color: var(--color-accent); }
 }
 
 .inputMedida {
@@ -574,7 +574,7 @@
   color: var(--color-text1);
   font-family: inherit;
 
-  &:focus { outline: none; border-color: $brand-primary; }
+  &:focus { outline: none; border-color: var(--color-accent); }
 }
 
 .medidaCell {
@@ -660,7 +660,7 @@
   box-sizing: border-box;
 
   &:focus {
-    border-color: $brand-primary;
+    border-color: var(--color-accent);
     background: var(--color-surface);
     color: var(--color-text1);
   }

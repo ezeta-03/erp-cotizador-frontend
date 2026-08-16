@@ -132,7 +132,7 @@ export function DonutChart({ meta, avance, titulo = 'Meta Mensual' }) {
 
 // ── Paleta compartida ──────────────────────────────────────────────────────
 const PALETTE = [
-  '#f97316','#3b82f6','#10b981','#8b5cf6','#ef4444',
+  '#ff6600','#3b82f6','#10b981','#8b5cf6','#ef4444',
   '#06b6d4','#f59e0b','#ec4899','#84cc16','#6366f1',
 ];
 

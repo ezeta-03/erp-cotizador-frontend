@@ -18,7 +18,7 @@ const SECCIONES = [
     label: "Cotizador",
     description: "Genera cotizaciones para campañas BTL",
     icon: FileText,
-    color: "#f97316",
+    color: "#ff6600",
     available: true,
   },
 ];

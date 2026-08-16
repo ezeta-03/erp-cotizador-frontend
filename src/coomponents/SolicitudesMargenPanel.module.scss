@@ -86,11 +86,11 @@
 
 .filtroBtnActivo {
   @extend .filtroBtn;
-  border-color: $brand-primary;
-  background: $brand-primary;
+  border-color: var(--color-accent);
+  background: var(--color-accent);
   color: #fff;
 
-  &:hover { background: $brand-primary-hover; border-color: $brand-primary-hover; }
+  &:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
 }
 
 /* ── Estado vacío / cargando ── */

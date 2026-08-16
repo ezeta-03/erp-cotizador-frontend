@@ -26,8 +26,8 @@
   transition: $transition-smooth;
 
   &:focus-within {
-    border-color: $brand-primary;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15);
   }
 }
 
@@ -62,7 +62,7 @@
   outline: none;
   font-family: inherit;
   transition: $transition-smooth;
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
 }
 
 .dateRange {
@@ -81,7 +81,7 @@
   outline: none;
   font-family: inherit;
   transition: $transition-smooth;
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
 
   &::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
 }
@@ -125,16 +125,16 @@
   &:hover {
     background: var(--color-hover);
     border-color: var(--color-hover-border);
-    color: $brand-primary;
+    color: var(--color-accent);
   }
 }
 
 .chipActive {
-  background: $brand-primary;
-  border-color: $brand-primary;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
   color: #ffffff;
 
-  &:hover { background: $brand-primary-hover; border-color: $brand-primary-hover; color: #fff; }
+  &:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: #fff; }
 }
 
 /* ── Body ── */
@@ -222,7 +222,7 @@
   &:hover {
     background: var(--color-hover);
     border-color: var(--color-hover-border);
-    color: $brand-primary;
+    color: var(--color-accent);
   }
 }
 
@@ -341,16 +341,16 @@
   &:hover:not(:disabled) {
     background: var(--color-hover);
     border-color: var(--color-hover-border);
-    color: $brand-primary;
+    color: var(--color-accent);
   }
   &:disabled { color: var(--color-text3); cursor: not-allowed; }
 }
 
 .btnPagActive {
-  background: $brand-primary;
-  border-color: $brand-primary;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
   color: #ffffff;
-  &:hover { background: $brand-primary-hover !important; border-color: $brand-primary-hover !important; color: #fff !important; }
+  &:hover { background: var(--color-accent-hover) !important; border-color: var(--color-accent-hover) !important; color: #fff !important; }
 }
 
 /* ── Responsive ── */

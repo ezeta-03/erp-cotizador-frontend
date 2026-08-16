@@ -343,7 +343,7 @@
   font-family: inherit;
   outline: none;
 
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
 }
 
 .selectEstado {
@@ -357,7 +357,7 @@
   cursor: pointer;
   outline: none;
 
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
 }
 
 .selectCancelado { color: #ef4444; }
@@ -379,7 +379,7 @@
 /* ── Botón guardar cuota ── */
 .btnSave {
   padding: 0.25rem 0.65rem;
-  background: $brand-primary;
+  background: var(--color-accent);
   color: #fff;
   border: none;
   border-radius: $radius-sm;
@@ -390,7 +390,7 @@
   white-space: nowrap;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: $brand-primary-hover; }
+  &:hover:not(:disabled) { background: var(--color-accent-hover); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 

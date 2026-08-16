@@ -152,7 +152,7 @@
   outline: none;
   transition: border-color 0.15s;
 
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
 }
 
 /* ── Badges de estado ── */
@@ -309,7 +309,7 @@
   p { margin: 0; font-size: 0.9rem; }
 
   a {
-    color: $brand-primary;
+    color: var(--color-accent);
     font-size: 0.85rem;
     text-decoration: none;
     &:hover { text-decoration: underline; }

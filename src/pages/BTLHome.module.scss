@@ -86,7 +86,7 @@
   &:hover {
     background: var(--color-hover);
     border-color: var(--color-hover-border);
-    color: $brand-primary;
+    color: var(--color-accent);
   }
 }
 
@@ -133,7 +133,7 @@
   transition: $transition-fast;
 
   &:hover {
-    color: $brand-primary;
+    color: var(--color-accent);
   }
 }
 
@@ -272,7 +272,7 @@
   margin-top: 0.4rem;
   font-size: 0.825rem;
   font-weight: 700;
-  color: $brand-primary;
+  color: var(--color-accent);
 }
 
 /* ── Responsive: mobile (2 cols compactos) ── */

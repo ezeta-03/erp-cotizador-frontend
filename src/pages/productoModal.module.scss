@@ -36,7 +36,7 @@
   transition: $transition-smooth;
 
   &:focus {
-    border-color: $brand-primary;
+    border-color: var(--color-accent);
     outline: none;
   }
 }

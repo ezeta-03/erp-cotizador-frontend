@@ -25,6 +25,11 @@
   --color-input-bg:     #ffffff;
   --color-input-border: #cbd5e1;
 
+  /* Acento de marca (Ceniza) — el naranja se reserva para acción/estado */
+  --color-accent:       #ff6600;
+  --color-accent-hover: #e65c00;
+  --color-accent-light: #ffedd5;
+
   /* Sombras */
   --shadow-soft:  0 10px 40px -10px rgba(0,0,0,0.08);
   --shadow-hover: 0 20px 40px -10px rgba(0,0,0,0.12);
@@ -47,8 +52,8 @@
   --badge-purple-text:#5b21b6;
 
   /* Hover — tinte naranja suave, coherente con el acento */
-  --color-hover:        rgba(249, 115, 22, 0.06);
-  --color-hover-border: rgba(249, 115, 22, 0.28);
+  --color-hover:        rgba(255, 102, 0, 0.06);
+  --color-hover-border: rgba(255, 102, 0, 0.28);
 
   /* Transición global de tema */
   --theme-transition: background-color 0.25s ease, color 0.25s ease,
@@ -58,33 +63,38 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  /* Fondos — navy profundo, claramente no negro */
-  --color-bg:       #1a1d2e;
-  --color-surface:  #21263d;
-  --color-surface2: #292f4a;
-  --color-surface3: #333a58;
+  /* Fondos — acero (Ceniza): base #1E1E1E de marca, estructura gris-azulada */
+  --color-bg:       #1e1e1e;
+  --color-surface:  #272b32;
+  --color-surface2: #3d4654;
+  --color-surface3: #454f5e;
 
   /* Bordes */
   --color-border:   rgba(255,255,255,0.09);
-  --color-border2:  rgba(255,255,255,0.04);
+  --color-border2:  rgba(255,255,255,0.05);
 
   /* Texto */
-  --color-text1:    #e8ecf8;
-  --color-text2:    #8a9dc4;
-  --color-text3:    #4e5c7e;
+  --color-text1:    #e9ecef;
+  --color-text2:    #b0b7c1;
+  --color-text3:    #8b95a3;
 
   /* Inputs */
   --color-input-bg:     rgba(255,255,255,0.06);
   --color-input-border: rgba(255,255,255,0.14);
+
+  /* Acento de marca — más brillante que en claro para leer bien sobre el acero */
+  --color-accent:       #ff7a1f;
+  --color-accent-hover: #ff6600;
+  --color-accent-light: rgba(255, 122, 31, 0.18);
 
   /* Sombras */
   --shadow-soft:  0 10px 40px -10px rgba(0,0,0,0.45);
   --shadow-hover: 0 20px 40px -10px rgba(0,0,0,0.55);
   --shadow-modal: 0 25px 60px -15px rgba(0,0,0,0.7);
 
-  /* Hover en dark — tinte naranja más visible sobre navy */
-  --color-hover:        rgba(249, 115, 22, 0.11);
-  --color-hover-border: rgba(249, 115, 22, 0.38);
+  /* Hover en dark — tinte naranja más visible sobre el acero */
+  --color-hover:        rgba(255, 122, 31, 0.12);
+  --color-hover-border: rgba(255, 122, 31, 0.4);
 
   /* Badges — tonos pastel adaptados al fondo navy */
   --badge-green-bg:   rgba(16, 185, 129, 0.18);
@@ -95,7 +105,7 @@
   --badge-yellow-text:#facc15;
   --badge-red-bg:     rgba(239, 68, 68, 0.18);
   --badge-red-text:   #f87171;
-  --badge-orange-bg:  rgba(249, 115, 22, 0.18);
+  --badge-orange-bg:  rgba(255, 102, 0, 0.18);
   --badge-orange-text:#fb923c;
   --badge-gray-bg:    rgba(255,255,255,0.08);
   --badge-gray-text:  #94a3b8;

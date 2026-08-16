@@ -327,7 +327,7 @@
 
   &::placeholder { color: var(--color-text2); }
   &:focus {
-    border-color: $brand-primary;
+    border-color: var(--color-accent);
     width: 260px;
   }
 }
@@ -478,9 +478,9 @@
 }
 
 .btnPageActive {
-  background: $brand-primary;
+  background: var(--color-accent);
   color: #fff;
-  border-color: $brand-primary;
+  border-color: var(--color-accent);
   font-weight: 700;
 }
 

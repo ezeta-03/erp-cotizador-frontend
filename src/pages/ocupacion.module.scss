@@ -79,7 +79,7 @@
 
 .seccionTabActive {
   background: var(--color-surface);
-  color: $brand-primary;
+  color: var(--color-accent);
   box-shadow: var(--shadow-soft);
 }
 
@@ -126,13 +126,13 @@
   cursor: pointer;
   font-family: inherit;
   transition: all 0.12s;
-  &:hover { border-color: $brand-primary; color: $brand-primary; }
+  &:hover { border-color: var(--color-accent); color: var(--color-accent); }
 }
 
 .filtroBtnActive {
-  background: $brand-primary;
+  background: var(--color-accent);
   color: #fff;
-  border-color: $brand-primary;
+  border-color: var(--color-accent);
 }
 
 .filtroSearch {
@@ -179,7 +179,7 @@
     font-size: 0.82rem;
     font-family: inherit;
     outline: none;
-    &:focus { border-color: $brand-primary; }
+    &:focus { border-color: var(--color-accent); }
 
     &[type="date"] { width: 130px; }
     &[type="number"] { width: 90px; }
@@ -230,13 +230,13 @@
   cursor: pointer;
   color: var(--color-text2);
   transition: all 0.12s;
-  &:hover { background: $brand-primary; color: #fff; border-color: $brand-primary; }
+  &:hover { background: var(--color-accent); color: #fff; border-color: var(--color-accent); }
 }
 
 .btnAddClienteActive {
-  background: $brand-primary;
+  background: var(--color-accent);
   color: #fff;
-  border-color: $brand-primary;
+  border-color: var(--color-accent);
 }
 
 .nuevoClienteBox {
@@ -270,7 +270,7 @@
   font-family: inherit;
   outline: none;
   box-sizing: border-box;
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
 }
 
 .nuevoClienteActions {
@@ -307,8 +307,8 @@
 }
 
 .tabActive {
-  color: $brand-primary;
-  border-bottom-color: $brand-primary;
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
 }
 
 .empty {

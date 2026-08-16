@@ -177,7 +177,7 @@
 .loaderPct {
   font-size: 5rem;
   font-weight: 900;
-  color: $brand-primary;
+  color: var(--color-accent);
   line-height: 1;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
@@ -195,10 +195,10 @@
 
 .progressFill {
   height: 100%;
-  background: $brand-primary;
+  background: var(--color-accent);
   border-radius: 999px;
   transition: width 35ms linear;
-  box-shadow: 0 0 10px rgba(249, 115, 22, 0.55);
+  box-shadow: 0 0 10px rgba(255, 102, 0, 0.55);
 }
 
 .loaderFrase {

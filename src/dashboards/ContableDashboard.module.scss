@@ -21,11 +21,11 @@
 .btnPrimary {
   display: flex; align-items: center; gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: $brand-primary; color: white;
+  background: var(--color-accent); color: white;
   border: none; border-radius: 0.5rem;
   font-weight: 600; cursor: pointer; font-size: 0.875rem;
   transition: background 0.2s; font-family: inherit;
-  &:hover { background: $brand-primary-hover; }
+  &:hover { background: var(--color-accent-hover); }
 }
 
 .btnSecondary {
@@ -35,7 +35,7 @@
   border: none; border-radius: 0.5rem;
   font-size: 0.875rem; font-weight: 600; cursor: pointer;
   transition: background 0.2s; font-family: inherit;
-  &:hover { background: var(--color-hover); color: $brand-primary; }
+  &:hover { background: var(--color-hover); color: var(--color-accent); }
 }
 
 /* ================== STATS ================== */

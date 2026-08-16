@@ -87,7 +87,7 @@
   &:hover {
     background: var(--color-hover);
     border-color: var(--color-hover-border);
-    color: $brand-primary;
+    color: var(--color-accent);
   }
 }
 
@@ -220,7 +220,7 @@
   margin-top: 0.5rem;
   font-size: 0.85rem;
   font-weight: 700;
-  color: $brand-primary;
+  color: var(--color-accent);
 }
 
 /* ── Responsive: tablet (3 cols) ── */
@@ -253,7 +253,7 @@
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: $brand-primary;
+    background: var(--color-accent);
     color: #ffffff;
     font-size: 0.72rem;
     font-weight: 800;

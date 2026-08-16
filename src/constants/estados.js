@@ -8,7 +8,7 @@ export const esEstadoExterno = (estado) => ESTADOS_EXTERNO.includes(estado);
 
 export const ESTADO_META = {
   LIBRE:           { label: "Libre",           color: "#10b981", cls: "badgeLibre"       },
-  LIBRE_EXTERNO:   { label: "Libre externo",   color: "#f97316", cls: "badgeLibreExt"    },
+  LIBRE_EXTERNO:   { label: "Libre externo",   color: "#ff6600", cls: "badgeLibreExt"    },
   OCUPADO:         { label: "Ocupado",         color: "#ef4444", cls: "badgeOcupado"     },
   OCUPADO_EXTERNO: { label: "Ocupado externo", color: "#c2410c", cls: "badgeOcupadoExt"  },
   REEMPLAZO:       { label: "Reemplazo",       color: "#3b82f6", cls: "badgeReemplazo"   },

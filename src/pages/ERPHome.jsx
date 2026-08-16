@@ -13,7 +13,7 @@ const MODULES_ADMIN = [
     label: "Dashboard",
     description: "KPIs, metas y actividad del equipo",
     icon: BarChart3,
-    color: "#f97316",
+    color: "#ff6600",
     available: true,
   },
   {
@@ -72,7 +72,7 @@ const MODULES_VENTAS = [
     label: "Dashboard",
     description: "Tus KPIs y actividad de ventas",
     icon: BarChart3,
-    color: "#f97316",
+    color: "#ff6600",
     available: true,
   },
   {

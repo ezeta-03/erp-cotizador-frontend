@@ -5,7 +5,7 @@
   display: flex;
   min-height: 100vh;
   position: relative;
-  background-color: $gray-50;
+  background-color: var(--color-bg);
 }
 
 // ==================== HAMBURGER BUTTON ====================
@@ -15,8 +15,9 @@
   top: 1rem;
   left: 1rem;
   z-index: 1001;
-  background: $white;
-  border: 1px solid $gray-200;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text1);
   border-radius: $radius;
   padding: 0.75rem;
   cursor: pointer;
@@ -24,7 +25,7 @@
   transition: $transition;
 
   &:hover {
-    background: $gray-50;
+    background: var(--color-hover);
     transform: scale(1.05);
   }
 
@@ -58,10 +59,12 @@
 }
 
 // ==================== SIDEBAR ====================
+// Chrome fijo "acero" (Ceniza): se mantiene igual en modo claro y oscuro,
+// como una franja estructural propia que no compite con el naranja de marca.
 .sidebar {
   width: 280px;
-  background: $white;
-  border-right: 1px solid $gray-200;
+  background: #23272f;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
   position: fixed; // 🔥 Cambiar de relative a fixed
@@ -69,7 +72,7 @@
   left: 0; // 🔥 Agregar
   height: 100vh; // 🔥 Agregar
   overflow-y: auto; // 🔥 Agregar para scroll interno si es necesario
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.18);
   z-index: 999;
 
   // Mobile & Tablet: menú deslizable
@@ -104,13 +107,13 @@
 .sidebar-header {
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid $gray-200;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: $primary;
+  color: #ffffff;
   margin: 0;
 
   @media (max-width: 767px) {
@@ -131,24 +134,20 @@
   display: block;
   padding: 0.875rem 1rem;
   border-radius: $radius;
-  color: $gray-700;
+  color: #b6bdc7;
   font-weight: 500;
   transition: $transition;
   text-decoration: none;
 
   &:hover {
-    background: $gray-100;
-    color: $primary;
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
     transform: translateX(4px);
   }
 
   &.active {
-    background: linear-gradient(
-      135deg,
-      rgba($primary, 0.1) 0%,
-      rgba($primary, 0.05) 100%
-    );
-    color: $primary;
+    background: rgba(255, 102, 0, 0.14);
+    color: #ff8a3d;
     font-weight: 600;
     border-left: 3px solid $primary;
     padding-left: calc(1rem - 3px);
@@ -159,7 +158,7 @@
 .user-info {
   margin-top: auto;
   padding-top: 1.5rem;
-  border-top: 1px solid $gray-200;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .user-avatar {
@@ -182,7 +181,7 @@
 .user-name {
   font-size: 1rem;
   font-weight: 600;
-  color: $gray-900;
+  color: #ffffff;
   margin: 0 0 0.5rem 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -194,7 +193,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: $gray-600;
+  color: #8b95a3;
   margin-bottom: 0.25rem;
 
   svg {
@@ -226,9 +225,9 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: $gray-100;
-  color: $gray-700;
-  border: 1px solid $gray-300;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d7dbe0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: $radius;
   font-weight: 500;
   cursor: pointer;
@@ -309,7 +308,7 @@
   background: $primary;
   color: white;
   font-weight: 800;
-  border: 1px solid $gray-200;
+  border: 2px solid #23272f;
   border-radius: 50%;
   cursor: pointer;
   align-items: center;
@@ -380,17 +379,17 @@
   width: 100%;
   background: transparent;
   border: none;
-  border-bottom: 1px solid $gray-200;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 0.75rem;
   padding-bottom: 0.75rem;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.9rem;
   text-align: left;
-  color: $gray-500;
+  color: #8b95a3;
 
   &:hover {
-    color: $primary;
+    color: #ff8a3d;
     background: transparent;
     transform: translateX(4px);
   }

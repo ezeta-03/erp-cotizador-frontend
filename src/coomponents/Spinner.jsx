@@ -1,4 +1,4 @@
-export default function Spinner({ size = 20, color = "#f97316" }) {
+export default function Spinner({ size = 20, color = "#ff6600" }) {
   return (
     <svg
       width={size}

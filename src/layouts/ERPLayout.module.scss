@@ -89,7 +89,7 @@
   &:hover {
     background: var(--color-hover);
     border-color: var(--color-hover-border);
-    color: $brand-primary;
+    color: var(--color-accent);
   }
 }
 
@@ -138,7 +138,7 @@
   transition: $transition-fast;
 
   &:hover {
-    color: $brand-primary;
+    color: var(--color-accent);
   }
 }
 
@@ -178,7 +178,7 @@
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: $brand-primary;
+    background: var(--color-accent);
     color: #ffffff;
     font-size: 0.72rem;
     font-weight: 800;

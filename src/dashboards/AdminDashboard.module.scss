@@ -36,9 +36,9 @@
 
   .btnPrimary {
     @extend .btn;
-    background: $brand-primary;
+    background: var(--color-accent);
     color: white;
-    &:hover { background: $brand-primary-hover; }
+    &:hover { background: var(--color-accent-hover); }
   }
 }
 
@@ -161,7 +161,7 @@
   font-family: inherit;
   outline: none;
 
-  &:focus { border-color: $brand-primary; }
+  &:focus { border-color: var(--color-accent); }
 }
 
 /* ================== BOTONES TABLA ================== */
@@ -321,9 +321,9 @@
 
 .btnPrimary {
   @extend .btn;
-  background: $brand-primary;
+  background: var(--color-accent);
   color: #fff;
-  &:hover { background: $brand-primary-hover; }
+  &:hover { background: var(--color-accent-hover); }
 }
 
 .btnOutline {

@@ -21,17 +21,17 @@
     &:hover {
       background: var(--color-hover);
       border-color: var(--color-hover-border);
-      color: $brand-primary;
+      color: var(--color-accent);
     }
   }
 
   .active {
-    background: $brand-primary;
+    background: var(--color-accent);
     color: #ffffff;
-    border-color: $brand-primary;
+    border-color: var(--color-accent);
     font-weight: 600;
 
-    &:hover { background: $brand-primary-hover; border-color: $brand-primary-hover; color: #fff; }
+    &:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: #fff; }
   }
 }
 
@@ -57,8 +57,8 @@
     &::placeholder { color: var(--color-text2); }
     &:hover { border-color: var(--color-hover-border); }
     &:focus {
-      border-color: $brand-primary;
-      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15);
     }
   }
 }
@@ -178,7 +178,7 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.55rem 1.1rem;
-  background: $brand-primary;
+  background: var(--color-accent);
   color: #fff;
   border: none;
   border-radius: $radius-sm;
@@ -188,7 +188,7 @@
   font-family: inherit;
   transition: $transition-fast;
 
-  &:hover { background: $brand-primary-hover; }
+  &:hover { background: var(--color-accent-hover); }
 }
 
 /* ── Editar y Re-enviar (overlay) ── */
@@ -274,7 +274,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: $brand-primary;
+  background: var(--color-accent);
   margin-top: 0.35rem;
   z-index: 1;
 }
