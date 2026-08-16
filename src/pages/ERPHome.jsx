@@ -194,9 +194,14 @@ export default function ERPHome() {
   const primaryKind = widgets && widgets.length
     ? widgets.reduce((a, b) => (a.w * a.h >= b.w * b.h ? a : b)).kind
     : null;
-  const sortedForMobile = widgets ? [...widgets].sort((a, b) => a.y - b.y || a.x - b.x) : [];
+  // Un solo orden (y, x) para leer/editar/mobile — así ningún modo depende
+  // del orden en que el arreglo llegó del servidor (insertion order), que es
+  // justo lo que causaba que un bloque agregado por otra vía (pin/ botón)
+  // apareciera en un lugar distinto según cómo se hubiera cargado.
+  const sortedWidgets = widgets ? [...widgets].sort((a, b) => a.y - b.y || a.x - b.x) : [];
+  const sortedForMobile = sortedWidgets;
 
-  const rglLayout = (widgets ?? []).map((w) => ({ i: w.kind, x: w.x, y: w.y, w: w.w, h: w.h, minW: 1, minH: 1, maxW: 4 }));
+  const rglLayout = sortedWidgets.map((w) => ({ i: w.kind, x: w.x, y: w.y, w: w.w, h: w.h, minW: 1, minH: 1, maxW: 4 }));
 
   return (
     <div className={styles.page}>
@@ -294,7 +299,7 @@ export default function ERPHome() {
                 onLayoutChange={onLayoutChange}
                 draggableCancel={`.${styles.tileRemove}`}
               >
-                {widgets.map((w) => {
+                {sortedWidgets.map((w) => {
                   const meta = WIDGET_REGISTRY[w.kind];
                   if (!meta) return null;
                   const Icon = meta.icon;
@@ -340,7 +345,7 @@ export default function ERPHome() {
           </>
         ) : (
           <div className={styles.bento}>
-            {[...widgets].sort((a, b) => a.y - b.y || a.x - b.x).map((w) => {
+            {sortedWidgets.map((w) => {
               const meta = WIDGET_REGISTRY[w.kind];
               if (!meta) return null;
               const Icon = meta.icon;
