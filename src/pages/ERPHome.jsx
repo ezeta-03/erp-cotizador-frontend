@@ -340,7 +340,7 @@ export default function ERPHome() {
           </>
         ) : (
           <div className={styles.bento}>
-            {widgets.map((w) => {
+            {[...widgets].sort((a, b) => a.y - b.y || a.x - b.x).map((w) => {
               const meta = WIDGET_REGISTRY[w.kind];
               if (!meta) return null;
               const Icon = meta.icon;
