@@ -21,14 +21,8 @@ const EVENTO_LABEL = {
 };
 
 function RolBadge({ role }) {
-  const map = {
-    ADMIN:    { bg: "#ede9fe", color: "#5b21b6" },
-    VENTAS:   { bg: "#dbeafe", color: "#1e40af" },
-    CONTABLE: { bg: "#d1fae5", color: "#065f46" },
-  };
-  const s = map[role] || { bg: "#f3f4f6", color: "#374151" };
   return (
-    <span style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", borderRadius: "99px", background: s.bg, color: s.color, fontWeight: 600 }}>
+    <span className={styles.roleBadge} data-role={role}>
       {role}
     </span>
   );

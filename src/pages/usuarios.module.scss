@@ -1,1 +1,25 @@
 @use "../styles/_ui.scss" as *;
+
+.roleBadge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--badge-gray-bg);
+  color: var(--badge-gray-text);
+
+  &[data-role="ADMIN"] {
+    background: var(--badge-purple-bg);
+    color: var(--badge-purple-text);
+  }
+  &[data-role="VENTAS"] {
+    background: var(--badge-blue-bg);
+    color: var(--badge-blue-text);
+  }
+  &[data-role="CONTABLE"] {
+    background: var(--badge-green-bg);
+    color: var(--badge-green-text);
+  }
+}
