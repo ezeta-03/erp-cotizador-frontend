@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation, NavLink } from "react-router-dom";
 import {
   LogOut, ChevronLeft, ChevronDown, Moon, Sun, Menu, X, Mail, Briefcase, Pin, PinOff,
   BarChart3, UserCircle, Users, DollarSign, MapPin, Megaphone, KeyRound,
-  Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package,
+  Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package, Boxes,
 } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import useDarkMode from "../hooks/useDarkMode";
@@ -21,6 +21,7 @@ const SECTION_LABELS = {
   usuarios:     "Usuarios",
   productos:    "Productos",
   facturar:     "Facturar",
+  almacen:      "Almacén",
   perfil:       "Cambiar Contraseña",
   actividad:    "Actividad",
   cotizador:    "Cotizador",
@@ -63,6 +64,7 @@ function buildMenu(role) {
       item("Clientes", "clientes", UserCircle),
       item("Usuarios", "usuarios", Users),
       item("Facturar", "facturar", DollarSign),
+      item("Almacén", "almacen", Boxes),
       group("Outdoor", MapPin, "outdoor", OUTDOOR_CHILDREN),
       group("BTL", Megaphone, "btl", BTL_CHILDREN),
       item("Contraseña", "perfil", KeyRound),
@@ -73,6 +75,7 @@ function buildMenu(role) {
       item("Dashboard", "dashboard", BarChart3),
       item("Clientes", "clientes", UserCircle),
       item("Facturar", "facturar", DollarSign),
+      item("Almacén", "almacen", Boxes),
       group("Outdoor", MapPin, "outdoor", OUTDOOR_CHILDREN),
       group("BTL", Megaphone, "btl", BTL_CHILDREN),
       item("Contraseña", "perfil", KeyRound),
