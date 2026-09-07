@@ -1,6 +1,6 @@
 import {
   BarChart3, UserCircle, Users, DollarSign, MapPin, Megaphone, KeyRound,
-  Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package,
+  Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package, Boxes,
 } from "lucide-react";
 
 // Registro único de todo lo que se puede pinear al Inicio: módulos y
@@ -15,6 +15,7 @@ export const WIDGET_REGISTRY = {
   "outdoor.rentabilidad":  { label: "Rentabilidad",      icon: TrendingUp,   path: "outdoor/rentabilidad" },
   "outdoor.cotizador":     { label: "Cotizador Outdoor", icon: FileText,     path: "outdoor/cotizador" },
   facturar:                { label: "Facturar",          icon: DollarSign,   path: "facturar" },
+  almacen:                 { label: "Almacén",           icon: Boxes,        path: "almacen" },
   clientes:                { label: "Clientes",          icon: UserCircle,   path: "clientes" },
   usuarios:                { label: "Usuarios",          icon: Users,        path: "usuarios", adminOnly: true },
   btl:                     { label: "BTL",               icon: Megaphone,    path: "btl" },

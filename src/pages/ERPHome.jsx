@@ -90,6 +90,15 @@ function TileContent({ data, compact }) {
     );
   }
 
+  if (data.productos !== undefined) {
+    return (
+      <div>
+        <p className={compact ? styles.numSm : styles.num}>{data.productos} <span className={styles.numSmTag}>productos</span></p>
+        {data.sinStock > 0 && <p className={styles.lbl} data-tone="warn">{data.sinStock} sin stock</p>}
+      </div>
+    );
+  }
+
   if (data.total !== undefined) {
     return (
       <div>
