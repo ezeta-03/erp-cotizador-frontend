@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Minus, RefreshCw, X, Search, ClipboardList, PackageSearch } from "lucide-react";
+import { Plus, Minus, RefreshCw, X, Search, ClipboardList, PackageSearch, PackagePlus } from "lucide-react";
 import useAuth from "../auth/useAuth";
-import { getStock, getMovimientos, registrarEntrada, registrarSalida } from "../api/almacen";
-import { getProductos } from "../api/productos";
-import { getProveedores } from "../api/proveedores";
+import {
+  getItemsAlmacen, crearItemAlmacen,
+  getMovimientos, registrarEntrada, registrarSalida,
+} from "../api/almacen";
 import { getClientes } from "../api/clientes";
 import styles from "./almacen.module.scss";
 
@@ -15,6 +16,8 @@ const fmtFecha = (iso) => {
   return new Date(iso).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" });
 };
 
+const TIPO_LABEL = { INSUMO: "Insumo", PRODUCTO_TERMINADO: "Producto terminado" };
+
 /* ── Campo de formulario ────────────────────────────────────────────────── */
 function F({ label, children, optional }) {
   return (
@@ -25,12 +28,16 @@ function F({ label, children, optional }) {
   );
 }
 
-const ENTRADA_VACIA = { productoId: "", proveedorId: "", cantidad: "", precioUnitario: "", notas: "" };
+const ITEM_VACIO = {
+  codigo: "", nombre: "", tipo: "INSUMO", categoria: "", unidad: "",
+  ubicacion: "", stockMinimo: "", stockMaximo: "", costoUnitario: "", proveedorNombre: "",
+};
+const ENTRADA_VACIA = { productoId: "", cantidad: "", precioUnitario: "", notas: "" };
 const SALIDA_VACIA  = { productoId: "", clienteId: "", proyectoExternoId: "", cantidad: "", precioUnitario: "", precioFacturado: "", notas: "" };
 
-/* ── Modal: registrar entrada (compra) ─────────────────────────────────── */
-function EntradaFormModal({ productos, proveedores, onSave, onCancel }) {
-  const [form, setForm] = useState(ENTRADA_VACIA);
+/* ── Modal: nuevo ítem de catálogo (insumo o producto terminado) ─────────── */
+function ItemFormModal({ onSave, onCancel }) {
+  const [form, setForm] = useState(ITEM_VACIO);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -38,15 +45,113 @@ function EntradaFormModal({ productos, proveedores, onSave, onCancel }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    if (!form.codigo || !form.nombre || !form.categoria || !form.unidad) {
+      setError("Código, nombre, categoría y unidad son obligatorios.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSave({
+        ...form,
+        stockMinimo: form.stockMinimo || undefined,
+        stockMaximo: form.stockMaximo || undefined,
+        costoUnitario: form.costoUnitario || undefined,
+        proveedorNombre: form.proveedorNombre || undefined,
+      });
+    } catch (err) {
+      setError(err.response?.data?.message ?? "Error al crear el ítem");
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className={styles.formModal}>
+        <div className={styles.formHeader}>
+          <h2 className={styles.formTitle}>Nuevo ítem de almacén</h2>
+          <button className={styles.btnClose} onClick={onCancel}><X size={18} /></button>
+        </div>
+
+        <form className={styles.formBody} onSubmit={handleSubmit}>
+          {error && <p className={styles.formError}>{error}</p>}
+
+          <F label="Tipo">
+            <select value={form.tipo} onChange={set("tipo")}>
+              <option value="INSUMO">Insumo</option>
+              <option value="PRODUCTO_TERMINADO">Producto terminado</option>
+            </select>
+          </F>
+
+          <div className={styles.formRow}>
+            <F label="Código">
+              <input value={form.codigo} onChange={set("codigo")} placeholder="Ej. ZOPEINS003-01" />
+            </F>
+            <F label="Unidad">
+              <input value={form.unidad} onChange={set("unidad")} placeholder="Metro, Unidad, Plancha…" />
+            </F>
+          </div>
+
+          <F label="Nombre">
+            <input value={form.nombre} onChange={set("nombre")} placeholder="Ej. Vinil azul - MCCAL" />
+          </F>
+
+          <F label="Categoría">
+            <input value={form.categoria} onChange={set("categoria")} placeholder="Ej. Vinil, PVC, Señalética 30x20…" />
+          </F>
+
+          <div className={styles.formRow}>
+            <F label="Stock mínimo" optional>
+              <input type="number" min="0" step="0.01" value={form.stockMinimo} onChange={set("stockMinimo")} placeholder="0" />
+            </F>
+            <F label="Stock máximo" optional>
+              <input type="number" min="0" step="0.01" value={form.stockMaximo} onChange={set("stockMaximo")} placeholder="0" />
+            </F>
+          </div>
+
+          <div className={styles.formRow}>
+            <F label="Ubicación" optional>
+              <input value={form.ubicacion} onChange={set("ubicacion")} placeholder="Almacen" />
+            </F>
+            <F label="Costo unitario (S/)" optional>
+              <input type="number" min="0" step="0.01" value={form.costoUnitario} onChange={set("costoUnitario")} placeholder="0.00" />
+            </F>
+          </div>
+
+          <F label="Proveedor habitual" optional>
+            <input value={form.proveedorNombre} onChange={set("proveedorNombre")} placeholder="Nombre del proveedor" />
+          </F>
+
+          <div className={styles.formActions}>
+            <button type="button" className={styles.btnOutline} onClick={onCancel}>Cancelar</button>
+            <button type="submit" className={styles.btnPrimary} disabled={saving}>
+              {saving ? "Guardando…" : "Crear ítem"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* ── Modal: registrar entrada (compra, o ingreso de producto terminado) ──── */
+function EntradaFormModal({ items, onSave, onCancel }) {
+  const [form, setForm] = useState(ENTRADA_VACIA);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const itemSel = items.find((i) => String(i.id) === String(form.productoId));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
     if (!form.productoId || !form.cantidad || form.precioUnitario === "") {
-      setError("Producto, cantidad y precio unitario son obligatorios.");
+      setError("Ítem, cantidad y precio unitario son obligatorios.");
       return;
     }
     setSaving(true);
     try {
       await onSave({
         productoId: Number(form.productoId),
-        proveedorId: form.proveedorId ? Number(form.proveedorId) : undefined,
         cantidad: Number(form.cantidad),
         precioUnitario: Number(form.precioUnitario),
         notas: form.notas || undefined,
@@ -63,33 +168,27 @@ function EntradaFormModal({ productos, proveedores, onSave, onCancel }) {
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
       <div className={styles.formModal}>
         <div className={styles.formHeader}>
-          <h2 className={styles.formTitle}>Registrar entrada (compra)</h2>
+          <h2 className={styles.formTitle}>Registrar entrada</h2>
           <button className={styles.btnClose} onClick={onCancel}><X size={18} /></button>
         </div>
 
         <form className={styles.formBody} onSubmit={handleSubmit}>
           {error && <p className={styles.formError}>{error}</p>}
 
-          <F label="Producto">
+          <F label="Ítem">
             <select value={form.productoId} onChange={set("productoId")}>
-              <option value="">Selecciona un producto</option>
-              {productos.map((p) => (
-                <option key={p.id} value={p.id}>{p.nombre || p.servicio}</option>
+              <option value="">Selecciona un ítem</option>
+              {items.map((i) => (
+                <option key={i.id} value={i.id}>{i.codigo} — {i.nombre}</option>
               ))}
             </select>
-          </F>
-
-          <F label="Proveedor" optional>
-            <select value={form.proveedorId} onChange={set("proveedorId")}>
-              <option value="">Sin proveedor</option>
-              {proveedores.map((p) => (
-                <option key={p.id} value={p.id}>{p.nombre}</option>
-              ))}
-            </select>
+            {itemSel?.proveedorNombre && (
+              <span className={styles.finCalculado}>Proveedor habitual: {itemSel.proveedorNombre}</span>
+            )}
           </F>
 
           <div className={styles.formRow}>
-            <F label="Cantidad">
+            <F label={`Cantidad${itemSel?.unidad ? ` (${itemSel.unidad})` : ""}`}>
               <input type="number" min="0.01" step="0.01" value={form.cantidad} onChange={set("cantidad")} placeholder="100" />
             </F>
             <F label="Precio unitario (S/)">
@@ -116,7 +215,7 @@ function EntradaFormModal({ productos, proveedores, onSave, onCancel }) {
 }
 
 /* ── Modal: registrar salida (venta / consumo de proyecto) ────────────── */
-function SalidaFormModal({ productos, clientes, onSave, onCancel }) {
+function SalidaFormModal({ items, clientes, onSave, onCancel }) {
   const [form, setForm] = useState(SALIDA_VACIA);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -126,7 +225,7 @@ function SalidaFormModal({ productos, clientes, onSave, onCancel }) {
     e.preventDefault();
     setError("");
     if (!form.productoId || !form.cantidad || form.precioUnitario === "") {
-      setError("Producto, cantidad y precio unitario son obligatorios.");
+      setError("Ítem, cantidad y precio unitario son obligatorios.");
       return;
     }
     if (!form.clienteId && !form.proyectoExternoId) {
@@ -156,18 +255,18 @@ function SalidaFormModal({ productos, clientes, onSave, onCancel }) {
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
       <div className={styles.formModal}>
         <div className={styles.formHeader}>
-          <h2 className={styles.formTitle}>Registrar salida (venta)</h2>
+          <h2 className={styles.formTitle}>Registrar salida</h2>
           <button className={styles.btnClose} onClick={onCancel}><X size={18} /></button>
         </div>
 
         <form className={styles.formBody} onSubmit={handleSubmit}>
           {error && <p className={styles.formError}>{error}</p>}
 
-          <F label="Producto">
+          <F label="Ítem">
             <select value={form.productoId} onChange={set("productoId")}>
-              <option value="">Selecciona un producto</option>
-              {productos.map((p) => (
-                <option key={p.id} value={p.id}>{p.nombre || p.servicio} (stock: {p.stockActual})</option>
+              <option value="">Selecciona un ítem</option>
+              {items.map((i) => (
+                <option key={i.id} value={i.id}>{i.codigo} — {i.nombre} (stock: {i.stockActual})</option>
               ))}
             </select>
           </F>
@@ -224,35 +323,31 @@ export default function Almacen() {
   const puedeVerMovimientos = isAdmin; // backend: ADMIN + CONTABLE (CONTABLE aún no tiene esta ruta en el menú)
 
   const [vista, setVista] = useState("stock");
-  const [stock, setStock] = useState([]);
+  const [items, setItems] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
-  const [productos, setProductos] = useState([]);
-  const [proveedores, setProveedores] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
+  const [filtroTipoStock, setFiltroTipoStock] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
+  const [showItem, setShowItem] = useState(false);
   const [showEntrada, setShowEntrada] = useState(false);
   const [showSalida, setShowSalida] = useState(false);
 
   const cargarTodo = useCallback(async () => {
     setLoading(true);
     try {
-      const [st, movs, prods, provs, clis] = await Promise.all([
-        getStock(),
+      const [its, movs, clis] = await Promise.all([
+        getItemsAlmacen(),
         puedeVerMovimientos ? getMovimientos() : Promise.resolve([]),
-        getProductos(),
-        isAdmin ? getProveedores() : Promise.resolve([]),
         getClientes(),
       ]);
-      setStock(st);
+      setItems(its);
       setMovimientos(movs);
-      setProductos(prods);
-      setProveedores(provs);
       setClientes(clis);
     } catch { /* silencioso */ }
     finally { setLoading(false); }
-  }, [isAdmin, puedeVerMovimientos]);
+  }, [puedeVerMovimientos]);
 
   useEffect(() => { cargarTodo(); }, [cargarTodo]);
 
@@ -274,13 +369,19 @@ export default function Almacen() {
   };
 
   const q = busqueda.trim().toLowerCase();
-  const stockFiltrado = q
-    ? stock.filter((p) =>
-        p.nombre?.toLowerCase().includes(q) ||
-        p.servicio?.toLowerCase().includes(q) ||
-        p.categoria?.toLowerCase().includes(q)
-      )
-    : stock;
+  const itemsFiltrados = items.filter((i) => {
+    if (filtroTipoStock && i.tipo !== filtroTipoStock) return false;
+    if (!q) return true;
+    return i.nombre?.toLowerCase().includes(q) ||
+      i.codigo?.toLowerCase().includes(q) ||
+      i.categoria?.toLowerCase().includes(q);
+  });
+
+  const handleCrearItem = async (payload) => {
+    await crearItemAlmacen(payload);
+    setShowItem(false);
+    cargarTodo();
+  };
 
   const handleEntrada = async (payload) => {
     await registrarEntrada(payload);
@@ -303,11 +404,16 @@ export default function Almacen() {
         <div>
           <h1 className={styles.title}>Almacén</h1>
           <p className={styles.subtitle}>
-            {loading ? "Cargando…" : `${stock.length} producto${stock.length !== 1 ? "s" : ""} con stock registrado`}
+            {loading ? "Cargando…" : `${items.length} ítem${items.length !== 1 ? "s" : ""} en catálogo`}
           </p>
         </div>
         <div className={styles.headerActions}>
           <button className={styles.btnOutline} onClick={cargarTodo} title="Actualizar"><RefreshCw size={16} /></button>
+          {isAdmin && (
+            <button className={styles.btnOutline} onClick={() => setShowItem(true)}>
+              <PackagePlus size={16} /> Nuevo ítem
+            </button>
+          )}
           {isAdmin && (
             <button className={styles.btnOutline} onClick={() => setShowEntrada(true)}>
               <Plus size={16} /> Entrada
@@ -345,7 +451,7 @@ export default function Almacen() {
               <Search size={14} className={styles.searchIcon} />
               <input
                 className={styles.searchInput}
-                placeholder="Buscar producto, categoría…"
+                placeholder="Buscar por código, nombre, categoría…"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
               />
@@ -355,32 +461,45 @@ export default function Almacen() {
                 </button>
               )}
             </div>
+            <select className={styles.filterSelect} value={filtroTipoStock} onChange={(e) => setFiltroTipoStock(e.target.value)}>
+              <option value="">Insumos y productos terminados</option>
+              <option value="INSUMO">Solo insumos</option>
+              <option value="PRODUCTO_TERMINADO">Solo productos terminados</option>
+            </select>
           </div>
 
           <div className={styles.tableContainer}>
             {loading ? (
               <p className={styles.empty}>Cargando stock…</p>
-            ) : stockFiltrado.length === 0 ? (
-              <p className={styles.empty}>No hay productos que coincidan.</p>
+            ) : itemsFiltrados.length === 0 ? (
+              <p className={styles.empty}>No hay ítems que coincidan.</p>
             ) : (
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Producto</th>
+                    <th>Código</th>
+                    <th>Ítem</th>
+                    <th>Tipo</th>
                     <th>Categoría</th>
                     <th>Unidad</th>
                     <th>Stock actual</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {stockFiltrado.map((p) => (
-                    <tr key={p.id}>
-                      <td>{p.nombre || p.servicio}</td>
-                      <td>{p.categoria}</td>
-                      <td>{p.unidad || "—"}</td>
+                  {itemsFiltrados.map((i) => (
+                    <tr key={i.id}>
+                      <td>{i.codigo}</td>
+                      <td>{i.nombre}</td>
                       <td>
-                        <span className={`${styles.stockBadge} ${p.stockActual <= 0 ? styles.stockBadgeVacio : ""}`}>
-                          {p.stockActual}
+                        <span className={`${styles.badge} ${i.tipo === "INSUMO" ? styles.badgeEntrada : styles.badgeSalida}`}>
+                          {TIPO_LABEL[i.tipo]}
+                        </span>
+                      </td>
+                      <td>{i.categoria}</td>
+                      <td>{i.unidad || "—"}</td>
+                      <td>
+                        <span className={`${styles.stockBadge} ${i.stockActual <= 0 ? styles.stockBadgeVacio : ""}`}>
+                          {i.stockActual}
                         </span>
                       </td>
                     </tr>
@@ -411,7 +530,7 @@ export default function Almacen() {
                   <tr>
                     <th>Fecha</th>
                     <th>Tipo</th>
-                    <th>Producto</th>
+                    <th>Ítem</th>
                     <th>Cantidad</th>
                     <th>P. Unitario</th>
                     <th>Total</th>
@@ -428,7 +547,7 @@ export default function Almacen() {
                           {m.tipo}
                         </span>
                       </td>
-                      <td>{m.producto?.nombre || m.producto?.servicio}</td>
+                      <td>{m.item?.codigo} — {m.item?.nombre}</td>
                       <td>{m.cantidad}</td>
                       <td>{fmtMoney(m.precioUnitario)}</td>
                       <td>{fmtMoney(m.precioTotal)}</td>
@@ -443,10 +562,13 @@ export default function Almacen() {
         </>
       )}
 
+      {showItem && (
+        <ItemFormModal onSave={handleCrearItem} onCancel={() => setShowItem(false)} />
+      )}
+
       {showEntrada && (
         <EntradaFormModal
-          productos={productos}
-          proveedores={proveedores}
+          items={items.filter((i) => i.activo)}
           onSave={handleEntrada}
           onCancel={() => setShowEntrada(false)}
         />
@@ -454,7 +576,7 @@ export default function Almacen() {
 
       {showSalida && (
         <SalidaFormModal
-          productos={productos.map((p) => ({ ...p, stockActual: stock.find((s) => s.id === p.id)?.stockActual ?? 0 }))}
+          items={items.filter((i) => i.activo)}
           clientes={clientes}
           onSave={handleSalida}
           onCancel={() => setShowSalida(false)}
