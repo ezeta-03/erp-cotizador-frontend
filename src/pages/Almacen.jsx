@@ -16,7 +16,14 @@ const fmtFecha = (iso) => {
   return new Date(iso).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" });
 };
 
-const TIPO_LABEL = { INSUMO: "Insumo", PRODUCTO_TERMINADO: "Producto terminado" };
+const TIPO_LABEL = {
+  INSUMO: "Insumo",
+  PRODUCTO_TERMINADO: "Producto terminado",
+  HERRAMIENTA: "Herramienta",
+  MAQUINARIA_EQUIPO: "Maquinaria y equipo",
+};
+const EMPRESA_LABEL = { BTL_OUTDOOR: "BTL / Outdoor", NETWISE: "Netwise" };
+const EMPRESA_CORTA = { BTL_OUTDOOR: "BTL", NETWISE: "Netwise" };
 
 /* ── Campo de formulario ────────────────────────────────────────────────── */
 function F({ label, children, optional }) {
@@ -29,7 +36,7 @@ function F({ label, children, optional }) {
 }
 
 const ITEM_VACIO = {
-  codigo: "", nombre: "", tipo: "INSUMO", categoria: "", unidad: "",
+  codigo: "", nombre: "", tipo: "INSUMO", empresa: "BTL_OUTDOOR", categoria: "", unidad: "",
   ubicacion: "", stockMinimo: "", stockMaximo: "", costoUnitario: "", proveedorNombre: "",
 };
 const ENTRADA_VACIA = { productoId: "", cantidad: "", precioUnitario: "", notas: "" };
@@ -75,12 +82,22 @@ function ItemFormModal({ onSave, onCancel }) {
         <form className={styles.formBody} onSubmit={handleSubmit}>
           {error && <p className={styles.formError}>{error}</p>}
 
-          <F label="Tipo">
-            <select value={form.tipo} onChange={set("tipo")}>
-              <option value="INSUMO">Insumo</option>
-              <option value="PRODUCTO_TERMINADO">Producto terminado</option>
-            </select>
-          </F>
+          <div className={styles.formRow}>
+            <F label="Empresa">
+              <select value={form.empresa} onChange={set("empresa")}>
+                <option value="BTL_OUTDOOR">BTL / Outdoor</option>
+                <option value="NETWISE">Netwise</option>
+              </select>
+            </F>
+            <F label="Tipo">
+              <select value={form.tipo} onChange={set("tipo")}>
+                <option value="INSUMO">Insumo</option>
+                <option value="PRODUCTO_TERMINADO">Producto terminado</option>
+                <option value="HERRAMIENTA">Herramienta</option>
+                <option value="MAQUINARIA_EQUIPO">Maquinaria y equipo</option>
+              </select>
+            </F>
+          </div>
 
           <div className={styles.formRow}>
             <F label="Código">
@@ -179,7 +196,7 @@ function EntradaFormModal({ items, onSave, onCancel }) {
             <select value={form.productoId} onChange={set("productoId")}>
               <option value="">Selecciona un ítem</option>
               {items.map((i) => (
-                <option key={i.id} value={i.id}>{i.codigo} — {i.nombre}</option>
+                <option key={i.id} value={i.id}>[{EMPRESA_CORTA[i.empresa]}] {i.codigo} — {i.nombre}</option>
               ))}
             </select>
             {itemSel?.proveedorNombre && (
@@ -266,7 +283,7 @@ function SalidaFormModal({ items, clientes, onSave, onCancel }) {
             <select value={form.productoId} onChange={set("productoId")}>
               <option value="">Selecciona un ítem</option>
               {items.map((i) => (
-                <option key={i.id} value={i.id}>{i.codigo} — {i.nombre} (stock: {i.stockActual})</option>
+                <option key={i.id} value={i.id}>[{EMPRESA_CORTA[i.empresa]}] {i.codigo} — {i.nombre} (stock: {i.stockActual})</option>
               ))}
             </select>
           </F>
@@ -329,6 +346,7 @@ export default function Almacen() {
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
   const [filtroTipoStock, setFiltroTipoStock] = useState("");
+  const [filtroEmpresa, setFiltroEmpresa] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [showItem, setShowItem] = useState(false);
   const [showEntrada, setShowEntrada] = useState(false);
@@ -371,6 +389,7 @@ export default function Almacen() {
   const q = busqueda.trim().toLowerCase();
   const itemsFiltrados = items.filter((i) => {
     if (filtroTipoStock && i.tipo !== filtroTipoStock) return false;
+    if (filtroEmpresa && i.empresa !== filtroEmpresa) return false;
     if (!q) return true;
     return i.nombre?.toLowerCase().includes(q) ||
       i.codigo?.toLowerCase().includes(q) ||
@@ -461,10 +480,17 @@ export default function Almacen() {
                 </button>
               )}
             </div>
+            <select className={styles.filterSelect} value={filtroEmpresa} onChange={(e) => setFiltroEmpresa(e.target.value)}>
+              <option value="">Todas las empresas</option>
+              <option value="BTL_OUTDOOR">BTL / Outdoor</option>
+              <option value="NETWISE">Netwise</option>
+            </select>
             <select className={styles.filterSelect} value={filtroTipoStock} onChange={(e) => setFiltroTipoStock(e.target.value)}>
-              <option value="">Insumos y productos terminados</option>
-              <option value="INSUMO">Solo insumos</option>
-              <option value="PRODUCTO_TERMINADO">Solo productos terminados</option>
+              <option value="">Todos los tipos</option>
+              <option value="INSUMO">Insumos</option>
+              <option value="PRODUCTO_TERMINADO">Productos terminados</option>
+              <option value="HERRAMIENTA">Herramientas</option>
+              <option value="MAQUINARIA_EQUIPO">Maquinaria y equipo</option>
             </select>
           </div>
 
@@ -479,6 +505,7 @@ export default function Almacen() {
                   <tr>
                     <th>Código</th>
                     <th>Ítem</th>
+                    <th>Empresa</th>
                     <th>Tipo</th>
                     <th>Categoría</th>
                     <th>Unidad</th>
@@ -490,6 +517,7 @@ export default function Almacen() {
                     <tr key={i.id}>
                       <td>{i.codigo}</td>
                       <td>{i.nombre}</td>
+                      <td>{EMPRESA_LABEL[i.empresa] || i.empresa}</td>
                       <td>
                         <span className={`${styles.badge} ${i.tipo === "INSUMO" ? styles.badgeEntrada : styles.badgeSalida}`}>
                           {TIPO_LABEL[i.tipo]}
