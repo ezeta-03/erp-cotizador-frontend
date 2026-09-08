@@ -1,9 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Minus, RefreshCw, X, Search, ClipboardList, PackageSearch, PackagePlus } from "lucide-react";
+import {
+  Plus, Minus, RefreshCw, X, Search, ClipboardList, PackageSearch, PackagePlus,
+  FileStack, FileDown, Trash2,
+} from "lucide-react";
 import useAuth from "../auth/useAuth";
 import {
   getItemsAlmacen, crearItemAlmacen,
   getMovimientos, registrarEntrada, registrarSalida,
+  getOrdenes, crearOrdenAlmacen, descargarOrdenPdf,
 } from "../api/almacen";
 import { getClientes } from "../api/clientes";
 import styles from "./almacen.module.scss";
@@ -332,16 +336,167 @@ function SalidaFormModal({ items, clientes, onSave, onCancel }) {
   );
 }
 
+const LINEA_VACIA = { itemAlmacenId: "", cantidad: "", precioUnitario: "" };
+
+/* ── Modal: nueva orden (varias líneas, imprimible en PDF) ────────────────── */
+function OrdenFormModal({ items, clientes, soloSalida, onSave, onCancel }) {
+  const [tipo, setTipo] = useState("SALIDA");
+  const [ordenServicio, setOrdenServicio] = useState("");
+  const [clienteId, setClienteId] = useState("");
+  const [proyectoExternoId, setProyectoExternoId] = useState("");
+  const [notas, setNotas] = useState("");
+  const [lineas, setLineas] = useState([{ ...LINEA_VACIA }]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const setLinea = (idx, campo) => (e) => {
+    const valor = e.target.value;
+    setLineas((ls) => ls.map((l, i) => (i === idx ? { ...l, [campo]: valor } : l)));
+  };
+  const agregarLinea = () => setLineas((ls) => [...ls, { ...LINEA_VACIA }]);
+  const quitarLinea = (idx) => setLineas((ls) => ls.filter((_, i) => i !== idx));
+
+  const total = lineas.reduce((s, l) => s + (Number(l.cantidad) || 0) * (Number(l.precioUnitario) || 0), 0);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    const lineasValidas = lineas.filter((l) => l.itemAlmacenId && l.cantidad);
+    if (lineasValidas.length === 0) {
+      setError("Agrega al menos un ítem con cantidad.");
+      return;
+    }
+    if (tipo === "SALIDA" && !clienteId && !proyectoExternoId) {
+      setError("Indica un cliente y/o un ID de proyecto.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSave({
+        tipo,
+        ordenServicio: ordenServicio || undefined,
+        clienteId: tipo === "SALIDA" && clienteId ? Number(clienteId) : undefined,
+        proyectoExternoId: tipo === "SALIDA" ? (proyectoExternoId || undefined) : undefined,
+        notas: notas || undefined,
+        items: lineasValidas.map((l) => ({
+          itemAlmacenId: Number(l.itemAlmacenId),
+          cantidad: Number(l.cantidad),
+          precioUnitario: l.precioUnitario !== "" ? Number(l.precioUnitario) : undefined,
+        })),
+      });
+    } catch (err) {
+      setError(err.response?.data?.message ?? "Error al crear la orden");
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className={styles.formModal} style={{ maxWidth: 640 }}>
+        <div className={styles.formHeader}>
+          <h2 className={styles.formTitle}>Nueva orden de almacén</h2>
+          <button className={styles.btnClose} onClick={onCancel}><X size={18} /></button>
+        </div>
+
+        <form className={styles.formBody} onSubmit={handleSubmit}>
+          {error && <p className={styles.formError}>{error}</p>}
+
+          <div className={styles.formRow}>
+            {!soloSalida && (
+              <F label="Tipo">
+                <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                  <option value="SALIDA">Salida</option>
+                  <option value="ENTRADA">Entrada</option>
+                </select>
+              </F>
+            )}
+            <F label="Orden de servicio" optional>
+              <input value={ordenServicio} onChange={(e) => setOrdenServicio(e.target.value)} placeholder="Ej. OS-2026-001" />
+            </F>
+          </div>
+
+          {tipo === "SALIDA" && (
+            <div className={styles.formRow}>
+              <F label="Cliente" optional>
+                <select value={clienteId} onChange={(e) => setClienteId(e.target.value)}>
+                  <option value="">Sin cliente directo</option>
+                  {clientes.map((c) => (
+                    <option key={c.id} value={c.id}>{c.nombreComercial}</option>
+                  ))}
+                </select>
+              </F>
+              <F label="ID de proyecto" optional>
+                <input value={proyectoExternoId} onChange={(e) => setProyectoExternoId(e.target.value)} placeholder="Ej. firestore-doc-id" />
+              </F>
+            </div>
+          )}
+
+          <F label="Ítems de la orden">
+            <div className={styles.lineasWrap}>
+              {lineas.map((l, idx) => {
+                const itemSel = items.find((i) => String(i.id) === String(l.itemAlmacenId));
+                return (
+                  <div key={idx} className={styles.lineaRow}>
+                    <select value={l.itemAlmacenId} onChange={setLinea(idx, "itemAlmacenId")}>
+                      <option value="">Selecciona un ítem</option>
+                      {items.map((i) => (
+                        <option key={i.id} value={i.id}>
+                          [{EMPRESA_CORTA[i.empresa]}] {i.codigo} — {i.nombre}{tipo === "SALIDA" ? ` (stock: ${i.stockActual})` : ""}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number" min="0.01" step="0.01" placeholder="Cant."
+                      value={l.cantidad} onChange={setLinea(idx, "cantidad")}
+                      title={itemSel?.unidad || ""}
+                    />
+                    <input
+                      type="number" min="0" step="0.01" placeholder="P. unit."
+                      value={l.precioUnitario} onChange={setLinea(idx, "precioUnitario")}
+                    />
+                    <button type="button" className={styles.btnQuitarLinea} onClick={() => quitarLinea(idx)} disabled={lineas.length === 1}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            <button type="button" className={styles.btnAgregarLinea} onClick={agregarLinea}>
+              <Plus size={13} /> Agregar ítem
+            </button>
+          </F>
+
+          {total > 0 && <p className={styles.totalPreview}>Total: {fmtMoney(total)}</p>}
+
+          <F label="Notas" optional>
+            <input value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Referencia, motivo, etc." />
+          </F>
+
+          <div className={styles.formActions}>
+            <button type="button" className={styles.btnOutline} onClick={onCancel}>Cancelar</button>
+            <button type="submit" className={styles.btnPrimary} disabled={saving}>
+              {saving ? "Guardando…" : "Crear orden"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 /* ── Página principal ──────────────────────────────────────────────────── */
 export default function Almacen() {
   const { user } = useAuth();
+  const token = localStorage.getItem("token");
   const isAdmin  = user?.role === "ADMIN";
   const isVentas = user?.role === "VENTAS";
   const puedeVerMovimientos = isAdmin; // backend: ADMIN + CONTABLE (CONTABLE aún no tiene esta ruta en el menú)
+  const puedeVerOrdenes = isAdmin || isVentas;
 
   const [vista, setVista] = useState("stock");
   const [items, setItems] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
+  const [ordenes, setOrdenes] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
@@ -351,21 +506,24 @@ export default function Almacen() {
   const [showItem, setShowItem] = useState(false);
   const [showEntrada, setShowEntrada] = useState(false);
   const [showSalida, setShowSalida] = useState(false);
+  const [showOrden, setShowOrden] = useState(false);
 
   const cargarTodo = useCallback(async () => {
     setLoading(true);
     try {
-      const [its, movs, clis] = await Promise.all([
+      const [its, movs, ords, clis] = await Promise.all([
         getItemsAlmacen(),
         puedeVerMovimientos ? getMovimientos() : Promise.resolve([]),
+        puedeVerOrdenes ? getOrdenes() : Promise.resolve([]),
         getClientes(),
       ]);
       setItems(its);
       setMovimientos(movs);
+      setOrdenes(ords);
       setClientes(clis);
     } catch { /* silencioso */ }
     finally { setLoading(false); }
-  }, [puedeVerMovimientos]);
+  }, [puedeVerMovimientos, puedeVerOrdenes]);
 
   useEffect(() => { cargarTodo(); }, [cargarTodo]);
 
@@ -393,7 +551,8 @@ export default function Almacen() {
     if (!q) return true;
     return i.nombre?.toLowerCase().includes(q) ||
       i.codigo?.toLowerCase().includes(q) ||
-      i.categoria?.toLowerCase().includes(q);
+      i.categoria?.toLowerCase().includes(q) ||
+      i.departamento?.toLowerCase().includes(q);
   });
 
   const handleCrearItem = async (payload) => {
@@ -414,8 +573,16 @@ export default function Almacen() {
     cargarTodo();
   };
 
+  const handleCrearOrden = async (payload) => {
+    const orden = await crearOrdenAlmacen(payload);
+    setShowOrden(false);
+    cargarTodo();
+    try { await descargarOrdenPdf(orden.id, token); } catch { /* la orden ya quedó creada igual */ }
+  };
+
   const contraparte = (m) =>
     m.proveedor?.nombre || m.cliente?.nombreComercial || m.proyectoExternoId || "—";
+  const contraparteOrden = (o) => o.cliente?.nombreComercial || o.proyectoExternoId || "—";
 
   return (
     <div className={styles.container}>
@@ -443,10 +610,15 @@ export default function Almacen() {
               <Minus size={16} /> Salida
             </button>
           )}
+          {puedeVerOrdenes && (
+            <button className={styles.btnOutline} onClick={() => setShowOrden(true)}>
+              <FileStack size={16} /> Nueva orden
+            </button>
+          )}
         </div>
       </div>
 
-      {puedeVerMovimientos && (
+      {(puedeVerMovimientos || puedeVerOrdenes) && (
         <div className={styles.tabs}>
           <button
             className={`${styles.tab} ${vista === "stock" ? styles.tabActive : ""}`}
@@ -454,12 +626,22 @@ export default function Almacen() {
           >
             <PackageSearch size={15} /> Stock
           </button>
-          <button
-            className={`${styles.tab} ${vista === "movimientos" ? styles.tabActive : ""}`}
-            onClick={() => irAVista("movimientos")}
-          >
-            <ClipboardList size={15} /> Movimientos
-          </button>
+          {puedeVerMovimientos && (
+            <button
+              className={`${styles.tab} ${vista === "movimientos" ? styles.tabActive : ""}`}
+              onClick={() => irAVista("movimientos")}
+            >
+              <ClipboardList size={15} /> Movimientos
+            </button>
+          )}
+          {puedeVerOrdenes && (
+            <button
+              className={`${styles.tab} ${vista === "ordenes" ? styles.tabActive : ""}`}
+              onClick={() => irAVista("ordenes")}
+            >
+              <FileStack size={15} /> Órdenes
+            </button>
+          )}
         </div>
       )}
 
@@ -537,7 +719,7 @@ export default function Almacen() {
             )}
           </div>
         </>
-      ) : (
+      ) : vista === "movimientos" ? (
         <>
           <div className={styles.filtersBar}>
             <select className={styles.filterSelect} value={filtroTipo} onChange={(e) => cambiarFiltroTipo(e.target.value)}>
@@ -588,6 +770,49 @@ export default function Almacen() {
             )}
           </div>
         </>
+      ) : (
+        <div className={styles.tableContainer}>
+          {loading ? (
+            <p className={styles.empty}>Cargando órdenes…</p>
+          ) : ordenes.length === 0 ? (
+            <p className={styles.empty}>No hay órdenes registradas aún.</p>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Tipo</th>
+                  <th>Orden de servicio</th>
+                  <th>Contraparte</th>
+                  <th>Ítems</th>
+                  <th>Registrado por</th>
+                  <th>PDF</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ordenes.map((o) => (
+                  <tr key={o.id}>
+                    <td>{fmtFecha(o.fecha)}</td>
+                    <td>
+                      <span className={`${styles.badge} ${o.tipo === "ENTRADA" ? styles.badgeEntrada : styles.badgeSalida}`}>
+                        {o.tipo}
+                      </span>
+                    </td>
+                    <td>{o.ordenServicio || "—"}</td>
+                    <td>{contraparteOrden(o)}</td>
+                    <td>{o.items.length}</td>
+                    <td>{o.usuario?.nombre || "—"}</td>
+                    <td>
+                      <button className={styles.btnGhost} onClick={() => descargarOrdenPdf(o.id, token)} title="Descargar PDF">
+                        <FileDown size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       )}
 
       {showItem && (
@@ -608,6 +833,16 @@ export default function Almacen() {
           clientes={clientes}
           onSave={handleSalida}
           onCancel={() => setShowSalida(false)}
+        />
+      )}
+
+      {showOrden && (
+        <OrdenFormModal
+          items={items.filter((i) => i.activo)}
+          clientes={clientes}
+          soloSalida={!isAdmin}
+          onSave={handleCrearOrden}
+          onCancel={() => setShowOrden(false)}
         />
       )}
     </div>

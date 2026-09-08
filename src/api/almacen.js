@@ -44,3 +44,37 @@ export const registrarSalida = async (payload) => {
   const { data } = await api.post("/almacen/salidas", payload);
   return data;
 };
+
+export const getOrdenes = async (params) => {
+  const { data } = await api.get("/almacen/ordenes", { params });
+  return data;
+};
+
+export const crearOrdenAlmacen = async (payload) => {
+  const { data } = await api.post("/almacen/ordenes", payload);
+  return data;
+};
+
+// PDF: descarga directa vía fetch (no axios) porque la respuesta es binaria,
+// mismo patrón que api/pdf.js para las cotizaciones.
+export const descargarOrdenPdf = async (ordenId, token) => {
+  const pdfUrl = `${import.meta.env.VITE_API_URL}/almacen/ordenes/${ordenId}/pdf?token=${token}`;
+
+  const response = await fetch(pdfUrl, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  const pdfBlob = await response.blob();
+  if (pdfBlob.size === 0) throw new Error("PDF vacío recibido del servidor");
+
+  const url = URL.createObjectURL(pdfBlob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `ORDEN-ALM-${ordenId}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};

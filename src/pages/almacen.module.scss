@@ -208,6 +208,69 @@
   color: var(--color-text1);
 }
 
+/* ── Líneas de una orden (varios ítems) ── */
+.lineasWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lineaRow {
+  display: grid;
+  grid-template-columns: 1fr 90px 100px auto;
+  gap: 0.5rem;
+
+  select, input {
+    width: 100%;
+    height: 2.25rem;
+    padding: 0 0.65rem;
+    border: 1px solid var(--color-input-border);
+    border-radius: $radius-sm;
+    background: var(--color-input-bg);
+    color: var(--color-text1);
+    font-size: 0.85rem;
+    font-family: inherit;
+    outline: none;
+
+    &:focus { border-color: var(--color-accent); }
+  }
+}
+
+.btnQuitarLinea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-sm;
+  background: var(--color-surface);
+  color: var(--color-text3);
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover:not(:disabled) { color: #ef4444; border-color: #ef4444; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.btnAgregarLinea {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  align-self: flex-start;
+  padding: 0.4rem 0.7rem;
+  border: 1px dashed var(--color-border-strong, var(--color-border));
+  border-radius: $radius-sm;
+  background: none;
+  color: var(--color-text2);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover { color: var(--color-accent); border-color: var(--color-accent); }
+}
+
 .formActions {
   display: flex;
   justify-content: flex-end;
