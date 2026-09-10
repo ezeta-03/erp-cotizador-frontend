@@ -10,6 +10,7 @@ import {
   getOrdenes, crearOrdenAlmacen, descargarOrdenPdf,
 } from "../api/almacen";
 import { getClientes } from "../api/clientes";
+import { getProyectos, getProyectosExternos } from "../api/proyectos";
 import styles from "./almacen.module.scss";
 
 const fmtMoney = (n) =>
@@ -44,7 +45,47 @@ const ITEM_VACIO = {
   ubicacion: "", stockMinimo: "", stockMaximo: "", costoUnitario: "", proveedorNombre: "",
 };
 const ENTRADA_VACIA = { productoId: "", cantidad: "", precioUnitario: "", notas: "" };
-const SALIDA_VACIA  = { productoId: "", clienteId: "", proyectoExternoId: "", cantidad: "", precioUnitario: "", precioFacturado: "", notas: "" };
+const SALIDA_VACIA  = { productoId: "", clienteId: "", proyectoKey: "", cantidad: "", precioUnitario: "", precioFacturado: "", notas: "" };
+
+// Un proyecto puede vivir solo como Proyecto interno del ERP, solo en
+// seguimiento-actividades (todavía sin "stub"), o en ambos — esta clave
+// combina las dos listas en un único selector, y al elegir se resuelve de
+// vuelta a { proyectoId } o { proyectoExternoId } según corresponda.
+function resolverProyectoPayload(proyectoKey, proyectoOptions) {
+  const opcion = proyectoOptions.find((o) => o.key === proyectoKey);
+  if (!opcion) return {};
+  return {
+    proyectoId: opcion.proyectoId || undefined,
+    proyectoExternoId: opcion.proyectoExternoId || undefined,
+  };
+}
+
+function construirProyectoOptions(internos, externos) {
+  const opcionesInternas = internos.map((p) => ({
+    key: `int-${p.id}`, proyectoId: p.id, proyectoExternoId: null,
+    label: p.nombre,
+  }));
+  // Los que ya tienen Proyecto interno (proyectoInternoId) ya están arriba —
+  // acá solo van los que viven únicamente en seguimiento-actividades.
+  const opcionesExternas = externos
+    .filter((p) => !p.proyectoInternoId)
+    .map((p) => ({
+      key: `ext-${p.id}`, proyectoId: null, proyectoExternoId: p.id,
+      label: `${p.nombre} (Seguimiento de Actividades)`,
+    }));
+  return [...opcionesInternas, ...opcionesExternas];
+}
+
+function SelectorProyecto({ value, onChange, opciones }) {
+  return (
+    <select value={value} onChange={onChange}>
+      <option value="">Sin proyecto directo</option>
+      {opciones.map((o) => (
+        <option key={o.key} value={o.key}>{o.label}</option>
+      ))}
+    </select>
+  );
+}
 
 /* ── Modal: nuevo ítem de catálogo (insumo o producto terminado) ─────────── */
 function ItemFormModal({ onSave, onCancel }) {
@@ -236,7 +277,7 @@ function EntradaFormModal({ items, onSave, onCancel }) {
 }
 
 /* ── Modal: registrar salida (venta / consumo de proyecto) ────────────── */
-function SalidaFormModal({ items, clientes, onSave, onCancel }) {
+function SalidaFormModal({ items, clientes, proyectoOptions, onSave, onCancel }) {
   const [form, setForm] = useState(SALIDA_VACIA);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -249,8 +290,8 @@ function SalidaFormModal({ items, clientes, onSave, onCancel }) {
       setError("Ítem, cantidad y precio unitario son obligatorios.");
       return;
     }
-    if (!form.clienteId && !form.proyectoExternoId) {
-      setError("Indica un cliente y/o un ID de proyecto.");
+    if (!form.clienteId && !form.proyectoKey) {
+      setError("Indica un cliente y/o un proyecto.");
       return;
     }
     setSaving(true);
@@ -258,7 +299,7 @@ function SalidaFormModal({ items, clientes, onSave, onCancel }) {
       await onSave({
         productoId: Number(form.productoId),
         clienteId: form.clienteId ? Number(form.clienteId) : undefined,
-        proyectoExternoId: form.proyectoExternoId || undefined,
+        ...resolverProyectoPayload(form.proyectoKey, proyectoOptions),
         cantidad: Number(form.cantidad),
         precioUnitario: Number(form.precioUnitario),
         precioFacturado: form.precioFacturado !== "" ? Number(form.precioFacturado) : undefined,
@@ -301,8 +342,8 @@ function SalidaFormModal({ items, clientes, onSave, onCancel }) {
             </select>
           </F>
 
-          <F label="ID de proyecto (seguimiento-actividades)" optional>
-            <input value={form.proyectoExternoId} onChange={set("proyectoExternoId")} placeholder="Ej. firestore-doc-id" />
+          <F label="Proyecto" optional>
+            <SelectorProyecto value={form.proyectoKey} onChange={set("proyectoKey")} opciones={proyectoOptions} />
           </F>
 
           <div className={styles.formRow}>
@@ -339,11 +380,11 @@ function SalidaFormModal({ items, clientes, onSave, onCancel }) {
 const LINEA_VACIA = { itemAlmacenId: "", cantidad: "", precioUnitario: "" };
 
 /* ── Modal: nueva orden (varias líneas, imprimible en PDF) ────────────────── */
-function OrdenFormModal({ items, clientes, soloSalida, onSave, onCancel }) {
+function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, onCancel }) {
   const [tipo, setTipo] = useState("SALIDA");
   const [ordenServicio, setOrdenServicio] = useState("");
   const [clienteId, setClienteId] = useState("");
-  const [proyectoExternoId, setProyectoExternoId] = useState("");
+  const [proyectoKey, setProyectoKey] = useState("");
   const [notas, setNotas] = useState("");
   const [lineas, setLineas] = useState([{ ...LINEA_VACIA }]);
   const [saving, setSaving] = useState(false);
@@ -366,8 +407,8 @@ function OrdenFormModal({ items, clientes, soloSalida, onSave, onCancel }) {
       setError("Agrega al menos un ítem con cantidad.");
       return;
     }
-    if (tipo === "SALIDA" && !clienteId && !proyectoExternoId) {
-      setError("Indica un cliente y/o un ID de proyecto.");
+    if (tipo === "SALIDA" && !clienteId && !proyectoKey) {
+      setError("Indica un cliente y/o un proyecto.");
       return;
     }
     setSaving(true);
@@ -376,7 +417,7 @@ function OrdenFormModal({ items, clientes, soloSalida, onSave, onCancel }) {
         tipo,
         ordenServicio: ordenServicio || undefined,
         clienteId: tipo === "SALIDA" && clienteId ? Number(clienteId) : undefined,
-        proyectoExternoId: tipo === "SALIDA" ? (proyectoExternoId || undefined) : undefined,
+        ...(tipo === "SALIDA" ? resolverProyectoPayload(proyectoKey, proyectoOptions) : {}),
         notas: notas || undefined,
         items: lineasValidas.map((l) => ({
           itemAlmacenId: Number(l.itemAlmacenId),
@@ -425,8 +466,8 @@ function OrdenFormModal({ items, clientes, soloSalida, onSave, onCancel }) {
                   ))}
                 </select>
               </F>
-              <F label="ID de proyecto" optional>
-                <input value={proyectoExternoId} onChange={(e) => setProyectoExternoId(e.target.value)} placeholder="Ej. firestore-doc-id" />
+              <F label="Proyecto" optional>
+                <SelectorProyecto value={proyectoKey} onChange={(e) => setProyectoKey(e.target.value)} opciones={proyectoOptions} />
               </F>
             </div>
           )}
@@ -498,6 +539,7 @@ export default function Almacen() {
   const [movimientos, setMovimientos] = useState([]);
   const [ordenes, setOrdenes] = useState([]);
   const [clientes, setClientes] = useState([]);
+  const [proyectoOptions, setProyectoOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
   const [filtroTipoStock, setFiltroTipoStock] = useState("");
@@ -511,16 +553,21 @@ export default function Almacen() {
   const cargarTodo = useCallback(async () => {
     setLoading(true);
     try {
-      const [its, movs, ords, clis] = await Promise.all([
+      const [its, movs, ords, clis, proys, proysExt] = await Promise.all([
         getItemsAlmacen(),
         puedeVerMovimientos ? getMovimientos() : Promise.resolve([]),
         puedeVerOrdenes ? getOrdenes() : Promise.resolve([]),
         getClientes(),
+        puedeVerOrdenes ? getProyectos() : Promise.resolve([]),
+        // Si seguimiento-actividades/Firestore no responde, no debe tumbar
+        // toda la carga de Almacén — el selector simplemente queda más corto.
+        puedeVerOrdenes ? getProyectosExternos().catch(() => []) : Promise.resolve([]),
       ]);
       setItems(its);
       setMovimientos(movs);
       setOrdenes(ords);
       setClientes(clis);
+      setProyectoOptions(construirProyectoOptions(proys, proysExt));
     } catch { /* silencioso */ }
     finally { setLoading(false); }
   }, [puedeVerMovimientos, puedeVerOrdenes]);
@@ -581,8 +628,8 @@ export default function Almacen() {
   };
 
   const contraparte = (m) =>
-    m.proveedor?.nombre || m.cliente?.nombreComercial || m.proyectoExternoId || "—";
-  const contraparteOrden = (o) => o.cliente?.nombreComercial || o.proyectoExternoId || "—";
+    m.proveedor?.nombre || m.cliente?.nombreComercial || m.proyecto?.nombre || m.proyectoExternoId || "—";
+  const contraparteOrden = (o) => o.cliente?.nombreComercial || o.proyecto?.nombre || o.proyectoExternoId || "—";
 
   return (
     <div className={styles.container}>
@@ -831,6 +878,7 @@ export default function Almacen() {
         <SalidaFormModal
           items={items.filter((i) => i.activo)}
           clientes={clientes}
+          proyectoOptions={proyectoOptions}
           onSave={handleSalida}
           onCancel={() => setShowSalida(false)}
         />
@@ -840,6 +888,7 @@ export default function Almacen() {
         <OrdenFormModal
           items={items.filter((i) => i.activo)}
           clientes={clientes}
+          proyectoOptions={proyectoOptions}
           soloSalida={!isAdmin}
           onSave={handleCrearOrden}
           onCancel={() => setShowOrden(false)}

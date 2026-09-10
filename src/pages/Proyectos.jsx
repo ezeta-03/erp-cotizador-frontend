@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { X, Briefcase } from "lucide-react";
+import { X, Briefcase, ClipboardList, Boxes } from "lucide-react";
 import useAuth from "../auth/useAuth";
-import { getProyectos, getProyecto, actualizarProyecto } from "../api/proyectos";
+import { getProyectos, getProyecto, actualizarProyecto, getProyectosExternos } from "../api/proyectos";
 import { getUsuarios } from "../api/usuarios";
 import styles from "./proyectos.module.scss";
 
@@ -18,6 +18,15 @@ const ESTADO_BADGE = {
   PAUSADO: styles.badgePausado,
   COMPLETADO: styles.badgeCompletado,
   CANCELADO: styles.badgeCancelado,
+};
+// seguimiento-actividades guarda el estado como el texto en español tal cual
+// (no un código), así que el badge de esa pestaña se busca por texto.
+const ESTADO_BADGE_POR_TEXTO = {
+  "Planificación": styles.badgePlanificacion,
+  "En Curso": styles.badgeEnCurso,
+  "Pausado": styles.badgePausado,
+  "Completado": styles.badgeCompletado,
+  "Cancelado": styles.badgeCancelado,
 };
 
 const fmtMoney = (n) =>
@@ -184,26 +193,133 @@ function ProyectoDetalleModal({ proyectoId, isAdmin, usuarios, onClose, onActual
   );
 }
 
+/* ── Pestaña: proyectos del ERP (nacidos de una cotización, o con stub) ──── */
+function TablaProyectosErp({ proyectos, loading, onAbrir }) {
+  return (
+    <div className={styles.tableContainer}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>Cotización</th>
+            <th>Cliente</th>
+            <th>Estado</th>
+            <th>Jefe responsable</th>
+            <th>Proyectado</th>
+            <th>Asignado</th>
+            <th>Fechas</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr><td colSpan={7} className={styles.empty}>Cargando…</td></tr>
+          ) : proyectos.length === 0 ? (
+            <tr><td colSpan={7} className={styles.empty}>Todavía no hay proyectos — se crean solos al aprobar una cotización.</td></tr>
+          ) : (
+            proyectos.map((p) => (
+              <tr key={p.id} className={styles.rowClickable} onClick={() => onAbrir(p.id)}>
+                <td>{p.cotizacion?.numero || <span className={styles.sinAsignar}>Seguimiento de Actividades</span>}</td>
+                <td>{p.cliente?.nombreComercial || "—"}</td>
+                <td><span className={`${styles.badgeEstado} ${ESTADO_BADGE[p.estado]}`}>{ESTADO_LABEL[p.estado]}</span></td>
+                <td>{p.jefeResponsable?.nombre || <span className={styles.sinAsignar}>Sin asignar</span>}</td>
+                <td>{fmtMoney(p.presupuestoEstimado)}</td>
+                <td className={p.asignado > p.presupuestoEstimado ? styles.montoAlerta : undefined}>{fmtMoney(p.asignado)}</td>
+                <td>{fmtFecha(p.fechaInicio)} → {fmtFecha(p.fechaFin)}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ── Pestaña: proyectos que viven en seguimiento-actividades (solo lectura) ── */
+function TablaProyectosExternos({ proyectos, loading, onAbrir }) {
+  return (
+    <div className={styles.tableContainer}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>Proyecto</th>
+            <th>Estado</th>
+            <th>Jefe responsable</th>
+            <th>Proyectado</th>
+            <th>Ejecutado</th>
+            <th>En Almacén</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr><td colSpan={6} className={styles.empty}>Cargando…</td></tr>
+          ) : proyectos.length === 0 ? (
+            <tr><td colSpan={6} className={styles.empty}>No se encontraron proyectos en seguimiento-actividades.</td></tr>
+          ) : (
+            proyectos.map((p) => (
+              <tr
+                key={p.id}
+                className={p.proyectoInternoId ? styles.rowClickable : undefined}
+                onClick={() => p.proyectoInternoId && onAbrir(p.proyectoInternoId)}
+              >
+                <td>{p.nombre}</td>
+                <td>{p.estado ? <span className={`${styles.badgeEstado} ${ESTADO_BADGE_POR_TEXTO[p.estado] || styles.badgeGrisExterno}`}>{p.estado}</span> : "—"}</td>
+                <td>{p.jefeResponsable || <span className={styles.sinAsignar}>Sin asignar</span>}</td>
+                <td>{fmtMoney(p.presupuestoEstimado)}</td>
+                <td>{fmtMoney(p.presupuestoEjecutado)}</td>
+                <td>
+                  {p.proyectoInternoId
+                    ? <span className={styles.badgeEnAlmacen}>{fmtMoney(p.asignado)} asignado</span>
+                    : <span className={styles.sinAsignar}>Sin movimientos todavía</span>}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export default function Proyectos() {
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
 
+  const [tab, setTab] = useState("erp");
   const [proyectos, setProyectos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [externos, setExternos] = useState([]);
+  const [loadingErp, setLoadingErp] = useState(true);
+  const [loadingExternos, setLoadingExternos] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const [detalleId, setDetalleId] = useState(null);
 
-  const cargar = useCallback(async () => {
-    setLoading(true);
+  const cargarErp = useCallback(async () => {
+    setLoadingErp(true);
     try {
       const data = await getProyectos();
       setProyectos(Array.isArray(data) ? data : []);
     } finally {
-      setLoading(false);
+      setLoadingErp(false);
     }
   }, []);
 
-  useEffect(() => { cargar(); }, [cargar]);
+  const cargarExternos = useCallback(async () => {
+    setLoadingExternos(true);
+    try {
+      const data = await getProyectosExternos();
+      setExternos(Array.isArray(data) ? data : []);
+    } catch {
+      setExternos([]);
+    } finally {
+      setLoadingExternos(false);
+    }
+  }, []);
+
+  useEffect(() => { cargarErp(); }, [cargarErp]);
+
+  // La pestaña de seguimiento-actividades se carga recién al abrirla la
+  // primera vez, para no pagar el viaje a Firestore si nadie la mira.
+  useEffect(() => {
+    if (tab === "externos" && externos.length === 0 && !loadingExternos) cargarExternos();
+  }, [tab, externos.length, loadingExternos, cargarExternos]);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -219,40 +335,20 @@ export default function Proyectos() {
         </div>
       </div>
 
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Cotización</th>
-              <th>Cliente</th>
-              <th>Estado</th>
-              <th>Jefe responsable</th>
-              <th>Proyectado</th>
-              <th>Asignado</th>
-              <th>Fechas</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={7} className={styles.empty}>Cargando…</td></tr>
-            ) : proyectos.length === 0 ? (
-              <tr><td colSpan={7} className={styles.empty}>Todavía no hay proyectos — se crean solos al aprobar una cotización.</td></tr>
-            ) : (
-              proyectos.map((p) => (
-                <tr key={p.id} className={styles.rowClickable} onClick={() => setDetalleId(p.id)}>
-                  <td>{p.cotizacion?.numero}</td>
-                  <td>{p.cliente?.nombreComercial}</td>
-                  <td><span className={`${styles.badgeEstado} ${ESTADO_BADGE[p.estado]}`}>{ESTADO_LABEL[p.estado]}</span></td>
-                  <td>{p.jefeResponsable?.nombre || <span className={styles.sinAsignar}>Sin asignar</span>}</td>
-                  <td>{fmtMoney(p.presupuestoEstimado)}</td>
-                  <td className={p.asignado > p.presupuestoEstimado ? styles.montoAlerta : undefined}>{fmtMoney(p.asignado)}</td>
-                  <td>{fmtFecha(p.fechaInicio)} → {fmtFecha(p.fechaFin)}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className={styles.tabs}>
+        <button className={`${styles.tab} ${tab === "erp" ? styles.tabActive : ""}`} onClick={() => setTab("erp")}>
+          <ClipboardList size={15} /> Proyectos del ERP
+        </button>
+        <button className={`${styles.tab} ${tab === "externos" ? styles.tabActive : ""}`} onClick={() => setTab("externos")}>
+          <Boxes size={15} /> Seguimiento de Actividades
+        </button>
       </div>
+
+      {tab === "erp" ? (
+        <TablaProyectosErp proyectos={proyectos} loading={loadingErp} onAbrir={setDetalleId} />
+      ) : (
+        <TablaProyectosExternos proyectos={externos} loading={loadingExternos} onAbrir={setDetalleId} />
+      )}
 
       {detalleId && (
         <ProyectoDetalleModal
@@ -260,7 +356,7 @@ export default function Proyectos() {
           isAdmin={isAdmin}
           usuarios={usuarios}
           onClose={() => setDetalleId(null)}
-          onActualizado={cargar}
+          onActualizado={() => { cargarErp(); cargarExternos(); }}
         />
       )}
     </div>

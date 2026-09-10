@@ -14,3 +14,10 @@ export const actualizarProyecto = async (id, payload) => {
   const { data } = await api.put(`/proyectos/${id}`, payload);
   return data;
 };
+
+// Proyectos que viven en seguimiento-actividades (Firestore), de solo
+// lectura, anotados con si ya tienen un Proyecto interno equivalente.
+export const getProyectosExternos = async () => {
+  const { data } = await api.get("/proyectos/externos");
+  return data;
+};

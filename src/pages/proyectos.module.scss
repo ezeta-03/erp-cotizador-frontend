@@ -1,5 +1,49 @@
 @use "../styles/_ui.scss" as *;
 
+/* ── Pestañas ── */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text3);
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover { color: var(--color-text1); }
+}
+
+.tabActive {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.badgeEnAlmacen {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+  white-space: nowrap;
+}
+
+.badgeGrisExterno { background: var(--badge-gray-bg); color: var(--badge-gray-text); }
+
 .badgeEstado {
   display: inline-block;
   padding: 0.3rem 0.8rem;
