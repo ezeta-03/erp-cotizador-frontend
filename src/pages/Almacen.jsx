@@ -1,13 +1,14 @@
 import { useEffect, useState, useCallback } from "react";
 import {
   Plus, Minus, RefreshCw, X, Search, ClipboardList, PackageSearch, PackagePlus,
-  FileStack, FileDown, Trash2,
+  FileStack, FileDown, Trash2, Inbox, Check,
 } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import {
   getItemsAlmacen, crearItemAlmacen,
   getMovimientos, registrarEntrada, registrarSalida,
   getOrdenes, crearOrdenAlmacen, descargarOrdenPdf,
+  getSolicitudes, aprobarSolicitud, rechazarSolicitud,
 } from "../api/almacen";
 import { getClientes } from "../api/clientes";
 import { getProyectos, getProyectosExternos } from "../api/proyectos";
@@ -525,6 +526,40 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
   );
 }
 
+/* ── Modal: motivo al rechazar una solicitud pendiente ─────────────────── */
+function RechazarSolicitudModal({ onConfirm, onCancel }) {
+  const [motivo, setMotivo] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleConfirmar = async () => {
+    setSaving(true);
+    try { await onConfirm(motivo.trim() || undefined); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className={styles.formModal}>
+        <div className={styles.formHeader}>
+          <h2 className={styles.formTitle}>Rechazar solicitud</h2>
+          <button className={styles.btnClose} onClick={onCancel}><X size={18} /></button>
+        </div>
+        <div className={styles.formBody}>
+          <F label="Motivo" optional>
+            <input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Por qué se rechaza" />
+          </F>
+          <div className={styles.formActions}>
+            <button type="button" className={styles.btnOutline} onClick={onCancel}>Cancelar</button>
+            <button type="button" className={styles.btnPrimary} onClick={handleConfirmar} disabled={saving}>
+              {saving ? "Rechazando…" : "Rechazar"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Página principal ──────────────────────────────────────────────────── */
 export default function Almacen() {
   const { user } = useAuth();
@@ -540,6 +575,7 @@ export default function Almacen() {
   const [ordenes, setOrdenes] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [proyectoOptions, setProyectoOptions] = useState([]);
+  const [solicitudes, setSolicitudes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
   const [filtroTipoStock, setFiltroTipoStock] = useState("");
@@ -549,11 +585,12 @@ export default function Almacen() {
   const [showEntrada, setShowEntrada] = useState(false);
   const [showSalida, setShowSalida] = useState(false);
   const [showOrden, setShowOrden] = useState(false);
+  const [rechazandoId, setRechazandoId] = useState(null);
 
   const cargarTodo = useCallback(async () => {
     setLoading(true);
     try {
-      const [its, movs, ords, clis, proys, proysExt] = await Promise.all([
+      const [its, movs, ords, clis, proys, proysExt, sols] = await Promise.all([
         getItemsAlmacen(),
         puedeVerMovimientos ? getMovimientos() : Promise.resolve([]),
         puedeVerOrdenes ? getOrdenes() : Promise.resolve([]),
@@ -562,12 +599,14 @@ export default function Almacen() {
         // Si seguimiento-actividades/Firestore no responde, no debe tumbar
         // toda la carga de Almacén — el selector simplemente queda más corto.
         puedeVerOrdenes ? getProyectosExternos().catch(() => []) : Promise.resolve([]),
+        puedeVerOrdenes ? getSolicitudes() : Promise.resolve([]),
       ]);
       setItems(its);
       setMovimientos(movs);
       setOrdenes(ords);
       setClientes(clis);
       setProyectoOptions(construirProyectoOptions(proys, proysExt));
+      setSolicitudes(sols);
     } catch { /* silencioso */ }
     finally { setLoading(false); }
   }, [puedeVerMovimientos, puedeVerOrdenes]);
@@ -626,6 +665,19 @@ export default function Almacen() {
     cargarTodo();
     try { await descargarOrdenPdf(orden.id, token); } catch { /* la orden ya quedó creada igual */ }
   };
+
+  const handleAprobarSolicitud = async (id) => {
+    await aprobarSolicitud(id);
+    cargarTodo();
+  };
+
+  const handleRechazarSolicitud = async (motivo) => {
+    await rechazarSolicitud(rechazandoId, motivo);
+    setRechazandoId(null);
+    cargarTodo();
+  };
+
+  const pendientesCount = solicitudes.filter((s) => s.estado === "PENDIENTE").length;
 
   const contraparte = (m) =>
     m.proveedor?.nombre || m.cliente?.nombreComercial || m.proyecto?.nombre || m.proyectoExternoId || "—";
@@ -687,6 +739,15 @@ export default function Almacen() {
               onClick={() => irAVista("ordenes")}
             >
               <FileStack size={15} /> Órdenes
+            </button>
+          )}
+          {puedeVerOrdenes && (
+            <button
+              className={`${styles.tab} ${vista === "solicitudes" ? styles.tabActive : ""}`}
+              onClick={() => irAVista("solicitudes")}
+            >
+              <Inbox size={15} /> Solicitudes
+              {pendientesCount > 0 && <span className={styles.tabBadge}>{pendientesCount}</span>}
             </button>
           )}
         </div>
@@ -817,7 +878,7 @@ export default function Almacen() {
             )}
           </div>
         </>
-      ) : (
+      ) : vista === "ordenes" ? (
         <div className={styles.tableContainer}>
           {loading ? (
             <p className={styles.empty}>Cargando órdenes…</p>
@@ -860,6 +921,65 @@ export default function Almacen() {
             </table>
           )}
         </div>
+      ) : (
+        <div className={styles.tableContainer}>
+          {loading ? (
+            <p className={styles.empty}>Cargando solicitudes…</p>
+          ) : solicitudes.length === 0 ? (
+            <p className={styles.empty}>No hay solicitudes desde seguimiento-actividades todavía.</p>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Proyecto</th>
+                  <th>Ítem</th>
+                  <th>Cantidad</th>
+                  <th>Solicitante</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {solicitudes.map((s) => (
+                  <tr key={s.id}>
+                    <td>{fmtFecha(s.createdAt)}</td>
+                    <td>{s.proyecto?.nombre || s.proyectoExternoId}</td>
+                    <td>{s.item?.codigo} — {s.item?.nombre}</td>
+                    <td>{s.cantidad} {s.item?.unidad}</td>
+                    <td>{s.solicitanteEmail || "—"}</td>
+                    <td>
+                      <span className={`${styles.badge} ${
+                        s.estado === "PENDIENTE" ? styles.badgeEntrada
+                        : s.estado === "APROBADA" ? styles.stockBadge
+                        : styles.stockBadgeVacio
+                      }`}>
+                        {s.estado}
+                      </span>
+                      {s.estado === "RECHAZADA" && s.motivoRechazo && (
+                        <div className={styles.finCalculado}>{s.motivoRechazo}</div>
+                      )}
+                    </td>
+                    <td>
+                      {s.estado === "PENDIENTE" ? (
+                        <div className={styles.tdActions}>
+                          <button className={styles.btnGhost} onClick={() => handleAprobarSolicitud(s.id)} title="Aprobar">
+                            <Check size={15} />
+                          </button>
+                          <button className={styles.btnDelete} onClick={() => setRechazandoId(s.id)} title="Rechazar">
+                            <X size={15} />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className={styles.finCalculado}>{s.resueltoPor?.nombre || "—"}</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       )}
 
       {showItem && (
@@ -892,6 +1012,13 @@ export default function Almacen() {
           soloSalida={!isAdmin}
           onSave={handleCrearOrden}
           onCancel={() => setShowOrden(false)}
+        />
+      )}
+
+      {rechazandoId && (
+        <RechazarSolicitudModal
+          onConfirm={handleRechazarSolicitud}
+          onCancel={() => setRechazandoId(null)}
         />
       )}
     </div>

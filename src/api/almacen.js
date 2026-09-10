@@ -55,6 +55,21 @@ export const crearOrdenAlmacen = async (payload) => {
   return data;
 };
 
+export const getSolicitudes = async (params) => {
+  const { data } = await api.get("/almacen/solicitudes", { params });
+  return data;
+};
+
+export const aprobarSolicitud = async (id) => {
+  const { data } = await api.post(`/almacen/solicitudes/${id}/aprobar`);
+  return data;
+};
+
+export const rechazarSolicitud = async (id, motivo) => {
+  const { data } = await api.post(`/almacen/solicitudes/${id}/rechazar`, { motivo });
+  return data;
+};
+
 // PDF: descarga directa vía fetch (no axios) porque la respuesta es binaria,
 // mismo patrón que api/pdf.js para las cotizaciones.
 export const descargarOrdenPdf = async (ordenId, token) => {
