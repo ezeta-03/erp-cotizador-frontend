@@ -24,6 +24,7 @@ import Proveedores from "../pages/Proveedores";
 import Ocupacion from "../pages/Ocupacion";
 import Rentabilidad from "../pages/Rentabilidad";
 import Almacen from "../pages/Almacen";
+import Proyectos from "../pages/Proyectos";
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -53,6 +54,7 @@ export default function AppRouter() {
         <Route path="/erp/admin/productos"    element={<Productos />} />
         <Route path="/erp/admin/facturar"           element={<CotizacionesVentas />} />
         <Route path="/erp/admin/almacen"            element={<Almacen />} />
+        <Route path="/erp/admin/proyectos"          element={<Proyectos />} />
         <Route path="/erp/admin/actividad"          element={<ActividadClientes />} />
         <Route path="/erp/admin/outdoor"              element={<OutdoorHome />} />
         <Route path="/erp/admin/btl"                  element={<BTLHome />} />
@@ -80,6 +82,7 @@ export default function AppRouter() {
         <Route path="/erp/ventas/productos"    element={<Productos />} />
         <Route path="/erp/ventas/facturar"           element={<CotizacionesVentas />} />
         <Route path="/erp/ventas/almacen"            element={<Almacen />} />
+        <Route path="/erp/ventas/proyectos"          element={<Proyectos />} />
         <Route path="/erp/ventas/actividad"          element={<ActividadClientes />} />
         <Route path="/erp/ventas/outdoor"              element={<OutdoorHome />} />
         <Route path="/erp/ventas/btl"                  element={<BTLHome />} />

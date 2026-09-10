@@ -1,0 +1,112 @@
+@use "../styles/_ui.scss" as *;
+
+.badgeEstado {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.badgePlanificacion { background: var(--badge-blue-bg);   color: var(--badge-blue-text); }
+.badgeEnCurso       { background: var(--badge-purple-bg); color: var(--badge-purple-text); }
+.badgePausado       { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
+.badgeCompletado    { background: var(--badge-green-bg);  color: var(--badge-green-text); }
+.badgeCancelado     { background: var(--badge-red-bg);    color: var(--badge-red-text); }
+
+.rowClickable {
+  cursor: pointer;
+}
+
+.sinAsignar {
+  color: var(--color-text3);
+  font-style: italic;
+}
+
+.montoOk    { color: var(--badge-green-text); font-weight: 700; }
+.montoAlerta{ color: var(--badge-red-text);   font-weight: 700; }
+
+.empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--color-text3);
+  font-size: 0.9rem;
+}
+
+/* ── Modal de detalle ── */
+.detalleBody {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+.resumenGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--color-surface2);
+  border-radius: $radius-md;
+  border: 1px solid var(--color-border);
+}
+
+.resumenItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  span:first-child {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text3);
+  }
+  span:last-child {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-text1);
+  }
+}
+
+.seccionTitulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text2);
+  margin: 0;
+}
+
+.miniTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--color-text3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--color-border);
+  }
+  td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--color-border2);
+    color: var(--color-text1);
+  }
+  tr:last-child td { border-bottom: none; }
+}
+
+.itemCode {
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: var(--color-text3);
+  margin-right: 0.4rem;
+}
