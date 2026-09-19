@@ -104,34 +104,57 @@ function ItemPickerTrigger({ itemSel, onOpen, placeholder }) {
   );
 }
 
-/* ── Modal: buscar un ítem escribiendo, eligiendo o por categoría (igual que
-   el buscador de Productos BTL en Cotizaciones, pero sobre el catálogo de
-   Almacén) ───────────────────────────────────────────────────────────────── */
-function ItemPickerModal({ items, tipo, onSelect, onClose, onCrearNuevo }) {
-  const [busqueda, setBusqueda] = useState("");
-  const [categoriaFiltro, setCategoriaFiltro] = useState("TODAS");
+const ORDEN_TIPOS_ITEM = ["INSUMO", "PRODUCTO_TERMINADO", "HERRAMIENTA", "MAQUINARIA_EQUIPO"];
 
-  const categorias = [...new Set(items.map((i) => i.categoria || "General"))].sort();
-  const contPorCategoria = {};
-  items.forEach((i) => {
-    const c = i.categoria || "General";
-    contPorCategoria[c] = (contPorCategoria[c] || 0) + 1;
-  });
+/* ── Modal: buscar ítems escribiendo, eligiendo o por Tipo (igual que el
+   buscador de Productos BTL en Cotizaciones, pero sobre el catálogo de
+   Almacén — agrupado por Tipo, la división más grande del catálogo, no por
+   categoría, que es demasiado granular). En modo `multi` funciona como el
+   carrito de una cotización: se van marcando varios ítems y recién se
+   agregan todos juntos al confirmar — no hace falta abrir el buscador una
+   vez por cada uno ────────────────────────────────────────────────────── */
+function ItemPickerModal({ items, tipo, onSelect, onConfirmMultiple, onClose, onCrearNuevo, multi }) {
+  const [busqueda, setBusqueda] = useState("");
+  const [tipoItemFiltro, setTipoItemFiltro] = useState("TODOS");
+  const [seleccionados, setSeleccionados] = useState(new Map());
+
+  const tiposPresentes = ORDEN_TIPOS_ITEM.filter((t) => items.some((i) => i.tipo === t));
+  const contPorTipo = {};
+  items.forEach((i) => { contPorTipo[i.tipo] = (contPorTipo[i.tipo] || 0) + 1; });
 
   const q = busqueda.trim().toLowerCase();
   const filtrados = items.filter((i) => {
     const matchTexto = !q ||
       i.nombre?.toLowerCase().includes(q) ||
-      i.codigo?.toLowerCase().includes(q);
-    const matchCategoria = categoriaFiltro === "TODAS" || (i.categoria || "General") === categoriaFiltro;
-    return matchTexto && matchCategoria;
+      i.codigo?.toLowerCase().includes(q) ||
+      i.categoria?.toLowerCase().includes(q);
+    const matchTipoItem = tipoItemFiltro === "TODOS" || i.tipo === tipoItemFiltro;
+    return matchTexto && matchTipoItem;
   });
+
+  const toggleSeleccionado = (item) => {
+    setSeleccionados((prev) => {
+      const next = new Map(prev);
+      if (next.has(item.id)) next.delete(item.id);
+      else next.set(item.id, item);
+      return next;
+    });
+  };
+
+  const handleClickItem = (item) => {
+    if (multi) toggleSeleccionado(item);
+    else onSelect(item);
+  };
+
+  const handleConfirmarMultiple = () => {
+    onConfirmMultiple([...seleccionados.values()]);
+  };
 
   return (
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className={styles.formModal} style={{ maxWidth: 560 }}>
         <div className={styles.formHeader}>
-          <h2 className={styles.formTitle}>Selecciona un ítem</h2>
+          <h2 className={styles.formTitle}>{multi ? "Agregar ítems" : "Selecciona un ítem"}</h2>
           <button className={styles.btnClose} onClick={onClose}><X size={18} /></button>
         </div>
 
@@ -153,19 +176,19 @@ function ItemPickerModal({ items, tipo, onSelect, onClose, onCrearNuevo }) {
           <div className={styles.catFiltros}>
             <button
               type="button"
-              className={`${styles.catChip} ${categoriaFiltro === "TODAS" ? styles.catChipActive : ""}`}
-              onClick={() => setCategoriaFiltro("TODAS")}
+              className={`${styles.catChip} ${tipoItemFiltro === "TODOS" ? styles.catChipActive : ""}`}
+              onClick={() => setTipoItemFiltro("TODOS")}
             >
-              Todas
+              Todos
             </button>
-            {categorias.map((c) => (
+            {tiposPresentes.map((t) => (
               <button
-                key={c}
+                key={t}
                 type="button"
-                className={`${styles.catChip} ${categoriaFiltro === c ? styles.catChipActive : ""}`}
-                onClick={() => setCategoriaFiltro(c)}
+                className={`${styles.catChip} ${tipoItemFiltro === t ? styles.catChipActive : ""}`}
+                onClick={() => setTipoItemFiltro(t)}
               >
-                {c} <span className={styles.catCount}>{contPorCategoria[c]}</span>
+                {TIPO_LABEL[t]} <span className={styles.catCount}>{contPorTipo[t]}</span>
               </button>
             ))}
           </div>
@@ -180,28 +203,54 @@ function ItemPickerModal({ items, tipo, onSelect, onClose, onCrearNuevo }) {
             {filtrados.length === 0 ? (
               <p className={styles.empty}>Sin resultados{busqueda ? ` para "${busqueda}"` : ""}.</p>
             ) : (
-              filtrados.slice(0, 40).map((i) => (
-                <button key={i.id} type="button" className={styles.pickerItem} onClick={() => onSelect(i)}>
-                  <span className={styles.pickerItemInfo}>
-                    <span className={styles.itemCode}>{i.codigo}</span>
-                    <span className={styles.pickerItemNombre}>{i.nombre}</span>
-                  </span>
-                  <span className={styles.pickerItemMeta}>
-                    <span className={styles.badge}>{EMPRESA_CORTA[i.empresa]}</span>
-                    {tipo === "SALIDA" && (
-                      <span className={`${styles.stockBadge} ${i.stockActual <= 0 ? styles.stockBadgeVacio : ""}`}>
-                        {i.stockActual} {i.unidad}
+              filtrados.slice(0, 40).map((i) => {
+                const marcado = multi && seleccionados.has(i.id);
+                return (
+                  <button
+                    key={i.id}
+                    type="button"
+                    className={`${styles.pickerItem} ${marcado ? styles.pickerItemMarcado : ""}`}
+                    onClick={() => handleClickItem(i)}
+                  >
+                    {multi && (
+                      <span className={`${styles.pickerCheck} ${marcado ? styles.pickerCheckOn : ""}`}>
+                        {marcado && <Check size={12} />}
                       </span>
                     )}
-                  </span>
-                </button>
-              ))
+                    <span className={styles.pickerItemInfo}>
+                      <span className={styles.itemCode}>{i.codigo}</span>
+                      <span className={styles.pickerItemNombre}>{i.nombre}</span>
+                    </span>
+                    <span className={styles.pickerItemMeta}>
+                      {i.categoria && <span className={styles.pickerItemCategoria}>{i.categoria}</span>}
+                      <span className={styles.badge}>{EMPRESA_CORTA[i.empresa]}</span>
+                      {tipo === "SALIDA" && (
+                        <span className={`${styles.stockBadge} ${i.stockActual <= 0 ? styles.stockBadgeVacio : ""}`}>
+                          {i.stockActual} {i.unidad}
+                        </span>
+                      )}
+                    </span>
+                  </button>
+                );
+              })
             )}
             {filtrados.length > 40 && (
               <p className={styles.dropdownMore}>+{filtrados.length - 40} más — refina la búsqueda</p>
             )}
           </div>
         </div>
+
+        {multi && (
+          <div className={styles.formActions}>
+            <span className={styles.finCalculado} style={{ marginRight: "auto" }}>
+              {seleccionados.size} ítem{seleccionados.size !== 1 ? "s" : ""} seleccionado{seleccionados.size !== 1 ? "s" : ""}
+            </span>
+            <button type="button" className={styles.btnOutline} onClick={onClose}>Cancelar</button>
+            <button type="button" className={styles.btnPrimary} onClick={handleConfirmarMultiple} disabled={seleccionados.size === 0}>
+              Agregar {seleccionados.size > 0 ? seleccionados.size : ""}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -525,6 +574,7 @@ function SalidaFormModal({ items, clientes, proyectoOptions, onSave, onCancel })
 }
 
 const LINEA_VACIA = { itemAlmacenId: "", cantidad: "", precioUnitario: "" };
+const lineaDeItem = (item) => ({ itemAlmacenId: String(item.id), cantidad: "1", precioUnitario: "" });
 
 /* ── Modal: nueva orden (varias líneas, imprimible en PDF) ────────────────── */
 function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, onCancel, onCrearItem }) {
@@ -533,10 +583,11 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
   const [clienteId, setClienteId] = useState("");
   const [proyectoKey, setProyectoKey] = useState("");
   const [notas, setNotas] = useState("");
-  const [lineas, setLineas] = useState([{ ...LINEA_VACIA }]);
+  const [lineas, setLineas] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [pickerLineaIdx, setPickerLineaIdx] = useState(null);
+  const [showPickerMultiple, setShowPickerMultiple] = useState(false);
   const [nuevoItemLineaIdx, setNuevoItemLineaIdx] = useState(null);
 
   const setLinea = (idx, campo) => (e) => {
@@ -546,8 +597,14 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
   const setLineaItem = (idx, itemId) => {
     setLineas((ls) => ls.map((l, i) => (i === idx ? { ...l, itemAlmacenId: itemId } : l)));
   };
-  const agregarLinea = () => setLineas((ls) => [...ls, { ...LINEA_VACIA }]);
   const quitarLinea = (idx) => setLineas((ls) => ls.filter((_, i) => i !== idx));
+
+  // Elegir varios ítems de una pasada, como al armar una cotización: se
+  // marcan varios en el buscador y acá se agregan todos juntos como líneas.
+  const agregarVarios = (itemsElegidos) => {
+    setLineas((ls) => [...ls, ...itemsElegidos.map(lineaDeItem)]);
+    setShowPickerMultiple(false);
+  };
 
   const handleCrearItemInline = async (payload) => {
     const nuevo = await onCrearItem(payload);
@@ -635,30 +692,34 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
           )}
 
           <F label="Ítems de la orden">
-            <div className={styles.lineasWrap}>
-              {lineas.map((l, idx) => {
-                const itemSel = items.find((i) => String(i.id) === String(l.itemAlmacenId));
-                return (
-                  <div key={idx} className={styles.lineaRow}>
-                    <ItemPickerTrigger itemSel={itemSel} onOpen={() => setPickerLineaIdx(idx)} />
-                    <input
-                      type="number" min="0.01" step="0.01" placeholder="Cant."
-                      value={l.cantidad} onChange={setLinea(idx, "cantidad")}
-                      title={itemSel?.unidad || ""}
-                    />
-                    <input
-                      type="number" min="0" step="0.01" placeholder="P. unit."
-                      value={l.precioUnitario} onChange={setLinea(idx, "precioUnitario")}
-                    />
-                    <button type="button" className={styles.btnQuitarLinea} onClick={() => quitarLinea(idx)} disabled={lineas.length === 1}>
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-            <button type="button" className={styles.btnAgregarLinea} onClick={agregarLinea}>
-              <Plus size={13} /> Agregar ítem
+            {lineas.length === 0 ? (
+              <p className={styles.empty}>Agrega ítems para empezar.</p>
+            ) : (
+              <div className={styles.lineasWrap}>
+                {lineas.map((l, idx) => {
+                  const itemSel = items.find((i) => String(i.id) === String(l.itemAlmacenId));
+                  return (
+                    <div key={idx} className={styles.lineaRow}>
+                      <ItemPickerTrigger itemSel={itemSel} onOpen={() => setPickerLineaIdx(idx)} />
+                      <input
+                        type="number" min="0.01" step="0.01" placeholder="Cant."
+                        value={l.cantidad} onChange={setLinea(idx, "cantidad")}
+                        title={itemSel?.unidad || ""}
+                      />
+                      <input
+                        type="number" min="0" step="0.01" placeholder="P. unit."
+                        value={l.precioUnitario} onChange={setLinea(idx, "precioUnitario")}
+                      />
+                      <button type="button" className={styles.btnQuitarLinea} onClick={() => quitarLinea(idx)}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <button type="button" className={styles.btnAgregarLinea} onClick={() => setShowPickerMultiple(true)}>
+              <Plus size={13} /> Agregar ítems
             </button>
           </F>
 
@@ -688,6 +749,16 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
           onSelect={(i) => { setLineaItem(pickerLineaIdx, String(i.id)); setPickerLineaIdx(null); }}
           onClose={() => setPickerLineaIdx(null)}
           onCrearNuevo={tipo === "ENTRADA" ? () => { setNuevoItemLineaIdx(pickerLineaIdx); setPickerLineaIdx(null); } : undefined}
+        />
+      )}
+
+      {showPickerMultiple && (
+        <ItemPickerModal
+          items={items}
+          tipo={tipo}
+          multi
+          onConfirmMultiple={agregarVarios}
+          onClose={() => setShowPickerMultiple(false)}
         />
       )}
 
@@ -752,6 +823,7 @@ export default function Almacen() {
   const [busqueda, setBusqueda] = useState("");
   const [filtroTipoStock, setFiltroTipoStock] = useState("");
   const [filtroEmpresa, setFiltroEmpresa] = useState("");
+  const [filtroCategoriaStock, setFiltroCategoriaStock] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [showEntrada, setShowEntrada] = useState(false);
   const [showSalida, setShowSalida] = useState(false);
@@ -802,7 +874,10 @@ export default function Almacen() {
   };
 
   const q = busqueda.trim().toLowerCase();
-  const itemsFiltrados = items.filter((i) => {
+  // Categorías (y sus conteos) respetan búsqueda/tipo/empresa, pero no la
+  // categoría misma — así los chips siempre reflejan lo que hay bajo los
+  // demás filtros activos.
+  const itemsPreCategoria = items.filter((i) => {
     if (filtroTipoStock && i.tipo !== filtroTipoStock) return false;
     if (filtroEmpresa && i.empresa !== filtroEmpresa) return false;
     if (!q) return true;
@@ -811,6 +886,15 @@ export default function Almacen() {
       i.categoria?.toLowerCase().includes(q) ||
       i.departamento?.toLowerCase().includes(q);
   });
+  const categoriasStock = [...new Set(itemsPreCategoria.map((i) => i.categoria || "General"))].sort();
+  const contPorCategoriaStock = {};
+  itemsPreCategoria.forEach((i) => {
+    const c = i.categoria || "General";
+    contPorCategoriaStock[c] = (contPorCategoriaStock[c] || 0) + 1;
+  });
+  const itemsFiltrados = itemsPreCategoria.filter(
+    (i) => !filtroCategoriaStock || (i.categoria || "General") === filtroCategoriaStock
+  );
 
   // Crear un ítem nuevo ya no es una acción aparte — vive dentro del flujo
   // de Entradas (single o por línea de Orden): crea el ítem, refresca el
@@ -952,6 +1036,26 @@ export default function Almacen() {
               <option value="HERRAMIENTA">Herramientas</option>
               <option value="MAQUINARIA_EQUIPO">Maquinaria y equipo</option>
             </select>
+          </div>
+
+          <div className={styles.catFiltros} style={{ marginBottom: "1rem" }}>
+            <button
+              type="button"
+              className={`${styles.catChip} ${!filtroCategoriaStock ? styles.catChipActive : ""}`}
+              onClick={() => setFiltroCategoriaStock("")}
+            >
+              Todas
+            </button>
+            {categoriasStock.map((c) => (
+              <button
+                key={c}
+                type="button"
+                className={`${styles.catChip} ${filtroCategoriaStock === c ? styles.catChipActive : ""}`}
+                onClick={() => setFiltroCategoriaStock(c)}
+              >
+                {c} <span className={styles.catCount}>{contPorCategoriaStock[c]}</span>
+              </button>
+            ))}
           </div>
 
           <div className={styles.tableContainer}>
