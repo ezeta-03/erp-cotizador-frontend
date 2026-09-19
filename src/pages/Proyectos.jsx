@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
-import { X, Briefcase, ClipboardList, Boxes } from "lucide-react";
+import { X, Briefcase, ClipboardList, Boxes, Plus } from "lucide-react";
 import useAuth from "../auth/useAuth";
-import { getProyectos, getProyecto, actualizarProyecto, getProyectosExternos } from "../api/proyectos";
+import { getProyectos, getProyecto, actualizarProyecto, getProyectosExternos, crearProyecto } from "../api/proyectos";
 import { getUsuarios } from "../api/usuarios";
+import { getClientes } from "../api/clientes";
 import styles from "./proyectos.module.scss";
 
 const ESTADO_LABEL = {
@@ -279,9 +280,108 @@ function TablaProyectosExternos({ proyectos, loading, onAbrir }) {
   );
 }
 
+/* ── Modal: crear un Proyecto a mano, sin depender de una cotización ─────── */
+function ProyectoFormModal({ clientes, onSave, onCancel }) {
+  const [nombre, setNombre] = useState("");
+  const [clienteId, setClienteId] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [presupuestoEstimado, setPresupuestoEstimado] = useState("");
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (!nombre.trim()) {
+      setError("El nombre del proyecto es obligatorio.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSave({
+        nombre: nombre.trim(),
+        clienteId: clienteId || undefined,
+        descripcion: descripcion.trim() || undefined,
+        presupuestoEstimado: presupuestoEstimado !== "" ? Number(presupuestoEstimado) : undefined,
+        fechaInicio: fechaInicio || undefined,
+        fechaFin: fechaFin || undefined,
+      });
+    } catch (err) {
+      setError(err.response?.data?.message ?? "Error al crear el proyecto");
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={styles.wizardOverlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className={styles.wizardCard} style={{ maxWidth: 480 }}>
+        <div className={styles.wizardHeader}>
+          <h3>Nuevo proyecto</h3>
+          <button className={styles.btnClose} onClick={onCancel}><X size={18} /></button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className={styles.detalleBody}>
+            {error && <p className={styles.formError}>{error}</p>}
+
+            <div className={styles.formField}>
+              <label>Nombre</label>
+              <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Campaña Navidad 2026" autoFocus />
+            </div>
+
+            <div className={styles.formField}>
+              <label>Cliente (opcional)</label>
+              <select value={clienteId} onChange={(e) => setClienteId(e.target.value)}>
+                <option value="">Sin cliente asociado</option>
+                {clientes.map((c) => (
+                  <option key={c.id} value={c.id}>{c.nombreComercial}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.formField}>
+              <label>Descripción (opcional)</label>
+              <textarea rows={2} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="De qué trata el proyecto" />
+            </div>
+
+            <div className={styles.formRow}>
+              <div className={styles.formField}>
+                <label>Presupuesto estimado (opcional)</label>
+                <input type="number" min="0" step="0.01" value={presupuestoEstimado} onChange={(e) => setPresupuestoEstimado(e.target.value)} placeholder="0.00" />
+              </div>
+            </div>
+
+            <div className={styles.formRow}>
+              <div className={styles.formField}>
+                <label>Fecha inicio (opcional)</label>
+                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} />
+              </div>
+              <div className={styles.formField}>
+                <label>Fecha fin (opcional)</label>
+                <input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.wizardActions}>
+            <button type="button" className={styles.btnOutline} onClick={onCancel}>Cancelar</button>
+            <button type="submit" className={styles.btnPrimary} disabled={saving}>
+              {saving ? "Creando…" : "Crear proyecto"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function Proyectos() {
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
+  const isVentas = user?.role === "VENTAS";
+  const puedeCrear = isAdmin || isVentas;
 
   const [tab, setTab] = useState("erp");
   const [proyectos, setProyectos] = useState([]);
@@ -289,7 +389,9 @@ export default function Proyectos() {
   const [loadingErp, setLoadingErp] = useState(true);
   const [loadingExternos, setLoadingExternos] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
+  const [clientes, setClientes] = useState([]);
   const [detalleId, setDetalleId] = useState(null);
+  const [showNuevo, setShowNuevo] = useState(false);
 
   const cargarErp = useCallback(async () => {
     setLoadingErp(true);
@@ -326,13 +428,31 @@ export default function Proyectos() {
     getUsuarios().then(setUsuarios).catch(() => {});
   }, [isAdmin]);
 
+  useEffect(() => {
+    if (!puedeCrear) return;
+    getClientes().then(setClientes).catch(() => {});
+  }, [puedeCrear]);
+
+  const handleCrearProyecto = async (payload) => {
+    await crearProyecto(payload);
+    setShowNuevo(false);
+    cargarErp();
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}><Briefcase size={26} style={{ verticalAlign: "-4px", marginRight: 8 }} />Proyectos</h1>
-          <p className={styles.subtitle}>Cotizaciones aprobadas, sus responsables, y lo que Almacén ya les asignó.</p>
+          <p className={styles.subtitle}>Se crean en cualquier momento, a la par de las cotizaciones — Almacén va sumando lo que les asigna.</p>
         </div>
+        {puedeCrear && (
+          <div className={styles.headerActions}>
+            <button className={styles.btnPrimary} onClick={() => setShowNuevo(true)}>
+              <Plus size={16} /> Nuevo proyecto
+            </button>
+          </div>
+        )}
       </div>
 
       <div className={styles.tabs}>
@@ -357,6 +477,14 @@ export default function Proyectos() {
           usuarios={usuarios}
           onClose={() => setDetalleId(null)}
           onActualizado={() => { cargarErp(); cargarExternos(); }}
+        />
+      )}
+
+      {showNuevo && (
+        <ProyectoFormModal
+          clientes={clientes}
+          onSave={handleCrearProyecto}
+          onCancel={() => setShowNuevo(false)}
         />
       )}
     </div>

@@ -88,6 +88,125 @@ function SelectorProyecto({ value, onChange, opciones }) {
   );
 }
 
+/* ── Botón que abre el picker de ítems (reemplaza al <select> plano) ─────── */
+function ItemPickerTrigger({ itemSel, onOpen, placeholder }) {
+  return (
+    <button type="button" className={styles.pickerTrigger} onClick={onOpen}>
+      {itemSel ? (
+        <span className={styles.pickerTriggerValor}>
+          <span className={styles.itemCode}>{itemSel.codigo}</span> {itemSel.nombre}
+        </span>
+      ) : (
+        <span className={styles.pickerPlaceholder}>{placeholder || "Selecciona un ítem"}</span>
+      )}
+      <Search size={14} />
+    </button>
+  );
+}
+
+/* ── Modal: buscar un ítem escribiendo, eligiendo o por categoría (igual que
+   el buscador de Productos BTL en Cotizaciones, pero sobre el catálogo de
+   Almacén) ───────────────────────────────────────────────────────────────── */
+function ItemPickerModal({ items, tipo, onSelect, onClose, onCrearNuevo }) {
+  const [busqueda, setBusqueda] = useState("");
+  const [categoriaFiltro, setCategoriaFiltro] = useState("TODAS");
+
+  const categorias = [...new Set(items.map((i) => i.categoria || "General"))].sort();
+  const contPorCategoria = {};
+  items.forEach((i) => {
+    const c = i.categoria || "General";
+    contPorCategoria[c] = (contPorCategoria[c] || 0) + 1;
+  });
+
+  const q = busqueda.trim().toLowerCase();
+  const filtrados = items.filter((i) => {
+    const matchTexto = !q ||
+      i.nombre?.toLowerCase().includes(q) ||
+      i.codigo?.toLowerCase().includes(q);
+    const matchCategoria = categoriaFiltro === "TODAS" || (i.categoria || "General") === categoriaFiltro;
+    return matchTexto && matchCategoria;
+  });
+
+  return (
+    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className={styles.formModal} style={{ maxWidth: 560 }}>
+        <div className={styles.formHeader}>
+          <h2 className={styles.formTitle}>Selecciona un ítem</h2>
+          <button className={styles.btnClose} onClick={onClose}><X size={18} /></button>
+        </div>
+
+        <div className={styles.pickerBody}>
+          <div className={styles.searchWrap}>
+            <Search size={14} className={styles.searchIcon} />
+            <input
+              autoFocus
+              className={styles.searchInput}
+              placeholder="Buscar por código o nombre…"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+            {busqueda && (
+              <button className={styles.searchClear} onClick={() => setBusqueda("")}><X size={13} /></button>
+            )}
+          </div>
+
+          <div className={styles.catFiltros}>
+            <button
+              type="button"
+              className={`${styles.catChip} ${categoriaFiltro === "TODAS" ? styles.catChipActive : ""}`}
+              onClick={() => setCategoriaFiltro("TODAS")}
+            >
+              Todas
+            </button>
+            {categorias.map((c) => (
+              <button
+                key={c}
+                type="button"
+                className={`${styles.catChip} ${categoriaFiltro === c ? styles.catChipActive : ""}`}
+                onClick={() => setCategoriaFiltro(c)}
+              >
+                {c} <span className={styles.catCount}>{contPorCategoria[c]}</span>
+              </button>
+            ))}
+          </div>
+
+          {onCrearNuevo && (
+            <button type="button" className={styles.btnAgregarLinea} onClick={onCrearNuevo}>
+              <PackagePlus size={13} /> Crear nuevo ítem
+            </button>
+          )}
+
+          <div className={styles.pickerList}>
+            {filtrados.length === 0 ? (
+              <p className={styles.empty}>Sin resultados{busqueda ? ` para "${busqueda}"` : ""}.</p>
+            ) : (
+              filtrados.slice(0, 40).map((i) => (
+                <button key={i.id} type="button" className={styles.pickerItem} onClick={() => onSelect(i)}>
+                  <span className={styles.pickerItemInfo}>
+                    <span className={styles.itemCode}>{i.codigo}</span>
+                    <span className={styles.pickerItemNombre}>{i.nombre}</span>
+                  </span>
+                  <span className={styles.pickerItemMeta}>
+                    <span className={styles.badge}>{EMPRESA_CORTA[i.empresa]}</span>
+                    {tipo === "SALIDA" && (
+                      <span className={`${styles.stockBadge} ${i.stockActual <= 0 ? styles.stockBadgeVacio : ""}`}>
+                        {i.stockActual} {i.unidad}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              ))
+            )}
+            {filtrados.length > 40 && (
+              <p className={styles.dropdownMore}>+{filtrados.length - 40} más — refina la búsqueda</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Modal: nuevo ítem de catálogo (insumo o producto terminado) ─────────── */
 function ItemFormModal({ onSave, onCancel }) {
   const [form, setForm] = useState(ITEM_VACIO);
@@ -197,18 +316,30 @@ function ItemFormModal({ onSave, onCancel }) {
 }
 
 /* ── Modal: registrar entrada (compra, o ingreso de producto terminado) ──── */
-function EntradaFormModal({ items, onSave, onCancel }) {
+function EntradaFormModal({ items, onSave, onCancel, onCrearItem }) {
   const [form, setForm] = useState(ENTRADA_VACIA);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
+  const [showNuevoItem, setShowNuevoItem] = useState(false);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const itemSel = items.find((i) => String(i.id) === String(form.productoId));
+
+  const handleCrearItemInline = async (payload) => {
+    const nuevo = await onCrearItem(payload);
+    setForm((f) => ({ ...f, productoId: nuevo.id }));
+    setShowNuevoItem(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     if (!form.productoId || !form.cantidad || form.precioUnitario === "") {
-      setError("Ítem, cantidad y precio unitario son obligatorios.");
+      setError("Ítem, cantidad y precio costo son obligatorios.");
+      return;
+    }
+    if (!form.notas.trim()) {
+      setError("Indica el N° de guía, factura o comprobante de esta entrada.");
       return;
     }
     setSaving(true);
@@ -217,7 +348,7 @@ function EntradaFormModal({ items, onSave, onCancel }) {
         productoId: Number(form.productoId),
         cantidad: Number(form.cantidad),
         precioUnitario: Number(form.precioUnitario),
-        notas: form.notas || undefined,
+        notas: form.notas.trim(),
       });
     } catch (err) {
       setError(err.response?.data?.message ?? "Error al registrar la entrada");
@@ -239,12 +370,7 @@ function EntradaFormModal({ items, onSave, onCancel }) {
           {error && <p className={styles.formError}>{error}</p>}
 
           <F label="Ítem">
-            <select value={form.productoId} onChange={set("productoId")}>
-              <option value="">Selecciona un ítem</option>
-              {items.map((i) => (
-                <option key={i.id} value={i.id}>[{EMPRESA_CORTA[i.empresa]}] {i.codigo} — {i.nombre}</option>
-              ))}
-            </select>
+            <ItemPickerTrigger itemSel={itemSel} onOpen={() => setShowPicker(true)} />
             {itemSel?.proveedorNombre && (
               <span className={styles.finCalculado}>Proveedor habitual: {itemSel.proveedorNombre}</span>
             )}
@@ -254,15 +380,15 @@ function EntradaFormModal({ items, onSave, onCancel }) {
             <F label={`Cantidad${itemSel?.unidad ? ` (${itemSel.unidad})` : ""}`}>
               <input type="number" min="0.01" step="0.01" value={form.cantidad} onChange={set("cantidad")} placeholder="100" />
             </F>
-            <F label="Precio unitario (S/)">
+            <F label="Precio costo (S/)">
               <input type="number" min="0" step="0.01" value={form.precioUnitario} onChange={set("precioUnitario")} placeholder="8.00" />
             </F>
           </div>
 
           {total > 0 && <p className={styles.totalPreview}>Total: {fmtMoney(total)}</p>}
 
-          <F label="Notas" optional>
-            <input value={form.notas} onChange={set("notas")} placeholder="Referencia, N° de guía, etc." />
+          <F label="N° de guía / factura / comprobante">
+            <input value={form.notas} onChange={set("notas")} placeholder="Ej. F001-00123" />
           </F>
 
           <div className={styles.formActions}>
@@ -273,6 +399,20 @@ function EntradaFormModal({ items, onSave, onCancel }) {
           </div>
         </form>
       </div>
+
+      {showPicker && (
+        <ItemPickerModal
+          items={items}
+          tipo="ENTRADA"
+          onSelect={(i) => { setForm((f) => ({ ...f, productoId: i.id })); setShowPicker(false); }}
+          onClose={() => setShowPicker(false)}
+          onCrearNuevo={() => { setShowPicker(false); setShowNuevoItem(true); }}
+        />
+      )}
+
+      {showNuevoItem && (
+        <ItemFormModal onSave={handleCrearItemInline} onCancel={() => setShowNuevoItem(false)} />
+      )}
     </div>
   );
 }
@@ -282,7 +422,9 @@ function SalidaFormModal({ items, clientes, proyectoOptions, onSave, onCancel })
   const [form, setForm] = useState(SALIDA_VACIA);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const itemSel = items.find((i) => String(i.id) === String(form.productoId));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -291,8 +433,8 @@ function SalidaFormModal({ items, clientes, proyectoOptions, onSave, onCancel })
       setError("Ítem, cantidad y precio unitario son obligatorios.");
       return;
     }
-    if (!form.clienteId && !form.proyectoKey) {
-      setError("Indica un cliente y/o un proyecto.");
+    if (!form.proyectoKey) {
+      setError("Toda salida debe estar anexada a un proyecto.");
       return;
     }
     setSaving(true);
@@ -326,12 +468,11 @@ function SalidaFormModal({ items, clientes, proyectoOptions, onSave, onCancel })
           {error && <p className={styles.formError}>{error}</p>}
 
           <F label="Ítem">
-            <select value={form.productoId} onChange={set("productoId")}>
-              <option value="">Selecciona un ítem</option>
-              {items.map((i) => (
-                <option key={i.id} value={i.id}>[{EMPRESA_CORTA[i.empresa]}] {i.codigo} — {i.nombre} (stock: {i.stockActual})</option>
-              ))}
-            </select>
+            <ItemPickerTrigger itemSel={itemSel} onOpen={() => setShowPicker(true)} />
+          </F>
+
+          <F label="Proyecto">
+            <SelectorProyecto value={form.proyectoKey} onChange={set("proyectoKey")} opciones={proyectoOptions} />
           </F>
 
           <F label="Cliente" optional>
@@ -341,10 +482,6 @@ function SalidaFormModal({ items, clientes, proyectoOptions, onSave, onCancel })
                 <option key={c.id} value={c.id}>{c.nombreComercial}</option>
               ))}
             </select>
-          </F>
-
-          <F label="Proyecto" optional>
-            <SelectorProyecto value={form.proyectoKey} onChange={set("proyectoKey")} opciones={proyectoOptions} />
           </F>
 
           <div className={styles.formRow}>
@@ -374,6 +511,15 @@ function SalidaFormModal({ items, clientes, proyectoOptions, onSave, onCancel })
           </div>
         </form>
       </div>
+
+      {showPicker && (
+        <ItemPickerModal
+          items={items}
+          tipo="SALIDA"
+          onSelect={(i) => { setForm((f) => ({ ...f, productoId: i.id })); setShowPicker(false); }}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </div>
   );
 }
@@ -381,7 +527,7 @@ function SalidaFormModal({ items, clientes, proyectoOptions, onSave, onCancel })
 const LINEA_VACIA = { itemAlmacenId: "", cantidad: "", precioUnitario: "" };
 
 /* ── Modal: nueva orden (varias líneas, imprimible en PDF) ────────────────── */
-function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, onCancel }) {
+function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, onCancel, onCrearItem }) {
   const [tipo, setTipo] = useState("SALIDA");
   const [ordenServicio, setOrdenServicio] = useState("");
   const [clienteId, setClienteId] = useState("");
@@ -390,13 +536,24 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
   const [lineas, setLineas] = useState([{ ...LINEA_VACIA }]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [pickerLineaIdx, setPickerLineaIdx] = useState(null);
+  const [nuevoItemLineaIdx, setNuevoItemLineaIdx] = useState(null);
 
   const setLinea = (idx, campo) => (e) => {
     const valor = e.target.value;
     setLineas((ls) => ls.map((l, i) => (i === idx ? { ...l, [campo]: valor } : l)));
   };
+  const setLineaItem = (idx, itemId) => {
+    setLineas((ls) => ls.map((l, i) => (i === idx ? { ...l, itemAlmacenId: itemId } : l)));
+  };
   const agregarLinea = () => setLineas((ls) => [...ls, { ...LINEA_VACIA }]);
   const quitarLinea = (idx) => setLineas((ls) => ls.filter((_, i) => i !== idx));
+
+  const handleCrearItemInline = async (payload) => {
+    const nuevo = await onCrearItem(payload);
+    setLineaItem(nuevoItemLineaIdx, String(nuevo.id));
+    setNuevoItemLineaIdx(null);
+  };
 
   const total = lineas.reduce((s, l) => s + (Number(l.cantidad) || 0) * (Number(l.precioUnitario) || 0), 0);
 
@@ -408,8 +565,12 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
       setError("Agrega al menos un ítem con cantidad.");
       return;
     }
-    if (tipo === "SALIDA" && !clienteId && !proyectoKey) {
-      setError("Indica un cliente y/o un proyecto.");
+    if (tipo === "SALIDA" && !proyectoKey) {
+      setError("Toda salida debe estar anexada a un proyecto.");
+      return;
+    }
+    if (tipo === "ENTRADA" && !notas.trim()) {
+      setError("Indica el N° de guía, factura o comprobante de esta entrada.");
       return;
     }
     setSaving(true);
@@ -419,7 +580,7 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
         ordenServicio: ordenServicio || undefined,
         clienteId: tipo === "SALIDA" && clienteId ? Number(clienteId) : undefined,
         ...(tipo === "SALIDA" ? resolverProyectoPayload(proyectoKey, proyectoOptions) : {}),
-        notas: notas || undefined,
+        notas: notas.trim() || undefined,
         items: lineasValidas.map((l) => ({
           itemAlmacenId: Number(l.itemAlmacenId),
           cantidad: Number(l.cantidad),
@@ -459,6 +620,9 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
 
           {tipo === "SALIDA" && (
             <div className={styles.formRow}>
+              <F label="Proyecto">
+                <SelectorProyecto value={proyectoKey} onChange={(e) => setProyectoKey(e.target.value)} opciones={proyectoOptions} />
+              </F>
               <F label="Cliente" optional>
                 <select value={clienteId} onChange={(e) => setClienteId(e.target.value)}>
                   <option value="">Sin cliente directo</option>
@@ -466,9 +630,6 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
                     <option key={c.id} value={c.id}>{c.nombreComercial}</option>
                   ))}
                 </select>
-              </F>
-              <F label="Proyecto" optional>
-                <SelectorProyecto value={proyectoKey} onChange={(e) => setProyectoKey(e.target.value)} opciones={proyectoOptions} />
               </F>
             </div>
           )}
@@ -479,14 +640,7 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
                 const itemSel = items.find((i) => String(i.id) === String(l.itemAlmacenId));
                 return (
                   <div key={idx} className={styles.lineaRow}>
-                    <select value={l.itemAlmacenId} onChange={setLinea(idx, "itemAlmacenId")}>
-                      <option value="">Selecciona un ítem</option>
-                      {items.map((i) => (
-                        <option key={i.id} value={i.id}>
-                          [{EMPRESA_CORTA[i.empresa]}] {i.codigo} — {i.nombre}{tipo === "SALIDA" ? ` (stock: ${i.stockActual})` : ""}
-                        </option>
-                      ))}
-                    </select>
+                    <ItemPickerTrigger itemSel={itemSel} onOpen={() => setPickerLineaIdx(idx)} />
                     <input
                       type="number" min="0.01" step="0.01" placeholder="Cant."
                       value={l.cantidad} onChange={setLinea(idx, "cantidad")}
@@ -510,8 +664,12 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
 
           {total > 0 && <p className={styles.totalPreview}>Total: {fmtMoney(total)}</p>}
 
-          <F label="Notas" optional>
-            <input value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Referencia, motivo, etc." />
+          <F label="Notas" optional={tipo !== "ENTRADA"}>
+            <input
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+              placeholder={tipo === "ENTRADA" ? "N° de guía, factura o comprobante" : "Referencia, motivo, etc."}
+            />
           </F>
 
           <div className={styles.formActions}>
@@ -522,6 +680,20 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
           </div>
         </form>
       </div>
+
+      {pickerLineaIdx !== null && (
+        <ItemPickerModal
+          items={items}
+          tipo={tipo}
+          onSelect={(i) => { setLineaItem(pickerLineaIdx, String(i.id)); setPickerLineaIdx(null); }}
+          onClose={() => setPickerLineaIdx(null)}
+          onCrearNuevo={tipo === "ENTRADA" ? () => { setNuevoItemLineaIdx(pickerLineaIdx); setPickerLineaIdx(null); } : undefined}
+        />
+      )}
+
+      {nuevoItemLineaIdx !== null && (
+        <ItemFormModal onSave={handleCrearItemInline} onCancel={() => setNuevoItemLineaIdx(null)} />
+      )}
     </div>
   );
 }
@@ -581,7 +753,6 @@ export default function Almacen() {
   const [filtroTipoStock, setFiltroTipoStock] = useState("");
   const [filtroEmpresa, setFiltroEmpresa] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
-  const [showItem, setShowItem] = useState(false);
   const [showEntrada, setShowEntrada] = useState(false);
   const [showSalida, setShowSalida] = useState(false);
   const [showOrden, setShowOrden] = useState(false);
@@ -641,10 +812,14 @@ export default function Almacen() {
       i.departamento?.toLowerCase().includes(q);
   });
 
-  const handleCrearItem = async (payload) => {
-    await crearItemAlmacen(payload);
-    setShowItem(false);
+  // Crear un ítem nuevo ya no es una acción aparte — vive dentro del flujo
+  // de Entradas (single o por línea de Orden): crea el ítem, refresca el
+  // catálogo en segundo plano, y devuelve el ítem para que el formulario que
+  // lo llamó lo deje seleccionado de una.
+  const handleCrearItemInline = async (payload) => {
+    const nuevo = await crearItemAlmacen(payload);
     cargarTodo();
+    return nuevo;
   };
 
   const handleEntrada = async (payload) => {
@@ -694,11 +869,6 @@ export default function Almacen() {
         </div>
         <div className={styles.headerActions}>
           <button className={styles.btnOutline} onClick={cargarTodo} title="Actualizar"><RefreshCw size={16} /></button>
-          {isAdmin && (
-            <button className={styles.btnOutline} onClick={() => setShowItem(true)}>
-              <PackagePlus size={16} /> Nuevo ítem
-            </button>
-          )}
           {isAdmin && (
             <button className={styles.btnOutline} onClick={() => setShowEntrada(true)}>
               <Plus size={16} /> Entrada
@@ -982,15 +1152,12 @@ export default function Almacen() {
         </div>
       )}
 
-      {showItem && (
-        <ItemFormModal onSave={handleCrearItem} onCancel={() => setShowItem(false)} />
-      )}
-
       {showEntrada && (
         <EntradaFormModal
           items={items.filter((i) => i.activo)}
           onSave={handleEntrada}
           onCancel={() => setShowEntrada(false)}
+          onCrearItem={handleCrearItemInline}
         />
       )}
 
@@ -1012,6 +1179,7 @@ export default function Almacen() {
           soloSalida={!isAdmin}
           onSave={handleCrearOrden}
           onCancel={() => setShowOrden(false)}
+          onCrearItem={handleCrearItemInline}
         />
       )}
 

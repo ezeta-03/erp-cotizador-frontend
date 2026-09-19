@@ -5,6 +5,13 @@ export const getProyectos = async (params) => {
   return data;
 };
 
+// Un Proyecto puede crearse en cualquier momento, sin depender de una
+// cotización — a la par de ellas, no como consecuencia de aprobar una.
+export const crearProyecto = async (payload) => {
+  const { data } = await api.post("/proyectos", payload);
+  return data;
+};
+
 export const getProyecto = async (id) => {
   const { data } = await api.get(`/proyectos/${id}`);
   return data;
