@@ -6,7 +6,7 @@ import {
 import useAuth from "../auth/useAuth";
 import {
   getItemsAlmacen, crearItemAlmacen,
-  getMovimientos, registrarEntrada, registrarSalida,
+  getMovimientos, registrarSalida,
   getOrdenes, crearOrdenAlmacen, descargarOrdenPdf,
   getSolicitudes, aprobarSolicitud, rechazarSolicitud,
 } from "../api/almacen";
@@ -45,7 +45,6 @@ const ITEM_VACIO = {
   codigo: "", nombre: "", tipo: "INSUMO", empresa: "BTL_OUTDOOR", categoria: "", unidad: "",
   ubicacion: "", stockMinimo: "", stockMaximo: "", costoUnitario: "", proveedorNombre: "",
 };
-const ENTRADA_VACIA = { productoId: "", cantidad: "", precioUnitario: "", notas: "" };
 const SALIDA_VACIA  = { productoId: "", clienteId: "", proyectoKey: "", cantidad: "", precioUnitario: "", precioFacturado: "", notas: "" };
 
 // Un proyecto puede vivir solo como Proyecto interno del ERP, solo en
@@ -364,108 +363,6 @@ function ItemFormModal({ onSave, onCancel }) {
   );
 }
 
-/* ── Modal: registrar entrada (compra, o ingreso de producto terminado) ──── */
-function EntradaFormModal({ items, onSave, onCancel, onCrearItem }) {
-  const [form, setForm] = useState(ENTRADA_VACIA);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [showPicker, setShowPicker] = useState(false);
-  const [showNuevoItem, setShowNuevoItem] = useState(false);
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const itemSel = items.find((i) => String(i.id) === String(form.productoId));
-
-  const handleCrearItemInline = async (payload) => {
-    const nuevo = await onCrearItem(payload);
-    setForm((f) => ({ ...f, productoId: nuevo.id }));
-    setShowNuevoItem(false);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    if (!form.productoId || !form.cantidad || form.precioUnitario === "") {
-      setError("Ítem, cantidad y precio costo son obligatorios.");
-      return;
-    }
-    if (!form.notas.trim()) {
-      setError("Indica el N° de guía, factura o comprobante de esta entrada.");
-      return;
-    }
-    setSaving(true);
-    try {
-      await onSave({
-        productoId: Number(form.productoId),
-        cantidad: Number(form.cantidad),
-        precioUnitario: Number(form.precioUnitario),
-        notas: form.notas.trim(),
-      });
-    } catch (err) {
-      setError(err.response?.data?.message ?? "Error al registrar la entrada");
-      setSaving(false);
-    }
-  };
-
-  const total = form.cantidad && form.precioUnitario ? Number(form.cantidad) * Number(form.precioUnitario) : 0;
-
-  return (
-    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
-      <div className={styles.formModal}>
-        <div className={styles.formHeader}>
-          <h2 className={styles.formTitle}>Registrar entrada</h2>
-          <button className={styles.btnClose} onClick={onCancel}><X size={18} /></button>
-        </div>
-
-        <form className={styles.formBody} onSubmit={handleSubmit}>
-          {error && <p className={styles.formError}>{error}</p>}
-
-          <F label="Ítem">
-            <ItemPickerTrigger itemSel={itemSel} onOpen={() => setShowPicker(true)} />
-            {itemSel?.proveedorNombre && (
-              <span className={styles.finCalculado}>Proveedor habitual: {itemSel.proveedorNombre}</span>
-            )}
-          </F>
-
-          <div className={styles.formRow}>
-            <F label={`Cantidad${itemSel?.unidad ? ` (${itemSel.unidad})` : ""}`}>
-              <input type="number" min="0.01" step="0.01" value={form.cantidad} onChange={set("cantidad")} placeholder="100" />
-            </F>
-            <F label="Precio costo (S/)">
-              <input type="number" min="0" step="0.01" value={form.precioUnitario} onChange={set("precioUnitario")} placeholder="8.00" />
-            </F>
-          </div>
-
-          {total > 0 && <p className={styles.totalPreview}>Total: {fmtMoney(total)}</p>}
-
-          <F label="N° de guía / factura / comprobante">
-            <input value={form.notas} onChange={set("notas")} placeholder="Ej. F001-00123" />
-          </F>
-
-          <div className={styles.formActions}>
-            <button type="button" className={styles.btnOutline} onClick={onCancel}>Cancelar</button>
-            <button type="submit" className={styles.btnPrimary} disabled={saving}>
-              {saving ? "Guardando…" : "Registrar entrada"}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {showPicker && (
-        <ItemPickerModal
-          items={items}
-          tipo="ENTRADA"
-          onSelect={(i) => { setForm((f) => ({ ...f, productoId: i.id })); setShowPicker(false); }}
-          onClose={() => setShowPicker(false)}
-          onCrearNuevo={() => { setShowPicker(false); setShowNuevoItem(true); }}
-        />
-      )}
-
-      {showNuevoItem && (
-        <ItemFormModal onSave={handleCrearItemInline} onCancel={() => setShowNuevoItem(false)} />
-      )}
-    </div>
-  );
-}
-
 /* ── Modal: registrar salida (venta / consumo de proyecto) ────────────── */
 function SalidaFormModal({ items, clientes, proyectoOptions, onSave, onCancel }) {
   const [form, setForm] = useState(SALIDA_VACIA);
@@ -576,9 +473,14 @@ function SalidaFormModal({ items, clientes, proyectoOptions, onSave, onCancel })
 const LINEA_VACIA = { itemAlmacenId: "", cantidad: "", precioUnitario: "" };
 const lineaDeItem = (item) => ({ itemAlmacenId: String(item.id), cantidad: "1", precioUnitario: "" });
 
-/* ── Modal: nueva orden (varias líneas, imprimible en PDF) ────────────────── */
-function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, onCancel, onCrearItem }) {
-  const [tipo, setTipo] = useState("SALIDA");
+/* ── Modal: nueva orden / registrar entrada (varias líneas, como armar una
+   cotización: primero el comprobante o los datos de cabecera, luego se
+   eligen uno o varios ítems, y recién ahí se guarda) ─────────────────────
+   Con `tipoFijo="ENTRADA"` este mismo formulario es el que abre el botón
+   "Entrada" — una entrada también puede traer varios ítems bajo un solo
+   comprobante, no tiene sentido que fuera de un solo ítem nada más. ────── */
+function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, tipoFijo, onSave, onCancel, onCrearItem }) {
+  const [tipo, setTipo] = useState(tipoFijo || "SALIDA");
   const [ordenServicio, setOrdenServicio] = useState("");
   const [clienteId, setClienteId] = useState("");
   const [proyectoKey, setProyectoKey] = useState("");
@@ -654,26 +556,30 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onCancel()}>
       <div className={styles.formModal} style={{ maxWidth: 640 }}>
         <div className={styles.formHeader}>
-          <h2 className={styles.formTitle}>Nueva orden de almacén</h2>
+          <h2 className={styles.formTitle}>{tipoFijo === "ENTRADA" ? "Registrar entrada" : "Nueva orden de almacén"}</h2>
           <button className={styles.btnClose} onClick={onCancel}><X size={18} /></button>
         </div>
 
         <form className={styles.formBody} onSubmit={handleSubmit}>
           {error && <p className={styles.formError}>{error}</p>}
 
-          <div className={styles.formRow}>
-            {!soloSalida && (
-              <F label="Tipo">
-                <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-                  <option value="SALIDA">Salida</option>
-                  <option value="ENTRADA">Entrada</option>
-                </select>
-              </F>
-            )}
-            <F label="Orden de servicio" optional>
-              <input value={ordenServicio} onChange={(e) => setOrdenServicio(e.target.value)} placeholder="Ej. OS-2026-001" />
-            </F>
-          </div>
+          {(!tipoFijo || tipo === "SALIDA") && (
+            <div className={styles.formRow}>
+              {!soloSalida && !tipoFijo && (
+                <F label="Tipo">
+                  <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                    <option value="SALIDA">Salida</option>
+                    <option value="ENTRADA">Entrada</option>
+                  </select>
+                </F>
+              )}
+              {tipo === "SALIDA" && (
+                <F label="Orden de servicio" optional>
+                  <input value={ordenServicio} onChange={(e) => setOrdenServicio(e.target.value)} placeholder="Ej. OS-2026-001" />
+                </F>
+              )}
+            </div>
+          )}
 
           {tipo === "SALIDA" && (
             <div className={styles.formRow}>
@@ -691,7 +597,15 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
             </div>
           )}
 
-          <F label="Ítems de la orden">
+          {/* El comprobante va primero, como el número de cotización antes de
+              elegir productos: sin él no tiene caso ni empezar a listar ítems. */}
+          {tipo === "ENTRADA" && (
+            <F label="N° de guía / factura / comprobante">
+              <input value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Ej. F001-00123" />
+            </F>
+          )}
+
+          <F label={tipoFijo === "ENTRADA" ? "Ítems" : "Ítems de la orden"}>
             {lineas.length === 0 ? (
               <p className={styles.empty}>Agrega ítems para empezar.</p>
             ) : (
@@ -725,18 +639,16 @@ function OrdenFormModal({ items, clientes, proyectoOptions, soloSalida, onSave, 
 
           {total > 0 && <p className={styles.totalPreview}>Total: {fmtMoney(total)}</p>}
 
-          <F label="Notas" optional={tipo !== "ENTRADA"}>
-            <input
-              value={notas}
-              onChange={(e) => setNotas(e.target.value)}
-              placeholder={tipo === "ENTRADA" ? "N° de guía, factura o comprobante" : "Referencia, motivo, etc."}
-            />
-          </F>
+          {tipo === "SALIDA" && (
+            <F label="Notas" optional>
+              <input value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Referencia, motivo, etc." />
+            </F>
+          )}
 
           <div className={styles.formActions}>
             <button type="button" className={styles.btnOutline} onClick={onCancel}>Cancelar</button>
             <button type="submit" className={styles.btnPrimary} disabled={saving}>
-              {saving ? "Guardando…" : "Crear orden"}
+              {saving ? "Guardando…" : tipoFijo === "ENTRADA" ? "Registrar entrada" : "Crear orden"}
             </button>
           </div>
         </form>
@@ -906,21 +818,18 @@ export default function Almacen() {
     return nuevo;
   };
 
-  const handleEntrada = async (payload) => {
-    await registrarEntrada(payload);
-    setShowEntrada(false);
-    cargarTodo();
-  };
-
   const handleSalida = async (payload) => {
     await registrarSalida(payload);
     setShowSalida(false);
     cargarTodo();
   };
 
-  const handleCrearOrden = async (payload) => {
+  // Compartido entre "Entrada" y "Nueva orden" — ambas son, por dentro, el
+  // mismo tipo de documento con una o varias líneas; solo cambia qué modal
+  // hay que cerrar al terminar.
+  const handleCrearOrden = async (payload, cerrar) => {
     const orden = await crearOrdenAlmacen(payload);
-    setShowOrden(false);
+    cerrar();
     cargarTodo();
     try { await descargarOrdenPdf(orden.id, token); } catch { /* la orden ya quedó creada igual */ }
   };
@@ -1257,9 +1166,12 @@ export default function Almacen() {
       )}
 
       {showEntrada && (
-        <EntradaFormModal
+        <OrdenFormModal
           items={items.filter((i) => i.activo)}
-          onSave={handleEntrada}
+          clientes={clientes}
+          proyectoOptions={proyectoOptions}
+          tipoFijo="ENTRADA"
+          onSave={(payload) => handleCrearOrden(payload, () => setShowEntrada(false))}
           onCancel={() => setShowEntrada(false)}
           onCrearItem={handleCrearItemInline}
         />
@@ -1281,7 +1193,7 @@ export default function Almacen() {
           clientes={clientes}
           proyectoOptions={proyectoOptions}
           soloSalida={!isAdmin}
-          onSave={handleCrearOrden}
+          onSave={(payload) => handleCrearOrden(payload, () => setShowOrden(false))}
           onCancel={() => setShowOrden(false)}
           onCrearItem={handleCrearItemInline}
         />
