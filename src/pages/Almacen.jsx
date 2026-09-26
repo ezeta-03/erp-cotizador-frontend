@@ -27,7 +27,13 @@ const TIPO_LABEL = {
   PRODUCTO_TERMINADO: "Producto terminado",
   HERRAMIENTA: "Herramienta",
   MAQUINARIA_EQUIPO: "Maquinaria y equipo",
+  MUEBLE_ENSER: "Mueble y enser",
 };
+// Valor del inventario = stock × costo unitario, igual que la columna
+// "VALOR DEL INVENTARIO" del Excel.
+const valorInventario = (lista) => lista.reduce((s, i) => s + (i.stockActual || 0) * (i.costoUnitario || 0), 0);
+const stockBajo = (i) => i.stockMinimo > 0 && i.stockActual <= i.stockMinimo;
+
 const EMPRESA_LABEL = { BTL_OUTDOOR: "BTL / Outdoor", NETWISE: "Netwise" };
 const EMPRESA_CORTA = { BTL_OUTDOOR: "BTL", NETWISE: "Netwise" };
 
@@ -43,7 +49,7 @@ function F({ label, children, optional }) {
 
 const ITEM_VACIO = {
   codigo: "", nombre: "", tipo: "INSUMO", empresa: "BTL_OUTDOOR", categoria: "", unidad: "",
-  ubicacion: "", stockMinimo: "", stockMaximo: "", costoUnitario: "", proveedorNombre: "",
+  ubicacion: "", stockMinimo: "", stockMaximo: "", costoUnitario: "", proveedorNombre: "", observaciones: "",
 };
 const SALIDA_VACIA  = { productoId: "", clienteId: "", proyectoKey: "", cantidad: "", precioUnitario: "", precioFacturado: "", notas: "" };
 
@@ -103,7 +109,7 @@ function ItemPickerTrigger({ itemSel, onOpen, placeholder }) {
   );
 }
 
-const ORDEN_TIPOS_ITEM = ["INSUMO", "PRODUCTO_TERMINADO", "HERRAMIENTA", "MAQUINARIA_EQUIPO"];
+const ORDEN_TIPOS_ITEM = ["INSUMO", "PRODUCTO_TERMINADO", "HERRAMIENTA", "MAQUINARIA_EQUIPO", "MUEBLE_ENSER"];
 
 /* ── Modal: buscar ítems escribiendo, eligiendo o por Tipo (igual que el
    buscador de Productos BTL en Cotizaciones, pero sobre el catálogo de
@@ -277,6 +283,7 @@ function ItemFormModal({ onSave, onCancel }) {
         stockMaximo: form.stockMaximo || undefined,
         costoUnitario: form.costoUnitario || undefined,
         proveedorNombre: form.proveedorNombre || undefined,
+        observaciones: form.observaciones || undefined,
       });
     } catch (err) {
       setError(err.response?.data?.message ?? "Error al crear el ítem");
@@ -308,6 +315,7 @@ function ItemFormModal({ onSave, onCancel }) {
                 <option value="PRODUCTO_TERMINADO">Producto terminado</option>
                 <option value="HERRAMIENTA">Herramienta</option>
                 <option value="MAQUINARIA_EQUIPO">Maquinaria y equipo</option>
+                <option value="MUEBLE_ENSER">Mueble y enser</option>
               </select>
             </F>
           </div>
@@ -349,6 +357,10 @@ function ItemFormModal({ onSave, onCancel }) {
 
           <F label="Proveedor habitual" optional>
             <input value={form.proveedorNombre} onChange={set("proveedorNombre")} placeholder="Nombre del proveedor" />
+          </F>
+
+          <F label="Observaciones" optional>
+            <input value={form.observaciones} onChange={set("observaciones")} placeholder="Ej. casi nuevo, 1 dañado…" />
           </F>
 
           <div className={styles.formActions}>
@@ -857,7 +869,7 @@ export default function Almacen() {
         <div>
           <h1 className={styles.title}>Almacén</h1>
           <p className={styles.subtitle}>
-            {loading ? "Cargando…" : `${items.length} ítem${items.length !== 1 ? "s" : ""} en catálogo`}
+            {loading ? "Cargando…" : `${items.length} ítem${items.length !== 1 ? "s" : ""} en catálogo · Valor del inventario ${fmtMoney(valorInventario(items))}`}
           </p>
         </div>
         <div className={styles.headerActions}>
@@ -944,6 +956,7 @@ export default function Almacen() {
               <option value="PRODUCTO_TERMINADO">Productos terminados</option>
               <option value="HERRAMIENTA">Herramientas</option>
               <option value="MAQUINARIA_EQUIPO">Maquinaria y equipo</option>
+              <option value="MUEBLE_ENSER">Muebles y enseres</option>
             </select>
             {/* Categorías en un desplegable (antes eran chips y con ~90
                 categorías ocupaban media pantalla). Si la categoría elegida
@@ -965,7 +978,7 @@ export default function Almacen() {
             ) : itemsFiltrados.length === 0 ? (
               <p className={styles.empty}>No hay ítems que coincidan.</p>
             ) : (
-              <table className={styles.table}>
+              <table className={`${styles.table} ${styles.tablaStock}`}>
                 <thead>
                   <tr>
                     <th>Código</th>
@@ -973,8 +986,14 @@ export default function Almacen() {
                     <th>Empresa</th>
                     <th>Tipo</th>
                     <th>Categoría</th>
+                    <th>Ubicación</th>
                     <th>Unidad</th>
-                    <th>Stock actual</th>
+                    <th className={styles.num}>Stock actual</th>
+                    <th className={styles.num} title="Stock mínimo / máximo">Mín / Máx</th>
+                    <th className={styles.num}>Costo unit.</th>
+                    <th className={styles.num}>Valor</th>
+                    <th>Proveedor</th>
+                    <th>Observaciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -989,15 +1008,35 @@ export default function Almacen() {
                         </span>
                       </td>
                       <td>{i.categoria}</td>
+                      <td>{i.ubicacion || "—"}</td>
                       <td>{i.unidad || "—"}</td>
-                      <td>
-                        <span className={`${styles.stockBadge} ${i.stockActual <= 0 ? styles.stockBadgeVacio : ""}`}>
+                      <td className={styles.num}>
+                        <span
+                          className={`${styles.stockBadge} ${i.stockActual <= 0 ? styles.stockBadgeVacio : stockBajo(i) ? styles.stockBadgeBajo : ""}`}
+                          title={stockBajo(i) && i.stockActual > 0 ? "Por debajo del stock mínimo" : undefined}
+                        >
                           {i.stockActual}
                         </span>
                       </td>
+                      <td className={`${styles.num} ${styles.tenue}`}>
+                        {i.stockMinimo || i.stockMaximo ? `${i.stockMinimo} / ${i.stockMaximo}` : "—"}
+                      </td>
+                      <td className={styles.num}>{i.costoUnitario ? fmtMoney(i.costoUnitario) : "—"}</td>
+                      <td className={styles.num}>{i.costoUnitario ? fmtMoney(i.stockActual * i.costoUnitario) : "—"}</td>
+                      <td>{i.proveedorNombre || "—"}</td>
+                      <td className={styles.observaciones} title={i.observaciones || undefined}>{i.observaciones || "—"}</td>
                     </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colSpan={10}>
+                      Valor de los {itemsFiltrados.length} ítem{itemsFiltrados.length !== 1 ? "s" : ""} mostrados
+                    </td>
+                    <td className={styles.num}>{fmtMoney(valorInventario(itemsFiltrados))}</td>
+                    <td colSpan={2} />
+                  </tr>
+                </tfoot>
               </table>
             )}
           </div>
