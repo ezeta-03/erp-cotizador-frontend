@@ -1,0 +1,91 @@
+@use "../styles/_ui.scss" as *;
+
+.body {
+  padding: 1.25rem 1.5rem;
+  overflow-y: auto;
+}
+
+.formError {
+  margin: 0 0 1rem;
+  padding: 0.7rem 1rem;
+  border-radius: $radius-sm;
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--color-text3);
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  th {
+    text-align: left;
+    padding: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text3);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  td {
+    padding: 0.3rem 0.4rem;
+    border-bottom: 1px solid var(--color-border2);
+    color: var(--color-text1);
+  }
+
+  input:not([type="checkbox"]), select {
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--color-input-border);
+    border-radius: $radius-sm;
+    background: var(--color-input-bg);
+    color: var(--color-text1);
+    font: inherit;
+    outline: none;
+
+    &:focus { border-color: var(--color-accent); }
+  }
+
+  select option, select optgroup {
+    background-color: var(--color-surface2);
+    color: var(--color-text1);
+  }
+}
+
+.filaCategoria td {
+  padding-top: 1rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-accent);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inactiva td { opacity: 0.5; }
+
+.centro { text-align: center; }
+
+.precioEnlazado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 700;
+  color: var(--badge-green-text);
+  white-space: nowrap;
+}
+
+.celdaAgregar {
+  border-bottom: none !important;
+  .btnGhost { padding: 0.35rem 0.6rem; font-size: 0.8rem; }
+}

@@ -1,9 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import { X, Briefcase, ClipboardList, Boxes, Plus } from "lucide-react";
+import { X, Briefcase, ClipboardList, Boxes, Plus, Calculator, ListChecks } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import { getProyectos, getProyecto, actualizarProyecto, getProyectosExternos, crearProyecto } from "../api/proyectos";
 import { getUsuarios } from "../api/usuarios";
 import { getClientes } from "../api/clientes";
+import PresupuestoProyectoModal from "./PresupuestoProyectoModal";
+import CatalogoPartidasModal from "./CatalogoPartidasModal";
 import styles from "./proyectos.module.scss";
 
 const ESTADO_LABEL = {
@@ -39,11 +41,12 @@ const fmtFecha = (iso) => {
 };
 
 /* ── Modal de detalle: responsables, comparación proyectado/asignado, y qué salió del Almacén ── */
-function ProyectoDetalleModal({ proyectoId, isAdmin, usuarios, onClose, onActualizado }) {
+function ProyectoDetalleModal({ proyectoId, isAdmin, puedePresupuestar, usuarios, onClose, onActualizado }) {
   const [proyecto, setProyecto] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [form, setForm] = useState(null);
   const [guardando, setGuardando] = useState(false);
+  const [verPresupuesto, setVerPresupuesto] = useState(false);
 
   useEffect(() => {
     let activo = true;
@@ -181,15 +184,30 @@ function ProyectoDetalleModal({ proyectoId, isAdmin, usuarios, onClose, onActual
           )}
         </div>
 
-        {isAdmin && proyecto && (
+        {proyecto && (
           <div className={styles.wizardActions}>
-            <button className={styles.btnOutline} onClick={onClose}>Cerrar</button>
-            <button className={styles.btnPrimary} onClick={handleGuardar} disabled={guardando}>
-              {guardando ? "Guardando…" : "Guardar cambios"}
+            <button className={styles.btnOutline} style={{ marginRight: "auto" }} onClick={() => setVerPresupuesto(true)}>
+              <Calculator size={16} /> Presupuesto
             </button>
+            {isAdmin && (
+              <>
+                <button className={styles.btnOutline} onClick={onClose}>Cerrar</button>
+                <button className={styles.btnPrimary} onClick={handleGuardar} disabled={guardando}>
+                  {guardando ? "Guardando…" : "Guardar cambios"}
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>
+
+      {verPresupuesto && (
+        <PresupuestoProyectoModal
+          proyectoId={proyectoId}
+          puedeEditar={puedePresupuestar}
+          onClose={() => setVerPresupuesto(false)}
+        />
+      )}
     </div>
   );
 }
@@ -392,6 +410,7 @@ export default function Proyectos() {
   const [clientes, setClientes] = useState([]);
   const [detalleId, setDetalleId] = useState(null);
   const [showNuevo, setShowNuevo] = useState(false);
+  const [showCatalogo, setShowCatalogo] = useState(false);
 
   const cargarErp = useCallback(async () => {
     setLoadingErp(true);
@@ -448,6 +467,11 @@ export default function Proyectos() {
         </div>
         {puedeCrear && (
           <div className={styles.headerActions}>
+            {isAdmin && (
+              <button className={styles.btnOutline} onClick={() => setShowCatalogo(true)}>
+                <ListChecks size={16} /> Catálogo de presupuesto
+              </button>
+            )}
             <button className={styles.btnPrimary} onClick={() => setShowNuevo(true)}>
               <Plus size={16} /> Nuevo proyecto
             </button>
@@ -474,11 +498,14 @@ export default function Proyectos() {
         <ProyectoDetalleModal
           proyectoId={detalleId}
           isAdmin={isAdmin}
+          puedePresupuestar={puedeCrear}
           usuarios={usuarios}
           onClose={() => setDetalleId(null)}
           onActualizado={() => { cargarErp(); cargarExternos(); }}
         />
       )}
+
+      {showCatalogo && <CatalogoPartidasModal onClose={() => setShowCatalogo(false)} />}
 
       {showNuevo && (
         <ProyectoFormModal

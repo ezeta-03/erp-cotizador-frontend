@@ -28,3 +28,26 @@ export const getProyectosExternos = async () => {
   const { data } = await api.get("/proyectos/externos");
   return data;
 };
+
+// Presupuesto y control de costos del proyecto. Si todavía no se guardó,
+// el backend devuelve un borrador armado desde el catálogo (guardado: false).
+export const getPresupuestoProyecto = async (id) => {
+  const { data } = await api.get(`/proyectos/${id}/presupuesto`);
+  return data;
+};
+
+export const guardarPresupuestoProyecto = async (id, payload) => {
+  const { data } = await api.put(`/proyectos/${id}/presupuesto`, payload);
+  return data;
+};
+
+// Catálogo de partidas que aparecen precargadas en cada presupuesto nuevo.
+export const getPartidasPresupuesto = async () => {
+  const { data } = await api.get("/proyectos/partidas-presupuesto");
+  return data;
+};
+
+export const guardarPartidasPresupuesto = async (partidas) => {
+  const { data } = await api.put("/proyectos/partidas-presupuesto", { partidas });
+  return data;
+};

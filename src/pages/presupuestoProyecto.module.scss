@@ -1,0 +1,307 @@
+@use "../styles/_ui.scss" as *;
+
+// La hoja replica el Excel "Presupuesto y control de costos — BTL &
+// Producción" tal cual, así que usa sus propios colores (no los del tema):
+// se ve igual en modo claro/oscuro y al imprimirla.
+$verde-oscuro: #1f3a2d;
+$verde:        #1fa37a;
+$menta:        #e1f3ec;
+$celeste:      #eaf2fb;
+$amarillo:     #fff5c7;
+$azul-texto:   #1d3fd8;
+$borde:        #1f1f1f;
+$texto:        #111;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: $z-modal + 10; // sobre el modal de detalle del proyecto
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 960px;
+  height: 94vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-modal);
+}
+
+.barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+
+  h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--color-text1); }
+}
+
+.barraSub { margin: 0.2rem 0 0; font-size: 0.82rem; color: var(--color-text3); }
+
+.barraAcciones {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  .btnOutline, .btnPrimary { padding: 0.6rem 1rem; }
+  .btnClose { margin-left: 0.25rem; }
+}
+
+.aviso { font-size: 0.82rem; font-weight: 700; color: var(--badge-green-text); }
+
+.scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 1.5rem;
+  background: var(--color-surface2);
+}
+
+.error {
+  margin: 0 auto 1rem;
+  max-width: 820px;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.cargando { text-align: center; color: var(--color-text3); padding: 3rem; }
+
+/* ── La hoja ── */
+.hoja {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  background: #fff;
+  color: $texto;
+  font-family: "Century Gothic", "Futura", "Trebuchet MS", system-ui, sans-serif;
+  font-size: 0.82rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+  input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    padding: 0.15rem 0.2rem;
+    outline: none;
+    border-radius: 2px;
+
+    &:focus { box-shadow: inset 0 0 0 2px $verde; background: #fff; }
+    &:disabled { color: inherit; -webkit-text-fill-color: $texto; opacity: 1; }
+    &::placeholder { color: #9aa3ad; }
+    &[type="number"] { -moz-appearance: textfield; }
+    &::-webkit-outer-spin-button, &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  }
+}
+
+.bloque {
+  border: 1px solid $borde;
+  margin-bottom: 0.75rem;
+}
+
+.tituloPrincipal {
+  background: $verde-oscuro;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  padding: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.tituloSeccion {
+  background: $verde;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  padding: 0.35rem;
+}
+
+.bandaVerde { background: $verde; height: 2.4rem; border-bottom: 1px solid $borde; }
+
+.datos {
+  display: grid;
+  grid-template-columns: auto 1fr auto 11rem;
+  align-items: center;
+  column-gap: 0.4rem;
+  row-gap: 0.15rem;
+  padding: 0.35rem 0.25rem;
+
+  label { font-weight: 700; white-space: nowrap; }
+  > span { padding: 0.15rem 0.2rem; }
+  label:nth-of-type(even) { margin-left: 1.5rem; }
+}
+
+/* ── Tabla de costos ── */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+
+  td {
+    border: 1px solid $borde;
+    padding: 0.1rem 0.2rem;
+    height: 1.9rem;
+    vertical-align: middle;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  tr > td:first-child { border-left: none; }
+  tr > td:last-child { border-right: none; }
+}
+
+.colDesc   { width: 34%; }
+.colUnidad { width: 15%; }
+.colCant   { width: 17%; }
+.colPrecio { width: 17%; }
+.colTotal  { width: 17%; }
+.colAccion { width: 2.2rem; }
+
+.filaCategoria td {
+  background: $menta;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.celdaInput { background: $celeste; }
+
+.celdaAccion { text-align: center; padding: 0 !important; }
+
+.btnQuitar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
+  border: none;
+  background: transparent;
+  color: #9aa3ad;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover { color: #dc2626; background: #fef2f2; }
+}
+
+.celdaAgregar { padding: 0.15rem 0.3rem !important; height: auto !important; background: #fafafa; }
+
+.btnAgregar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: none;
+  background: transparent;
+  color: $verde;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.2rem 0.3rem;
+  border-radius: 4px;
+  &:hover { background: $menta; }
+}
+
+.filaTotal td {
+  background: $verde;
+  color: #fff;
+  font-weight: 700;
+  padding-left: 1.2rem;
+  height: 2.3rem;
+}
+
+.centro { text-align: center; }
+.derecha { text-align: right; }
+
+// "S/" pegado a la izquierda y el monto a la derecha, como el formato
+// contable del Excel.
+.monto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  width: 100%;
+
+  input { text-align: right; }
+}
+
+/* ── Rentabilidad ── */
+.rentabilidad {
+  .tituloPrincipal { padding: 0.8rem; }
+}
+
+.filaRent {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  border-top: 1px solid $borde;
+  background: $menta;
+  font-weight: 700;
+  color: $verde-oscuro;
+
+  &:first-child { border-top: none; }
+
+  > span { padding: 0.65rem 1.2rem; display: flex; align-items: center; }
+  > span:last-child { border-left: 1px solid $borde; }
+  > .centro { justify-content: center; }
+}
+
+.valorInput { background: $celeste; }
+
+.celdaMargen {
+  justify-content: center;
+  gap: 0.2rem;
+  color: $texto;
+  font-size: 1rem;
+
+  input { width: 6rem; text-align: right; font-size: 1rem; font-weight: 700; }
+}
+
+.filaNegociado {
+  background: $amarillo;
+  > span:last-child { color: $azul-texto; }
+  input { color: $azul-texto; font-weight: 700; &:disabled { -webkit-text-fill-color: $azul-texto; } }
+}
+
+/* ── Impresión / PDF: solo la hoja ── */
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+
+  // El modal vive en un portal directo del <body>; todo lo demás se oculta.
+  :global(body > *:not(.presupuesto-print-root)) { display: none !important; }
+  .noPrint { display: none !important; }
+
+  .overlay, .card, .scroll {
+    position: static;
+    display: block;
+    height: auto;
+    max-width: none;
+    overflow: visible;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .hoja {
+    max-width: none;
+    box-shadow: none;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .hoja input::placeholder { color: transparent; }
+  .bloque { break-inside: avoid; }
+}
