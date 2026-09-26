@@ -275,13 +275,22 @@ $texto:        #111;
   input { color: $azul-texto; font-weight: 700; &:disabled { -webkit-text-fill-color: $azul-texto; } }
 }
 
-/* ── Impresión / PDF: solo la hoja ── */
-@media print {
-  @page { size: A4 portrait; margin: 12mm; }
+.soloPrint { display: none; }
 
+/* ── Impresión / PDF: la hoja entera en una sola página A4 ──
+   Las alturas van en mm para que el alto total sea predecible; si el
+   presupuesto tiene más filas de las que entran, el componente calcula
+   --escala-impresion (< 1) y la hoja se reduce en proporción. */
+@media print {
+  // Margen 0: el navegador no agrega fecha/URL/paginado; el margen real lo
+  // pone el padding de la hoja.
+  @page { size: A4 portrait; margin: 0; }
+
+  :global(html), :global(body) { margin: 0; padding: 0; background: #fff; }
   // El modal vive en un portal directo del <body>; todo lo demás se oculta.
   :global(body > *:not(.presupuesto-print-root)) { display: none !important; }
   .noPrint { display: none !important; }
+  .soloPrint { display: inline; }
 
   .overlay, .card, .scroll {
     position: static;
@@ -294,14 +303,47 @@ $texto:        #111;
     border-radius: 0;
     box-shadow: none;
     backdrop-filter: none;
+    animation: none;
+    border: none;
+    margin: 0;
   }
+  // Sin esto el contenedor del portal suma unos px y el navegador genera una
+  // segunda página en blanco.
+  .overlay { height: 297mm; overflow: hidden; }
+  .error { display: none; }
+
   .hoja {
+    width: 210mm;
+    height: 296mm;
     max-width: none;
+    margin: 0;
+    padding: 12mm 14mm;
+    box-sizing: border-box;
+    overflow: hidden;
     box-shadow: none;
-    padding: 0;
+    font-size: 8pt;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+
+    > * { zoom: var(--escala-impresion, 1); }
+
+    input { padding: 0 1mm; }
+    input::placeholder { color: transparent; }
+    input::-webkit-calendar-picker-indicator { display: none; }
   }
-  .hoja input::placeholder { color: transparent; }
-  .bloque { break-inside: avoid; }
+
+  .bloque { margin-bottom: 4mm; break-inside: auto; }
+
+  .tituloPrincipal,
+  .rentabilidad .tituloPrincipal { padding: 0; height: 8mm; line-height: 8mm; font-size: 9pt; }
+  .tituloSeccion { padding: 0; height: 5.5mm; line-height: 5.5mm; }
+  .datos { padding: 1.5mm 1mm; row-gap: 0; > span, label { line-height: 5mm; } }
+  .bandaVerde { height: 4mm; }
+
+  .tabla td { height: 5mm; padding: 0 1.2mm; }
+  .filaCategoria td { font-size: 7.5pt; }
+  .filaTotal td { height: 6.5mm; padding-left: 4mm; }
+
+  .filaRent > span { padding: 0 4mm; height: 6.8mm; }
+  .celdaMargen, .celdaMargen input { font-size: 9pt; }
 }

@@ -131,6 +131,15 @@ export default function PresupuestoProyectoModal({ proyectoId, puedeEditar, onCl
 
   const soloLectura = !puedeEditar;
 
+  // Alto de la hoja impresa, en mm (ver @media print del .scss): partes fijas
+  // (datos, banda, total, rentabilidad y márgenes entre bloques) + 5 mm por
+  // fila de la tabla. Si no entra en el alto útil de la A4 (297 − 24 de
+  // padding), se reduce todo en proporción para que siga siendo una hoja.
+  const ALTO_FIJO_MM = 118;
+  const ALTO_UTIL_MM = 268;
+  const filasTabla = items.length + CATEGORIAS_PRESUPUESTO.length;
+  const escalaImpresion = Math.min(1, ALTO_UTIL_MM / (ALTO_FIJO_MM + filasTabla * 5));
+
   // Portal directo al <body>: al imprimir se oculta todo lo demás del body
   // (ver @media print), así el PDF sale solo con la hoja y sin páginas en blanco.
   return createPortal(
@@ -164,7 +173,7 @@ export default function PresupuestoProyectoModal({ proyectoId, puedeEditar, onCl
           {cargando || !cabecera ? (
             <p className={styles.cargando}>Cargando presupuesto…</p>
           ) : (
-            <div className={styles.hoja}>
+            <div className={styles.hoja} style={{ "--escala-impresion": escalaImpresion }}>
               {/* ── Datos del proyecto ── */}
               <div className={styles.bloque}>
                 <div className={styles.tituloPrincipal}>PRESUPUESTO Y CONTROL DE COSTOS — BTL &amp; PRODUCCIÓN</div>
@@ -173,7 +182,12 @@ export default function PresupuestoProyectoModal({ proyectoId, puedeEditar, onCl
                   <label>Cliente:</label>
                   <span>{proyecto?.cliente?.nombreComercial || "—"}</span>
                   <label>Fecha:</label>
-                  <input type="date" value={cabecera.fecha} onChange={(e) => setCampo("fecha", e.target.value)} disabled={soloLectura} />
+                  <span>
+                    <input type="date" className={styles.noPrint} value={cabecera.fecha} onChange={(e) => setCampo("fecha", e.target.value)} disabled={soloLectura} />
+                    <span className={styles.soloPrint}>
+                      {cabecera.fecha ? new Date(`${cabecera.fecha}T00:00:00`).toLocaleDateString("es-PE", { day: "2-digit", month: "2-digit", year: "numeric" }) : ""}
+                    </span>
+                  </span>
 
                   <label>Nombre del proyecto:</label>
                   <span>{proyecto?.nombre}</span>
