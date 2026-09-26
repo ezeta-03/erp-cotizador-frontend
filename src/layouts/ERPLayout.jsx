@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet, useNavigate, useLocation, NavLink } from "react-router-dom";
+import { Outlet, Navigate, useNavigate, useLocation, NavLink } from "react-router-dom";
 import {
   LogOut, ChevronLeft, ChevronDown, Moon, Sun, Menu, X, Mail, Briefcase, Pin, PinOff,
   BarChart3, UserCircle, Users, DollarSign, MapPin, Megaphone, KeyRound,
@@ -9,6 +9,8 @@ import useAuth from "../auth/useAuth";
 import useDarkMode from "../hooks/useDarkMode";
 import { getPanelWidgets, savePanelWidgets } from "../api/panelWidgets";
 import { nextFreeSlot } from "../constants/widgets";
+import { moduloDeSegmento } from "../constants/modulos";
+import useModulosHabilitados from "../hooks/useModulosHabilitados";
 import styles from "./ERPLayout.module.scss";
 
 const SECTION_LABELS = {
@@ -87,6 +89,8 @@ function buildMenu(role) {
   if (role === "contable") {
     return [
       item("Dashboard", "dashboard", BarChart3),
+      item("Almacén", "almacen", Boxes),
+      item("Proyectos", "proyectos", Briefcase),
       item("Facturar", "facturar", DollarSign),
       item("Contraseña", "perfil", KeyRound),
     ];
@@ -119,7 +123,16 @@ export default function ERPLayout() {
   const outdoorLink = (isOutdoor && segment !== "outdoor") ? `/erp/${role}/outdoor` : null;
   const btlLink     = (isBtl && segment !== "btl") ? `/erp/${role}/btl` : null;
 
-  const menu = buildMenu(role);
+  // Ventas y Contable ven solo los módulos que el Admin dejó habilitados
+  // para su rol (Usuarios → Módulos por rol). Contraseña siempre queda.
+  const { habilitados } = useModulosHabilitados();
+  const menu = buildMenu(role).filter(
+    (m) => !habilitados || m.seg === "perfil" || habilitados.has(m.seg ?? m.base)
+  );
+  // Si entra por URL a un módulo apagado, se lo manda al primero habilitado.
+  const moduloActual = moduloDeSegmento(segments[2]);
+  const bloqueado = habilitados && moduloActual && !habilitados.has(moduloActual);
+  const destinoPermitido = `/erp/${role}/${menu[0]?.seg ?? menu[0]?.base ?? "perfil"}`;
   const [expanded, setExpanded] = useState(() => {
     const init = new Set();
     menu.forEach((m) => { if (m.children && segments.includes(m.base)) init.add(m.label); });
@@ -313,7 +326,7 @@ export default function ERPLayout() {
 
           {/* Contenido de la sección */}
           <main className={styles.main}>
-            <Outlet />
+            {bloqueado ? <Navigate to={destinoPermitido} replace /> : <Outlet />}
           </main>
         </div>
       </div>

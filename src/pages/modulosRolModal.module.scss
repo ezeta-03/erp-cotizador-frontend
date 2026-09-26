@@ -1,0 +1,49 @@
+@use "../styles/_ui.scss" as *;
+
+.body {
+  padding: 1.5rem 2rem;
+  overflow-y: auto;
+}
+
+.error {
+  margin: 0 0 1rem;
+  padding: 0.7rem 1rem;
+  border-radius: $radius-sm;
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.cargando { text-align: center; color: var(--color-text3); padding: 2rem; }
+
+.roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.rol {
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+  padding: 1rem 1.1rem;
+  background: var(--color-surface2);
+
+  h4 { margin: 0; font-size: 0.95rem; font-weight: 800; color: var(--color-text1); }
+
+  ul { list-style: none; margin: 0.75rem 0 0; padding: 0; }
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.9rem;
+    color: var(--color-text1);
+
+    &:first-child { border-top: none; }
+  }
+}
+
+.nota { margin: 0.3rem 0 0; font-size: 0.78rem; color: var(--color-text3); line-height: 1.4; }

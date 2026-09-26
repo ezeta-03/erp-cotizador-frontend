@@ -733,8 +733,12 @@ export default function Almacen() {
   const token = localStorage.getItem("token");
   const isAdmin  = user?.role === "ADMIN";
   const isVentas = user?.role === "VENTAS";
-  const puedeVerMovimientos = isAdmin; // backend: ADMIN + CONTABLE (CONTABLE aún no tiene esta ruta en el menú)
-  const puedeVerOrdenes = isAdmin || isVentas;
+  const isContable = user?.role === "CONTABLE";
+  // Contable (Finanzas) entra en modo consulta: ve stock, movimientos y
+  // órdenes, pero no registra salidas, órdenes ni atiende solicitudes.
+  const puedeVerMovimientos = isAdmin || isContable;
+  const puedeVerOrdenes = isAdmin || isVentas || isContable;
+  const puedeOperar = isAdmin || isVentas;
 
   const [vista, setVista] = useState("stock");
   const [items, setItems] = useState([]);
@@ -761,12 +765,14 @@ export default function Almacen() {
         getItemsAlmacen(),
         puedeVerMovimientos ? getMovimientos() : Promise.resolve([]),
         puedeVerOrdenes ? getOrdenes() : Promise.resolve([]),
-        getClientes(),
+        // Contable no tiene acceso a la lista de clientes; solo se usa para
+        // registrar salidas, así que ahí se omite.
+        puedeOperar ? getClientes() : Promise.resolve([]),
         puedeVerOrdenes ? getProyectos() : Promise.resolve([]),
         // Si seguimiento-actividades/Firestore no responde, no debe tumbar
         // toda la carga de Almacén — el selector simplemente queda más corto.
         puedeVerOrdenes ? getProyectosExternos().catch(() => []) : Promise.resolve([]),
-        puedeVerOrdenes ? getSolicitudes() : Promise.resolve([]),
+        puedeOperar ? getSolicitudes() : Promise.resolve([]),
       ]);
       setItems(its);
       setMovimientos(movs);
@@ -776,7 +782,7 @@ export default function Almacen() {
       setSolicitudes(sols);
     } catch { /* silencioso */ }
     finally { setLoading(false); }
-  }, [puedeVerMovimientos, puedeVerOrdenes]);
+  }, [puedeVerMovimientos, puedeVerOrdenes, puedeOperar]);
 
   useEffect(() => { cargarTodo(); }, [cargarTodo]);
 
@@ -884,7 +890,7 @@ export default function Almacen() {
               <Minus size={16} /> Salida
             </button>
           )}
-          {puedeVerOrdenes && (
+          {puedeOperar && (
             <button className={styles.btnOutline} onClick={() => setShowOrden(true)}>
               <FileStack size={16} /> Nueva orden
             </button>
@@ -916,7 +922,7 @@ export default function Almacen() {
               <FileStack size={15} /> Órdenes
             </button>
           )}
-          {puedeVerOrdenes && (
+          {puedeOperar && (
             <button
               className={`${styles.tab} ${vista === "solicitudes" ? styles.tabActive : ""}`}
               onClick={() => irAVista("solicitudes")}

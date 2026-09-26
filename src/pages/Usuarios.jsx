@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LayoutGrid, List, Plus, History, X } from "lucide-react";
+import { LayoutGrid, List, Plus, History, X, ToggleRight } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import {
   getUsuarios,
@@ -11,6 +11,7 @@ import {
 } from "../api/usuarios";
 import styles from "./usuarios.module.scss";
 import UsuarioFormModal from "./UsuarioFormModal";
+import ModulosRolModal from "./ModulosRolModal";
 
 const EVENTO_LABEL = {
   INVITADO:      { label: "Invitado",        bg: "#dbeafe", color: "#1e40af" },
@@ -54,6 +55,7 @@ export default function Usuarios() {
   const [logUsuario, setLogUsuario] = useState(null);
   const [logEntradas, setLogEntradas] = useState([]);
   const [loadingLog, setLoadingLog] = useState(false);
+  const [showModulos, setShowModulos] = useState(false);
 
   const cargarUsuarios = async () => {
     try {
@@ -126,6 +128,9 @@ export default function Usuarios() {
           <p className={styles.subtitle}>Gestión de accesos y roles del sistema</p>
         </div>
         <div className={styles.headerActions}>
+          <button className={styles.btnOutline} onClick={() => setShowModulos(true)} title="Qué módulos ve cada rol">
+            <ToggleRight size={18} /> Módulos por rol
+          </button>
           <button
             className={styles.btnOutline}
             onClick={() => setVista(vista === "cards" ? "tabla" : "cards")}
@@ -301,6 +306,7 @@ export default function Usuarios() {
           </div>
         </div>
       )}
+      {showModulos && <ModulosRolModal onClose={() => setShowModulos(false)} />}
     </div>
   );
 }

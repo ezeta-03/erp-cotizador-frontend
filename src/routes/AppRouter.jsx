@@ -25,6 +25,17 @@ import Ocupacion from "../pages/Ocupacion";
 import Rentabilidad from "../pages/Rentabilidad";
 import Almacen from "../pages/Almacen";
 import Proyectos from "../pages/Proyectos";
+import useModulosHabilitados from "../hooks/useModulosHabilitados";
+
+// Contable no tiene panel de Inicio: entra directo a su primer módulo
+// habilitado (en el orden del menú), o a Contraseña si no le queda ninguno.
+const ORDEN_CONTABLE = ["dashboard", "almacen", "proyectos", "facturar"];
+function InicioContable() {
+  const { cargando, habilitados } = useModulosHabilitados();
+  if (cargando) return null;
+  const primero = ORDEN_CONTABLE.find((m) => !habilitados || habilitados.has(m)) ?? "perfil";
+  return <Navigate to={`/erp/contable/${primero}`} replace />;
+}
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -110,10 +121,12 @@ export default function AppRouter() {
       {/* ================= CONTABLE ================= */}
       <Route
         path="/erp/contable"
-        element={<ProtectedRoute roles={["CONTABLE"]}><Navigate to="/erp/contable/facturar" replace /></ProtectedRoute>}
+        element={<ProtectedRoute roles={["CONTABLE"]}><InicioContable /></ProtectedRoute>}
       />
       <Route element={<ProtectedRoute roles={["CONTABLE"]}><ERPLayout /></ProtectedRoute>}>
         <Route path="/erp/contable/dashboard" element={<Dashboard />} />
+        <Route path="/erp/contable/almacen"   element={<Almacen />} />
+        <Route path="/erp/contable/proyectos" element={<Proyectos />} />
         <Route path="/erp/contable/facturar"  element={<CotizacionesVentas />} />
         <Route path="/erp/contable/perfil"    element={<CambiarContrasena />} />
       </Route>

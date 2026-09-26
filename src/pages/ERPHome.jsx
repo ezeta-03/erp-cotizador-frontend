@@ -9,6 +9,8 @@ import useDarkMode from "../hooks/useDarkMode";
 import { getResumenDashboard } from "../api/dashboard";
 import { getPanelWidgets, savePanelWidgets } from "../api/panelWidgets";
 import { WIDGET_REGISTRY, kindsForRole, nextFreeSlot } from "../constants/widgets";
+import { moduloDeSegmento } from "../constants/modulos";
+import useModulosHabilitados from "../hooks/useModulosHabilitados";
 import styles from "./ERPHome.module.scss";
 
 const Grid = WidthProvider(GridLayout);
@@ -124,6 +126,14 @@ export default function ERPHome() {
   const [snapshot, setSnapshot] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
   const [saving, setSaving] = useState(false);
+  const { habilitados } = useModulosHabilitados();
+  // Un bloque se muestra si su módulo (primer tramo del kind: "outdoor.mupis"
+  // → "outdoor") está habilitado para el rol. Los ocultos no se borran del
+  // panel guardado: vuelven a aparecer si el Admin reactiva el módulo.
+  const kindVisible = (kind) => {
+    const modulo = moduloDeSegmento(kind.split(".")[0]);
+    return !habilitados || !modulo || habilitados.has(modulo);
+  };
 
   // La grilla de arrastrar/redimensionar (4 columnas) no entra en un celular —
   // ahí se cambia por una lista simple con flechas para reordenar.
@@ -196,7 +206,7 @@ export default function ERPHome() {
 
   const cargando = widgets === null;
   const pinnedKinds = new Set((widgets ?? []).map((w) => w.kind));
-  const available = kindsForRole(role).filter((k) => !pinnedKinds.has(k));
+  const available = kindsForRole(role).filter((k) => !pinnedKinds.has(k) && kindVisible(k));
   const primaryKind = widgets && widgets.length
     ? widgets.reduce((a, b) => (a.w * a.h >= b.w * b.h ? a : b)).kind
     : null;
@@ -204,7 +214,7 @@ export default function ERPHome() {
   // del orden en que el arreglo llegó del servidor (insertion order), que es
   // justo lo que causaba que un bloque agregado por otra vía (pin/ botón)
   // apareciera en un lugar distinto según cómo se hubiera cargado.
-  const sortedWidgets = widgets ? [...widgets].sort((a, b) => a.y - b.y || a.x - b.x) : [];
+  const sortedWidgets = widgets ? widgets.filter((w) => kindVisible(w.kind)).sort((a, b) => a.y - b.y || a.x - b.x) : [];
   const sortedForMobile = sortedWidgets;
 
   const rglLayout = sortedWidgets.map((w) => ({ i: w.kind, x: w.x, y: w.y, w: w.w, h: w.h, minW: 1, minH: 1, maxW: 4 }));
