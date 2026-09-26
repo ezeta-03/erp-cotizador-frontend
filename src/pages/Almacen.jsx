@@ -787,7 +787,7 @@ export default function Almacen() {
 
   const q = busqueda.trim().toLowerCase();
   // Categorías (y sus conteos) respetan búsqueda/tipo/empresa, pero no la
-  // categoría misma — así los chips siempre reflejan lo que hay bajo los
+  // categoría misma — así el desplegable siempre refleja lo que hay bajo los
   // demás filtros activos.
   const itemsPreCategoria = items.filter((i) => {
     if (filtroTipoStock && i.tipo !== filtroTipoStock) return false;
@@ -945,26 +945,18 @@ export default function Almacen() {
               <option value="HERRAMIENTA">Herramientas</option>
               <option value="MAQUINARIA_EQUIPO">Maquinaria y equipo</option>
             </select>
-          </div>
-
-          <div className={styles.catFiltros} style={{ marginBottom: "1rem" }}>
-            <button
-              type="button"
-              className={`${styles.catChip} ${!filtroCategoriaStock ? styles.catChipActive : ""}`}
-              onClick={() => setFiltroCategoriaStock("")}
-            >
-              Todas
-            </button>
-            {categoriasStock.map((c) => (
-              <button
-                key={c}
-                type="button"
-                className={`${styles.catChip} ${filtroCategoriaStock === c ? styles.catChipActive : ""}`}
-                onClick={() => setFiltroCategoriaStock(c)}
-              >
-                {c} <span className={styles.catCount}>{contPorCategoriaStock[c]}</span>
-              </button>
-            ))}
+            {/* Categorías en un desplegable (antes eran chips y con ~90
+                categorías ocupaban media pantalla). Si la categoría elegida
+                queda sin ítems por otro filtro, se sigue mostrando con 0. */}
+            <select className={styles.filterSelect} value={filtroCategoriaStock} onChange={(e) => setFiltroCategoriaStock(e.target.value)}>
+              <option value="">Todas las categorías ({itemsPreCategoria.length})</option>
+              {filtroCategoriaStock && !categoriasStock.includes(filtroCategoriaStock) && (
+                <option value={filtroCategoriaStock}>{filtroCategoriaStock} (0)</option>
+              )}
+              {categoriasStock.map((c) => (
+                <option key={c} value={c}>{c} ({contPorCategoriaStock[c]})</option>
+              ))}
+            </select>
           </div>
 
           <div className={styles.tableContainer}>
