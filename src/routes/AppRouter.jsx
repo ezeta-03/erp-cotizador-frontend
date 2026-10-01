@@ -29,7 +29,7 @@ import useModulosHabilitados from "../hooks/useModulosHabilitados";
 
 // Contable no tiene panel de Inicio: entra directo a su primer módulo
 // habilitado (en el orden del menú), o a Contraseña si no le queda ninguno.
-const ORDEN_CONTABLE = ["dashboard", "almacen", "proyectos", "facturar"];
+const ORDEN_CONTABLE = ["dashboard", "clientes", "facturar", "almacen", "proyectos", "outdoor", "btl"];
 function InicioContable() {
   const { cargando, habilitados } = useModulosHabilitados();
   if (cargando) return null;
@@ -124,11 +124,26 @@ export default function AppRouter() {
         element={<ProtectedRoute roles={["CONTABLE"]}><InicioContable /></ProtectedRoute>}
       />
       <Route element={<ProtectedRoute roles={["CONTABLE"]}><ERPLayout /></ProtectedRoute>}>
-        <Route path="/erp/contable/dashboard" element={<Dashboard />} />
-        <Route path="/erp/contable/almacen"   element={<Almacen />} />
-        <Route path="/erp/contable/proyectos" element={<Proyectos />} />
-        <Route path="/erp/contable/facturar"  element={<CotizacionesVentas />} />
-        <Route path="/erp/contable/perfil"    element={<CambiarContrasena />} />
+        <Route path="/erp/contable/dashboard"    element={<Dashboard />} />
+        <Route path="/erp/contable/historial"    element={<CotizacionesHistorial />} />
+        <Route path="/erp/contable/cotizaciones" element={<Cotizaciones />} />
+        <Route path="/erp/contable/clientes"     element={<Clientes />} />
+        <Route path="/erp/contable/productos"    element={<Productos />} />
+        <Route path="/erp/contable/facturar"     element={<CotizacionesVentas />} />
+        <Route path="/erp/contable/almacen"      element={<Almacen />} />
+        <Route path="/erp/contable/proyectos"    element={<Proyectos />} />
+        <Route path="/erp/contable/actividad"    element={<ActividadClientes />} />
+        <Route path="/erp/contable/outdoor"              element={<OutdoorHome />} />
+        <Route path="/erp/contable/btl"                  element={<BTLHome />} />
+        <Route path="/erp/contable/outdoor/paneles"      element={<Paneles />} />
+        <Route path="/erp/contable/outdoor/mupis"        element={<Mupis />} />
+        <Route path="/erp/contable/outdoor/proveedores"  element={<Proveedores />} />
+        <Route path="/erp/contable/outdoor/ocupacion"    element={<Ocupacion />} />
+        <Route path="/erp/contable/outdoor/rentabilidad" element={<Rentabilidad />} />
+        <Route path="/erp/contable/outdoor/cotizador"    element={<CotizacionesHistorial modulo="outdoor" />} />
+        <Route path="/erp/contable/btl/cotizador"        element={<CotizacionesHistorial modulo="btl" />} />
+        <Route path="/erp/contable/btl/productos"        element={<Productos />} />
+        <Route path="/erp/contable/perfil"       element={<CambiarContrasena />} />
       </Route>
 
       {/* Fallback */}

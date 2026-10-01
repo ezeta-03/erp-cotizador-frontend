@@ -399,7 +399,7 @@ export default function Proyectos() {
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
   const isVentas = user?.role === "VENTAS";
-  const puedeCrear = isAdmin || isVentas;
+  const puedeCrear = isAdmin || isVentas || user?.role === "CONTABLE";
 
   const [tab, setTab] = useState("erp");
   const [proyectos, setProyectos] = useState([]);

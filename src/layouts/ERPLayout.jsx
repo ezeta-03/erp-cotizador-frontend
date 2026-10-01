@@ -74,7 +74,9 @@ function buildMenu(role) {
       item("Contraseña", "perfil", KeyRound),
     ];
   }
-  if (role === "ventas") {
+  // Ventas y Contable tienen el mismo menú; el Admin decide qué módulos ve
+  // cada rol (Usuarios → Módulos por rol).
+  if (role === "ventas" || role === "contable") {
     return [
       item("Dashboard", "dashboard", BarChart3),
       item("Clientes", "clientes", UserCircle),
@@ -83,15 +85,6 @@ function buildMenu(role) {
       item("Proyectos", "proyectos", Briefcase),
       group("Outdoor", MapPin, "outdoor", OUTDOOR_CHILDREN),
       group("BTL", Megaphone, "btl", BTL_CHILDREN),
-      item("Contraseña", "perfil", KeyRound),
-    ];
-  }
-  if (role === "contable") {
-    return [
-      item("Dashboard", "dashboard", BarChart3),
-      item("Almacén", "almacen", Boxes),
-      item("Proyectos", "proyectos", Briefcase),
-      item("Facturar", "facturar", DollarSign),
       item("Contraseña", "perfil", KeyRound),
     ];
   }

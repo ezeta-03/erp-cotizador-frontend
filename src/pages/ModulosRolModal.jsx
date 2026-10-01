@@ -7,7 +7,7 @@ import styles from "./modulosRolModal.module.scss";
 
 const NOTA_ROL = {
   VENTAS: "Ve y opera los módulos habilitados.",
-  CONTABLE: "Almacén y Proyectos son de solo consulta: no registra salidas ni edita presupuestos.",
+  CONTABLE: "Ve y opera los módulos habilitados.",
 };
 
 /* ── Módulos por rol: qué ve Ventas y qué ve Finanzas (Contable) en su menú ── */

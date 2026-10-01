@@ -738,7 +738,7 @@ export default function Almacen() {
   // órdenes, pero no registra salidas, órdenes ni atiende solicitudes.
   const puedeVerMovimientos = isAdmin || isContable;
   const puedeVerOrdenes = isAdmin || isVentas || isContable;
-  const puedeOperar = isAdmin || isVentas;
+  const puedeOperar = isAdmin || isVentas || isContable;
 
   const [vista, setVista] = useState("stock");
   const [items, setItems] = useState([]);
@@ -885,7 +885,7 @@ export default function Almacen() {
               <Plus size={16} /> Entrada
             </button>
           )}
-          {(isAdmin || isVentas) && (
+          {(isAdmin || isVentas || isContable) && (
             <button className={styles.btnPrimary} onClick={() => setShowSalida(true)}>
               <Minus size={16} /> Salida
             </button>

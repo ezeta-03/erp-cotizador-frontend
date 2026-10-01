@@ -132,7 +132,7 @@ export default function Clientes() {
     setSelectedCliente(c);
   };
 
-  const puedeGestionar = user.role === "ADMIN" || user.role === "VENTAS";
+  const puedeGestionar = ["ADMIN", "VENTAS", "CONTABLE"].includes(user.role);
   const esAdmin = user.role === "ADMIN"; // activar/desactivar cliente sigue siendo solo ADMIN
 
   return (
