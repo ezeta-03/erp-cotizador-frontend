@@ -10,6 +10,8 @@ import { crearCotizacion } from "../api/cotizaciones";
 import useAuth from "../auth/useAuth";
 import { useToast } from "../coomponents/Toast";
 import { nombreItem } from "../utils/cotizacionItem";
+import { soles } from "../utils/formato";
+import { desglosarTotal } from "../utils/igv";
 
 const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "FACTURADA", "RENEGOCIACION"];
 
@@ -22,7 +24,7 @@ function EstadoBadge({ estado }) {
 }
 
 const fmt = (v) =>
-  new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
+  soles(v ?? 0);
 
 const SUBTITULOS = {
   outdoor: "Historial de cotizaciones outdoor (paneles y mupis)",
@@ -398,8 +400,7 @@ export default function CotizacionesHistorial({ modulo }) {
       {selectedCotizacion && (() => {
         const cot = selectedCotizacion;
         const total = cot.total || 0;
-        const igvMonto = cot.conIgv ? parseFloat((total - total / 1.18).toFixed(2)) : 0;
-        const valorVenta = cot.conIgv ? parseFloat((total / 1.18).toFixed(2)) : total;
+        const { valorVenta, igvMonto } = desglosarTotal(total, cot.conIgv);
         const fecha = new Date(cot.createdAt).toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" });
         const previewItems = (cot.items || []).map((item) => ({
           nombre: nombreItem(item),

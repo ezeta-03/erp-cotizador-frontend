@@ -12,11 +12,12 @@ import { WIDGET_REGISTRY, kindsForRole, nextFreeSlot } from "../constants/widget
 import { moduloDeSegmento } from "../constants/modulos";
 import useModulosHabilitados from "../hooks/useModulosHabilitados";
 import styles from "./ERPHome.module.scss";
+import { solesEntero } from "../utils/formato";
 
 const Grid = WidthProvider(GridLayout);
 
 const fmt = (v) =>
-  new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", maximumFractionDigits: 0 }).format(v ?? 0);
+  solesEntero(v ?? 0);
 
 const HOY = new Date().toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" });
 

@@ -7,11 +7,12 @@ import styles from "./CotizacionModal.module.scss";
 import { X, ChevronLeft, Eye, FileText, Trash2, Layers } from "lucide-react";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
 import { MARGEN_MINIMO, IGV_RATE } from "../config/negocio";
+import { soles } from "../utils/formato";
 
 const nombreProducto = (p) => p?.nombre || p?.servicio || p?.material || "(sin nombre)";
 
 const fmt = (v) =>
-  new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
+  soles(v ?? 0);
 
 // ── Input decimal: type="text" con teclado numérico — acepta coma o punto ──
 function DecimalInput({ value, onChange, className, disabled, min = 0.01, placeholder }) {

@@ -2,11 +2,12 @@ import { useEffect, useState, useMemo, Fragment } from "react";
 import { X, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { actividadesClientes } from "../api/clientes";
 import styles from "./actividadClienteModal.module.scss";
+import { soles } from "../utils/formato";
 
 const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "FACTURADA"];
 
 const fmt = (v) =>
-  new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
+  soles(v ?? 0);
 
 function EstadoBadge({ estado }) {
   return <span className={`${styles.badge} ${styles[estado]}`}>{estado}</span>;

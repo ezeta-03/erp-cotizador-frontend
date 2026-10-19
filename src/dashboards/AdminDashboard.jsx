@@ -10,6 +10,7 @@ import { Target, TrendingUp, Users, Edit2, Save, X, RefreshCw, History } from 'l
 import Spinner from '../coomponents/Spinner';
 import SolicitudesMargenPanel from '../coomponents/SolicitudesMargenPanel';
 import styles from './AdminDashboard.module.scss';
+import { solesCompacto } from "../utils/formato";
 
 export default function AdminDashboard() {
   const [datos, setDatos] = useState(null);
@@ -131,11 +132,7 @@ export default function AdminDashboard() {
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Meta Total</p>
               <p className={styles.statValue}>
-                {new Intl.NumberFormat('es-PE', { 
-                  style: 'currency', 
-                  currency: 'PEN',
-                  notation: 'compact'
-                }).format(datos.general.meta)}
+                {solesCompacto(datos.general.meta)}
               </p>
             </div>
           </div>
@@ -147,11 +144,7 @@ export default function AdminDashboard() {
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Aprobado Total</p>
               <p className={styles.statValue} style={{color: '#0f766e'}}>
-                {new Intl.NumberFormat('es-PE', { 
-                  style: 'currency', 
-                  currency: 'PEN',
-                  notation: 'compact'
-                }).format(datos.general.avance)}
+                {solesCompacto(datos.general.avance)}
               </p>
             </div>
           </div>
@@ -225,13 +218,13 @@ export default function AdminDashboard() {
                             />
                           ) : (
                             <span style={{ fontWeight: 500 }}>
-                              {new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", notation: "compact" }).format(vendedor.meta)}
+                              {solesCompacto(vendedor.meta)}
                             </span>
                           )}
                         </td>
                         <td>
                           <span className={styles.vendedorAvance}>
-                            {new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", notation: "compact" }).format(vendedor.avance)}
+                            {solesCompacto(vendedor.avance)}
                           </span>
                         </td>
                         <td style={{ minWidth: "120px" }}>
@@ -355,7 +348,7 @@ export default function AdminDashboard() {
                   <tbody>
                     {logEntradas.map((e) => {
                       const fmt = (v) => v != null
-                        ? new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", notation: "compact" }).format(v)
+                        ? solesCompacto(v)
                         : "—";
                       return (
                         <tr key={e.id} style={{ borderBottom: "1px solid var(--color-border2)" }}>

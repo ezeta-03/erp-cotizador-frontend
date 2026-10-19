@@ -10,6 +10,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import styles from './ContableDashboard.module.scss';
+import { soles } from "../utils/formato";
 
 export default function ContableDashboard() {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ export default function ContableDashboard() {
   };
 
   const formatCurrency = (amount) =>
-    new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(amount);
+    soles(amount);
 
   const formatDate = (dateString) =>
     new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }).format(

@@ -14,6 +14,7 @@ import {
   Calendar
 } from 'lucide-react';
 import styles from './VentasDashboard.module.scss';
+import { soles } from "../utils/formato";
 
 export default function VentasDashboard() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export default function VentasDashboard() {
   };
 
   const formatCurrency = (amount) =>
-    new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(amount);
+    soles(amount);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

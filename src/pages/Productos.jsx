@@ -9,7 +9,6 @@ import {
   eliminarTodosProductos,
   updateTipoMedida,
 } from "../api/productos";
-// import ConfiguracionForm from "../coomponents/ConfiguracionForm";
 import styles from "./productos.module.scss";
 import {
   Upload,
@@ -27,6 +26,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { soles } from "../utils/formato";
 
 const POR_PAGINA = 15;
 
@@ -231,7 +231,7 @@ export default function Productos() {
   };
 
   const fmt = (v) =>
-    new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
+    soles(v ?? 0);
 
   // ────────────────────────────────────────────────────────────────────────────
   return (
@@ -551,11 +551,6 @@ export default function Productos() {
           </div>
         </div>
       )}
-
-      {/* ── Configuración (solo ADMIN) ── */}
-      {/* {user.role === "ADMIN" && (
-        <ConfiguracionForm onRecalcular={cargarProductos} />
-      )} */}
 
       {/* ── Chips de categoría ── */}
       {!loading && productos.length > 0 && (

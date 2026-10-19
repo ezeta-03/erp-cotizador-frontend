@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios";
+import { getCotizaciones, facturarCotizacion } from "../api/cotizaciones";
 import styles from "./CotizacionesVentas.module.scss";
 import { useToast } from "./Toast";
 import Spinner from "./Spinner";
+import { soles } from "../utils/formato";
 
 const fmt = (v) =>
-  new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
+  soles(v ?? 0);
 
 export default function CotizacionesVentas() {
   const [cotizaciones, setCotizaciones] = useState([]);
@@ -18,9 +19,8 @@ export default function CotizacionesVentas() {
   const { show: showToast, ToastNode } = useToast();
 
   useEffect(() => {
-    api
-      .get("/cotizaciones")
-      .then((res) => setCotizaciones(res.data))
+    getCotizaciones()
+      .then(setCotizaciones)
       .catch((err) => {
         console.error("❌ Error cargando cotizaciones:", err);
         setError("No se pudieron cargar las cotizaciones");
@@ -32,7 +32,7 @@ export default function CotizacionesVentas() {
     if (!confirm("¿Marcar esta cotización como FACTURADA?")) return;
     setFacturando(id);
     try {
-      await api.post(`/cotizaciones/${id}/facturar`, {});
+      await facturarCotizacion(id);
       setCotizaciones((prev) =>
         prev.map((c) => (c.id === id ? { ...c, estado: "FACTURADA" } : c))
       );
