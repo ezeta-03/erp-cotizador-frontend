@@ -5,6 +5,8 @@ import { descargarPDFInteligente } from "../api/pdf";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
 import { nombreItem } from "../utils/cotizacionItem";
 import styles from "./MiCotizacion.module.scss";
+import { soles } from "../utils/formato";
+import { desglosarTotal } from "../utils/igv";
 
 const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "FACTURADA"];
 
@@ -13,7 +15,7 @@ function EstadoBadge({ estado }) {
 }
 
 const fmt = (v) =>
-  new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
+  soles(v ?? 0);
 
 export default function MiCotizacion() {
   const [cotizaciones, setCotizaciones] = useState([]);
@@ -147,8 +149,7 @@ export default function MiCotizacion() {
       {selected && (() => {
         const cot = selected;
         const total = cot.total || 0;
-        const igvMonto = cot.conIgv ? parseFloat((total - total / 1.18).toFixed(2)) : 0;
-        const valorVenta = cot.conIgv ? parseFloat((total / 1.18).toFixed(2)) : total;
+        const { valorVenta, igvMonto } = desglosarTotal(total, cot.conIgv);
         const fecha = new Date(cot.createdAt).toLocaleDateString("es-PE", {
           day: "2-digit",
           month: "long",

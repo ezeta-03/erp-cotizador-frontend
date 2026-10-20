@@ -17,7 +17,6 @@ const SECTION_LABELS = {
   btl:          "BTL",
   dashboard:    "Dashboard",
   historial:    "Cotizador",
-  cotizaciones: "Nueva Cotización",
   clientes:     "Clientes",
   usuarios:     "Usuarios",
   productos:    "Productos",
@@ -25,7 +24,6 @@ const SECTION_LABELS = {
   almacen:      "Almacén",
   proyectos:    "Proyectos",
   perfil:       "Cambiar Contraseña",
-  actividad:    "Actividad",
   cotizador:    "Cotizador",
   mia:          "Mis Cotizaciones",
   paneles:      "Paneles",
@@ -73,13 +71,14 @@ function buildMenu(role) {
       item("Contraseña", "perfil", KeyRound),
     ];
   }
-  // Ventas y Contable tienen el mismo menú; el Admin decide qué módulos ve
-  // cada rol (Usuarios → Módulos por rol).
+  // Ventas y Contable comparten menú, salvo Facturar (solo Contable: vender y
+  // facturar quedan separados). El Admin decide qué módulos ve cada rol
+  // (Usuarios → Módulos por rol).
   if (role === "ventas" || role === "contable") {
     return [
       item("Dashboard", "dashboard", BarChart3),
       item("Clientes", "clientes", UserCircle),
-      item("Facturar", "facturar", DollarSign),
+      ...(role === "contable" ? [item("Facturar", "facturar", DollarSign)] : []),
       item("Almacén", "almacen", Boxes),
       item("Proyectos", "proyectos", Briefcase),
       group("Outdoor", MapPin, "outdoor", OUTDOOR_CHILDREN),

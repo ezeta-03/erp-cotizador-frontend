@@ -11,9 +11,9 @@ export const getCotizaciones = async () => {
   return data;
 };
 
-// CLIENTE → última cotización
-export const getMiUltimaCotizacion = async () => {
-  const { data } = await api.get("/cotizaciones/mia");
+// ADMIN / CONTABLE → marcar como facturada una cotización aprobada
+export const facturarCotizacion = async (id) => {
+  const { data } = await api.post(`/cotizaciones/${id}/facturar`, {});
   return data;
 };
 

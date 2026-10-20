@@ -11,12 +11,10 @@ import Clientes from "../pages/Clientes";
 import ActivarCuenta from "../pages/ActivarCuenta";
 import Usuarios from "../pages/Usuarios";
 import Productos from "../pages/Productos";
-import Cotizaciones from "../pages/Cotizaciones";
 import CotizacionesHistorial from "../pages/CotizacionesHistorial";
 import MiCotizacion from "../pages/MiCotizacion";
 import CambiarContrasena from "../pages/CambiarContrasena";
 import CotizacionesVentas from "../coomponents/CotizacionesVentas";
-import ActividadClientes from "../coomponents/ActividadClientes";
 import ProtectedRoute from "./ProtectedRoute";
 import Paneles from "../pages/Paneles";
 import Mupis from "../pages/Mupis";
@@ -37,6 +35,36 @@ function InicioContable() {
   return <Navigate to={`/erp/contable/${primero}`} replace />;
 }
 
+// Pantallas internas: una sola lista para Admin, Ventas y Contable.
+// "roles" limita la pantalla a ciertos roles; sin "roles" la ven los tres.
+// Ventas y Contable además quedan sujetos a los módulos que el Admin habilita.
+const PANTALLAS = [
+  { path: "dashboard",            element: <Dashboard /> },
+  { path: "historial",            element: <CotizacionesHistorial /> },
+  { path: "clientes",             element: <Clientes /> },
+  { path: "usuarios",             element: <Usuarios />, roles: ["ADMIN"] },
+  { path: "facturar",             element: <CotizacionesVentas />, roles: ["ADMIN", "CONTABLE"] },
+  { path: "almacen",              element: <Almacen /> },
+  { path: "proyectos",            element: <Proyectos /> },
+  { path: "outdoor",              element: <OutdoorHome /> },
+  { path: "outdoor/paneles",      element: <Paneles /> },
+  { path: "outdoor/mupis",        element: <Mupis /> },
+  { path: "outdoor/proveedores",  element: <Proveedores /> },
+  { path: "outdoor/ocupacion",    element: <Ocupacion /> },
+  { path: "outdoor/rentabilidad", element: <Rentabilidad /> },
+  { path: "outdoor/cotizador",    element: <CotizacionesHistorial modulo="outdoor" /> },
+  { path: "btl",                  element: <BTLHome /> },
+  { path: "btl/cotizador",        element: <CotizacionesHistorial modulo="btl" /> },
+  { path: "btl/productos",        element: <Productos /> },
+  { path: "perfil",               element: <CambiarContrasena /> },
+];
+
+const ROLES_INTERNOS = [
+  { rol: "ADMIN",    inicio: <ERPHome /> },
+  { rol: "VENTAS",   inicio: <ERPHome /> },
+  { rol: "CONTABLE", inicio: <InicioContable /> },
+];
+
 export default function AppRouter() {
   const { user } = useAuth();
 
@@ -51,62 +79,22 @@ export default function AppRouter() {
       <Route path="/login" element={<Navigate to="/erp" replace />} />
       <Route path="/cotizador" element={<Navigate to="/erp" replace />} />
 
-      {/* ================= ADMIN ================= */}
-      <Route
-        path="/erp/admin"
-        element={<ProtectedRoute roles={["ADMIN"]}><ERPHome /></ProtectedRoute>}
-      />
-      <Route element={<ProtectedRoute roles={["ADMIN"]}><ERPLayout /></ProtectedRoute>}>
-        <Route path="/erp/admin/dashboard"    element={<Dashboard />} />
-        <Route path="/erp/admin/historial"    element={<CotizacionesHistorial />} />
-        <Route path="/erp/admin/cotizaciones" element={<Cotizaciones />} />
-        <Route path="/erp/admin/clientes"     element={<Clientes />} />
-        <Route path="/erp/admin/usuarios"     element={<Usuarios />} />
-        <Route path="/erp/admin/productos"    element={<Productos />} />
-        <Route path="/erp/admin/facturar"           element={<CotizacionesVentas />} />
-        <Route path="/erp/admin/almacen"            element={<Almacen />} />
-        <Route path="/erp/admin/proyectos"          element={<Proyectos />} />
-        <Route path="/erp/admin/actividad"          element={<ActividadClientes />} />
-        <Route path="/erp/admin/outdoor"              element={<OutdoorHome />} />
-        <Route path="/erp/admin/btl"                  element={<BTLHome />} />
-        <Route path="/erp/admin/outdoor/paneles"      element={<Paneles />} />
-        <Route path="/erp/admin/outdoor/mupis"        element={<Mupis />} />
-        <Route path="/erp/admin/outdoor/proveedores"  element={<Proveedores />} />
-        <Route path="/erp/admin/outdoor/ocupacion"    element={<Ocupacion />} />
-        <Route path="/erp/admin/outdoor/rentabilidad" element={<Rentabilidad />} />
-        <Route path="/erp/admin/outdoor/cotizador"    element={<CotizacionesHistorial modulo="outdoor" />} />
-        <Route path="/erp/admin/btl/cotizador"        element={<CotizacionesHistorial modulo="btl" />} />
-        <Route path="/erp/admin/btl/productos"        element={<Productos />} />
-        <Route path="/erp/admin/perfil"             element={<CambiarContrasena />} />
-      </Route>
-
-      {/* ================= VENTAS ================= */}
-      <Route
-        path="/erp/ventas"
-        element={<ProtectedRoute roles={["VENTAS"]}><ERPHome /></ProtectedRoute>}
-      />
-      <Route element={<ProtectedRoute roles={["VENTAS"]}><ERPLayout /></ProtectedRoute>}>
-        <Route path="/erp/ventas/dashboard"    element={<Dashboard />} />
-        <Route path="/erp/ventas/historial"    element={<CotizacionesHistorial />} />
-        <Route path="/erp/ventas/cotizaciones" element={<Cotizaciones />} />
-        <Route path="/erp/ventas/clientes"     element={<Clientes />} />
-        <Route path="/erp/ventas/productos"    element={<Productos />} />
-        <Route path="/erp/ventas/facturar"           element={<CotizacionesVentas />} />
-        <Route path="/erp/ventas/almacen"            element={<Almacen />} />
-        <Route path="/erp/ventas/proyectos"          element={<Proyectos />} />
-        <Route path="/erp/ventas/actividad"          element={<ActividadClientes />} />
-        <Route path="/erp/ventas/outdoor"              element={<OutdoorHome />} />
-        <Route path="/erp/ventas/btl"                  element={<BTLHome />} />
-        <Route path="/erp/ventas/outdoor/paneles"      element={<Paneles />} />
-        <Route path="/erp/ventas/outdoor/mupis"        element={<Mupis />} />
-        <Route path="/erp/ventas/outdoor/proveedores"  element={<Proveedores />} />
-        <Route path="/erp/ventas/outdoor/ocupacion"    element={<Ocupacion />} />
-        <Route path="/erp/ventas/outdoor/rentabilidad" element={<Rentabilidad />} />
-        <Route path="/erp/ventas/outdoor/cotizador"    element={<CotizacionesHistorial modulo="outdoor" />} />
-        <Route path="/erp/ventas/btl/cotizador"        element={<CotizacionesHistorial modulo="btl" />} />
-        <Route path="/erp/ventas/btl/productos"        element={<Productos />} />
-        <Route path="/erp/ventas/perfil"             element={<CambiarContrasena />} />
-      </Route>
+      {/* ============ ADMIN / VENTAS / CONTABLE ============ */}
+      {ROLES_INTERNOS.flatMap(({ rol, inicio }) => {
+        const base = `/erp/${rol.toLowerCase()}`;
+        return [
+          <Route
+            key={`${rol}-inicio`}
+            path={base}
+            element={<ProtectedRoute roles={[rol]}>{inicio}</ProtectedRoute>}
+          />,
+          <Route key={`${rol}-layout`} element={<ProtectedRoute roles={[rol]}><ERPLayout /></ProtectedRoute>}>
+            {PANTALLAS.filter((p) => !p.roles || p.roles.includes(rol)).map((p) => (
+              <Route key={p.path} path={`${base}/${p.path}`} element={p.element} />
+            ))}
+          </Route>,
+        ];
+      })}
 
       {/* ================= CLIENTE ================= */}
       <Route
@@ -116,34 +104,6 @@ export default function AppRouter() {
       <Route element={<ProtectedRoute roles={["CLIENTE"]}><ERPLayout /></ProtectedRoute>}>
         <Route path="/erp/cliente/mia"    element={<MiCotizacion />} />
         <Route path="/erp/cliente/perfil" element={<CambiarContrasena />} />
-      </Route>
-
-      {/* ================= CONTABLE ================= */}
-      <Route
-        path="/erp/contable"
-        element={<ProtectedRoute roles={["CONTABLE"]}><InicioContable /></ProtectedRoute>}
-      />
-      <Route element={<ProtectedRoute roles={["CONTABLE"]}><ERPLayout /></ProtectedRoute>}>
-        <Route path="/erp/contable/dashboard"    element={<Dashboard />} />
-        <Route path="/erp/contable/historial"    element={<CotizacionesHistorial />} />
-        <Route path="/erp/contable/cotizaciones" element={<Cotizaciones />} />
-        <Route path="/erp/contable/clientes"     element={<Clientes />} />
-        <Route path="/erp/contable/productos"    element={<Productos />} />
-        <Route path="/erp/contable/facturar"     element={<CotizacionesVentas />} />
-        <Route path="/erp/contable/almacen"      element={<Almacen />} />
-        <Route path="/erp/contable/proyectos"    element={<Proyectos />} />
-        <Route path="/erp/contable/actividad"    element={<ActividadClientes />} />
-        <Route path="/erp/contable/outdoor"              element={<OutdoorHome />} />
-        <Route path="/erp/contable/btl"                  element={<BTLHome />} />
-        <Route path="/erp/contable/outdoor/paneles"      element={<Paneles />} />
-        <Route path="/erp/contable/outdoor/mupis"        element={<Mupis />} />
-        <Route path="/erp/contable/outdoor/proveedores"  element={<Proveedores />} />
-        <Route path="/erp/contable/outdoor/ocupacion"    element={<Ocupacion />} />
-        <Route path="/erp/contable/outdoor/rentabilidad" element={<Rentabilidad />} />
-        <Route path="/erp/contable/outdoor/cotizador"    element={<CotizacionesHistorial modulo="outdoor" />} />
-        <Route path="/erp/contable/btl/cotizador"        element={<CotizacionesHistorial modulo="btl" />} />
-        <Route path="/erp/contable/btl/productos"        element={<Productos />} />
-        <Route path="/erp/contable/perfil"       element={<CambiarContrasena />} />
       </Route>
 
       {/* Fallback */}

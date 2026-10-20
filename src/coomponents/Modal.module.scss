@@ -87,7 +87,7 @@
       justify-content: space-between;
 
       .btnPrimary {
-        background: #4caf50;
+        background: var(--color-success);
         color: white;
         padding: 10px;
         border: none;
@@ -95,7 +95,7 @@
       }
 
       .btnSecondary {
-        background: #f44336;
+        background: var(--color-danger);
         color: white;
         padding: 10px;
         border: none;

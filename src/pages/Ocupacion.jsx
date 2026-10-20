@@ -5,8 +5,10 @@ import useAuth from "../auth/useAuth";
 import { getPaneles } from "../api/paneles";
 import { getClientes, createCliente } from "../api/clientes";
 import { getReservas, createReserva, updateReserva, deleteReserva } from "../api/reservas";
+import { getCotizaciones } from "../api/cotizaciones";
 import styles from "./ocupacion.module.scss";
 import { ESTADOS_PANEL, ESTADO_META, esEstadoExterno } from "../constants/estados";
+import { solesEntero } from "../utils/formato";
 
 /* ── Constantes ─────────────────────────────────────────────────────────────── */
 const MESES   = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -22,7 +24,7 @@ const COLORES_CLIENTE = [
 ];
 const clienteColor = (id) => COLORES_CLIENTE[(id - 1) % COLORES_CLIENTE.length];
 
-const fmt = (v) => new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", maximumFractionDigits: 0 }).format(v ?? 0);
+const fmt = (v) => solesEntero(v ?? 0);
 
 /* ── Helpers de fecha (siempre en hora local para consistencia con drag) ──── */
 const parseD = (str) => {
@@ -94,7 +96,10 @@ function computeStats(reservas, paneles, anio) {
 }
 
 /* ── Modal de reserva ───────────────────────────────────────────────────────── */
-const FORM0 = { clienteId: "", fechaInicio: "", fechaFin: "", precioMensual: "", estado: "OCUPADO", notas: "" };
+const FORM0 = { clienteId: "", cotizacionId: "", fechaInicio: "", fechaFin: "", precioMensual: "", estado: "OCUPADO", notas: "" };
+
+// Solo una cotización aprobada o facturada del mismo cliente puede respaldar una reserva.
+const COTIZACION_VINCULABLE = ["APROBADA", "FACTURADA"];
 
 const NC0 = { nombreComercial: "", documento: "", nombreContacto: "" };
 
@@ -108,6 +113,7 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
 
   const [form, setForm]     = useState(esEdicion ? {
     clienteId:     reserva.clienteId ? String(reserva.clienteId) : "",
+    cotizacionId:  reserva.cotizacionId ? String(reserva.cotizacionId) : "",
     fechaInicio:   reserva.fechaInicio.slice(0, 10),
     fechaFin:      reserva.fechaFin.slice(0, 10),
     precioMensual: reserva.precioMensual != null ? String(reserva.precioMensual) : "",
@@ -130,6 +136,19 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
 
   const setf = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
+  /* ── Cotización de respaldo (opcional) ── */
+  const [cotizaciones, setCotizaciones] = useState([]);
+  useEffect(() => {
+    let vivo = true;
+    getCotizaciones()
+      .then((lista) => vivo && setCotizaciones(lista.filter((c) => COTIZACION_VINCULABLE.includes(c.estado))))
+      .catch(() => {});
+    return () => { vivo = false; };
+  }, []);
+  const cotizacionesDelCliente = cotizaciones.filter((c) => String(c.clienteId) === form.clienteId);
+  // Al cambiar de cliente, la cotización elegida deja de corresponder.
+  const setCliente = (e) => setForm(f => ({ ...f, clienteId: e.target.value, cotizacionId: "" }));
+
   const handleCrearCliente = async () => {
     if (!nc.nombreComercial.trim() || !nc.documento.trim() || !nc.nombreContacto.trim())
       return setErrorNc("Nombre comercial, contacto y documento son obligatorios.");
@@ -139,7 +158,7 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
       const nuevo = await createCliente(nc);
       const lista = [...clientes, nuevo].sort((a, b) => a.nombreComercial.localeCompare(b.nombreComercial));
       setClientes(lista);
-      setForm(f => ({ ...f, clienteId: String(nuevo.id) }));
+      setForm(f => ({ ...f, clienteId: String(nuevo.id), cotizacionId: "" }));
       setCreando(false);
       setNc(NC0);
       onClienteCreado?.();
@@ -191,7 +210,7 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
             <div className={styles.formField}>
               <label>Cliente</label>
               <div className={styles.clienteRow}>
-                <select value={form.clienteId} onChange={setf("clienteId")}>
+                <select value={form.clienteId} onChange={setCliente}>
                   <option value="">— Seleccionar cliente —</option>
                   {clientes.map(c => (
                     <option key={c.id} value={c.id}>{c.nombreComercial} ({c.documento})</option>
@@ -238,6 +257,21 @@ function ReservaModal({ panel, reserva, defaults, clientes: clientesProp, onSave
                     </button>
                   </div>
                 </div>
+              )}
+            </div>
+          )}
+
+          {!estadoEsExterno && form.clienteId && (
+            <div className={styles.formField}>
+              <label>Cotización <span className={styles.opcional}>(opcional)</span></label>
+              <select value={form.cotizacionId} onChange={setf("cotizacionId")}>
+                <option value="">— Sin cotización —</option>
+                {cotizacionesDelCliente.map(c => (
+                  <option key={c.id} value={c.id}>{c.numero} · {c.estado === "FACTURADA" ? "Facturada" : "Aprobada"}</option>
+                ))}
+              </select>
+              {cotizacionesDelCliente.length === 0 && (
+                <span className={styles.opcional}>Este cliente no tiene cotizaciones aprobadas.</span>
               )}
             </div>
           )}
@@ -403,7 +437,7 @@ function Timeline({ paneles, reservas, anio, isAdmin, onClickBar, onClickCelda, 
                     : { fechaInicio: r.fechaInicio,       fechaFin: r.fechaFin       };
                   const pos = barPos(activeR, anio);
                   if (!pos) return null;
-                  const color = ESTADO_META[r.estado]?.color ?? "#94a3b8";
+                  const color = ESTADO_META[r.estado]?.color ?? "var(--color-text3)";
 
                   return (
                     <div

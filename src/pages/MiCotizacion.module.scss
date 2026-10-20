@@ -104,7 +104,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: $transition-fast;
-  &:hover { background: #334155; }
+  &:hover { background: color-mix(in srgb, var(--color-text1) 85%, var(--color-surface)); }
 }
 
 .btnCerrar {

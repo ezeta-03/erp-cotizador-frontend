@@ -2,7 +2,6 @@ import useAuth from "../auth/useAuth";
 
 import AdminDashboard from "../dashboards/AdminDashboard";
 import VentasDashboard from "../dashboards/VentasDashboard";
-import ClienteDashboard from "../dashboards/ClienteDashboard";
 import ContableDashboard from "../dashboards/ContableDashboard";
 
 export default function Dashboard() {
@@ -15,8 +14,6 @@ export default function Dashboard() {
       return <AdminDashboard />;
     case "VENTAS":
       return <VentasDashboard />;
-    case "CLIENTE":
-      return <ClienteDashboard />;
     case "CONTABLE":
       return <ContableDashboard />;
     default:

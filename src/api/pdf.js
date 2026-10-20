@@ -1,4 +1,5 @@
 import { nombreItem } from "../utils/cotizacionItem";
+import { desglosarTotal } from "../utils/igv";
 
 export const descargarPDF = async (cotizacionId, token, numero = null) => {
   const pdfUrl = `${import.meta.env.VITE_API_URL}/cotizaciones/${cotizacionId}/pdf?token=${token}`;
@@ -43,8 +44,7 @@ export const generarPDFCliente = async (cotizacion) => {
 
   const conIgv     = cotizacion.conIgv !== undefined ? cotizacion.conIgv : true;
   const total      = cotizacion.total || 0;
-  const valorVenta = conIgv ? parseFloat((total / 1.18).toFixed(2)) : total;
-  const igvMonto   = conIgv ? parseFloat((total - valorVenta).toFixed(2)) : 0;
+  const { valorVenta, igvMonto } = desglosarTotal(total, conIgv);
 
   const S = (v) => `S/ ${(v || 0).toFixed(2)}`;
 

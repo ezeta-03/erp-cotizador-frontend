@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
 import { token } from '../styles/tokens';
+import { soles, solesCompacto } from "../utils/formato";
 
 Chart.register(...registerables);
 
@@ -69,9 +70,7 @@ export function DonutChart({ meta, avance, titulo = 'Meta Mensual' }) {
             callbacks: {
               label: (context) => {
                 const label = context.label || '';
-                const value = new Intl.NumberFormat('es-PE', {
-                  style: 'currency', currency: 'PEN',
-                }).format(context.raw);
+                const value = soles(context.raw);
                 return `${label}: ${value}`;
               },
             },
@@ -107,10 +106,10 @@ export function DonutChart({ meta, avance, titulo = 'Meta Mensual' }) {
       <canvas ref={chartRef} />
       <div style={{ marginTop: '1rem', textAlign: 'center' }}>
         <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text2)', margin: '0.25rem 0' }}>
-          Meta: {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(meta)}
+          Meta: {soles(meta)}
         </p>
         <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text2)', margin: '0.25rem 0' }}>
-          Aprobado: {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(avance)}
+          Aprobado: {soles(avance)}
         </p>
       </div>
     </div>
@@ -124,7 +123,7 @@ const PALETTE = [
   '#0d9488','#d97706','#db2777','#65a30d','#7c3aed',
 ];
 
-const fmt = (v) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(v);
+const fmt = (v) => soles(v);
 
 // ── ProveedoresChart: área apilada por proveedor ───────────────────────────
 export function ProveedoresChart({ data, anio }) {
@@ -215,9 +214,7 @@ export function ProveedoresChart({ data, anio }) {
             grid: { color: c.gridLine },
             ticks: {
               color: c.text2,
-              callback: (v) => new Intl.NumberFormat('es-PE', {
-                style: 'currency', currency: 'PEN', notation: 'compact',
-              }).format(v),
+              callback: (v) => solesCompacto(v),
             },
           },
         },
@@ -324,9 +321,7 @@ export function TotalMensualChart({ data, anio }) {
             grid: { color: c.gridLine },
             ticks: {
               color: c.text2,
-              callback: (v) => new Intl.NumberFormat('es-PE', {
-                style: 'currency', currency: 'PEN', notation: 'compact',
-              }).format(v),
+              callback: (v) => solesCompacto(v),
             },
           },
         },
@@ -386,13 +381,13 @@ export function ProveedoresKPI({ data, anio }) {
         <div style={{ background: 'var(--badge-red-bg)', borderRadius: '8px', padding: '0.6rem 0.75rem' }}>
           <p style={{ margin: 0, fontSize: 'var(--text-2xs)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--badge-red-text)', opacity: 0.8 }}>Pendiente</p>
           <p style={{ margin: '0.15rem 0 0', fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--badge-red-text)', fontVariantNumeric: 'tabular-nums' }}>
-            {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', notation: 'compact' }).format(totalPendiente)}
+            {solesCompacto(totalPendiente)}
           </p>
         </div>
         <div style={{ background: 'var(--badge-green-bg)', borderRadius: '8px', padding: '0.6rem 0.75rem' }}>
           <p style={{ margin: 0, fontSize: 'var(--text-2xs)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--badge-green-text)', opacity: 0.8 }}>Pagado</p>
           <p style={{ margin: '0.15rem 0 0', fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--badge-green-text)', fontVariantNumeric: 'tabular-nums' }}>
-            {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', notation: 'compact' }).format(totalCancelado)}
+            {solesCompacto(totalCancelado)}
           </p>
         </div>
       </div>
@@ -415,11 +410,11 @@ export function ProveedoresKPI({ data, anio }) {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--color-danger)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
-                    {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(r.pendiente)}
+                    {soles(r.pendiente)}
                   </p>
                   {r.cancelado > 0 && (
                     <p style={{ margin: '0.1rem 0 0', fontSize: 'var(--text-2xs)', color: 'var(--color-success)', fontVariantNumeric: 'tabular-nums' }}>
-                      +{new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(r.cancelado)} pagado
+                      +{soles(r.cancelado)} pagado
                     </p>
                   )}
                 </div>
@@ -512,9 +507,7 @@ export function LineChart({ data }) {
             callbacks: {
               label: (context) => {
                 const label = context.dataset.label || '';
-                const value = new Intl.NumberFormat('es-PE', {
-                  style: 'currency', currency: 'PEN',
-                }).format(context.raw);
+                const value = soles(context.raw);
                 return `${label}: ${value}`;
               },
             },
@@ -527,9 +520,7 @@ export function LineChart({ data }) {
             ticks: {
               color: c.text2,
               callback: (value) =>
-                new Intl.NumberFormat('es-PE', {
-                  style: 'currency', currency: 'PEN', notation: 'compact',
-                }).format(value),
+                solesCompacto(value),
             },
           },
           x: {

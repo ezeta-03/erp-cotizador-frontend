@@ -70,25 +70,6 @@
   display: none;
 }
 
-.btnTheme {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: 50%;
-  color: var(--color-text3);
-  cursor: pointer;
-  transition: $transition-fast;
-
-  &:hover {
-    background: var(--color-hover);
-    border-color: var(--color-hover-border);
-    color: var(--color-accent);
-  }
-}
 
 .btnLogout {
   display: flex;

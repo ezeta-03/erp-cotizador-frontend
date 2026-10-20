@@ -7,9 +7,9 @@ export const ESTADOS_EXTERNO = ["LIBRE_EXTERNO", "OCUPADO_EXTERNO"];
 export const esEstadoExterno = (estado) => ESTADOS_EXTERNO.includes(estado);
 
 export const ESTADO_META = {
-  LIBRE:           { label: "Libre",           color: "#10b981", cls: "badgeLibre"       },
-  LIBRE_EXTERNO:   { label: "Libre externo",   color: "#ff6600", cls: "badgeLibreExt"    },
-  OCUPADO:         { label: "Ocupado",         color: "#ef4444", cls: "badgeOcupado"     },
-  OCUPADO_EXTERNO: { label: "Ocupado externo", color: "#c2410c", cls: "badgeOcupadoExt"  },
-  REEMPLAZO:       { label: "Reemplazo",       color: "#3b82f6", cls: "badgeReemplazo"   },
+  LIBRE:           { label: "Libre",           color: "var(--color-success)", cls: "badgeLibre"       },
+  LIBRE_EXTERNO:   { label: "Libre externo",   color: "var(--color-accent)", cls: "badgeLibreExt"    },
+  OCUPADO:         { label: "Ocupado",         color: "var(--color-danger)", cls: "badgeOcupado"     },
+  OCUPADO_EXTERNO: { label: "Ocupado externo", color: "var(--badge-orange-text)", cls: "badgeOcupadoExt"  },
+  REEMPLAZO:       { label: "Reemplazo",       color: "var(--color-info)", cls: "badgeReemplazo"   },
 };

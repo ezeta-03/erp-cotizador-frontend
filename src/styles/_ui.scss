@@ -1,11 +1,11 @@
 /* ===== Premium UI System ===== */
 @use "./variables" as *;
 
-$bg-slate-50: #f8fafc;
-$bg-slate-100: #f1f5f9;
-$text-slate-900: #0f172a;
-$text-slate-600: #475569;
-$text-slate-400: #94a3b8;
+$bg-slate-50: var(--color-bg);
+$bg-slate-100: var(--color-surface2);
+$text-slate-900: var(--color-text1);
+$text-slate-600: var(--color-text2);
+$text-slate-400: var(--color-text3);
 
 $radius-lg: var(--radius-xl);
 $radius-md: var(--radius-lg);

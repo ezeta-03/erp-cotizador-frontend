@@ -11,10 +11,11 @@ import {
 } from "../api/rentabilidad";
 import { getEventosProduccion, crearEventoProduccion, eliminarEventoProduccion } from "../api/eventosProduccion";
 import styles from "./rentabilidad.module.scss";
+import { soles } from "../utils/formato";
 
 const MESES_LABEL = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
-const fmt = (v) => new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v ?? 0);
+const fmt = (v) => soles(v ?? 0);
 const pct = (value, base) => (base ? `${((value / base) * 100).toFixed(1)}%` : "—");
 const mesLabel = (fecha) =>
   new Intl.DateTimeFormat("es-PE", { month: "short", year: "numeric" }).format(new Date(fecha));
