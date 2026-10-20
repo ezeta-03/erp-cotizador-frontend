@@ -17,15 +17,15 @@
 }
 
 .field label {
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   margin-bottom: 0.3rem;
   font-weight: 500;
 }
 
 .field input {
   padding: 0.4rem 0.6rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-input-border);
 }
 
 .actions {
@@ -37,25 +37,25 @@
 .readOnly {
   background-color: #f4f4f4;
   cursor: not-allowed;
-  color: #666;
+  color: var(--color-text2);
 }
 
 .btnSave {
-  background-color: #10b981;
-  color: #fff;
+  background-color: var(--color-success);
+  color: var(--color-on-accent);
   border: none;
   padding: 0.6rem 1.2rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 600;
 }
 
 .btnRecalculate {
-  background-color: #f59e0b;
-  color: #fff;
+  background-color: var(--color-warning);
+  color: var(--color-on-accent);
   border: none;
   padding: 0.6rem 1.2rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 600;
 }

@@ -49,7 +49,7 @@ export default function CambiarContrasena() {
 
       <div className={styles.card}>
         <div className={styles.cardIcon}>
-          <KeyRound size={28} color="#6b7280" />
+          <KeyRound size={28} style={{ color: "var(--color-text3)" }} />
         </div>
 
         {exito && (

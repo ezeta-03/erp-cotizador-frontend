@@ -6,20 +6,20 @@ import useAuth from "../auth/useAuth";
 const nombreProducto = (p) => p?.nombre || p?.material || "(producto)";
 
 const ESTADO_COLORS = {
-  PENDIENTE: { bg: "#fef9c3", color: "#854d0e" },
-  APROBADA: { bg: "#dcfce7", color: "#166534" },
-  FACTURADA: { bg: "#dbeafe", color: "#1e40af" },
+  PENDIENTE: { bg: "var(--badge-yellow-bg)", color: "var(--badge-yellow-text)" },
+  APROBADA: { bg: "var(--badge-green-bg)", color: "var(--badge-green-text)" },
+  FACTURADA: { bg: "var(--badge-blue-bg)", color: "var(--badge-blue-text)" },
 };
 
 const badge = (estado) => {
-  const s = ESTADO_COLORS[estado] || { bg: "#f3f4f6", color: "#374151" };
+  const s = ESTADO_COLORS[estado] || { bg: "var(--badge-gray-bg)", color: "var(--color-text2)" };
   return (
     <span
       style={{
         display: "inline-block",
         padding: "0.15rem 0.5rem",
         borderRadius: "99px",
-        fontSize: "0.75rem",
+        fontSize: "var(--text-xs)",
         fontWeight: 600,
         background: s.bg,
         color: s.color,
@@ -63,15 +63,15 @@ export default function ActividadClientes() {
       <FiltrosClientes onBuscar={buscarActividad} />
 
       {loading ? (
-        <p style={{ color: "#6b7280", marginTop: "1rem" }}>Cargando...</p>
+        <p style={{ color: "var(--color-text3)", marginTop: "1rem" }}>Cargando...</p>
       ) : actividad.length === 0 ? (
-        <p style={{ color: "#9ca3af", marginTop: "1.5rem", textAlign: "center" }}>
+        <p style={{ color: "var(--color-text3)", marginTop: "1.5rem", textAlign: "center" }}>
           No hay cotizaciones registradas.
         </p>
       ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem", fontSize: "0.875rem" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem", fontSize: "var(--text-base)" }}>
           <thead>
-            <tr style={{ background: "#f9fafb", borderBottom: "2px solid #e5e7eb" }}>
+            <tr style={{ background: "var(--color-bg)", borderBottom: "2px solid var(--color-border)" }}>
               <th style={thStyle}>Cliente</th>
               <th style={thStyle}>N° Cotización</th>
               <th style={thStyle}>Productos</th>
@@ -83,7 +83,7 @@ export default function ActividadClientes() {
           </thead>
           <tbody>
             {actividad.map((c) => (
-              <tr key={c.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
+              <tr key={c.id} style={{ borderBottom: "1px solid var(--badge-gray-bg)" }}>
                 <td style={tdStyle}>{c.cliente?.nombreComercial}</td>
                 <td style={tdStyle}>{c.numero}</td>
                 <td style={tdStyle}>
@@ -106,14 +106,14 @@ const thStyle = {
   padding: "0.6rem 0.75rem",
   textAlign: "left",
   fontWeight: 600,
-  fontSize: "0.75rem",
+  fontSize: "var(--text-xs)",
   textTransform: "uppercase",
   letterSpacing: "0.04em",
-  color: "#6b7280",
+  color: "var(--color-text3)",
 };
 
 const tdStyle = {
   padding: "0.65rem 0.75rem",
-  color: "#374151",
+  color: "var(--color-text2)",
   verticalAlign: "middle",
 };

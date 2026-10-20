@@ -14,11 +14,11 @@ import UsuarioFormModal from "./UsuarioFormModal";
 import ModulosRolModal from "./ModulosRolModal";
 
 const EVENTO_LABEL = {
-  INVITADO:      { label: "Invitado",        bg: "#dbeafe", color: "#1e40af" },
-  REINVITADO:    { label: "Re-invitado",     bg: "#fef9c3", color: "#854d0e" },
-  ACTIVADO:      { label: "Cuenta activada", bg: "#dcfce7", color: "#166534" },
-  DESACTIVADO:   { label: "Desactivado",     bg: "#fee2e2", color: "#991b1b" },
-  ACTIVADO_ADMIN:{ label: "Activado (admin)",bg: "#d1fae5", color: "#065f46" },
+  INVITADO:      { label: "Invitado",        bg: "var(--badge-blue-bg)", color: "var(--badge-blue-text)" },
+  REINVITADO:    { label: "Re-invitado",     bg: "var(--badge-yellow-bg)", color: "var(--badge-yellow-text)" },
+  ACTIVADO:      { label: "Cuenta activada", bg: "var(--badge-green-bg)", color: "var(--badge-green-text)" },
+  DESACTIVADO:   { label: "Desactivado",     bg: "var(--badge-red-bg)", color: "var(--badge-red-text)" },
+  ACTIVADO_ADMIN:{ label: "Activado (admin)",bg: "var(--badge-green-bg)", color: "var(--badge-green-text)" },
 };
 
 function RolBadge({ role }) {
@@ -243,43 +243,43 @@ export default function Usuarios() {
           display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem",
         }}>
           <div style={{
-            background: "#fff", borderRadius: "12px", width: "100%", maxWidth: "500px",
+            background: "var(--color-surface)", borderRadius: "12px", width: "100%", maxWidth: "500px",
             boxShadow: "0 20px 60px rgba(0,0,0,0.2)", overflow: "hidden",
           }}>
             <div style={{
               display: "flex", justifyContent: "space-between", alignItems: "center",
-              padding: "1rem 1.25rem", borderBottom: "1px solid #e5e7eb",
+              padding: "1rem 1.25rem", borderBottom: "1px solid var(--color-border)",
             }}>
               <div>
-                <p style={{ margin: 0, fontWeight: 700, fontSize: "0.95rem" }}>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: "var(--text-md)" }}>
                   Historial — {logUsuario.nombre}
                 </p>
-                <p style={{ margin: 0, fontSize: "0.78rem", color: "#6b7280" }}>{logUsuario.email}</p>
+                <p style={{ margin: 0, fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>{logUsuario.email}</p>
               </div>
               <button
                 onClick={() => setLogUsuario(null)}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#6b7280" }}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text3)" }}
               >
                 <X size={18} />
               </button>
             </div>
             <div style={{ padding: "1rem 1.25rem", maxHeight: "400px", overflowY: "auto" }}>
               {loadingLog ? (
-                <p style={{ color: "#9ca3af", fontSize: "0.875rem" }}>Cargando...</p>
+                <p style={{ color: "var(--color-text3)", fontSize: "var(--text-base)" }}>Cargando...</p>
               ) : logEntradas.length === 0 ? (
-                <p style={{ color: "#9ca3af", fontSize: "0.875rem" }}>Sin actividad registrada aún.</p>
+                <p style={{ color: "var(--color-text3)", fontSize: "var(--text-base)" }}>Sin actividad registrada aún.</p>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                   {logEntradas.map((e) => {
-                    const ev = EVENTO_LABEL[e.evento] || { label: e.evento, bg: "#f3f4f6", color: "#374151" };
+                    const ev = EVENTO_LABEL[e.evento] || { label: e.evento, bg: "var(--badge-gray-bg)", color: "var(--color-text2)" };
                     return (
                       <div key={e.id} style={{
                         display: "flex", gap: "0.75rem", alignItems: "flex-start",
-                        padding: "0.6rem 0.75rem", background: "#f9fafb",
-                        borderRadius: "8px", border: "1px solid #f3f4f6",
+                        padding: "0.6rem 0.75rem", background: "var(--color-bg)",
+                        borderRadius: "8px", border: "1px solid var(--color-border)",
                       }}>
                         <span style={{
-                          fontSize: "0.7rem", fontWeight: 700, padding: "0.15rem 0.5rem",
+                          fontSize: "var(--text-2xs)", fontWeight: 700, padding: "0.15rem 0.5rem",
                           borderRadius: "99px", background: ev.bg, color: ev.color,
                           whiteSpace: "nowrap", marginTop: "0.1rem",
                         }}>
@@ -287,11 +287,11 @@ export default function Usuarios() {
                         </span>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           {e.realizadoPor && (
-                            <p style={{ margin: 0, fontSize: "0.8rem", color: "#374151", fontWeight: 500 }}>
+                            <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--color-text2)", fontWeight: 500 }}>
                               por {e.realizadoPor.nombre}
                             </p>
                           )}
-                          <p style={{ margin: 0, fontSize: "0.75rem", color: "#9ca3af" }}>
+                          <p style={{ margin: 0, fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>
                             {new Date(e.createdAt).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })}
                             {" · "}
                             {new Date(e.createdAt).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}

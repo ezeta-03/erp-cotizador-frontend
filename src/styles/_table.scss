@@ -13,7 +13,7 @@ th {
   background: $gray-100;
   text-align: left;
   padding: 12px;
-  font-size: 14px;
+  font-size: var(--text-base);
 }
 
 td {
@@ -26,14 +26,14 @@ tr:hover {
 }
 
 .btnEdit {
-  // background: #3b82f6;
-  color: #fff;
-  border-radius: 0.1rem;
+  // background: var(--color-info);
+  color: var(--color-on-accent);
+  border-radius: var(--radius-xs);
   border: none;
 }
 .btnDelete {
   // background: red;
-  color: #fff;
-  border-radius: 0.1rem;
+  color: var(--color-on-accent);
+  border-radius: var(--radius-xs);
   border: none;
 }

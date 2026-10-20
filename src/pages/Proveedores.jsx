@@ -22,46 +22,46 @@ function ProveedoresResumen({ data }) {
 
   const ec = estadoConteo;
   const tiles = [
-    { valor: totalProveedores,   label: "Proveedores activos", color: "#6366f1", bg: "rgba(99,102,241,0.08)",  border: "rgba(99,102,241,0.18)"  },
-    { valor: ec.VIGENTE    ?? 0, label: "Vigentes",            color: "#10b981", bg: "rgba(16,185,129,0.08)",  border: "rgba(16,185,129,0.18)"  },
+    { valor: totalProveedores,   label: "Proveedores activos", color: "var(--color-violet)", bg: "rgba(99,102,241,0.08)",  border: "rgba(99,102,241,0.18)"  },
+    { valor: ec.VIGENTE    ?? 0, label: "Vigentes",            color: "var(--color-success)", bg: "rgba(16,185,129,0.08)",  border: "rgba(16,185,129,0.18)"  },
     { valor: ec.VENCIDO    ?? 0, label: "Vencidos",
-      color:  (ec.VENCIDO  ?? 0) > 0 ? "#ef4444" : "#94a3b8",
+      color:  (ec.VENCIDO  ?? 0) > 0 ? "var(--color-danger)" : "var(--color-text3)",
       bg:     (ec.VENCIDO  ?? 0) > 0 ? "rgba(239,68,68,0.08)"   : "rgba(148,163,184,0.06)",
       border: (ec.VENCIDO  ?? 0) > 0 ? "rgba(239,68,68,0.18)"   : "rgba(148,163,184,0.12)",
     },
     { valor: ec.SUSPENDIDO ?? 0, label: "Suspendidos",
-      color:  (ec.SUSPENDIDO ?? 0) > 0 ? "#f59e0b" : "#94a3b8",
+      color:  (ec.SUSPENDIDO ?? 0) > 0 ? "var(--color-warning)" : "var(--color-text3)",
       bg:     (ec.SUSPENDIDO ?? 0) > 0 ? "rgba(245,158,11,0.08)" : "rgba(148,163,184,0.06)",
       border: (ec.SUSPENDIDO ?? 0) > 0 ? "rgba(245,158,11,0.18)" : "rgba(148,163,184,0.12)",
     },
-    { valor: fmtC(totalPendiente), label: `Por pagar ${anio}`, color: "#f59e0b", bg: "rgba(245,158,11,0.08)",  border: "rgba(245,158,11,0.18)"  },
-    { valor: fmtC(totalCancelado), label: `Pagado ${anio}`,    color: "#10b981", bg: "rgba(16,185,129,0.08)",  border: "rgba(16,185,129,0.18)"  },
+    { valor: fmtC(totalPendiente), label: `Por pagar ${anio}`, color: "var(--color-warning)", bg: "rgba(245,158,11,0.08)",  border: "rgba(245,158,11,0.18)"  },
+    { valor: fmtC(totalCancelado), label: `Pagado ${anio}`,    color: "var(--color-success)", bg: "rgba(16,185,129,0.08)",  border: "rgba(16,185,129,0.18)"  },
     { valor: `${pctPagado}%`,      label: "Cuotas pagadas",
-      color:  pctPagado >= 50 ? "#10b981" : pctPagado >= 25 ? "#f59e0b" : "#ef4444",
+      color:  pctPagado >= 50 ? "var(--color-success)" : pctPagado >= 25 ? "var(--color-warning)" : "var(--color-danger)",
       bg:     pctPagado >= 50 ? "rgba(16,185,129,0.08)" : pctPagado >= 25 ? "rgba(245,158,11,0.08)" : "rgba(239,68,68,0.08)",
       border: pctPagado >= 50 ? "rgba(16,185,129,0.18)" : pctPagado >= 25 ? "rgba(245,158,11,0.18)" : "rgba(239,68,68,0.18)",
     },
   ];
-  const barColor = pctPagado >= 50 ? "#10b981" : pctPagado >= 25 ? "#f59e0b" : "#ef4444";
+  const barColor = pctPagado >= 50 ? "var(--color-success)" : pctPagado >= 25 ? "var(--color-warning)" : "var(--color-danger)";
 
   return (
     <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "1rem" }}>
       <div>
-        <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 600, color: "var(--color-text1)" }}>Módulo Proveedores</h3>
-        <p style={{ margin: "0.2rem 0 0", fontSize: "0.75rem", color: "var(--color-text3)" }}>resumen {anio}</p>
+        <h3 style={{ margin: 0, fontSize: "var(--text-md)", fontWeight: 600, color: "var(--color-text1)" }}>Módulo Proveedores</h3>
+        <p style={{ margin: "0.2rem 0 0", fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>resumen {anio}</p>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.65rem" }}>
         {tiles.map((t, i) => (
           <div key={i} style={{ background: t.bg, border: `1px solid ${t.border}`, borderRadius: "10px", padding: "0.875rem 1rem" }}>
-            <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: 700, color: t.color, fontVariantNumeric: "tabular-nums", lineHeight: 1.1 }}>{t.valor}</p>
-            <p style={{ margin: "0.3rem 0 0", fontSize: "0.7rem", color: "var(--color-text2)", fontWeight: 500, lineHeight: 1.3 }}>{t.label}</p>
+            <p style={{ margin: 0, fontSize: "var(--text-xl)", fontWeight: 700, color: t.color, fontVariantNumeric: "tabular-nums", lineHeight: 1.1 }}>{t.valor}</p>
+            <p style={{ margin: "0.3rem 0 0", fontSize: "var(--text-2xs)", color: "var(--color-text2)", fontWeight: 500, lineHeight: 1.3 }}>{t.label}</p>
           </div>
         ))}
       </div>
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.35rem" }}>
-          <span style={{ fontSize: "0.75rem", color: "var(--color-text2)" }}>Progreso de pagos {anio}</span>
-          <span style={{ fontSize: "0.75rem", fontWeight: 700, color: barColor }}>{pctPagado}%</span>
+          <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text2)" }}>Progreso de pagos {anio}</span>
+          <span style={{ fontSize: "var(--text-xs)", fontWeight: 700, color: barColor }}>{pctPagado}%</span>
         </div>
         <div style={{ height: "6px", background: "var(--color-border)", borderRadius: "99px", overflow: "hidden" }}>
           <div style={{ width: `${pctPagado}%`, height: "100%", background: barColor, borderRadius: "99px", transition: "width 0.4s" }} />
@@ -513,7 +513,7 @@ export default function Proveedores() {
                       {totalPagado > 0 ? (
                         <span className={styles.tdPagado}>{fmtMoney(totalPagado)}</span>
                       ) : (
-                        <span style={{ color: 'var(--color-text3)', fontSize: '0.8rem' }}>—</span>
+                        <span style={{ color: 'var(--color-text3)', fontSize: 'var(--text-sm)' }}>—</span>
                       )}
                     </td>
 

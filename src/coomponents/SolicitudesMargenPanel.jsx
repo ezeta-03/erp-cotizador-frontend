@@ -120,7 +120,7 @@ export default function SolicitudesMargenPanel() {
             <tbody>
               {solicitudes.map((sol) => (
                 <>
-                  <tr key={sol.id} style={{ borderBottom: rechazando === sol.id ? "none" : "1px solid #f3f4f6" }}>
+                  <tr key={sol.id} style={{ borderBottom: rechazando === sol.id ? "none" : "1px solid var(--badge-gray-bg)" }}>
                     <td className={s.tdNombre}>
                       <div className={s.tdNombreMain}>{sol.usuario?.nombre}</div>
                       <div className={s.tdNombreSub}>{sol.usuario?.email}</div>

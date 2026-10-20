@@ -358,8 +358,8 @@ function RentabilidadMensualChart({ filas, anio, setAnio }) {
         <span className={styles.chartAnio}>{anio}</span>
         <button className={styles.btnGhost} onClick={() => setAnio(anio + 1)}><ChevronRight size={16} /></button>
         <span className={styles.chartLeyenda}>
-          <span className={styles.legendDot} style={{ background: "#10b981" }} /> Utilidad
-          <span className={styles.legendDot} style={{ background: "#ef4444" }} /> Pérdida
+          <span className={styles.legendDot} style={{ background: "var(--color-success)" }} /> Utilidad
+          <span className={styles.legendDot} style={{ background: "var(--color-danger)" }} /> Pérdida
         </span>
       </div>
 
@@ -370,10 +370,10 @@ function RentabilidadMensualChart({ filas, anio, setAnio }) {
             const x = padding + gap * i + gap / 2 - barW / 2;
             const h = (Math.abs(d.rentabilidad) / maxAbs) * (chartH / 2 - 14);
             const y = d.rentabilidad >= 0 ? zeroY - h : zeroY;
-            const color = d.rentabilidad >= 0 ? "#10b981" : "#ef4444";
+            const color = d.rentabilidad >= 0 ? "var(--color-success)" : "var(--color-danger)";
             return (
               <g key={d.mes} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)} style={{ cursor: "pointer" }}>
-                <rect x={x} y={y} width={barW} height={Math.max(h, 2)} rx={2} fill={color} opacity={hover === i ? 1 : 0.85} />
+                <rect x={x} y={y} width={barW} height={Math.max(h, 2)} rx={2} style={{ fill: color }} opacity={hover === i ? 1 : 0.85} />
                 <rect x={x} y={zeroY - 12} width={barW} height={24} fill="transparent" />
                 <text x={x + barW / 2} y={height - 6} textAnchor="middle" className={styles.chartMesLabel}>{MESES_LABEL[i]}</text>
               </g>

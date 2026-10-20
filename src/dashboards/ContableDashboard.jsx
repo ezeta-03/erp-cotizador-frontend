@@ -77,7 +77,7 @@ export default function ContableDashboard() {
         <div className={styles.statsGrid}>
           <div className={`${styles.statCard} ${styles.statCard_green}`}>
             <div className={styles.statIcon}>
-              <CheckCircle size={28} color="#10b981" />
+              <CheckCircle size={28} style={{ color: "var(--color-success)" }} />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Aprobadas (pendientes facturar)</p>
@@ -90,7 +90,7 @@ export default function ContableDashboard() {
 
           <div className={`${styles.statCard} ${styles.statCard_purple}`}>
             <div className={styles.statIcon}>
-              <DollarSign size={28} color="#8b5cf6" />
+              <DollarSign size={28} style={{ color: "var(--color-violet)" }} />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Facturadas</p>
@@ -98,7 +98,7 @@ export default function ContableDashboard() {
               <p className={styles.statChange}>
                 {formatCurrency(estadisticas.FACTURADA?.total || 0)}
               </p>
-              <p style={{ fontSize: "0.7rem", color: "var(--color-text3)", margin: "0.2rem 0 0" }}>
+              <p style={{ fontSize: "var(--text-2xs)", color: "var(--color-text3)", margin: "0.2rem 0 0" }}>
                 Suma cotizaciones con y sin IGV
               </p>
             </div>
@@ -106,7 +106,7 @@ export default function ContableDashboard() {
 
           <div className={`${styles.statCard} ${styles.statCard_yellow}`}>
             <div className={styles.statIcon}>
-              <Clock size={28} color="#f59e0b" />
+              <Clock size={28} style={{ color: "var(--color-warning)" }} />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Pendientes respuesta</p>
@@ -119,7 +119,7 @@ export default function ContableDashboard() {
 
           <div className={`${styles.statCard} ${styles.statCard_blue}`}>
             <div className={styles.statIcon}>
-              <FileText size={28} color="#3b82f6" />
+              <FileText size={28} style={{ color: "var(--color-info)" }} />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Total cotizaciones</p>
@@ -131,7 +131,7 @@ export default function ContableDashboard() {
                   Object.values(estadisticas).reduce((s, e) => s + e.total, 0)
                 )}
               </p>
-              <p style={{ fontSize: "0.7rem", color: "var(--color-text3)", margin: "0.2rem 0 0" }}>
+              <p style={{ fontSize: "var(--text-2xs)", color: "var(--color-text3)", margin: "0.2rem 0 0" }}>
                 Suma cotizaciones con y sin IGV
               </p>
             </div>

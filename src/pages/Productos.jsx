@@ -537,7 +537,7 @@ export default function Productos() {
 
       {/* ── Confirmación eliminar todos ── */}
       {confirmEliminarTodos && (
-        <div className={styles.confirmBanner} style={{ borderColor: "#fca5a5", background: "#fff1f2", color: "#991b1b" }}>
+        <div className={styles.confirmBanner} style={{ borderColor: "var(--color-danger-bg)", background: "var(--color-danger-bg)", color: "var(--badge-red-text)" }}>
           <AlertTriangle size={20} />
           <div>
             <strong>¿Eliminar todos los productos?</strong>

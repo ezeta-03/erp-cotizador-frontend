@@ -1,114 +1,105 @@
 /* =============================================
-   SISTEMA DE TEMAS — Light & Dark
-   Uso: var(--color-xxx) en todos los SCSS
+   SISTEMA DE DISEÑO — "Ceniza refinada" (solo tema claro)
+   Uso: var(--xxx) en todos los SCSS y en estilos en línea.
+   No escribir colores hex sueltos: si falta uno, se agrega acá.
    ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@500;600;700;800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
 :root {
   color-scheme: light;
 
-  /* Fondos */
-  --color-bg:       #f8fafc;
+  /* ── Tipografía ── */
+  --font-display: "Urbanist", "Century Gothic", "Futura", system-ui, sans-serif;
+  --font-body:    "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, Consolas, monospace;
+
+  /* Escala de tamaños: usar solo estos */
+  --text-2xs:  0.6875rem; /* 11px — etiquetas mínimas, ejes */
+  --text-xs:   0.75rem;   /* 12px — captions, encabezados de tabla */
+  --text-sm:   0.8125rem; /* 13px — texto secundario */
+  --text-base: 0.875rem;  /* 14px — texto de interfaz */
+  --text-md:   1rem;      /* 16px — texto de lectura */
+  --text-lg:   1.125rem;  /* 18px — subtítulos */
+  --text-xl:   1.25rem;   /* 20px — títulos de tarjeta / modal */
+  --text-2xl:  1.625rem;  /* 26px — títulos de página */
+  --text-3xl:  2.125rem;  /* 34px — cifras KPI destacadas */
+  --text-4xl:  2.75rem;   /* 44px — portadas */
+
+  /* ── Radios ── */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  20px;
+  --radius-pill: 999px;
+
+  /* ── Fondos ── */
+  --color-bg:       #f5f6f8;
   --color-surface:  #ffffff;
-  --color-surface2: #f1f5f9;
-  --color-surface3: #e2e8f0;
+  --color-surface2: #f0f2f5;
+  --color-surface3: #e4e7ec;
 
-  /* Bordes */
-  --color-border:   #e2e8f0;
-  --color-border2:  #f1f5f9;
+  /* ── Bordes ── */
+  --color-border:   #e4e7ec;
+  --color-border2:  #f0f2f5;
 
-  /* Texto */
-  --color-text1:    #0f172a;
-  --color-text2:    #475569;
-  --color-text3:    #94a3b8;
+  /* ── Texto ── */
+  --color-text1:    #161a1f;
+  --color-text2:    #4b5360;
+  --color-text3:    #6b7380;
+  --color-on-accent: #ffffff; /* texto sobre rellenos de color */
 
-  /* Inputs */
+  /* ── Inputs ── */
   --color-input-bg:     #ffffff;
-  --color-input-border: #cbd5e1;
+  --color-input-border: #cfd4db;
 
-  /* Acento de marca (Ceniza) — el naranja se reserva para acción/estado */
+  /* ── Acento de marca: naranja Zaazmago, reservado para acción y estado ── */
   --color-accent:       #ff6600;
   --color-accent-hover: #e65c00;
-  --color-accent-light: #ffedd5;
+  --color-accent-light: #fff0e5;
+  --color-accent-text:  #c24d00; /* naranja legible como texto sobre blanco */
 
-  /* Sombras */
-  --shadow-soft:  0 10px 40px -10px rgba(0,0,0,0.08);
-  --shadow-hover: 0 20px 40px -10px rgba(0,0,0,0.12);
-  --shadow-modal: 0 25px 60px -15px rgba(0,0,0,0.25);
+  /* ── Semánticos ── */
+  --color-success:    #059669;
+  --color-success-bg: #dcf5ea;
+  --color-warning:    #d97706;
+  --color-warning-bg: #fef3c7;
+  --color-danger:     #dc2626;
+  --color-danger-bg:  #fdecec;
+  --color-info:       #2563eb;
+  --color-info-bg:    #e1ebfd;
+  --color-violet:     #6366f1;
+  --color-violet-bg:  #ede9fe;
+  --color-teal:       #0d9488;
 
-  /* Badges / etiquetas de estado */
-  --badge-green-bg:   #dcfce7;
-  --badge-green-text: #166534;
-  --badge-blue-bg:    #dbeafe;
-  --badge-blue-text:  #1e40af;
-  --badge-yellow-bg:  #fef9c3;
-  --badge-yellow-text:#854d0e;
-  --badge-red-bg:     #fee2e2;
-  --badge-red-text:   #991b1b;
-  --badge-orange-bg:  #ffedd5;
-  --badge-orange-text:#9a3412;
-  --badge-gray-bg:    #f1f5f9;
-  --badge-gray-text:  #64748b;
+  /* ── Sombras ── */
+  --shadow-soft:  0 1px 2px rgba(22,26,31,0.04), 0 4px 16px -6px rgba(22,26,31,0.08);
+  --shadow-hover: 0 2px 4px rgba(22,26,31,0.05), 0 12px 28px -10px rgba(22,26,31,0.16);
+  --shadow-modal: 0 24px 60px -16px rgba(22,26,31,0.28);
+  --color-overlay: rgba(22,26,31,0.45);
+
+  /* ── Badges / etiquetas de estado ── */
+  --badge-green-bg:   #dcf5ea;
+  --badge-green-text: #0b6b48;
+  --badge-blue-bg:    #e1ebfd;
+  --badge-blue-text:  #1f4fb3;
+  --badge-yellow-bg:  #fef3c7;
+  --badge-yellow-text:#8a4b0b;
+  --badge-red-bg:     #fde3e3;
+  --badge-red-text:   #a12626;
+  --badge-orange-bg:  #fff0e5;
+  --badge-orange-text:#a8420a;
+  --badge-gray-bg:    #eef0f3;
+  --badge-gray-text:  #555d69;
   --badge-purple-bg:  #ede9fe;
   --badge-purple-text:#5b21b6;
 
-  /* Hover — tinte naranja suave, coherente con el acento */
+  /* ── Hover: tinte naranja suave, coherente con el acento ── */
   --color-hover:        rgba(255, 102, 0, 0.06);
   --color-hover-border: rgba(255, 102, 0, 0.28);
 
-  /* Transición global de tema */
-  --theme-transition: background-color 0.25s ease, color 0.25s ease,
-                      border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-[data-theme="dark"] {
-  color-scheme: dark;
-
-  /* Fondos — acero (Ceniza): base #1E1E1E de marca, estructura gris-azulada */
-  --color-bg:       #1e1e1e;
-  --color-surface:  #272b32;
-  --color-surface2: #3d4654;
-  --color-surface3: #454f5e;
-
-  /* Bordes */
-  --color-border:   rgba(255,255,255,0.09);
-  --color-border2:  rgba(255,255,255,0.05);
-
-  /* Texto */
-  --color-text1:    #e9ecef;
-  --color-text2:    #b0b7c1;
-  --color-text3:    #8b95a3;
-
-  /* Inputs */
-  --color-input-bg:     rgba(255,255,255,0.06);
-  --color-input-border: rgba(255,255,255,0.14);
-
-  /* Acento de marca — más brillante que en claro para leer bien sobre el acero */
-  --color-accent:       #ff7a1f;
-  --color-accent-hover: #ff6600;
-  --color-accent-light: rgba(255, 122, 31, 0.18);
-
-  /* Sombras */
-  --shadow-soft:  0 10px 40px -10px rgba(0,0,0,0.45);
-  --shadow-hover: 0 20px 40px -10px rgba(0,0,0,0.55);
-  --shadow-modal: 0 25px 60px -15px rgba(0,0,0,0.7);
-
-  /* Hover en dark — tinte naranja más visible sobre el acero */
-  --color-hover:        rgba(255, 122, 31, 0.12);
-  --color-hover-border: rgba(255, 122, 31, 0.4);
-
-  /* Badges — tonos pastel adaptados al fondo navy */
-  --badge-green-bg:   rgba(16, 185, 129, 0.18);
-  --badge-green-text: #4ade80;
-  --badge-blue-bg:    rgba(59, 130, 246, 0.18);
-  --badge-blue-text:  #60a5fa;
-  --badge-yellow-bg:  rgba(234, 179, 8, 0.18);
-  --badge-yellow-text:#facc15;
-  --badge-red-bg:     rgba(239, 68, 68, 0.18);
-  --badge-red-text:   #f87171;
-  --badge-orange-bg:  rgba(255, 102, 0, 0.18);
-  --badge-orange-text:#fb923c;
-  --badge-gray-bg:    rgba(255,255,255,0.08);
-  --badge-gray-text:  #94a3b8;
-  --badge-purple-bg:  rgba(139, 92, 246, 0.18);
-  --badge-purple-text:#c4b5fd;
+  --theme-transition: background-color 0.2s ease, color 0.2s ease,
+                      border-color 0.2s ease, box-shadow 0.2s ease;
 }

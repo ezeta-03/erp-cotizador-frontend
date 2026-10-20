@@ -94,7 +94,7 @@ export default function VentasDashboard() {
         <div className={styles.statsGrid}>
           <div className={`${styles.statCard} ${styles.statCard_blue}`}>
             <div className={styles.statIcon}>
-              <FileText size={24} color="#3b82f6" />
+              <FileText size={24} style={{ color: "var(--color-info)" }} />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Total Cotizaciones</p>
@@ -109,7 +109,7 @@ export default function VentasDashboard() {
 
           <div className={`${styles.statCard} ${styles.statCard_green}`}>
             <div className={styles.statIcon}>
-              <CheckCircle size={24} color="#10b981" />
+              <CheckCircle size={24} style={{ color: "var(--color-success)" }} />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Aprobadas</p>
@@ -122,7 +122,7 @@ export default function VentasDashboard() {
 
           <div className={`${styles.statCard} ${styles.statCard_purple}`}>
             <div className={styles.statIcon}>
-              <DollarSign size={24} color="#8b5cf6" />
+              <DollarSign size={24} style={{ color: "var(--color-violet)" }} />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Facturadas</p>
@@ -135,7 +135,7 @@ export default function VentasDashboard() {
 
           <div className={`${styles.statCard} ${styles.statCard_yellow}`}>
             <div className={styles.statIcon}>
-              <Clock size={24} color="#f59e0b" />
+              <Clock size={24} style={{ color: "var(--color-warning)" }} />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Pendientes</p>

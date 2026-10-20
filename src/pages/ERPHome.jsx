@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import GridLayout, { WidthProvider } from "react-grid-layout/legacy";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import { LogOut, Moon, Sun, Settings2, Plus, X, Check, ChevronUp, ChevronDown } from "lucide-react";
+import { LogOut, Settings2, Plus, X, Check, ChevronUp, ChevronDown } from "lucide-react";
 import useAuth from "../auth/useAuth";
-import useDarkMode from "../hooks/useDarkMode";
 import { getResumenDashboard } from "../api/dashboard";
 import { getPanelWidgets, savePanelWidgets } from "../api/panelWidgets";
 import { WIDGET_REGISTRY, kindsForRole, nextFreeSlot } from "../constants/widgets";
@@ -116,7 +115,6 @@ function TileContent({ data, compact }) {
 export default function ERPHome() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [dark, toggleDark] = useDarkMode();
   const role = user?.role?.toLowerCase() ?? "";
   const initials = user?.nombre?.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
 
@@ -233,9 +231,6 @@ export default function ERPHome() {
             <span className={styles.userRole}>{user?.role}</span>
           </div>
           <div className={styles.userAvatar} aria-hidden="true">{initials}</div>
-          <button className={styles.btnTheme} onClick={toggleDark} title={dark ? "Modo claro" : "Modo oscuro"}>
-            {dark ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
           <button className={styles.btnLogout} onClick={logout} title="Cerrar sesión">
             <LogOut size={18} />
           </button>

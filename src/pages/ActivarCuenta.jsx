@@ -34,7 +34,7 @@ export default function ActivarCuenta() {
   if (!token) {
     return (
       <div className={styles.loginPage}>
-        <p style={{ color: "#fff" }}>Token inválido o enlace expirado.</p>
+        <p style={{ color: "var(--color-on-accent)" }}>Token inválido o enlace expirado.</p>
       </div>
     );
   }

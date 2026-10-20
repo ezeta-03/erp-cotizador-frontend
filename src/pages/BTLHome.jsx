@@ -9,7 +9,7 @@ const SECCIONES = [
     label: "Productos",
     description: "Catálogo de productos y precios para campañas BTL",
     icon: Package,
-    color: "#10b981",
+    color: "var(--color-success)",
     available: true,
   },
   {
@@ -17,7 +17,7 @@ const SECCIONES = [
     label: "Cotizador",
     description: "Genera cotizaciones para campañas BTL",
     icon: FileText,
-    color: "#ff6600",
+    color: "var(--color-accent)",
     available: true,
   },
 ];
@@ -65,7 +65,7 @@ export default function BTLHome() {
               <div
                 className={styles.cardIcon}
                 style={{
-                  background: sec.available ? `${sec.color}18` : "var(--color-surface2)",
+                  background: sec.available ? `color-mix(in srgb, ${sec.color} 10%, transparent)` : "var(--color-surface2)",
                 }}
               >
                 <Icon size={32} color={sec.available ? sec.color : "var(--color-text3)"} />

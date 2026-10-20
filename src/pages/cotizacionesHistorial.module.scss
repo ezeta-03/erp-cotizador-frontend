@@ -12,7 +12,7 @@
     border: 1px solid var(--color-border);
     border-radius: $radius-sm;
     background: var(--color-surface);
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     font-weight: 500;
     color: var(--color-text2);
     cursor: pointer;
@@ -27,11 +27,11 @@
 
   .active {
     background: var(--color-accent);
-    color: #ffffff;
+    color: var(--color-on-accent);
     border-color: var(--color-accent);
     font-weight: 600;
 
-    &:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: #fff; }
+    &:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: var(--color-on-accent); }
   }
 }
 
@@ -47,7 +47,7 @@
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-input-border);
     border-radius: $radius-sm;
-    font-size: 0.875rem;
+    font-size: var(--text-base);
     background: var(--color-input-bg);
     color: var(--color-text1);
     outline: none;
@@ -64,7 +64,7 @@
 }
 
 /* ── Extras de Cards y Tabla ── */
-.tdTotal { font-weight: 700; color: #059669; }
+.tdTotal { font-weight: 700; color: var(--color-success); }
 
 /* ── Empty state ── */
 .emptyState {
@@ -74,14 +74,14 @@
   gap: 0.5rem;
   padding: 3rem 1rem;
   color: var(--color-text3);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   background: var(--color-surface);
   border-radius: $radius-sm;
   border: 1px dashed var(--color-border);
   margin-top: 0.5rem;
 
-  .emptyIcon { font-size: 2rem; opacity: 0.4; line-height: 1; }
-  strong { color: var(--color-text2); font-size: 0.9rem; }
+  .emptyIcon { font-size: var(--text-3xl); opacity: 0.4; line-height: 1; }
+  strong { color: var(--color-text2); font-size: var(--text-base); }
 }
 
 /* ── Truncado de celdas largas ── */
@@ -95,10 +95,10 @@
 /* ── Estado badges ── */
 .estadoBadge {
   display: inline-block;
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   font-weight: 700;
   padding: 0.2rem 0.6rem;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   white-space: nowrap;
@@ -144,10 +144,10 @@
   gap: 0.35rem;
   padding: 0.55rem 1.1rem;
   background: rgba(15, 23, 42, 0.85);
-  color: #fff;
+  color: var(--color-on-accent);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: $radius-sm;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
@@ -162,10 +162,10 @@
   gap: 0.35rem;
   padding: 0.55rem 1rem;
   background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  color: var(--color-on-accent);
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: $radius-sm;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   cursor: pointer;
   font-family: inherit;
   transition: $transition-fast;
@@ -179,10 +179,10 @@
   gap: 0.35rem;
   padding: 0.55rem 1.1rem;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
   border: none;
   border-radius: $radius-sm;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
@@ -203,7 +203,7 @@
 }
 
 .comentarioClienteLabel {
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: var(--badge-orange-text);
   text-transform: uppercase;
@@ -212,14 +212,14 @@
 
 .comentarioCliente p {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   color: var(--badge-orange-text);
   font-style: italic;
 }
 
 /* ── Renegociar ── */
 .tdComentario {
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
   color: var(--color-text3);
   margin-top: 0.2rem;
   font-style: italic;
@@ -230,7 +230,7 @@
 }
 
 .cardComentario {
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   color: var(--color-text3);
   font-style: italic;
   margin: 0.2rem 0 0.5rem;
@@ -242,11 +242,11 @@
   padding: 1rem 1.25rem;
   background: var(--color-surface2);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
 }
 
 .timelineTitle {
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -304,13 +304,13 @@
 
 .timelineArrow {
   color: var(--color-text3);
-  font-size: 0.85rem;
+  font-size: var(--text-base);
 }
 
 .timelineMeta {
   display: flex;
   gap: 0.75rem;
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   color: var(--color-text2);
   font-weight: 500;
 }
@@ -321,7 +321,7 @@
 }
 
 .timelineComentario {
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   color: var(--color-text3);
   font-style: italic;
   margin: 0.15rem 0 0;

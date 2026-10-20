@@ -126,7 +126,7 @@ export default function AdminDashboard() {
         <div className={styles.badgesStack}>
           <div className={`${styles.statCard} ${styles.statCard_indigo}`}>
             <div className={styles.statIcon} style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '10px', borderRadius: '10px' }}>
-              <Target size={26} color="#6366f1" />
+              <Target size={26} style={{ color: "var(--color-violet)" }} />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Meta Total</p>
@@ -142,11 +142,11 @@ export default function AdminDashboard() {
 
           <div className={`${styles.statCard} ${styles.statCard_teal}`}>
             <div className={styles.statIcon} style={{ background: 'rgba(20, 184, 166, 0.1)', padding: '10px', borderRadius: '10px' }}>
-              <TrendingUp size={26} color="#14b8a6" />
+              <TrendingUp size={26} style={{ color: "var(--color-teal)" }} />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Aprobado Total</p>
-              <p className={styles.statValue} style={{color: '#0f766e'}}>
+              <p className={styles.statValue} style={{color: 'var(--color-teal)'}}>
                 {new Intl.NumberFormat('es-PE', { 
                   style: 'currency', 
                   currency: 'PEN',
@@ -166,15 +166,15 @@ export default function AdminDashboard() {
               padding: '10px', borderRadius: '10px' 
             }}>
               <Users size={26} color={
-                datos.general.porcentaje >= 100 ? '#10b981' : 
-                datos.general.porcentaje >= 70 ? '#f59e0b' : '#ef4444'
+                datos.general.porcentaje >= 100 ? 'var(--color-success)' : 
+                datos.general.porcentaje >= 70 ? 'var(--color-warning)' : 'var(--color-danger)'
               } />
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Progreso General</p>
               <p className={styles.statValue} style={{
-                color: datos.general.porcentaje >= 100 ? '#059669' : 
-                       datos.general.porcentaje >= 70 ? '#d97706' : '#dc2626'
+                color: datos.general.porcentaje >= 100 ? 'var(--color-success)' : 
+                       datos.general.porcentaje >= 70 ? 'var(--color-warning)' : 'var(--color-danger)'
               }}>
                 {datos.general.porcentaje.toFixed(1)}%
               </p>
@@ -190,7 +190,7 @@ export default function AdminDashboard() {
             <>
               {/* Header Tabla */}
               <div className={styles.tableHeader}>
-                <h3 style={{ margin: 0, fontWeight: 700, fontSize: "1rem", color: "var(--color-text1)" }}>
+                <h3 style={{ margin: 0, fontWeight: 700, fontSize: "var(--text-md)", color: "var(--color-text1)" }}>
                   Desempeño por Vendedor
                 </h3>
                 <button onClick={cargarDatos} className={styles.btnRefresh}>
@@ -241,19 +241,19 @@ export default function AdminDashboard() {
                                 style={{
                                   width: `${Math.min(vendedor.porcentaje, 100)}%`,
                                   height: "100%",
-                                  backgroundColor: vendedor.porcentaje >= 100 ? "#10b981" :
-                                                   vendedor.porcentaje >= 70 ? "#f59e0b" : "#ef4444",
+                                  backgroundColor: vendedor.porcentaje >= 100 ? "var(--color-success)" :
+                                                   vendedor.porcentaje >= 70 ? "var(--color-warning)" : "var(--color-danger)",
                                   transition: "width 0.3s",
                                 }}
                               />
                             </div>
                             <span
                               style={{
-                                fontSize: "0.75rem",
+                                fontSize: "var(--text-xs)",
                                 fontWeight: 700,
                                 minWidth: "35px",
-                                color: vendedor.porcentaje >= 100 ? "#059669" :
-                                       vendedor.porcentaje >= 70 ? "#d97706" : "#dc2626",
+                                color: vendedor.porcentaje >= 100 ? "var(--color-success)" :
+                                       vendedor.porcentaje >= 70 ? "var(--color-warning)" : "var(--color-danger)",
                               }}
                             >
                               {vendedor.porcentaje.toFixed(0)}%
@@ -322,10 +322,10 @@ export default function AdminDashboard() {
               padding: "1rem 1.25rem", borderBottom: "1px solid var(--color-border)",
             }}>
               <div>
-                <p style={{ margin: 0, fontWeight: 700, fontSize: "0.95rem", color: "var(--color-text1)" }}>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: "var(--text-md)", color: "var(--color-text1)" }}>
                   Historial de meta — {logVendedor.vendedor}
                 </p>
-                <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--color-text2)" }}>Últimos 20 cambios</p>
+                <p style={{ margin: 0, fontSize: "var(--text-xs)", color: "var(--color-text2)" }}>Últimos 20 cambios</p>
               </div>
               <button
                 onClick={() => setLogVendedor(null)}
@@ -336,17 +336,17 @@ export default function AdminDashboard() {
             </div>
             <div style={{ padding: "1rem 1.25rem", maxHeight: "400px", overflowY: "auto" }}>
               {loadingLog ? (
-                <p style={{ color: "var(--color-text3)", fontSize: "0.875rem" }}>Cargando...</p>
+                <p style={{ color: "var(--color-text3)", fontSize: "var(--text-base)" }}>Cargando...</p>
               ) : logEntradas.length === 0 ? (
-                <p style={{ color: "var(--color-text3)", fontSize: "0.875rem" }}>Sin cambios registrados aún.</p>
+                <p style={{ color: "var(--color-text3)", fontSize: "var(--text-base)" }}>Sin cambios registrados aún.</p>
               ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "var(--text-sm)" }}>
                   <thead>
                     <tr style={{ background: "var(--color-surface2)" }}>
                       {["Anterior", "Nuevo", "Cambiado por", "Fecha"].map((h) => (
                         <th key={h} style={{
                           padding: "0.4rem 0.6rem", textAlign: "left", fontWeight: 600,
-                          fontSize: "0.72rem", color: "var(--color-text2)", textTransform: "uppercase",
+                          fontSize: "var(--text-xs)", color: "var(--color-text2)", textTransform: "uppercase",
                           letterSpacing: "0.04em", borderBottom: "1px solid var(--color-border)",
                         }}>{h}</th>
                       ))}

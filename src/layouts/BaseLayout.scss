@@ -111,13 +111,13 @@
 }
 
 .sidebar-title {
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-on-accent);
   margin: 0;
 
   @media (max-width: 767px) {
-    font-size: 1.25rem;
+    font-size: var(--text-xl);
   }
 }
 
@@ -141,13 +141,13 @@
 
   &:hover {
     background: rgba(255, 255, 255, 0.06);
-    color: #ffffff;
+    color: var(--color-on-accent);
     transform: translateX(4px);
   }
 
   &.active {
     background: rgba(255, 102, 0, 0.14);
-    color: #ff8a3d;
+    color: var(--color-accent);
     font-weight: 600;
     border-left: 3px solid $primary;
     padding-left: calc(1rem - 3px);
@@ -165,13 +165,13 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 12px rgba($primary, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3);
 }
 
 .user-details {
@@ -179,9 +179,9 @@
 }
 
 .user-name {
-  font-size: 1rem;
+  font-size: var(--text-md);
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-on-accent);
   margin: 0 0 0.5rem 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -192,8 +192,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.875rem;
-  color: #8b95a3;
+  font-size: var(--text-base);
+  color: var(--color-text3);
   margin-bottom: 0.25rem;
 
   svg {
@@ -208,11 +208,11 @@
 }
 
 .user-email {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
 }
 
 .user-role {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: $primary;
 }
@@ -238,7 +238,7 @@
     color: white;
     border-color: $danger;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba($danger, 0.3);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
   }
 
   &:active {
@@ -335,7 +335,7 @@
   width: 80px;
 
   .sidebar-title {
-    font-size: 1rem;
+    font-size: var(--text-md);
   }
 
   .nav-text,
@@ -384,12 +384,12 @@
   padding-bottom: 0.75rem;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   text-align: left;
-  color: #8b95a3;
+  color: var(--color-text3);
 
   &:hover {
-    color: #ff8a3d;
+    color: var(--color-accent);
     background: transparent;
     transform: translateX(4px);
   }

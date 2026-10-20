@@ -56,7 +56,7 @@ export default function PapeleraPanelesModal({ esMupi, styles, onClose, onRestau
                 >
                   <div>
                     <div style={{ fontWeight: 700 }}>{p.codigo}</div>
-                    <div style={{ fontSize: "0.8rem", color: "var(--color-text3)" }}>{p.nombre || "Sin nombre"}</div>
+                    <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text3)" }}>{p.nombre || "Sin nombre"}</div>
                   </div>
                   <button className={styles.btnPrimary} disabled={restaurando === p.id} onClick={() => handleRestaurar(p)}>
                     {restaurando === p.id ? "Restaurando…" : "Restaurar"}

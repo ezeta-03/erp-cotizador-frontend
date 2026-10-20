@@ -72,7 +72,7 @@ export default function ClienteDashboard() {
         <>
           <div className={styles.statsGrid}>
             <div className={`${styles.statCard} ${styles.statCard_blue}`}>
-              <div className={styles.statIcon}><FileText size={28} color="#3b82f6" /></div>
+              <div className={styles.statIcon}><FileText size={28} style={{ color: "var(--color-info)" }} /></div>
               <div className={styles.statContent}>
                 <p className={styles.statLabel}>N° de cotización</p>
                 <p className={styles.statValue}>#{cotizacion.numero}</p>
@@ -81,7 +81,7 @@ export default function ClienteDashboard() {
             </div>
 
             <div className={`${styles.statCard} ${styles.statCard_green}`}>
-              <div className={styles.statIcon}><DollarSign size={28} color="#10b981" /></div>
+              <div className={styles.statIcon}><DollarSign size={28} style={{ color: "var(--color-success)" }} /></div>
               <div className={styles.statContent}>
                 <p className={styles.statLabel}>Total</p>
                 <p className={styles.statValue}>{formatCurrency(cotizacion.total)}</p>
@@ -91,7 +91,7 @@ export default function ClienteDashboard() {
 
             <div className={`${styles.statCard} ${styles.statCard_yellow}`}>
               <div className={styles.statIcon}>
-                {estadoInfo && <estadoInfo.Icon size={28} color="#f59e0b" />}
+                {estadoInfo && <estadoInfo.Icon size={28} style={{ color: "var(--color-warning)" }} />}
               </div>
               <div className={styles.statContent}>
                 <p className={styles.statLabel}>Estado actual</p>

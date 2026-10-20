@@ -41,20 +41,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: #f59e0b;
+  background: var(--color-warning);
   gap: 1rem;
 }
 
 .fichaTitleText {
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   font-weight: 800;
-  color: #fff;
+  color: var(--color-on-accent);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .fichaTitleSub {
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: rgba(255, 255, 255, 0.85);
   margin-left: 0.75rem;
@@ -70,7 +70,7 @@
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  color: #fff;
+  color: var(--color-on-accent);
   transition: background 0.15s;
   flex-shrink: 0;
 
@@ -98,7 +98,7 @@
 }
 
 .fichaCity {
-  font-size: 1rem;
+  font-size: var(--text-md);
   font-weight: 800;
   color: var(--color-text1);
   text-transform: uppercase;
@@ -106,7 +106,7 @@
 }
 
 .fichaYear {
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   color: var(--color-text3);
   font-weight: 600;
 }
@@ -115,13 +115,13 @@
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.3rem 1rem;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
 
   > span:nth-child(odd) {
     font-weight: 700;
     color: var(--color-text3);
     text-transform: uppercase;
-    font-size: 0.7rem;
+    font-size: var(--text-2xs);
     letter-spacing: 0.04em;
     white-space: nowrap;
     padding-top: 0.1rem;
@@ -148,7 +148,7 @@
 }
 
 .fichaInfoLabel {
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -156,7 +156,7 @@
 }
 
 .fichaInfoVal {
-  font-size: 0.85rem;
+  font-size: var(--text-base);
   font-weight: 500;
   color: var(--color-text1);
 }
@@ -165,8 +165,8 @@
 .fichaBadge {
   display: inline-block;
   padding: 0.3rem 0.75rem;
-  border-radius: 99px;
-  font-size: 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -191,8 +191,8 @@
 
 %btnEstadoBase {
   padding: 0.25rem 0.65rem;
-  border-radius: 99px;
-  font-size: 0.7rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-2xs);
   font-weight: 700;
   border: none;
   cursor: pointer;
@@ -237,7 +237,7 @@
 
 .cuotasSectionTitle {
   margin: 0;
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -245,12 +245,12 @@
 }
 
 .cuotasLocked {
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--badge-yellow-text);
   background: var(--badge-yellow-bg);
   padding: 0.2rem 0.65rem;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
 }
 
 .cuotasTableWrap {
@@ -263,14 +263,14 @@
   width: 100%;
   min-width: 700px;
   border-collapse: collapse;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
 
   thead tr { background: var(--color-surface2); }
 
   th {
     padding: 0.6rem 0.875rem;
     text-align: left;
-    font-size: 0.68rem;
+    font-size: var(--text-2xs);
     font-weight: 700;
     color: var(--color-text2);
     text-transform: uppercase;
@@ -306,14 +306,14 @@
 }
 
 .tdAcct {
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   color: var(--color-text2);
   white-space: nowrap;
 }
 
 .tdTotal {
   font-weight: 700;
-  color: #059669;
+  color: var(--color-success);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -339,7 +339,7 @@
   border-radius: $radius-sm;
   background: var(--color-input-bg);
   color: var(--color-text1);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-family: inherit;
   outline: none;
 
@@ -352,7 +352,7 @@
   border-radius: $radius-sm;
   background: var(--color-input-bg);
   color: var(--color-text1);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-family: inherit;
   cursor: pointer;
   outline: none;
@@ -360,15 +360,15 @@
   &:focus { border-color: var(--color-accent); }
 }
 
-.selectCancelado { color: #ef4444; }
-.selectPendiente { color: #f59e0b; }
+.selectCancelado { color: var(--color-danger); }
+.selectPendiente { color: var(--color-warning); }
 
 /* ── Badge de estado en tabla ── */
 .estadoBadge {
   display: inline-block;
   padding: 0.2rem 0.55rem;
-  border-radius: 99px;
-  font-size: 0.68rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-2xs);
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -380,10 +380,10 @@
 .btnSave {
   padding: 0.25rem 0.65rem;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
   border: none;
   border-radius: $radius-sm;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
@@ -406,7 +406,7 @@
 }
 
 .tdTotalLabel {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -423,10 +423,10 @@
 
 .tdTotalFinal {
   font-weight: 800;
-  color: #059669;
+  color: var(--color-success);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 /* ── Responsive ── */

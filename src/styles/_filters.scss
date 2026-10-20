@@ -6,8 +6,8 @@
 
   input {
     padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-sm);
   }
 
   button {

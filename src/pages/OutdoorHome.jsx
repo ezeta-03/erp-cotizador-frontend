@@ -9,7 +9,7 @@ const SECCIONES = [
     label: "Paneles",
     description: "Gestión y disponibilidad de paneles publicitarios",
     icon: Layers,
-    color: "#10b981",
+    color: "var(--color-success)",
     available: true,
   },
   {
@@ -17,7 +17,7 @@ const SECCIONES = [
     label: "Mupis",
     description: "Mobiliario urbano de publicidad e información",
     icon: Monitor,
-    color: "#10b981",
+    color: "var(--color-success)",
     available: true,
   },
   {
@@ -25,7 +25,7 @@ const SECCIONES = [
     label: "Cotizador",
     description: "Genera cotizaciones para campañas outdoor",
     icon: FileText,
-    color: "#ff6600",
+    color: "var(--color-accent)",
     available: true,
   },
   {
@@ -33,7 +33,7 @@ const SECCIONES = [
     label: "Proveedores",
     description: "Directorio y gestión de proveedores outdoor",
     icon: Truck,
-    color: "#10b981",
+    color: "var(--color-success)",
     available: true,
   },
   {
@@ -41,7 +41,7 @@ const SECCIONES = [
     label: "Ocupación",
     description: "Timeline de reservas, clientes y rentabilidad por panel",
     icon: CalendarDays,
-    color: "#6366f1",
+    color: "var(--color-violet)",
     available: true,
   },
   {
@@ -49,7 +49,7 @@ const SECCIONES = [
     label: "Rentabilidad",
     description: "Análisis de márgenes y rentabilidad de campañas",
     icon: TrendingUp,
-    color: "#10b981",
+    color: "var(--color-success)",
     available: true,
   },
 ];
@@ -97,7 +97,7 @@ export default function OutdoorHome() {
               <div
                 className={styles.cardIcon}
                 style={{
-                  background: sec.available ? `${sec.color}18` : "var(--color-surface2)",
+                  background: sec.available ? `color-mix(in srgb, ${sec.color} 10%, transparent)` : "var(--color-surface2)",
                 }}
               >
                 <Icon size={32} color={sec.available ? sec.color : "var(--color-text3)"} />

@@ -2,32 +2,20 @@
 
 /* ── Banner alertas ── */
 .alertaBanner {
-  background: #fefce8;
-  border: 1px solid #fde047;
-  border-left: 4px solid #eab308;
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-bg);
+  border-left: 4px solid var(--color-warning);
   border-radius: $radius-md;
   margin-bottom: 1.25rem;
   overflow: hidden;
   transition: border-color 0.2s, background 0.2s;
-
-  :global([data-theme="dark"]) & {
-    background: #2d2610;
-    border-color: #854d0e;
-    border-left-color: #ca8a04;
-  }
 }
 
 /* Variante roja cuando hay pagos en ≤ 7 días */
 .alertaBannerRojo {
-  background: #fef2f2;
-  border-color: #fca5a5;
-  border-left-color: #ef4444;
-
-  :global([data-theme="dark"]) & {
-    background: #2d1010;
-    border-color: #7f1d1d;
-    border-left-color: #ef4444;
-  }
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-bg);
+  border-left-color: var(--color-danger);
 }
 
 .alertaHeader {
@@ -40,36 +28,30 @@
   border: none;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   font-weight: 600;
-  color: #92400e;
+  color: var(--badge-yellow-text);
   text-align: left;
-
-  :global([data-theme="dark"]) & { color: #fcd34d; }
   &:hover { opacity: 0.85; }
 }
 
 .alertaHeaderRojo {
-  color: #991b1b;
-  :global([data-theme="dark"]) & { color: #fca5a5; }
+  color: var(--badge-red-text);
 }
 
-.alertaIcono { display: flex; align-items: center; color: #eab308; }
-.alertaBannerRojo .alertaIcono { color: #ef4444; }
+.alertaIcono { display: flex; align-items: center; color: var(--color-warning); }
+.alertaBannerRojo .alertaIcono { color: var(--color-danger); }
 .alertaTexto { flex: 1; }
 
 .alertaLista {
   list-style: none;
   margin: 0;
   padding: 0 0 0.5rem;
-  border-top: 1px solid #fde047;
-
-  :global([data-theme="dark"]) & { border-top-color: #854d0e; }
+  border-top: 1px solid var(--color-warning-bg);
 }
 
 .alertaBannerRojo .alertaLista {
-  border-top-color: #fca5a5;
-  :global([data-theme="dark"]) & { border-top-color: #7f1d1d; }
+  border-top-color: var(--color-danger-bg);
 }
 
 .alertaItem {
@@ -78,7 +60,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 1rem;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   border-bottom: 1px solid rgba(0,0,0,0.04);
 
   &:last-child { border-bottom: none; }
@@ -90,19 +72,18 @@
 
 .alertaCodigo {
   font-weight: 700;
-  color: #92400e;
-  font-size: 0.78rem;
-  :global([data-theme="dark"]) & { color: #fcd34d; }
+  color: var(--badge-yellow-text);
+  font-size: var(--text-xs);
 }
 .alertaUbic  { color: var(--color-text1); }
-.alertaMonto { font-weight: 600; color: #b45309; white-space: nowrap; }
-.alertaFecha { color: var(--color-text2); white-space: nowrap; font-size: 0.78rem; }
+.alertaMonto { font-weight: 600; color: var(--badge-yellow-text); white-space: nowrap; }
+.alertaFecha { color: var(--color-text2); white-space: nowrap; font-size: var(--text-xs); }
 
 .alertaBtnFicha {
   padding: 0.2rem 0.65rem;
   border: none;
-  border-radius: 99px;
-  font-size: 0.72rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
@@ -117,8 +98,8 @@
 .alertaUrgencia {
   display: inline-block;
   padding: 0.15rem 0.5rem;
-  border-radius: 99px;
-  font-size: 0.68rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-2xs);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -139,14 +120,14 @@
   width: 100%;
   min-width: 820px;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 
   thead tr { background: var(--color-surface2); }
 
   th {
     padding: 0.875rem 1.1rem;
     text-align: left;
-    font-size: 0.72rem;
+    font-size: var(--text-xs);
     font-weight: 700;
     color: var(--color-text2);
     text-transform: uppercase;
@@ -173,7 +154,7 @@
   text-align: center;
   padding: 3rem 1rem;
   color: var(--color-text3);
-  font-size: 0.9rem;
+  font-size: var(--text-base);
 }
 
 /* ── Celdas ── */
@@ -181,7 +162,7 @@
   font-weight: 700;
   color: var(--color-text1);
   white-space: nowrap;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
 }
 
@@ -195,11 +176,11 @@
 .provNombre {
   font-weight: 600;
   color: var(--color-text1);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 .provRazon {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--color-text3);
 }
 
@@ -211,7 +192,7 @@
 }
 
 .propCiudad {
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -219,17 +200,17 @@
 }
 
 .propUbicacion {
-  font-size: 0.85rem;
+  font-size: var(--text-base);
   color: var(--color-text1);
 }
 
 .tdContrato {
-  font-size: 0.85rem;
+  font-size: var(--text-base);
   white-space: nowrap;
 }
 
 .tdFecha {
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   color: var(--color-text2);
@@ -239,8 +220,8 @@
 .badge {
   display: inline-block;
   padding: 0.25rem 0.65rem;
-  border-radius: 99px;
-  font-size: 0.72rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
   font-weight: 700;
   white-space: nowrap;
   text-transform: uppercase;
@@ -261,8 +242,8 @@
   background: var(--badge-blue-bg);
   color: var(--badge-blue-text);
   border: none;
-  border-radius: 99px;
-  font-size: 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
@@ -281,21 +262,21 @@
 .tdPagado {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  font-size: 0.82rem;
-  color: #059669;
+  font-size: var(--text-sm);
+  color: var(--color-success);
   white-space: nowrap;
 }
 
 .finCalculado {
   display: block;
   margin-top: 0.3rem;
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
   color: var(--color-text3);
   font-weight: 500;
 }
 
 .btnDanger {
-  &:hover { color: #ef4444 !important; background: var(--badge-red-bg) !important; }
+  &:hover { color: var(--color-danger) !important; background: var(--badge-red-bg) !important; }
 }
 
 /* ── Buscador ── */
@@ -319,7 +300,7 @@
   border-radius: $radius-sm;
   background: var(--color-input-bg);
   color: var(--color-text1);
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   font-family: inherit;
   width: 220px;
   outline: none;
@@ -390,7 +371,7 @@
 
 .formTitle {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   font-weight: 700;
   color: var(--color-text1);
 }
@@ -408,14 +389,14 @@
   background: var(--badge-red-bg);
   color: var(--badge-red-text);
   border-radius: $radius-sm;
-  font-size: 0.85rem;
+  font-size: var(--text-base);
   margin: 0;
 }
 
 .opcional {
   font-weight: 400;
   color: var(--color-text3);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
 }
 
 .formActions {
@@ -433,12 +414,12 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1rem;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
 }
 
 .paginationInfo {
   color: var(--color-text3);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .paginationControls {
@@ -452,7 +433,7 @@
   align-items: center;
   gap: 0.25rem;
   color: var(--color-text3);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .btnPage {
@@ -461,7 +442,7 @@
   border-radius: $radius-sm;
   background: var(--color-surface);
   color: var(--color-text2);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-family: inherit;
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
@@ -479,7 +460,7 @@
 
 .btnPageActive {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
   border-color: var(--color-accent);
   font-weight: 700;
 }

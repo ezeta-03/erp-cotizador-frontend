@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { Outlet, Navigate, useNavigate, useLocation, NavLink } from "react-router-dom";
 import {
-  LogOut, ChevronLeft, ChevronDown, Moon, Sun, Menu, X, Mail, Briefcase, Pin, PinOff,
+  LogOut, ChevronLeft, ChevronDown, Menu, X, Mail, Briefcase, Pin, PinOff,
   BarChart3, UserCircle, Users, DollarSign, MapPin, Megaphone, KeyRound,
   Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package, Boxes,
 } from "lucide-react";
 import useAuth from "../auth/useAuth";
-import useDarkMode from "../hooks/useDarkMode";
 import { getPanelWidgets, savePanelWidgets } from "../api/panelWidgets";
 import { nextFreeSlot } from "../constants/widgets";
 import { moduloDeSegmento } from "../constants/modulos";
@@ -101,7 +100,6 @@ export default function ERPLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const [dark, toggleDark] = useDarkMode();
   const [menuOpen, setMenuOpen] = useState(false);
   const role = user?.role?.toLowerCase() ?? "";
 
@@ -192,9 +190,6 @@ export default function ERPLayout() {
             <span className={styles.userRole}>{user?.role}</span>
           </div>
           <div className={styles.userAvatar} aria-hidden="true">{initials}</div>
-          <button className={styles.btnTheme} onClick={toggleDark} title={dark ? "Modo claro" : "Modo oscuro"}>
-            {dark ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
           <button className={styles.btnLogout} onClick={logout} title="Cerrar sesión">
             <LogOut size={18} />
           </button>

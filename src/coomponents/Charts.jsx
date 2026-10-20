@@ -1,30 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
+import { token } from '../styles/tokens';
 
 Chart.register(...registerables);
 
-function useIsDark() {
-  const [isDark, setIsDark] = useState(
-    () => document.documentElement.getAttribute('data-theme') === 'dark'
-  );
-  useEffect(() => {
-    const obs = new MutationObserver(() => {
-      setIsDark(document.documentElement.getAttribute('data-theme') === 'dark');
-    });
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    return () => obs.disconnect();
-  }, []);
-  return isDark;
-}
-
-function chartColors(isDark) {
+function chartColors() {
   return {
-    text1:        isDark ? '#e2e8f0' : '#0f172a',
-    text2:        isDark ? '#94a3b8' : '#64748b',
-    gridLine:     isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)',
-    pendiente:    isDark ? '#333a58' : '#e2e8f0',
-    tooltipBg:    isDark ? '#21263d' : '#ffffff',
-    tooltipBorder:isDark ? '#3b4568' : '#e2e8f0',
+    text1:        token('--color-text1'),
+    text2:        token('--color-text3'),
+    gridLine:     'rgba(22,26,31,0.07)',
+    pendiente:    token('--color-border'),
+    tooltipBg:    token('--color-surface'),
+    tooltipBorder:token('--color-border'),
   };
 }
 
@@ -32,7 +19,7 @@ function chartColors(isDark) {
 export function DonutChart({ meta, avance, titulo = 'Meta Mensual' }) {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
-  const isDark = useIsDark();
+
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -41,11 +28,11 @@ export function DonutChart({ meta, avance, titulo = 'Meta Mensual' }) {
     const ctx = chartRef.current.getContext('2d');
     const restante = Math.max(meta - avance, 0);
     const porcentaje = meta > 0 ? (avance / meta) * 100 : 0;
-    const c = chartColors(isDark);
+    const c = chartColors();
 
-    let colorAprobado = '#ef4444';
-    if (porcentaje >= 100) colorAprobado = '#10b981';
-    else if (porcentaje >= 70) colorAprobado = '#f59e0b';
+    let colorAprobado = token('--color-danger');
+    if (porcentaje >= 100) colorAprobado = token('--color-success');
+    else if (porcentaje >= 70) colorAprobado = token('--color-warning');
 
     chartInstance.current = new Chart(ctx, {
       type: 'doughnut',
@@ -110,19 +97,19 @@ export function DonutChart({ meta, avance, titulo = 'Meta Mensual' }) {
     });
 
     return () => { if (chartInstance.current) chartInstance.current.destroy(); };
-  }, [meta, avance, isDark]);
+  }, [meta, avance]);
 
   return (
     <div style={{ width: '100%', maxWidth: '300px', margin: '0 auto', minWidth: 0 }}>
-      <h3 style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '1rem', fontWeight: '600', color: 'var(--color-text1)' }}>
+      <h3 style={{ textAlign: 'center', marginBottom: '1rem', fontSize: 'var(--text-md)', fontWeight: '600', color: 'var(--color-text1)' }}>
         {titulo}
       </h3>
       <canvas ref={chartRef} />
       <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-        <p style={{ fontSize: '0.875rem', color: 'var(--color-text2)', margin: '0.25rem 0' }}>
+        <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text2)', margin: '0.25rem 0' }}>
           Meta: {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(meta)}
         </p>
-        <p style={{ fontSize: '0.875rem', color: 'var(--color-text2)', margin: '0.25rem 0' }}>
+        <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text2)', margin: '0.25rem 0' }}>
           Aprobado: {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(avance)}
         </p>
       </div>
@@ -131,9 +118,10 @@ export function DonutChart({ meta, avance, titulo = 'Meta Mensual' }) {
 }
 
 // ── Paleta compartida ──────────────────────────────────────────────────────
+// Serie categórica fija (canvas no lee var(--x)); arranca con los tokens de marca y semánticos.
 const PALETTE = [
-  '#ff6600','#3b82f6','#10b981','#8b5cf6','#ef4444',
-  '#06b6d4','#f59e0b','#ec4899','#84cc16','#6366f1',
+  '#ff6600','#2563eb','#059669','#6366f1','#dc2626',
+  '#0d9488','#d97706','#db2777','#65a30d','#7c3aed',
 ];
 
 const fmt = (v) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(v);
@@ -142,7 +130,7 @@ const fmt = (v) => new Intl.NumberFormat('es-PE', { style: 'currency', currency:
 export function ProveedoresChart({ data, anio }) {
   const chartRef      = useRef(null);
   const chartInstance = useRef(null);
-  const isDark        = useIsDark();
+
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -153,7 +141,7 @@ export function ProveedoresChart({ data, anio }) {
     if (!Array.isArray(rawDatasets) || rawDatasets.length === 0) return;
 
     const ctx    = chartRef.current.getContext('2d');
-    const c      = chartColors(isDark);
+    const c      = chartColors();
     const labels = data.meses.map(m => m.label);
 
     const datasets = rawDatasets.map((ds, i) => {
@@ -162,14 +150,14 @@ export function ProveedoresChart({ data, anio }) {
         label:            ds.codigo,
         data:             ds.data,
         borderColor:      color,
-        backgroundColor:  color + (isDark ? '30' : '25'),
+        backgroundColor:  color + ('25'),
         borderWidth:      2,
         fill:             true,
         tension:          0.35,
         pointRadius:      ds.data.map(v => v > 0 ? 3 : 0),
         pointHoverRadius: 6,
         pointBackgroundColor: color,
-        pointBorderColor:     isDark ? '#1e2535' : '#ffffff',
+        pointBorderColor:     token('--color-surface'),
         pointBorderWidth:     1.5,
         _ubicacion: ds.ubicacion,
         _ciudad:    ds.ciudad,
@@ -239,24 +227,24 @@ export function ProveedoresChart({ data, anio }) {
     return () => {
       if (chartInstance.current) { chartInstance.current.destroy(); chartInstance.current = null; }
     };
-  }, [data, isDark]);
+  }, [data]);
 
   const sinDatos = !Array.isArray(data?.datasets) || data.datasets.length === 0;
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
       <div style={{ marginBottom: '0.75rem' }}>
-        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600', color: 'var(--color-text1)' }}>
+        <h3 style={{ margin: 0, fontSize: 'var(--text-md)', fontWeight: '600', color: 'var(--color-text1)' }}>
           Costo por proveedor — {anio}
         </h3>
-        <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: 'var(--color-text3)' }}>
+        <p style={{ margin: '0.2rem 0 0', fontSize: 'var(--text-xs)', color: 'var(--color-text3)' }}>
           cuotas pendientes · clic en leyenda para aislar
         </p>
       </div>
       <div style={{ position: 'relative', flex: 1, minHeight: '260px', width: '100%' }}>
         <canvas ref={chartRef} style={{ display: sinDatos ? 'none' : 'block' }} />
         {sinDatos && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text3)', fontSize: '0.875rem' }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text3)', fontSize: 'var(--text-base)' }}>
             Sin cuotas pendientes para {anio}
           </div>
         )}
@@ -269,7 +257,7 @@ export function ProveedoresChart({ data, anio }) {
 export function TotalMensualChart({ data, anio }) {
   const chartRef      = useRef(null);
   const chartInstance = useRef(null);
-  const isDark        = useIsDark();
+
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -280,7 +268,7 @@ export function TotalMensualChart({ data, anio }) {
     if (!Array.isArray(rawDatasets) || rawDatasets.length === 0) return;
 
     const ctx    = chartRef.current.getContext('2d');
-    const c      = chartColors(isDark);
+    const c      = chartColors();
     const labels = data.meses.map(m => m.label);
 
     const totales = data.meses.map((_, i) =>
@@ -288,7 +276,7 @@ export function TotalMensualChart({ data, anio }) {
     );
 
     const maxIdx = totales.indexOf(Math.max(...totales));
-    const color  = '#6366f1';
+    const color  = token('--color-violet');
 
     chartInstance.current = new Chart(ctx, {
       type: 'line',
@@ -298,14 +286,14 @@ export function TotalMensualChart({ data, anio }) {
           label:                'Total mensual',
           data:                 totales,
           borderColor:          color,
-          backgroundColor:      isDark ? 'rgba(99,102,241,0.12)' : 'rgba(99,102,241,0.08)',
+          backgroundColor:      'rgba(99,102,241,0.08)',
           borderWidth:          2.5,
           fill:                 true,
           tension:              0.4,
           pointRadius:          totales.map((v, i) => i === maxIdx ? 6 : v > 0 ? 3.5 : 0),
           pointHoverRadius:     7,
-          pointBackgroundColor: totales.map((_, i) => i === maxIdx ? '#ef4444' : color),
-          pointBorderColor:     isDark ? '#1e2535' : '#ffffff',
+          pointBackgroundColor: totales.map((_, i) => i === maxIdx ? token('--color-danger') : color),
+          pointBorderColor:     token('--color-surface'),
           pointBorderWidth:     2,
         }],
       },
@@ -348,24 +336,24 @@ export function TotalMensualChart({ data, anio }) {
     return () => {
       if (chartInstance.current) { chartInstance.current.destroy(); chartInstance.current = null; }
     };
-  }, [data, isDark]);
+  }, [data]);
 
   const sinDatos = !Array.isArray(data?.datasets) || data.datasets.length === 0;
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
       <div style={{ marginBottom: '0.75rem' }}>
-        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600', color: 'var(--color-text1)' }}>
+        <h3 style={{ margin: 0, fontSize: 'var(--text-md)', fontWeight: '600', color: 'var(--color-text1)' }}>
           Total mensual — {anio}
         </h3>
-        <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: 'var(--color-text3)' }}>
+        <p style={{ margin: '0.2rem 0 0', fontSize: 'var(--text-xs)', color: 'var(--color-text3)' }}>
           pico marcado en rojo
         </p>
       </div>
       <div style={{ position: 'relative', flex: 1, minHeight: '200px', width: '100%' }}>
         <canvas ref={chartRef} style={{ display: sinDatos ? 'none' : 'block' }} />
         {sinDatos && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text3)', fontSize: '0.875rem' }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text3)', fontSize: 'var(--text-base)' }}>
             Sin datos para {anio}
           </div>
         )}
@@ -385,10 +373,10 @@ export function ProveedoresKPI({ data, anio }) {
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
       {/* Encabezado */}
       <div style={{ marginBottom: '0.875rem' }}>
-        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600', color: 'var(--color-text1)' }}>
+        <h3 style={{ margin: 0, fontSize: 'var(--text-md)', fontWeight: '600', color: 'var(--color-text1)' }}>
           Resumen anual — {anio}
         </h3>
-        <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: 'var(--color-text3)' }}>
+        <p style={{ margin: '0.2rem 0 0', fontSize: 'var(--text-xs)', color: 'var(--color-text3)' }}>
           cuotas del año por proveedor
         </p>
       </div>
@@ -396,14 +384,14 @@ export function ProveedoresKPI({ data, anio }) {
       {/* KPIs globales */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginBottom: '1rem' }}>
         <div style={{ background: 'var(--badge-red-bg)', borderRadius: '8px', padding: '0.6rem 0.75rem' }}>
-          <p style={{ margin: 0, fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--badge-red-text)', opacity: 0.8 }}>Pendiente</p>
-          <p style={{ margin: '0.15rem 0 0', fontSize: '1rem', fontWeight: 700, color: 'var(--badge-red-text)', fontVariantNumeric: 'tabular-nums' }}>
+          <p style={{ margin: 0, fontSize: 'var(--text-2xs)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--badge-red-text)', opacity: 0.8 }}>Pendiente</p>
+          <p style={{ margin: '0.15rem 0 0', fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--badge-red-text)', fontVariantNumeric: 'tabular-nums' }}>
             {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', notation: 'compact' }).format(totalPendiente)}
           </p>
         </div>
         <div style={{ background: 'var(--badge-green-bg)', borderRadius: '8px', padding: '0.6rem 0.75rem' }}>
-          <p style={{ margin: 0, fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--badge-green-text)', opacity: 0.8 }}>Pagado</p>
-          <p style={{ margin: '0.15rem 0 0', fontSize: '1rem', fontWeight: 700, color: 'var(--badge-green-text)', fontVariantNumeric: 'tabular-nums' }}>
+          <p style={{ margin: 0, fontSize: 'var(--text-2xs)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--badge-green-text)', opacity: 0.8 }}>Pagado</p>
+          <p style={{ margin: '0.15rem 0 0', fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--badge-green-text)', fontVariantNumeric: 'tabular-nums' }}>
             {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', notation: 'compact' }).format(totalCancelado)}
           </p>
         </div>
@@ -420,17 +408,17 @@ export function ProveedoresKPI({ data, anio }) {
               {/* Fila superior */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem' }}>
                 <div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text3)', fontVariantNumeric: 'tabular-nums' }}>{r.codigo}</span>
-                  <p style={{ margin: '0.1rem 0 0', fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text1)', lineHeight: 1.2 }}>
+                  <span style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text3)', fontVariantNumeric: 'tabular-nums' }}>{r.codigo}</span>
+                  <p style={{ margin: '0.1rem 0 0', fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-text1)', lineHeight: 1.2 }}>
                     {r.ciudad ? `${r.ciudad}` : r.ubicacion.split(' - ')[0]}
                   </p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <p style={{ margin: 0, fontSize: '0.72rem', color: '#dc2626', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+                  <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--color-danger)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
                     {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(r.pendiente)}
                   </p>
                   {r.cancelado > 0 && (
-                    <p style={{ margin: '0.1rem 0 0', fontSize: '0.68rem', color: '#059669', fontVariantNumeric: 'tabular-nums' }}>
+                    <p style={{ margin: '0.1rem 0 0', fontSize: 'var(--text-2xs)', color: 'var(--color-success)', fontVariantNumeric: 'tabular-nums' }}>
                       +{new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(r.cancelado)} pagado
                     </p>
                   )}
@@ -439,9 +427,9 @@ export function ProveedoresKPI({ data, anio }) {
               {/* Barra progreso */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <div style={{ flex: 1, height: '4px', background: 'var(--color-border)', borderRadius: '99px', overflow: 'hidden' }}>
-                  <div style={{ width: `${pctPagado}%`, height: '100%', background: '#10b981', borderRadius: '99px', transition: 'width 0.3s' }} />
+                  <div style={{ width: `${pctPagado}%`, height: '100%', background: token('--color-success'), borderRadius: '99px', transition: 'width 0.3s' }} />
                 </div>
-                <span style={{ fontSize: '0.65rem', color: 'var(--color-text3)', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--color-text3)', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
                   {r.cuotasCancelado}/{cuotasTotal} cuotas
                 </span>
               </div>
@@ -457,14 +445,14 @@ export function ProveedoresKPI({ data, anio }) {
 export function LineChart({ data }) {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
-  const isDark = useIsDark();
+
 
   useEffect(() => {
     if (!chartRef.current || !data) return;
     if (chartInstance.current) chartInstance.current.destroy();
 
     const ctx = chartRef.current.getContext('2d');
-    const c = chartColors(isDark);
+    const c = chartColors();
 
     const labels   = data.map(d => `Día ${d.dia}`);
     const enviadas = data.map(d => d.totalEnviadas);
@@ -478,26 +466,26 @@ export function LineChart({ data }) {
           {
             label: 'Cotizaciones Enviadas',
             data: enviadas,
-            borderColor: '#6366f1',
+            borderColor: token('--color-violet'),
             backgroundColor: 'rgba(99,102,241,0.1)',
             borderWidth: 3,
             fill: true,
             tension: 0.4,
             pointRadius: 0,
             pointHoverRadius: 6,
-            pointBackgroundColor: '#6366f1',
+            pointBackgroundColor: token('--color-violet'),
           },
           {
             label: 'Cotizaciones Aprobadas',
             data: aprobadas,
-            borderColor: '#14b8a6',
+            borderColor: token('--color-teal'),
             backgroundColor: 'rgba(20,184,166,0.1)',
             borderWidth: 3,
             fill: true,
             tension: 0.4,
             pointRadius: 0,
             pointHoverRadius: 6,
-            pointBackgroundColor: '#14b8a6',
+            pointBackgroundColor: token('--color-teal'),
           },
         ],
       },
@@ -557,11 +545,11 @@ export function LineChart({ data }) {
     });
 
     return () => { if (chartInstance.current) chartInstance.current.destroy(); };
-  }, [data, isDark]);
+  }, [data]);
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-      <h3 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: '600', color: 'var(--color-text1)' }}>
+      <h3 style={{ marginBottom: '1rem', fontSize: 'var(--text-md)', fontWeight: '600', color: 'var(--color-text1)' }}>
         Cotizaciones del Mes
       </h3>
       <div style={{ position: 'relative', flex: 1, minHeight: '250px', width: '100%' }}>

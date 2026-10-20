@@ -432,11 +432,11 @@ export default function Paneles() {
                     </div>
                   </td>
 
-                  <td style={{ fontSize: "0.82rem", color: "var(--color-text2)", whiteSpace: "nowrap" }}>
+                  <td style={{ fontSize: "var(--text-sm)", color: "var(--color-text2)", whiteSpace: "nowrap" }}>
                     {DISTRITO_LABEL[p.distrito] ?? "—"}
                   </td>
 
-                  <td style={{ fontSize: "0.8rem", whiteSpace: "nowrap" }}>
+                  <td style={{ fontSize: "var(--text-sm)", whiteSpace: "nowrap" }}>
                     {p.tipo === "LED" ? <span className={styles.badgeLed}>LED</span> : "Estático"}
                   </td>
 
@@ -446,7 +446,7 @@ export default function Paneles() {
                         <span className={styles.medidas}>{p.ancho} × {p.alto} m</span>
                         <span className={styles.area}>{(p.ancho * p.alto).toFixed(1)} m²</span>
                       </div>
-                    ) : <span style={{ color: "var(--color-text3)", fontSize: "0.8rem" }}>—</span>}
+                    ) : <span style={{ color: "var(--color-text3)", fontSize: "var(--text-sm)" }}>—</span>}
                   </td>
 
                   <td className={styles.tdPrecio}>{fmt(p.precioMes)}</td>
@@ -455,7 +455,7 @@ export default function Paneles() {
                     <EstadoBadge estado={p.estado} />
                   </td>
 
-                  <td style={{ fontSize: "0.8rem", color: "var(--color-text2)", whiteSpace: "nowrap" }}>
+                  <td style={{ fontSize: "var(--text-sm)", color: "var(--color-text2)", whiteSpace: "nowrap" }}>
                     {p.propiedad === "EXTERNO" ? "Externo" : "Propio"}
                   </td>
 

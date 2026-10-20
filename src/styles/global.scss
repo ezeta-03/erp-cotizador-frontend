@@ -1,6 +1,5 @@
 @use "./variables" as *;
 @use "./_theme" as *;
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 * {
   box-sizing: border-box;
@@ -8,10 +7,18 @@
 
 body {
   margin: 0;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
   background: var(--color-bg);
   color: var(--color-text1);
-  transition: var(--theme-transition);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  text-wrap: balance;
 }
 
 a {
@@ -24,10 +31,19 @@ button {
   cursor: pointer;
 }
 
-/* Inputs y selects heredan el tema correctamente */
 input, select, textarea {
   background: var(--color-input-bg);
   color: var(--color-text1);
   border-color: var(--color-input-border);
   font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Cifras alineadas en tablas y KPIs */
+table, .tabular {
+  font-variant-numeric: tabular-nums;
 }

@@ -447,7 +447,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
 
             {/* Margen de rentabilidad */}
             <div className={styles.margenRow}>
-              <label style={{ margin: 0, fontWeight: 600, fontSize: "0.85rem", color: "#475569" }}>
+              <label style={{ margin: 0, fontWeight: 600, fontSize: "var(--text-base)", color: "var(--color-text2)" }}>
                 Margen de rentabilidad
               </label>
               <div className={styles.margenInputGroup}>
@@ -616,7 +616,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
             {/* Buscar y agregar producto */}
             {mostrarProductos && (
               <div className={styles.productosSelectorHeader}>
-                <label style={{ fontWeight: 600, fontSize: "0.85rem", color: "#475569" }}>
+                <label style={{ fontWeight: 600, fontSize: "var(--text-base)", color: "var(--color-text2)" }}>
                   Agregar producto
                 </label>
                 <button

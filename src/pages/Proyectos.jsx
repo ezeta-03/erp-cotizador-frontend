@@ -118,7 +118,7 @@ function ProyectoDetalleModal({ proyectoId, isAdmin, puedePresupuestar, usuarios
                 </div>
                 <div className={styles.resumenItem}>
                   <span>Vigencia</span>
-                  <span style={{ fontSize: "0.85rem" }}>{fmtFecha(proyecto.fechaInicio)} → {fmtFecha(proyecto.fechaFin)}</span>
+                  <span style={{ fontSize: "var(--text-base)" }}>{fmtFecha(proyecto.fechaInicio)} → {fmtFecha(proyecto.fechaFin)}</span>
                 </div>
               </div>
 
