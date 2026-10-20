@@ -7,8 +7,13 @@
   background: var(--color-bg);
 }
 
-/* ── Header ── */
+/* ── Header ──
+   Ojo: _ui.scss también define .header (título de página) y llega por @use;
+   se anulan aquí su margen, salto de línea y alineación. */
 .header {
+  margin-bottom: 0;
+  flex-wrap: nowrap;
+  gap: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -45,6 +50,7 @@
 }
 
 .logo {
+  filter: brightness(0.2);
   height: 1.75rem;
   width: auto;
   object-fit: contain;
@@ -134,6 +140,7 @@
 }
 
 .sidebarHeader {
+  display: none;
   flex-shrink: 0;
   padding: 1rem 1rem 0.85rem;
   border-bottom: 1px solid var(--color-border);
@@ -141,6 +148,7 @@
 }
 
 .sidebarLogo {
+  filter: brightness(0.2);
   height: 1.5rem;
   width: auto;
   object-fit: contain;
@@ -426,6 +434,8 @@
 
 /* ── Responsive: sidebar pasa a panel deslizable ── */
 @media (max-width: 1024px) {
+  .sidebarHeader { display: block; }
+
   .hamburger {
     display: flex;
   }
@@ -447,19 +457,32 @@
     width: 240px;
     z-index: $z-modal;
     transition: left 0.3s ease;
-    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
   }
 
   .sidebarOpen {
     left: 0;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
   }
 }
 
 @media (max-width: 600px) {
   .header,
   .breadcrumb {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .header {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .erpLabel {
+    display: none;
+  }
+
+  .headerRight {
+    gap: 0.75rem;
   }
 
   .userInfo {

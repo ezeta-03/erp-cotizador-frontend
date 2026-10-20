@@ -24,6 +24,7 @@
 }
 
 .logo {
+  filter: brightness(0.2);
   height: 1.75rem;
   width: auto;
   object-fit: contain;
@@ -126,7 +127,6 @@
 .heroDate {
   font-size: var(--text-sm);
   color: var(--color-text3);
-  text-transform: capitalize;
 }
 
 .heroActions {
@@ -189,7 +189,7 @@
 }
 
 .tile {
-  background: var(--color-surface2);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: $radius-lg;
   padding: 1.15rem 1.3rem;
@@ -207,7 +207,7 @@
 
   &:hover {
     border-color: var(--color-hover-border);
-    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
   }
 }
 

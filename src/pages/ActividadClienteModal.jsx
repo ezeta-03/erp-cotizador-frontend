@@ -3,15 +3,13 @@ import { X, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { actividadesClientes } from "../api/clientes";
 import styles from "./actividadClienteModal.module.scss";
 import { soles } from "../utils/formato";
+import { EstadoCotizacionBadge as EstadoBadge } from "../components/ui";
 
 const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "FACTURADA"];
 
 const fmt = (v) =>
   soles(v ?? 0);
 
-function EstadoBadge({ estado }) {
-  return <span className={`${styles.badge} ${styles[estado]}`}>{estado}</span>;
-}
 
 export default function ActividadClienteModal({ cliente, onClose }) {
   const [actividad, setActividad] = useState([]);

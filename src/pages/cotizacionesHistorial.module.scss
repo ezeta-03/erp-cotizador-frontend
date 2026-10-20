@@ -326,3 +326,9 @@
   font-style: italic;
   margin: 0.15rem 0 0;
 }
+
+.numeroTabla {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}

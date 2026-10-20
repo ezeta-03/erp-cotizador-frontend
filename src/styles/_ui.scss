@@ -372,7 +372,7 @@ button {
 
 .wizardCard, .formModal {
   background: var(--color-surface);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-2xl);
   width: 100%;
   box-shadow: var(--shadow-modal);
   overflow: hidden;
@@ -541,4 +541,13 @@ button {
 
     .toggleThumb { transform: translateX(20px); }
   }
+}
+
+/* ── Celular: márgenes y acciones compactas ── */
+@media (max-width: 600px) {
+  .container { padding: 1.25rem 1rem; }
+  .header { margin-bottom: 1.25rem; gap: 1rem; }
+  .title { font-size: var(--text-2xl); }
+  .headerActions { gap: 0.5rem; }
+  .headerActions > button { padding: 0.55rem 0.85rem; }
 }

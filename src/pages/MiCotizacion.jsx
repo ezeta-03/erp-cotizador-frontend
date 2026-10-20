@@ -7,12 +7,10 @@ import { nombreItem } from "../utils/cotizacionItem";
 import styles from "./MiCotizacion.module.scss";
 import { soles } from "../utils/formato";
 import { desglosarTotal } from "../utils/igv";
+import { EstadoCotizacionBadge as EstadoBadge } from "../components/ui";
 
 const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "RENEGOCIACION", "FACTURADA"];
 
-function EstadoBadge({ estado }) {
-  return <span className={`${styles.estadoBadge} ${styles[estado]}`}>{estado}</span>;
-}
 
 const fmt = (v) =>
   soles(v ?? 0);

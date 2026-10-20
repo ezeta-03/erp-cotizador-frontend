@@ -1,4 +1,4 @@
-import { ESTADO_META } from "../../constants/estados";
+import { ESTADO_META, ESTADO_COTIZACION_META } from "../../constants/estados";
 import styles from "./ui.module.scss";
 
 // tone: green | red | yellow | blue | orange | purple | gray
@@ -22,4 +22,10 @@ export function EstadoBadge({ estado }) {
       {ESTADO_META[estado]?.label ?? estado}
     </Badge>
   );
+}
+
+// Estados de cotización (PENDIENTE, APROBADA…) con nombre legible.
+export function EstadoCotizacionBadge({ estado }) {
+  const meta = ESTADO_COTIZACION_META[estado];
+  return <Badge tone={meta?.tone ?? "gray"}>{meta?.label ?? estado}</Badge>;
 }

@@ -18,7 +18,8 @@ const Grid = WidthProvider(GridLayout);
 const fmt = (v) =>
   solesEntero(v ?? 0);
 
-const HOY = new Date().toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" });
+const FECHA = new Date().toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" });
+const HOY = FECHA.charAt(0).toUpperCase() + FECHA.slice(1);
 
 // El resumen de cada kind trae una forma distinta; se despacha por qué campos
 // trae, no por el kind en sí — así varios kinds comparten la misma pinta sin

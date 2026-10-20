@@ -12,16 +12,11 @@ import { useToast } from "../coomponents/Toast";
 import { nombreItem } from "../utils/cotizacionItem";
 import { soles } from "../utils/formato";
 import { desglosarTotal } from "../utils/igv";
+import { EstadoCotizacionBadge as EstadoBadge } from "../components/ui";
+import { ESTADO_COTIZACION_META } from "../constants/estados";
 
 const ESTADOS = ["TODAS", "PENDIENTE", "APROBADA", "FACTURADA", "RENEGOCIACION"];
 
-function EstadoBadge({ estado }) {
-  return (
-    <span className={`${styles.estadoBadge} ${styles[estado]}`}>
-      {estado}
-    </span>
-  );
-}
 
 const fmt = (v) =>
   soles(v ?? 0);
@@ -227,7 +222,7 @@ export default function CotizacionesHistorial({ modulo }) {
             className={filtroEstado === f ? styles.active : ""}
             onClick={() => setFiltroEstado(f)}
           >
-            {f}
+            {f === "TODAS" ? "Todas" : ESTADO_COTIZACION_META[f]?.label ?? f}
           </button>
         ))}
       </div>
@@ -323,7 +318,7 @@ export default function CotizacionesHistorial({ modulo }) {
               {filtradas.map((c) => (
                 <tr key={c.id}>
                   <td>
-                    <div>{c.numero}</div>
+                    <div className={styles.numeroTabla}>{c.numero}</div>
                   </td>
                   <td className={styles.tdCliente}>{c.cliente.nombreComercial}</td>
                   <td className={styles.tdVendedor}>
@@ -451,9 +446,9 @@ export default function CotizacionesHistorial({ modulo }) {
                         <div className={styles.timelineContent}>
                           <div className={styles.timelineEstado}>
                             {entry.estadoAnterior
-                              ? <><span className={`${styles.estadoBadge} ${styles[entry.estadoAnterior]}`}>{entry.estadoAnterior}</span><span className={styles.timelineArrow}>→</span></>
+                              ? <><EstadoBadge estado={entry.estadoAnterior} /><span className={styles.timelineArrow}>→</span></>
                               : null}
-                            <span className={`${styles.estadoBadge} ${styles[entry.estadoNuevo]}`}>{entry.estadoNuevo}</span>
+                            <EstadoBadge estado={entry.estadoNuevo} />
                           </div>
                           <div className={styles.timelineMeta}>
                             <span>{entry.usuario?.nombre}</span>

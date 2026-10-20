@@ -13,3 +13,12 @@ export const ESTADO_META = {
   OCUPADO_EXTERNO: { label: "Ocupado externo", color: "var(--badge-orange-text)", cls: "badgeOcupadoExt"  },
   REEMPLAZO:       { label: "Reemplazo",       color: "var(--color-info)", cls: "badgeReemplazo"   },
 };
+
+// Estados de cotización: nombre visible y tono de badge (components/ui/Badge).
+export const ESTADO_COTIZACION_META = {
+  PENDIENTE:     { label: "Pendiente",     tone: "yellow" },
+  APROBADA:      { label: "Aprobada",      tone: "blue" },
+  RENEGOCIACION: { label: "Renegociación", tone: "orange" },
+  RECHAZADA:     { label: "Rechazada",     tone: "red" },
+  FACTURADA:     { label: "Facturada",     tone: "green" },
+};

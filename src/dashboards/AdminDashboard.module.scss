@@ -73,11 +73,6 @@
   border: 1px solid var(--color-border);
   min-width: 0;
 
-  &.statCard_indigo  { border-left: 4px solid var(--color-violet); }
-  &.statCard_teal    { border-left: 4px solid var(--color-teal); }
-  &.statCard_red     { border-left: 4px solid var(--color-danger); }
-  &.statCard_amber   { border-left: 4px solid var(--color-warning); }
-  &.statCard_emerald { border-left: 4px solid var(--color-success); }
 
   .statIcon {
     margin-right: 1rem;
