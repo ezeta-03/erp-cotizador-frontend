@@ -10,6 +10,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import styles from './ContableDashboard.module.scss';
+import AlertasCobro from '../coomponents/AlertasCobro';
 import { soles } from "../utils/formato";
 
 export default function ContableDashboard() {
@@ -140,6 +141,7 @@ export default function ContableDashboard() {
         </div>
       )}
 
+      <div className={styles.pendientesGrid}>
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Cotizaciones aprobadas para facturar</h2>
@@ -184,6 +186,8 @@ export default function ContableDashboard() {
             </table>
           </div>
         )}
+      </div>
+      <AlertasCobro rol="contable" />
       </div>
     </div>
   );

@@ -78,6 +78,32 @@ export default function ClienteFormModal({ form, setForm, editId, onSubmit, onCa
             />
           </div>
 
+          <div className={styles.formRow}>
+            <div className={styles.formField}>
+              <label>Condición de pago</label>
+              <select
+                value={form.condicionPago}
+                onChange={(e) => setForm({ ...form, condicionPago: e.target.value, diasCredito: e.target.value === "CREDITO" ? form.diasCredito || 30 : "" })}
+              >
+                <option value="CONTADO">Contado</option>
+                <option value="CREDITO">Crédito</option>
+              </select>
+            </div>
+            {form.condicionPago === "CREDITO" && (
+              <div className={styles.formField}>
+                <label>Días de crédito</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  value={form.diasCredito}
+                  onChange={(e) => setForm({ ...form, diasCredito: e.target.value })}
+                  required
+                />
+              </div>
+            )}
+          </div>
+
           <div className={styles.formActions}>
             <button type="submit" className={styles.btnPrimary}>
               {editId ? "Actualizar" : "Crear Cliente"}

@@ -180,6 +180,30 @@ function ProyectoDetalleModal({ proyectoId, isAdmin, puedePresupuestar, usuarios
                   <p className={styles.empty}>Todavía no se le ha asignado nada desde el Almacén.</p>
                 )}
               </div>
+
+              {/* Gasto real: facturas de proveedores vinculadas en Cuentas por pagar (sin IGV) */}
+              {proyecto.gastoProveedores?.documentos.length > 0 && (
+                <div>
+                  <p className={styles.seccionTitulo}>
+                    Gasto en proveedores (sin IGV): {fmtMoney(proyecto.gastoProveedores.totalSinIgv)}
+                  </p>
+                  <table className={styles.miniTable}>
+                    <thead>
+                      <tr><th>Proveedor</th><th>Documento</th><th>Monto sin IGV</th><th>Fecha</th></tr>
+                    </thead>
+                    <tbody>
+                      {proyecto.gastoProveedores.documentos.map((d) => (
+                        <tr key={d.id}>
+                          <td>{d.proveedor}</td>
+                          <td>{d.documento}</td>
+                          <td>{fmtMoney(d.valorVentaSoles)}{d.moneda === "USD" ? ` (US$ ${d.valorVenta.toFixed(2)})` : ""}</td>
+                          <td>{d.fecha.split("-").reverse().join("/")}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </>
           )}
         </div>

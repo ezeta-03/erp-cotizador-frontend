@@ -16,9 +16,9 @@ const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 const itemVacio = () => ({ cantidad: "1", unidad: "NIU", descripcion: "", valorUnitario: "" });
 const esRuc = (doc) => /^(10|15|17|20)\d{9}$/.test(String(doc || "").trim());
 
-function en30Dias() {
+function enDias(dias = 30) {
   const d = new Date();
-  d.setDate(d.getDate() + 30);
+  d.setDate(d.getDate() + dias);
   return d.toLocaleDateString("en-CA");
 }
 
@@ -48,6 +48,8 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
   const [items, setItems] = useState([itemVacio()]);
   const [formaPago, setFormaPago] = useState("CONTADO");
   const [cuotas, setCuotas] = useState([]);
+  // Días de crédito pactados (cotización o cliente): fijan el vencimiento sugerido.
+  const [diasCredito, setDiasCredito] = useState(null);
   // null = automática (factura > monto mínimo); true/false = elegida por el usuario
   const [aplicarDetraccion, setAplicarDetraccion] = useState(null);
   const [codigoDetraccion, setCodigoDetraccion] = useState(null);
@@ -67,6 +69,7 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
     setItems([itemVacio()]);
     setFormaPago("CONTADO");
     setCuotas([]);
+    setDiasCredito(null);
     setAplicarDetraccion(null);
     setMoneda("PEN");
     setTipoCambio(null);
@@ -91,6 +94,7 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
           setTipo(borrador.puedeFactura ? tipoInicial : "BOLETA");
           setCliente({ numDoc: borrador.cliente.numDoc || "", nombre: borrador.cliente.nombre || "", direccion: borrador.cliente.direccion || "" });
           setItems(borrador.items.map((it) => ({ ...it, cantidad: String(it.cantidad), valorUnitario: String(it.valorUnitario) })));
+          aplicarCondicion(borrador.condicion, borrador.puedeFactura);
         }
       })
       .catch((err) => vigente && setError(err.response?.data?.message || "No se pudo preparar el comprobante"))
@@ -133,6 +137,21 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
     }
   };
 
+  // Condición pactada → forma de pago precargada (el crédito solo aplica a facturas).
+  function aplicarCondicion(condicion, puedeFactura = true) {
+    if (condicion?.condicionPago !== "CREDITO" || !puedeFactura) return;
+    setDiasCredito(condicion.diasCredito || 30);
+    setFormaPago("CREDITO");
+    setCuotas([]);
+  }
+
+  // Crédito sin cuotas aún (recién precargado): una sola cuota por el neto.
+  useEffect(() => {
+    if (formaPago === "CREDITO" && cuotas.length === 0 && totales.neto > 0) {
+      setCuotas([{ monto: String(totales.neto), fechaVencimiento: enDias(diasCredito || 30) }]);
+    }
+  }, [formaPago, cuotas.length, totales.neto, diasCredito]);
+
   const sumaCuotas = r2(cuotas.reduce((a, q) => a + (Number(q.monto) || 0), 0));
   const facturaSinRuc = tipo === "FACTURA" && cliente.numDoc && !esRuc(cliente.numDoc);
 
@@ -146,6 +165,7 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
       setCliente({ numDoc: r.numDoc, nombre: r.nombre || "", direccion: r.direccion || "" });
       setAdvertencia(r.advertencia);
       setAgenteRetencion(r.agenteRetencion ?? null);
+      if (tipo === "FACTURA") aplicarCondicion(r.condicion);
     } catch (err) {
       setAdvertencia(null);
       setError(err.response?.data?.message || "No se pudo consultar el documento");
@@ -160,7 +180,7 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
   const cambiarFormaPago = (fp) => {
     setFormaPago(fp);
     if (fp === "CREDITO" && cuotas.length === 0) {
-      setCuotas([{ monto: String(totales.neto), fechaVencimiento: en30Dias() }]);
+      setCuotas([{ monto: String(totales.neto), fechaVencimiento: enDias(diasCredito || 30) }]);
     }
   };
 
@@ -168,7 +188,7 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
   const repartirCuotas = () => {
     const n = cuotas.length || 1;
     const parte = r2(totales.neto / n);
-    setCuotas((prev) => (prev.length ? prev : [{ fechaVencimiento: en30Dias() }]).map((q, i) => ({
+    setCuotas((prev) => (prev.length ? prev : [{ fechaVencimiento: enDias(diasCredito || 30) }]).map((q, i) => ({
       ...q, monto: String(i === n - 1 ? r2(totales.neto - parte * (n - 1)) : parte),
     })));
   };
@@ -348,7 +368,8 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
 
         {tipo === "FACTURA" && (
           <div style={{ display: "grid", gap: "0.5rem" }}>
-            <Field as="select" label="Forma de pago" value={formaPago} onChange={(e) => cambiarFormaPago(e.target.value)}>
+            <Field as="select" label="Forma de pago" value={formaPago} onChange={(e) => cambiarFormaPago(e.target.value)}
+              hint={diasCredito ? `Condición pactada: crédito a ${diasCredito} días` : undefined}>
               <option value="CONTADO">Contado</option>
               <option value="CREDITO">Crédito</option>
             </Field>
@@ -367,7 +388,7 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
                 ))}
                 <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
                   <Button size="sm" variant="ghost" icon={Plus}
-                    onClick={() => setCuotas((p) => [...p, { monto: "0", fechaVencimiento: en30Dias() }])}>Agregar cuota</Button>
+                    onClick={() => setCuotas((p) => [...p, { monto: "0", fechaVencimiento: enDias(diasCredito || 30) }])}>Agregar cuota</Button>
                   <Button size="sm" variant="ghost" onClick={repartirCuotas}>Repartir neto en partes iguales</Button>
                   <span style={{ fontSize: "var(--text-xs)", color: Math.abs(sumaCuotas - totales.neto) > 0.009 ? "var(--badge-red-text)" : "var(--color-text3)" }}>
                     Cuotas: {M(sumaCuotas)} de {M(totales.neto)}

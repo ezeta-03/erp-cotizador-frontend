@@ -45,7 +45,7 @@ function DecimalInput({ value, onChange, className, disabled, min = 0.01, placeh
   );
 }
 
-export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, title, saveLabel, modulo, cotizacionId }) {
+export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, initialCondicion, title, saveLabel, modulo, cotizacionId }) {
   const mostrarProductos = modulo !== "outdoor";
   const mostrarOutdoor = modulo !== "btl";
 
@@ -73,6 +73,9 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
 
   // IGV
   const [conIgv, setConIgv] = useState(true);
+  // Condición de pago: se precarga con la del cliente y se puede cambiar.
+  const [condicionPago, setCondicionPago] = useState(initialCondicion?.condicionPago || "CONTADO");
+  const [diasCredito, setDiasCredito] = useState(initialCondicion?.diasCredito ?? "");
 
   // Margen
   const [margen, setMargen] = useState(MARGEN_MINIMO);
@@ -327,7 +330,12 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
       alert("El margen no puede ser negativo.");
       return;
     }
-    onSave({ clienteId, items, margen, conIgv, borradorId });
+    const dias = Number(diasCredito);
+    if (condicionPago === "CREDITO" && !(Number.isInteger(dias) && dias >= 1 && dias <= 365)) {
+      alert("Indica los días de crédito (1 a 365).");
+      return;
+    }
+    onSave({ clienteId, items, margen, conIgv, borradorId, condicionPago, diasCredito: condicionPago === "CREDITO" ? dias : null });
     onClose();
   };
 
@@ -435,7 +443,12 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
               <label>Cliente</label>
             <select
               value={clienteId}
-              onChange={(e) => setClienteId(e.target.value)}
+              onChange={(e) => {
+                setClienteId(e.target.value);
+                const c = clientes.find((x) => String(x.id) === e.target.value);
+                setCondicionPago(c?.condicionPago || "CONTADO");
+                setDiasCredito(c?.diasCredito ?? "");
+              }}
             >
               <option value="">Selecciona cliente</option>
               {clientes.map((c) => (
@@ -444,6 +457,29 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                 </option>
               ))}
             </select>
+            </div>
+
+            {/* Condición de pago (por defecto la del cliente) */}
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              <div className={styles.formField} style={{ flex: "1 1 180px" }}>
+                <label>Condición de pago</label>
+                <select
+                  value={condicionPago}
+                  onChange={(e) => {
+                    setCondicionPago(e.target.value);
+                    if (e.target.value === "CREDITO" && !diasCredito) setDiasCredito(30);
+                  }}
+                >
+                  <option value="CONTADO">Contado</option>
+                  <option value="CREDITO">Crédito</option>
+                </select>
+              </div>
+              {condicionPago === "CREDITO" && (
+                <div className={styles.formField} style={{ flex: "1 1 140px" }}>
+                  <label>Días de crédito</label>
+                  <input type="number" min="1" max="365" value={diasCredito} onChange={(e) => setDiasCredito(e.target.value)} />
+                </div>
+              )}
             </div>
 
             {/* Margen de rentabilidad */}

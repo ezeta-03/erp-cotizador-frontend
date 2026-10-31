@@ -57,6 +57,8 @@ export default function Clientes() {
     telefono: "",
     email: "",
     direccion: "",
+    condicionPago: "CONTADO",
+    diasCredito: "",
   });
   const [editId, setEditId] = useState(null);
   const [showFormModal, setShowFormModal] = useState(false);
@@ -72,16 +74,22 @@ export default function Clientes() {
   useEffect(() => { cargarClientes(); }, [cargarClientes]);
 
   const resetForm = () => {
-    setForm({ nombreComercial: "", documento: "", nombreContacto: "", telefono: "", email: "", direccion: "" });
+    setForm({ nombreComercial: "", documento: "", nombreContacto: "", telefono: "", email: "", direccion: "", condicionPago: "CONTADO", diasCredito: "" });
     setEditId(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editId) {
-      await updateCliente(editId, { ...form });
-    } else {
-      await createCliente({ ...form });
+    const datos = { ...form, diasCredito: form.condicionPago === "CREDITO" ? Number(form.diasCredito) : null };
+    try {
+      if (editId) {
+        await updateCliente(editId, datos);
+      } else {
+        await createCliente(datos);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "No se pudo guardar el cliente");
+      return;
     }
     resetForm();
     setShowFormModal(false);
@@ -96,6 +104,8 @@ export default function Clientes() {
       telefono: c.telefono || "",
       email: c.email || "",
       direccion: c.direccion || "",
+      condicionPago: c.condicionPago || "CONTADO",
+      diasCredito: c.diasCredito ?? "",
     });
     setEditId(c.id);
     setShowFormModal(true);

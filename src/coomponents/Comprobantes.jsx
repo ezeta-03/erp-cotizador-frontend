@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { FileCode, FileCheck, FileText, FilePlus2, Mail, Plus, RotateCcw, ShieldCheck, Undo2, Wallet } from "lucide-react";
+import { FileCode, FileCheck, FileText, FilePlus2, FileUp, Mail, Plus, RotateCcw, ShieldCheck, Trash2, Undo2, Wallet } from "lucide-react";
 import { Badge, Button, Table } from "../components/ui";
 import {
   enviarComprobantePorCorreo, reenviarComprobante, descargarArchivoComprobante, verificarComprobanteSunat,
+  eliminarComprobanteExterno,
 } from "../api/comprobantes";
 import { monto, soles } from "../utils/formato";
 import NotaDrawer from "./NotaDrawer";
 import NuevaFacturaDrawer from "./NuevaFacturaDrawer";
 import PagosDrawer from "./PagosDrawer";
+import ComprobanteExternoDrawer from "./ComprobanteExternoDrawer";
 import { TONO_COBRO } from "../constants/estados";
 
 const TONO_VALIDEZ = { ACEPTADO: "green", "NO EXISTE": "orange", ANULADO: "red" };
@@ -41,6 +43,7 @@ export default function Comprobantes({ comprobantes, onActualizado, showToast })
   const [pagosDe, setPagosDe] = useState(null); // id del comprobante con el panel de cobros abierto
   const [filtroCobro, setFiltroCobro] = useState("TODOS");
   const [nota, setNota] = useState(null); // { comprobanteId, tipo } con el formulario de nota abierto
+  const [externoAbierto, setExternoAbierto] = useState(false);
 
   const filtrar = FILTROS_COBRO.find(([k]) => k === filtroCobro)[2];
   const visibles = comprobantes.filter(filtrar);
@@ -97,7 +100,12 @@ export default function Comprobantes({ comprobantes, onActualizado, showToast })
     });
 
   const columns = [
-    { key: "numero", label: "Número", render: (c) => <strong>{c.numero}</strong> },
+    { key: "numero", label: "Número", render: (c) => (
+      <>
+        <strong>{c.numero}</strong>
+        {c.origen === "EXTERNO" && <div><Badge tone="purple">Portal SOL</Badge></div>}
+      </>
+    ) },
     { key: "tipo", label: "Tipo", render: (c) => TIPO_LABEL[c.tipo] },
     { key: "fecha", label: "Fecha", render: (c) => new Date(c.fechaEmision).toLocaleString("es-PE") },
     { key: "cliente", label: "Cliente", render: (c) => (
@@ -159,10 +167,14 @@ export default function Comprobantes({ comprobantes, onActualizado, showToast })
     ) },
     { key: "acciones", label: "Acciones", render: (c) => (
       <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
-        <Button size="sm" variant="ghost" icon={FileText} disabled={c.estado !== "ACEPTADO"} onClick={() => descargar(c, "pdf")}>PDF</Button>
-        <Button size="sm" variant="ghost" icon={FileCode} disabled={!c.tieneXml} onClick={() => descargar(c, "xml")}>XML</Button>
-        <Button size="sm" variant="ghost" icon={FileCheck} disabled={!c.tieneCdr} onClick={() => descargar(c, "cdr")}>CDR</Button>
-        {c.estado === "ACEPTADO" && (
+        {c.origen !== "EXTERNO" && (
+          <>
+            <Button size="sm" variant="ghost" icon={FileText} disabled={c.estado !== "ACEPTADO"} onClick={() => descargar(c, "pdf")}>PDF</Button>
+            <Button size="sm" variant="ghost" icon={FileCode} disabled={!c.tieneXml} onClick={() => descargar(c, "xml")}>XML</Button>
+            <Button size="sm" variant="ghost" icon={FileCheck} disabled={!c.tieneCdr} onClick={() => descargar(c, "cdr")}>CDR</Button>
+          </>
+        )}
+        {c.estado === "ACEPTADO" && c.origen !== "EXTERNO" && (
           <Button size="sm" variant="ghost" icon={Mail} loading={ocupado === c.id} onClick={() => enviarCorreo(c)}>Correo</Button>
         )}
         {c.estado !== "PENDIENTE" && (
@@ -179,7 +191,13 @@ export default function Comprobantes({ comprobantes, onActualizado, showToast })
             Reenviar
           </Button>
         )}
-        {c.cobro && c.cobro.estado !== "ANULADO" && (
+        {c.origen === "EXTERNO" && c.cobro && c.cobro.cobrado + c.cobro.retenido + c.cobro.detraccionPagada === 0 && (
+          <Button size="sm" variant="ghost" icon={Trash2} loading={ocupado === c.id} onClick={() => {
+            if (!confirm(`¿Eliminar el registro de ${c.numero}? (no afecta al comprobante en SUNAT)`)) return;
+            ejecutar(c.id, async () => { await eliminarComprobanteExterno(c.id); showToast(`${c.numero} eliminado`, "success"); });
+          }}>Eliminar</Button>
+        )}
+        {c.cobro && c.cobro.estado !== "ANULADO" && c.origen !== "EXTERNO" && (
           <>
             <Button size="sm" variant="danger" icon={Undo2} onClick={() => setNota({ comprobanteId: c.id, tipo: "NOTA_CREDITO" })}>
               Nota de crédito
@@ -204,11 +222,20 @@ export default function Comprobantes({ comprobantes, onActualizado, showToast })
             Por cobrar: <strong>{Object.keys(porCobrar).length ? Object.entries(porCobrar).map(([m, v]) => monto(v, m)).join(" · ") : soles(0)}</strong>
           </span>
         </div>
-        <Button icon={Plus} onClick={() => setNuevaAbierta(true)}>Nueva factura / boleta</Button>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <Button variant="secondary" icon={FileUp} onClick={() => setExternoAbierto(true)}>Registrar comprobante SOL</Button>
+          <Button icon={Plus} onClick={() => setNuevaAbierta(true)}>Nueva factura / boleta</Button>
+        </div>
       </div>
       <Table columns={columns} rows={visibles} empty="No hay comprobantes para este filtro" />
       <PagosDrawer comprobanteId={pagosDe} onClose={() => setPagosDe(null)} onCambio={onActualizado} showToast={showToast} />
       <NotaDrawer nota={nota} onClose={() => setNota(null)} onEmitida={onActualizado} showToast={showToast} />
+      <ComprobanteExternoDrawer
+        open={externoAbierto}
+        onClose={() => setExternoAbierto(false)}
+        onRegistrado={onActualizado}
+        showToast={showToast}
+      />
       <NuevaFacturaDrawer
         open={nuevaAbierta}
         onClose={() => setNuevaAbierta(false)}

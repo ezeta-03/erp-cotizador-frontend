@@ -111,3 +111,40 @@ export const getTipoCambio = async () => {
   const { data } = await api.get("/comprobantes/tipo-cambio");
   return data;
 };
+
+// Comprobantes emitidos fuera del ERP (portal SOL), solo para cobrarlos.
+// { tipo, serie, correlativo, fechaEmision, cliente: { numDoc, nombre }, moneda, total,
+//   detraccionPorcentaje?, agenteRetencion?, formaPago, cuotas?, cobrado?, observacion?, cotizacionId? }
+export const registrarComprobanteExterno = async (payload) => {
+  const { data } = await api.post("/comprobantes/externos", payload);
+  return data;
+};
+
+export const eliminarComprobanteExterno = async (id) => {
+  const { data } = await api.delete(`/comprobantes/externos/${id}`);
+  return data;
+};
+
+// Excel de comprobantes SOL; simular = solo valida. → { filas: [{ fila, numero, estado, mensaje }], importados }
+export const importarComprobantesExternos = async (archivo, simular) => {
+  const form = new FormData();
+  form.append("archivo", archivo);
+  const { data } = await api.post(`/comprobantes/externos/importar${simular ? "?simular=1" : ""}`, form, { timeout: 120000 });
+  return data;
+};
+
+export const descargarBlob = (data, nombre) => {
+  const url = URL.createObjectURL(data);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = nombre;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+export const descargarPlantillaExternos = async () => {
+  const { data } = await api.get("/comprobantes/externos/plantilla", { responseType: "blob" });
+  descargarBlob(data, "plantilla-comprobantes-sol.xlsx");
+};

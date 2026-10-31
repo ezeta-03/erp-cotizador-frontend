@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import useAuth from "../auth/useAuth";
 
 import Login from "../pages/Login";
-import ERPHome from "../pages/ERPHome";
 import OutdoorHome from "../pages/OutdoorHome";
 import BTLHome from "../pages/BTLHome";
 import ERPLayout from "../layouts/ERPLayout";
@@ -23,16 +22,19 @@ import Ocupacion from "../pages/Ocupacion";
 import Rentabilidad from "../pages/Rentabilidad";
 import Almacen from "../pages/Almacen";
 import Proyectos from "../pages/Proyectos";
+import CuentasPorCobrar from "../pages/CuentasPorCobrar";
+import CuentasPorPagar from "../pages/CuentasPorPagar";
 import useModulosHabilitados from "../hooks/useModulosHabilitados";
 
-// Contable no tiene panel de Inicio: entra directo a su primer módulo
-// habilitado (en el orden del menú), o a Contraseña si no le queda ninguno.
-const ORDEN_CONTABLE = ["dashboard", "clientes", "facturar", "almacen", "proyectos", "outdoor", "btl"];
-function InicioContable() {
+// No hay pantalla de Inicio: al entrar se va directo al primer módulo
+// habilitado del rol (en el orden del menú; normalmente el Dashboard), o a
+// Contraseña si no le queda ninguno. Admin siempre tiene todos.
+const ORDEN_MODULOS = ["dashboard", "clientes", "facturar", "cuentas-por-cobrar", "cuentas-por-pagar", "almacen", "proyectos", "outdoor", "btl"];
+function Inicio({ rol }) {
   const { cargando, habilitados } = useModulosHabilitados();
   if (cargando) return null;
-  const primero = ORDEN_CONTABLE.find((m) => !habilitados || habilitados.has(m)) ?? "perfil";
-  return <Navigate to={`/erp/contable/${primero}`} replace />;
+  const primero = rol === "ADMIN" ? "dashboard" : ORDEN_MODULOS.find((m) => !habilitados || habilitados.has(m)) ?? "perfil";
+  return <Navigate to={`/erp/${rol.toLowerCase()}/${primero}`} replace />;
 }
 
 // Pantallas internas: una sola lista para Admin, Ventas y Contable.
@@ -44,6 +46,8 @@ const PANTALLAS = [
   { path: "clientes",             element: <Clientes /> },
   { path: "usuarios",             element: <Usuarios />, roles: ["ADMIN"] },
   { path: "facturar",             element: <CotizacionesVentas />, roles: ["ADMIN", "CONTABLE"] },
+  { path: "cuentas-por-cobrar",   element: <CuentasPorCobrar />, roles: ["ADMIN", "CONTABLE"] },
+  { path: "cuentas-por-pagar",    element: <CuentasPorPagar />, roles: ["ADMIN", "CONTABLE"] },
   { path: "almacen",              element: <Almacen /> },
   { path: "proyectos",            element: <Proyectos /> },
   { path: "outdoor",              element: <OutdoorHome /> },
@@ -59,11 +63,7 @@ const PANTALLAS = [
   { path: "perfil",               element: <CambiarContrasena /> },
 ];
 
-const ROLES_INTERNOS = [
-  { rol: "ADMIN",    inicio: <ERPHome /> },
-  { rol: "VENTAS",   inicio: <ERPHome /> },
-  { rol: "CONTABLE", inicio: <InicioContable /> },
-];
+const ROLES_INTERNOS = ["ADMIN", "VENTAS", "CONTABLE"];
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -80,13 +80,13 @@ export default function AppRouter() {
       <Route path="/cotizador" element={<Navigate to="/erp" replace />} />
 
       {/* ============ ADMIN / VENTAS / CONTABLE ============ */}
-      {ROLES_INTERNOS.flatMap(({ rol, inicio }) => {
+      {ROLES_INTERNOS.flatMap((rol) => {
         const base = `/erp/${rol.toLowerCase()}`;
         return [
           <Route
             key={`${rol}-inicio`}
             path={base}
-            element={<ProtectedRoute roles={[rol]}>{inicio}</ProtectedRoute>}
+            element={<ProtectedRoute roles={[rol]}><Inicio rol={rol} /></ProtectedRoute>}
           />,
           <Route key={`${rol}-layout`} element={<ProtectedRoute roles={[rol]}><ERPLayout /></ProtectedRoute>}>
             {PANTALLAS.filter((p) => !p.roles || p.roles.includes(rol)).map((p) => (

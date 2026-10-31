@@ -1,0 +1,207 @@
+// Pantallas de Cuentas por cobrar y Cuentas por pagar.
+.container {
+  padding: 2rem;
+  background: var(--color-bg);
+  min-height: 100vh;
+
+  @media (max-width: 640px) {
+    padding: 1rem;
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-text1);
+  margin: 0 0 0.2rem;
+}
+
+.subtitle {
+  font-size: var(--text-base);
+  color: var(--color-text3);
+  margin: 0;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+// Tarjetas de resumen
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.kpi {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem 1rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.kpiLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.35rem;
+}
+
+.kpiValor {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-text1);
+  margin: 0;
+}
+
+.kpiNota {
+  font-size: var(--text-xs);
+  color: var(--color-text3);
+  margin: 0.2rem 0 0;
+}
+
+.kpiAlerta .kpiValor {
+  color: var(--color-danger);
+}
+
+.kpiAviso .kpiValor {
+  color: var(--color-warning);
+}
+
+// Barra de antigüedad
+.antiguedad {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.antiguedadTitulo {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text2);
+  margin: 0 0 0.75rem;
+}
+
+.barra {
+  display: flex;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--color-surface3);
+  margin-bottom: 0.75rem;
+}
+
+.leyenda {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+  font-size: var(--text-xs);
+  color: var(--color-text3);
+
+  strong {
+    display: block;
+    font-size: var(--text-sm);
+    color: var(--color-text1);
+  }
+}
+
+.punto {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+  align-items: center;
+}
+
+.tab {
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text2);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-hover-border);
+    color: var(--color-accent);
+  }
+}
+
+.tabActivo {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+
+  &:hover {
+    color: var(--color-on-accent);
+  }
+}
+
+.buscar {
+  margin-left: auto;
+  min-width: 200px;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-md);
+  background: var(--color-input-bg);
+  font: inherit;
+  font-size: var(--text-sm);
+}
+
+.sub {
+  font-size: var(--text-xs);
+  color: var(--color-text3);
+}
+
+.vencido {
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.filaAcciones {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.error {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  color: var(--badge-red-text);
+  background: var(--color-danger-bg);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}

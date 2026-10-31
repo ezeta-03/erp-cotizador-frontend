@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { getCotizaciones, facturarCotizacion } from "../api/cotizaciones";
+import { getCotizaciones } from "../api/cotizaciones";
 import { getComprobantes } from "../api/comprobantes";
 import Comprobantes from "./Comprobantes";
 import NuevaFacturaDrawer from "./NuevaFacturaDrawer";
+import ComprobanteExternoDrawer from "./ComprobanteExternoDrawer";
 import styles from "./CotizacionesVentas.module.scss";
 import { useToast } from "./Toast";
 import Spinner from "./Spinner";
@@ -18,7 +19,9 @@ export default function CotizacionesVentas() {
   const [filtroEstado, setFiltroEstado] = useState("TODAS");
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroVendedor, setFiltroVendedor] = useState("");
-  const [facturando, setFacturando] = useState(null);
+  // Cotización facturada en el portal SOL: se registra su comprobante (para
+  // cobrarlo en Cuentas por cobrar) y la cotización pasa a FACTURADA.
+  const [externoDe, setExternoDe] = useState(null);
   const [vista, setVista] = useState("COTIZACIONES");
   const [comprobantes, setComprobantes] = useState([]);
   const [emision, setEmision] = useState(null); // { cotizacionId, tipo }: formulario abierto
@@ -39,27 +42,6 @@ export default function CotizacionesVentas() {
       })
       .finally(() => setLoading(false));
   }, []);
-
-  // Para cotizaciones cuya factura se emitió fuera del ERP (portal SOL): marca
-  // FACTURADA y guarda el n.° del comprobante en el historial. Las emitidas
-  // desde el ERP pasan a FACTURADA solas.
-  const facturarFuera = async (id) => {
-    const numero = prompt("Esta cotización se facturó fuera del ERP (p. ej. portal SOL).\nN° del comprobante emitido (ej. E001-1042):");
-    if (numero === null) return;
-    if (!/^[A-Za-z0-9]{4}-\d{1,8}$/.test(numero.trim())) return showToast("Escribe el número con la forma E001-1042");
-    setFacturando(id);
-    try {
-      await facturarCotizacion(id, numero.trim().toUpperCase());
-      setCotizaciones((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, estado: "FACTURADA" } : c))
-      );
-    } catch (err) {
-      console.error("❌ Error facturando cotización:", err);
-      showToast("Error al facturar la cotización.");
-    } finally {
-      setFacturando(null);
-    }
-  };
 
   // Comprobante vigente por cotización: el último no rechazado y no anulado con
   // nota de crédito total (la API devuelve los más recientes primero).
@@ -179,7 +161,7 @@ export default function CotizacionesVentas() {
                 <th>Vendedor</th>
                 <th>Estado</th>
                 <th>Total</th>
-                <th>Factura externa</th>
+                <th>Portal SOL</th>
                 <th>Comprobante SUNAT</th>
               </tr>
             </thead>
@@ -192,15 +174,20 @@ export default function CotizacionesVentas() {
                   <td>
                     <span className={`${styles.estado} ${styles[c.estado]}`}>{c.estado}</span>
                   </td>
-                  <td>{fmt(c.total)}</td>
+                  <td>
+                    {fmt(c.total)}
+                    <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>
+                      {c.condicionPago === "CREDITO" ? `Crédito ${c.diasCredito} días` : "Contado"}
+                    </div>
+                  </td>
                   <td>
                     <button
                       className={styles.btnFacturar}
-                      onClick={() => facturarFuera(c.id)}
-                      disabled={c.estado !== "APROBADA" || facturando === c.id || !!vigentePorCotizacion[c.id]}
-                      title="Marcar como facturada con un comprobante emitido fuera del ERP (portal SOL)"
+                      onClick={() => setExternoDe(c)}
+                      disabled={!["APROBADA", "FACTURADA"].includes(c.estado) || !!vigentePorCotizacion[c.id]}
+                      title="Registrar el comprobante emitido en el portal SOL (para cobrarlo en el ERP)"
                     >
-                      {facturando === c.id ? "Guardando..." : "Facturada fuera del ERP"}
+                      Registrar factura SOL
                     </button>
                   </td>
                   <td>
@@ -244,6 +231,13 @@ export default function CotizacionesVentas() {
       tipoInicial={emision?.tipo}
       onClose={() => setEmision(null)}
       onEmitido={alEmitir}
+      showToast={showToast}
+    />
+    <ComprobanteExternoDrawer
+      open={!!externoDe}
+      cotizacion={externoDe}
+      onClose={() => setExternoDe(null)}
+      onRegistrado={alEmitir}
       showToast={showToast}
     />
     </>

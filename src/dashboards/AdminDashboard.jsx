@@ -9,6 +9,7 @@ import {
 import { Target, TrendingUp, Users, Edit2, Save, X, RefreshCw, History } from 'lucide-react';
 import Spinner from '../coomponents/Spinner';
 import SolicitudesMargenPanel from '../coomponents/SolicitudesMargenPanel';
+import AlertasCobro from '../coomponents/AlertasCobro';
 import styles from './AdminDashboard.module.scss';
 import { solesCompacto } from "../utils/formato";
 
@@ -297,6 +298,7 @@ export default function AdminDashboard() {
 
         <div className={styles.solicitudesWrapper}>
           <SolicitudesMargenPanel />
+          <AlertasCobro rol="admin" />
         </div>
       </div>
 

@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Outlet, Navigate, useNavigate, useLocation, NavLink } from "react-router-dom";
 import {
-  LogOut, ChevronLeft, ChevronDown, Menu, X, Mail, Briefcase, Pin, PinOff,
-  BarChart3, UserCircle, Users, DollarSign, MapPin, Megaphone, KeyRound,
+  LogOut, ChevronDown, Menu, X, Mail, Briefcase, Landmark,
+  BarChart3, UserCircle, Users, MapPin, Megaphone, KeyRound,
   Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package, Boxes,
 } from "lucide-react";
 import useAuth from "../auth/useAuth";
-import { getPanelWidgets, savePanelWidgets } from "../api/panelWidgets";
-import { nextFreeSlot } from "../constants/widgets";
 import { moduloDeSegmento } from "../constants/modulos";
 import useModulosHabilitados from "../hooks/useModulosHabilitados";
 import styles from "./ERPLayout.module.scss";
@@ -21,6 +19,8 @@ const SECTION_LABELS = {
   usuarios:     "Usuarios",
   productos:    "Productos",
   facturar:     "Facturar",
+  "cuentas-por-cobrar": "Cuentas por cobrar",
+  "cuentas-por-pagar":  "Cuentas por pagar",
   almacen:      "Almacén",
   proyectos:    "Proyectos",
   perfil:       "Cambiar Contraseña",
@@ -54,8 +54,17 @@ const ROLE_LABELS = {
   CONTABLE: "Contabilidad",
 };
 
+// Finanzas no tiene página propia: el grupo solo se despliega y sus hijos
+// conservan su URL (/erp/{rol}/facturar, …) y su propio módulo por rol.
+const FINANZAS_CHILDREN = [
+  { label: "Facturación",        seg: "facturar" },
+  { label: "Cuentas por cobrar", seg: "cuentas-por-cobrar" },
+  { label: "Cuentas por pagar",  seg: "cuentas-por-pagar" },
+];
+
 const item  = (label, seg, icon) => ({ label, seg, icon });
 const group = (label, icon, base, children) => ({ label, icon, base, children });
+const carpeta = (label, icon, children) => ({ label, icon, base: null, children });
 
 function buildMenu(role) {
   if (role === "admin") {
@@ -63,7 +72,7 @@ function buildMenu(role) {
       item("Dashboard", "dashboard", BarChart3),
       item("Clientes", "clientes", UserCircle),
       item("Usuarios", "usuarios", Users),
-      item("Facturar", "facturar", DollarSign),
+      carpeta("Finanzas", Landmark, FINANZAS_CHILDREN),
       item("Almacén", "almacen", Boxes),
       item("Proyectos", "proyectos", Briefcase),
       group("Outdoor", MapPin, "outdoor", OUTDOOR_CHILDREN),
@@ -71,14 +80,14 @@ function buildMenu(role) {
       item("Contraseña", "perfil", KeyRound),
     ];
   }
-  // Ventas y Contable comparten menú, salvo Facturar (solo Contable: vender y
+  // Ventas y Contable comparten menú, salvo Finanzas (solo Contable: vender y
   // facturar quedan separados). El Admin decide qué módulos ve cada rol
   // (Usuarios → Módulos por rol).
   if (role === "ventas" || role === "contable") {
     return [
       item("Dashboard", "dashboard", BarChart3),
       item("Clientes", "clientes", UserCircle),
-      ...(role === "contable" ? [item("Facturar", "facturar", DollarSign)] : []),
+      ...(role === "contable" ? [carpeta("Finanzas", Landmark, FINANZAS_CHILDREN)] : []),
       item("Almacén", "almacen", Boxes),
       item("Proyectos", "proyectos", Briefcase),
       group("Outdoor", MapPin, "outdoor", OUTDOOR_CHILDREN),
@@ -109,23 +118,26 @@ export default function ERPLayout() {
   const initials = user?.nombre?.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
   const sectionLabel = SECTION_LABELS[segment] ?? segment;
 
-  const homeLink    = (role === "admin" || role === "ventas") ? `/erp/${role}` : null;
   const outdoorLink = (isOutdoor && segment !== "outdoor") ? `/erp/${role}/outdoor` : null;
   const btlLink     = (isBtl && segment !== "btl") ? `/erp/${role}/btl` : null;
 
   // Ventas y Contable ven solo los módulos que el Admin dejó habilitados
   // para su rol (Usuarios → Módulos por rol). Contraseña siempre queda.
   const { habilitados } = useModulosHabilitados();
-  const menu = buildMenu(role).filter(
-    (m) => !habilitados || m.seg === "perfil" || habilitados.has(m.seg ?? m.base)
-  );
+  const permitido = (mod) => !habilitados || habilitados.has(mod);
+  const menu = buildMenu(role)
+    .map((m) => (m.children && !m.base ? { ...m, children: m.children.filter((c) => permitido(c.seg)) } : m))
+    .filter((m) => m.seg === "perfil" || (m.children && !m.base ? m.children.length > 0 : permitido(m.seg ?? m.base)));
+  // Grupo activo: el de la URL (Outdoor/BTL por su base; Finanzas por sus hijos).
+  const grupoActivo = (m) => (m.base ? segments.includes(m.base) : m.children.some((c) => c.seg === segment));
+  const finanzasActiva = FINANZAS_CHILDREN.some((c) => c.seg === segment);
   // Si entra por URL a un módulo apagado, se lo manda al primero habilitado.
   const moduloActual = moduloDeSegmento(segments[2]);
   const bloqueado = habilitados && moduloActual && !habilitados.has(moduloActual);
   const destinoPermitido = `/erp/${role}/${menu[0]?.seg ?? menu[0]?.base ?? "perfil"}`;
   const [expanded, setExpanded] = useState(() => {
     const init = new Set();
-    menu.forEach((m) => { if (m.children && segments.includes(m.base)) init.add(m.label); });
+    menu.forEach((m) => { if (m.children && grupoActivo(m)) init.add(m.label); });
     return init;
   });
   const toggleGroup = (label) => setExpanded((prev) => {
@@ -135,46 +147,9 @@ export default function ERPLayout() {
   });
   const closeMobileMenu = () => setMenuOpen(false);
 
-  // Pin al Inicio: solo admin/ventas tienen un panel de bienvenida donde pinear.
-  const canPin = role === "admin" || role === "ventas";
-  const [pinnedWidgets, setPinnedWidgets] = useState([]);
-  const pinnedKinds = new Set(pinnedWidgets.map((w) => w.kind));
-
-  useEffect(() => {
-    if (!canPin) return;
-    let vivo = true;
-    getPanelWidgets().then((ws) => vivo && setPinnedWidgets(ws)).catch(() => {});
-    return () => { vivo = false; };
-  }, [canPin]);
-
-  const togglePin = (kind, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const next = pinnedKinds.has(kind)
-      ? pinnedWidgets.filter((w) => w.kind !== kind)
-      : [...pinnedWidgets, { kind, ...nextFreeSlot(pinnedWidgets), w: 1, h: 1 }];
-    setPinnedWidgets(next);
-    savePanelWidgets(next).catch(() => setPinnedWidgets(pinnedWidgets));
-  };
-
-  const PinBtn = ({ kind }) => {
-    if (!canPin) return null;
-    const pinned = pinnedKinds.has(kind);
-    return (
-      <button
-        className={`${styles.pinBtn} ${pinned ? styles.pinBtnActive : ""}`}
-        onClick={(e) => togglePin(kind, e)}
-        aria-label={pinned ? `Quitar ${kind} del Inicio` : `Pinear ${kind} al Inicio`}
-        title={pinned ? "Quitar del Inicio" : "Pinear al Inicio"}
-      >
-        {pinned ? <Pin size={13} /> : <PinOff size={13} />}
-      </button>
-    );
-  };
-
   return (
     <div className={styles.page}>
-      {/* Header idéntico al ERPHome */}
+      {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <button className={styles.hamburger} onClick={() => setMenuOpen((o) => !o)} aria-label="Abrir menú">
@@ -209,17 +184,23 @@ export default function ERPLayout() {
               const Icon = m.icon;
 
               if (m.children) {
-                const base = `/erp/${role}/${m.base}`;
-                const isActiveGroup = segments.includes(m.base);
+                const base = m.base ? `/erp/${role}/${m.base}` : `/erp/${role}`;
+                const isActiveGroup = grupoActivo(m);
                 const isOpen = expanded.has(m.label) || isActiveGroup;
                 return (
                   <div key={m.label} className={styles.navGroup}>
                     <div className={`${styles.navItem} ${isActiveGroup ? styles.navItemActive : ""}`}>
-                      <NavLink to={base} onClick={closeMobileMenu} className={styles.navLinkPart}>
-                        <Icon size={18} className={styles.navIcon} />
-                        <span className={styles.navText}>{m.label}</span>
-                      </NavLink>
-                      <PinBtn kind={m.base} />
+                      {m.base ? (
+                        <NavLink to={base} onClick={closeMobileMenu} className={styles.navLinkPart}>
+                          <Icon size={18} className={styles.navIcon} />
+                          <span className={styles.navText}>{m.label}</span>
+                        </NavLink>
+                      ) : (
+                        <button type="button" onClick={() => toggleGroup(m.label)} className={`${styles.navLinkPart} ${styles.navGroupBtn}`}>
+                          <Icon size={18} className={styles.navIcon} />
+                          <span className={styles.navText}>{m.label}</span>
+                        </button>
+                      )}
                       <button
                         className={styles.navChevronBtn}
                         onClick={() => toggleGroup(m.label)}
@@ -233,13 +214,12 @@ export default function ERPLayout() {
                         {m.children.map((c) => (
                           <div key={c.seg} className={`${styles.navChildRow} ${segment === c.seg ? styles.navChildActive : ""}`}>
                             <NavLink
-                              to={`${base}/${c.seg}`}
+                              to={m.base ? `${base}/${c.seg}` : `/erp/${role}/${c.seg}`}
                               onClick={closeMobileMenu}
                               className={styles.navChild}
                             >
                               {c.label}
                             </NavLink>
-                            <PinBtn kind={`${m.base}.${c.seg}`} />
                           </div>
                         ))}
                       </div>
@@ -258,7 +238,6 @@ export default function ERPLayout() {
                     <Icon size={18} className={styles.navIcon} />
                     <span className={styles.navText}>{m.label}</span>
                   </NavLink>
-                  <PinBtn kind={m.seg} />
                 </div>
               );
             })}
@@ -283,12 +262,9 @@ export default function ERPLayout() {
         <div className={styles.contentCol}>
           {/* Breadcrumb */}
           <div className={styles.breadcrumb}>
-            {homeLink && (
+            {finanzasActiva && (
               <>
-                <button className={styles.btnBack} onClick={() => navigate(homeLink)}>
-                  <ChevronLeft size={16} />
-                  Inicio ERP
-                </button>
+                <span className={styles.breadcrumbSep}>Finanzas</span>
                 <span className={styles.breadcrumbSep}>/</span>
               </>
             )}
