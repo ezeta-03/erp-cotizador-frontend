@@ -12,8 +12,9 @@ export const getCotizaciones = async () => {
 };
 
 // ADMIN / CONTABLE → marcar como facturada una cotización aprobada
-export const facturarCotizacion = async (id) => {
-  const { data } = await api.post(`/cotizaciones/${id}/facturar`, {});
+// comprobanteExterno: n.° de la factura emitida fuera del ERP (p. ej. "E001-1042")
+export const facturarCotizacion = async (id, comprobanteExterno) => {
+  const { data } = await api.post(`/cotizaciones/${id}/facturar`, { comprobanteExterno });
   return data;
 };
 

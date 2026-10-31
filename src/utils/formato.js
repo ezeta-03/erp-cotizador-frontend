@@ -6,3 +6,7 @@ const SOLES_ENTERO = new Intl.NumberFormat("es-PE", { style: "currency", currenc
 export const soles = (v) => SOLES.format(v ?? 0);
 export const solesCompacto = (v) => SOLES_COMPACTO.format(v ?? 0);
 export const solesEntero = (v) => SOLES_ENTERO.format(v ?? 0);
+
+// Monto en la moneda del comprobante (PEN → S/, USD → US$).
+const NUMERO_2 = new Intl.NumberFormat("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const monto = (v, moneda = "PEN") => (moneda === "USD" ? `US$ ${NUMERO_2.format(v ?? 0)}` : SOLES.format(v ?? 0));

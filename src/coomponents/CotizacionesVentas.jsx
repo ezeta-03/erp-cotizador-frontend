@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { getCotizaciones, facturarCotizacion } from "../api/cotizaciones";
+import { getComprobantes } from "../api/comprobantes";
+import Comprobantes from "./Comprobantes";
+import NuevaFacturaDrawer from "./NuevaFacturaDrawer";
 import styles from "./CotizacionesVentas.module.scss";
 import { useToast } from "./Toast";
 import Spinner from "./Spinner";
@@ -16,9 +19,18 @@ export default function CotizacionesVentas() {
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroVendedor, setFiltroVendedor] = useState("");
   const [facturando, setFacturando] = useState(null);
+  const [vista, setVista] = useState("COTIZACIONES");
+  const [comprobantes, setComprobantes] = useState([]);
+  const [emision, setEmision] = useState(null); // { cotizacionId, tipo }: formulario abierto
   const { show: showToast, ToastNode } = useToast();
 
+  const cargarComprobantes = () =>
+    getComprobantes()
+      .then(setComprobantes)
+      .catch((err) => console.error("❌ Error cargando comprobantes:", err));
+
   useEffect(() => {
+    cargarComprobantes();
     getCotizaciones()
       .then(setCotizaciones)
       .catch((err) => {
@@ -28,11 +40,16 @@ export default function CotizacionesVentas() {
       .finally(() => setLoading(false));
   }, []);
 
-  const facturar = async (id) => {
-    if (!confirm("¿Marcar esta cotización como FACTURADA?")) return;
+  // Para cotizaciones cuya factura se emitió fuera del ERP (portal SOL): marca
+  // FACTURADA y guarda el n.° del comprobante en el historial. Las emitidas
+  // desde el ERP pasan a FACTURADA solas.
+  const facturarFuera = async (id) => {
+    const numero = prompt("Esta cotización se facturó fuera del ERP (p. ej. portal SOL).\nN° del comprobante emitido (ej. E001-1042):");
+    if (numero === null) return;
+    if (!/^[A-Za-z0-9]{4}-\d{1,8}$/.test(numero.trim())) return showToast("Escribe el número con la forma E001-1042");
     setFacturando(id);
     try {
-      await facturarCotizacion(id);
+      await facturarCotizacion(id, numero.trim().toUpperCase());
       setCotizaciones((prev) =>
         prev.map((c) => (c.id === id ? { ...c, estado: "FACTURADA" } : c))
       );
@@ -43,6 +60,31 @@ export default function CotizacionesVentas() {
       setFacturando(null);
     }
   };
+
+  // Comprobante vigente por cotización: el último no rechazado y no anulado con
+  // nota de crédito total (la API devuelve los más recientes primero).
+  const anulados = new Set(
+    comprobantes
+      .filter((c) => c.tipo === "NOTA_CREDITO" && c.estado === "ACEPTADO" && ["01", "02", "06"].includes(c.motivoCodigo))
+      .map((c) => c.referenciaId)
+  );
+  const vigentePorCotizacion = {};
+  for (const c of comprobantes) {
+    if (["NOTA_CREDITO", "NOTA_DEBITO"].includes(c.tipo) || c.estado === "RECHAZADO" || anulados.has(c.id) || !c.cotizacionId) continue;
+    vigentePorCotizacion[c.cotizacionId] ??= c;
+  }
+
+  // Al emitir desde una cotización, el backend la pasa a FACTURADA si SUNAT acepta.
+  const alEmitir = (c) => {
+    cargarComprobantes();
+    if (c.estado === "ACEPTADO" && c.cotizacionId) {
+      setCotizaciones((prev) =>
+        prev.map((x) => (x.id === c.cotizacionId && x.estado === "APROBADA" ? { ...x, estado: "FACTURADA" } : x))
+      );
+    }
+  };
+
+  const tieneRuc = (cot) => /^(10|15|17|20)\d{9}$/.test(String(cot.cliente?.documento || "").trim());
 
   const filtradas = cotizaciones.filter((c) => {
     const matchEstado = filtroEstado === "TODAS" || c.estado === filtroEstado;
@@ -66,10 +108,29 @@ export default function CotizacionesVentas() {
         <div>
           <h2 className={styles.heading}>Facturar</h2>
           <p className={styles.subtitle}>
-            {filtradas.length} cotizacion{filtradas.length !== 1 ? "es" : ""}
+            {vista === "COTIZACIONES"
+              ? `${filtradas.length} cotizacion${filtradas.length !== 1 ? "es" : ""}`
+              : `${comprobantes.length} comprobante${comprobantes.length !== 1 ? "s" : ""} electrónico${comprobantes.length !== 1 ? "s" : ""}`}
           </p>
         </div>
       </div>
+
+      <div className={styles.filtros}>
+        {[["COTIZACIONES", "Cotizaciones"], ["COMPROBANTES", "Comprobantes SUNAT"]].map(([v, label]) => (
+          <button
+            key={v}
+            className={`${styles.filtroBtn} ${vista === v ? styles.active : ""}`}
+            onClick={() => setVista(v)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {vista === "COMPROBANTES" ? (
+        <Comprobantes comprobantes={comprobantes} onActualizado={cargarComprobantes} showToast={showToast} />
+      ) : (
+      <>
 
       {/* Chips de estado */}
       <div className={styles.filtros}>
@@ -118,7 +179,8 @@ export default function CotizacionesVentas() {
                 <th>Vendedor</th>
                 <th>Estado</th>
                 <th>Total</th>
-                <th>Acción</th>
+                <th>Factura externa</th>
+                <th>Comprobante SUNAT</th>
               </tr>
             </thead>
             <tbody>
@@ -134,11 +196,38 @@ export default function CotizacionesVentas() {
                   <td>
                     <button
                       className={styles.btnFacturar}
-                      onClick={() => facturar(c.id)}
-                      disabled={c.estado !== "APROBADA" || facturando === c.id}
+                      onClick={() => facturarFuera(c.id)}
+                      disabled={c.estado !== "APROBADA" || facturando === c.id || !!vigentePorCotizacion[c.id]}
+                      title="Marcar como facturada con un comprobante emitido fuera del ERP (portal SOL)"
                     >
-                      {facturando === c.id ? "Facturando..." : "Facturar"}
+                      {facturando === c.id ? "Guardando..." : "Facturada fuera del ERP"}
                     </button>
+                  </td>
+                  <td>
+                    {vigentePorCotizacion[c.id] ? (
+                      <button className={styles.filtroBtn} onClick={() => setVista("COMPROBANTES")}>
+                        {vigentePorCotizacion[c.id].numero} · {vigentePorCotizacion[c.id].estado}
+                      </button>
+                    ) : ["APROBADA", "FACTURADA"].includes(c.estado) ? (
+                      <div style={{ display: "flex", gap: "0.35rem" }}>
+                        {["FACTURA", "BOLETA"].map((tipo) => {
+                          const sinRuc = tipo === "FACTURA" && !tieneRuc(c);
+                          return (
+                            <button
+                              key={tipo}
+                              className={styles.btnFacturar}
+                              onClick={() => setEmision({ cotizacionId: c.id, tipo })}
+                              disabled={sinRuc}
+                              title={sinRuc ? "El cliente no tiene RUC: solo puede recibir boleta" : `Revisar y emitir ${tipo === "FACTURA" ? "factura" : "boleta"}`}
+                            >
+                              {tipo === "FACTURA" ? "Factura" : "Boleta"}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <span style={{ color: "var(--color-text3)" }}>—</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -146,7 +235,17 @@ export default function CotizacionesVentas() {
           </table>
         </div>
       )}
+      </>
+      )}
     </div>
+    <NuevaFacturaDrawer
+      open={!!emision}
+      cotizacionId={emision?.cotizacionId}
+      tipoInicial={emision?.tipo}
+      onClose={() => setEmision(null)}
+      onEmitido={alEmitir}
+      showToast={showToast}
+    />
     </>
   );
 }

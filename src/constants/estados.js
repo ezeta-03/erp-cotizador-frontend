@@ -22,3 +22,6 @@ export const ESTADO_COTIZACION_META = {
   RECHAZADA:     { label: "Rechazada",     tone: "red" },
   FACTURADA:     { label: "Facturada",     tone: "green" },
 };
+
+// Estado de cobro de un comprobante electrónico (cuentas por cobrar) → tono de Badge.
+export const TONO_COBRO = { PENDIENTE: "yellow", PARCIAL: "blue", VENCIDO: "red", PAGADO: "green", ANULADO: "gray" };
