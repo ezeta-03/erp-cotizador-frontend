@@ -18,7 +18,8 @@ const SECTION_LABELS = {
   clientes:     "Clientes",
   usuarios:     "Usuarios",
   productos:    "Productos",
-  facturar:     "Facturar",
+  facturar:     "Facturación",
+  finanzas:     "Finanzas",
   "cuentas-por-cobrar": "Cuentas por cobrar",
   "cuentas-por-pagar":  "Cuentas por pagar",
   almacen:      "Almacén",
@@ -54,8 +55,8 @@ const ROLE_LABELS = {
   CONTABLE: "Contabilidad",
 };
 
-// Finanzas no tiene página propia: el grupo solo se despliega y sus hijos
-// conservan su URL (/erp/{rol}/facturar, …) y su propio módulo por rol.
+// Finanzas tiene portada (/erp/{rol}/finanzas) como Outdoor y BTL, pero sus
+// hijos conservan su URL (/erp/{rol}/facturar, …) y su propio módulo por rol.
 const FINANZAS_CHILDREN = [
   { label: "Facturación",        seg: "facturar" },
   { label: "Cuentas por cobrar", seg: "cuentas-por-cobrar" },
@@ -64,7 +65,7 @@ const FINANZAS_CHILDREN = [
 
 const item  = (label, seg, icon) => ({ label, seg, icon });
 const group = (label, icon, base, children) => ({ label, icon, base, children });
-const carpeta = (label, icon, children) => ({ label, icon, base: null, children });
+const carpeta = (label, icon, base, children) => ({ label, icon, base, children, plano: true });
 
 function buildMenu(role) {
   if (role === "admin") {
@@ -72,7 +73,7 @@ function buildMenu(role) {
       item("Dashboard", "dashboard", BarChart3),
       item("Clientes", "clientes", UserCircle),
       item("Usuarios", "usuarios", Users),
-      carpeta("Finanzas", Landmark, FINANZAS_CHILDREN),
+      carpeta("Finanzas", Landmark, "finanzas", FINANZAS_CHILDREN),
       item("Almacén", "almacen", Boxes),
       item("Proyectos", "proyectos", Briefcase),
       group("Outdoor", MapPin, "outdoor", OUTDOOR_CHILDREN),
@@ -87,7 +88,7 @@ function buildMenu(role) {
     return [
       item("Dashboard", "dashboard", BarChart3),
       item("Clientes", "clientes", UserCircle),
-      ...(role === "contable" ? [carpeta("Finanzas", Landmark, FINANZAS_CHILDREN)] : []),
+      ...(role === "contable" ? [carpeta("Finanzas", Landmark, "finanzas", FINANZAS_CHILDREN)] : []),
       item("Almacén", "almacen", Boxes),
       item("Proyectos", "proyectos", Briefcase),
       group("Outdoor", MapPin, "outdoor", OUTDOOR_CHILDREN),
@@ -126,11 +127,11 @@ export default function ERPLayout() {
   const { habilitados } = useModulosHabilitados();
   const permitido = (mod) => !habilitados || habilitados.has(mod);
   const menu = buildMenu(role)
-    .map((m) => (m.children && !m.base ? { ...m, children: m.children.filter((c) => permitido(c.seg)) } : m))
-    .filter((m) => m.seg === "perfil" || (m.children && !m.base ? m.children.length > 0 : permitido(m.seg ?? m.base)));
-  // Grupo activo: el de la URL (Outdoor/BTL por su base; Finanzas por sus hijos).
-  const grupoActivo = (m) => (m.base ? segments.includes(m.base) : m.children.some((c) => c.seg === segment));
-  const finanzasActiva = FINANZAS_CHILDREN.some((c) => c.seg === segment);
+    .map((m) => (m.plano ? { ...m, children: m.children.filter((c) => permitido(c.seg)) } : m))
+    .filter((m) => m.seg === "perfil" || (m.plano ? m.children.length > 0 : permitido(m.seg ?? m.base)));
+  // Grupo activo: el de la URL (Outdoor/BTL por su base; Finanzas también por sus hijos).
+  const grupoActivo = (m) => segments.includes(m.base) || (m.plano && m.children.some((c) => c.seg === segment));
+  const finanzasLink = FINANZAS_CHILDREN.some((c) => c.seg === segment) ? `/erp/${role}/finanzas` : null;
   // Si entra por URL a un módulo apagado, se lo manda al primero habilitado.
   const moduloActual = moduloDeSegmento(segments[2]);
   const bloqueado = habilitados && moduloActual && !habilitados.has(moduloActual);
@@ -184,23 +185,16 @@ export default function ERPLayout() {
               const Icon = m.icon;
 
               if (m.children) {
-                const base = m.base ? `/erp/${role}/${m.base}` : `/erp/${role}`;
+                const base = `/erp/${role}/${m.base}`;
                 const isActiveGroup = grupoActivo(m);
                 const isOpen = expanded.has(m.label) || isActiveGroup;
                 return (
                   <div key={m.label} className={styles.navGroup}>
                     <div className={`${styles.navItem} ${isActiveGroup ? styles.navItemActive : ""}`}>
-                      {m.base ? (
-                        <NavLink to={base} onClick={closeMobileMenu} className={styles.navLinkPart}>
-                          <Icon size={18} className={styles.navIcon} />
-                          <span className={styles.navText}>{m.label}</span>
-                        </NavLink>
-                      ) : (
-                        <button type="button" onClick={() => toggleGroup(m.label)} className={`${styles.navLinkPart} ${styles.navGroupBtn}`}>
-                          <Icon size={18} className={styles.navIcon} />
-                          <span className={styles.navText}>{m.label}</span>
-                        </button>
-                      )}
+                      <NavLink to={base} onClick={closeMobileMenu} className={styles.navLinkPart}>
+                        <Icon size={18} className={styles.navIcon} />
+                        <span className={styles.navText}>{m.label}</span>
+                      </NavLink>
                       <button
                         className={styles.navChevronBtn}
                         onClick={() => toggleGroup(m.label)}
@@ -214,7 +208,7 @@ export default function ERPLayout() {
                         {m.children.map((c) => (
                           <div key={c.seg} className={`${styles.navChildRow} ${segment === c.seg ? styles.navChildActive : ""}`}>
                             <NavLink
-                              to={m.base ? `${base}/${c.seg}` : `/erp/${role}/${c.seg}`}
+                              to={m.plano ? `/erp/${role}/${c.seg}` : `${base}/${c.seg}`}
                               onClick={closeMobileMenu}
                               className={styles.navChild}
                             >
@@ -262,9 +256,11 @@ export default function ERPLayout() {
         <div className={styles.contentCol}>
           {/* Breadcrumb */}
           <div className={styles.breadcrumb}>
-            {finanzasActiva && (
+            {finanzasLink && (
               <>
-                <span className={styles.breadcrumbSep}>Finanzas</span>
+                <button className={styles.btnBack} onClick={() => navigate(finanzasLink)}>
+                  Finanzas
+                </button>
                 <span className={styles.breadcrumbSep}>/</span>
               </>
             )}

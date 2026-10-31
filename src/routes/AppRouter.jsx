@@ -24,6 +24,7 @@ import Almacen from "../pages/Almacen";
 import Proyectos from "../pages/Proyectos";
 import CuentasPorCobrar from "../pages/CuentasPorCobrar";
 import CuentasPorPagar from "../pages/CuentasPorPagar";
+import FinanzasHome from "../pages/FinanzasHome";
 import useModulosHabilitados from "../hooks/useModulosHabilitados";
 
 // No hay pantalla de Inicio: al entrar se va directo al primer módulo
@@ -45,6 +46,7 @@ const PANTALLAS = [
   { path: "historial",            element: <CotizacionesHistorial /> },
   { path: "clientes",             element: <Clientes /> },
   { path: "usuarios",             element: <Usuarios />, roles: ["ADMIN"] },
+  { path: "finanzas",             element: <FinanzasHome />, roles: ["ADMIN", "CONTABLE"] },
   { path: "facturar",             element: <CotizacionesVentas />, roles: ["ADMIN", "CONTABLE"] },
   { path: "cuentas-por-cobrar",   element: <CuentasPorCobrar />, roles: ["ADMIN", "CONTABLE"] },
   { path: "cuentas-por-pagar",    element: <CuentasPorPagar />, roles: ["ADMIN", "CONTABLE"] },
