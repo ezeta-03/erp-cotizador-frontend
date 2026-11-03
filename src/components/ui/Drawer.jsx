@@ -6,18 +6,23 @@ import styles from "./ui.module.scss";
 // Panel lateral de detalle. Reemplaza modales de consulta: la lista sigue visible detrás.
 export default function Drawer({ open, onClose, eyebrow, title, footer, wide = false, children }) {
   const ref = useRef(null);
+  // onClose suele ser una función nueva en cada render: se guarda en una ref
+  // para que el efecto solo corra al abrir/cerrar. Si dependiera de onClose,
+  // cada tecla volvería a enfocar el panel y el campo perdería el foco.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; });
 
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement;
     ref.current?.focus();
-    const onKey = (e) => { if (e.key === "Escape") onClose?.(); };
+    const onKey = (e) => { if (e.key === "Escape") onCloseRef.current?.(); };
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
       prev?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
   return createPortal(
