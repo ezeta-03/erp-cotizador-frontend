@@ -8,6 +8,7 @@ export const MODULO_LABEL = {
   "cuentas-por-cobrar": "Cuentas por cobrar",
   "cuentas-por-pagar": "Cuentas por pagar",
   "caja-bancos": "Caja y Bancos",
+  "libro-mayor": "Libro Mayor",
   almacen: "Almacén",
   proyectos: "Proyectos",
   outdoor: "Outdoor",

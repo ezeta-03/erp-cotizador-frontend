@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { DollarSign, HandCoins, Landmark, Receipt, Wallet } from "lucide-react";
+import { BookOpen, DollarSign, HandCoins, Landmark, Receipt, Wallet } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import useModulosHabilitados from "../hooks/useModulosHabilitados";
 import styles from "./BTLHome.module.scss";
@@ -34,6 +34,13 @@ const SECCIONES = [
     description: "Saldos de tus cuentas y caja con los cobros y pagos de cada una",
     icon: Wallet,
     color: "var(--color-info)",
+  },
+  {
+    id: "libro-mayor",
+    label: "Libro Mayor",
+    description: "Saldos y movimientos por cuenta, ventas y categoría de gasto; Excel y PDF",
+    icon: BookOpen,
+    color: "var(--color-warning)",
   },
 ];
 

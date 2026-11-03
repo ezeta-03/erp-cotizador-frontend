@@ -26,12 +26,13 @@ import CuentasPorCobrar from "../pages/CuentasPorCobrar";
 import CuentasPorPagar from "../pages/CuentasPorPagar";
 import FinanzasHome from "../pages/FinanzasHome";
 import CajaBancos from "../pages/CajaBancos";
+import LibroMayor from "../pages/LibroMayor";
 import useModulosHabilitados from "../hooks/useModulosHabilitados";
 
 // No hay pantalla de Inicio: al entrar se va directo al primer módulo
 // habilitado del rol (en el orden del menú; normalmente el Dashboard), o a
 // Contraseña si no le queda ninguno. Admin siempre tiene todos.
-const ORDEN_MODULOS = ["dashboard", "clientes", "facturar", "cuentas-por-cobrar", "cuentas-por-pagar", "caja-bancos", "almacen", "proyectos", "outdoor", "btl"];
+const ORDEN_MODULOS = ["dashboard", "clientes", "facturar", "cuentas-por-cobrar", "cuentas-por-pagar", "caja-bancos", "libro-mayor", "almacen", "proyectos", "outdoor", "btl"];
 function Inicio({ rol }) {
   const { cargando, habilitados } = useModulosHabilitados();
   if (cargando) return null;
@@ -52,6 +53,7 @@ const PANTALLAS = [
   { path: "cuentas-por-cobrar",   element: <CuentasPorCobrar />, roles: ["ADMIN", "CONTABLE"] },
   { path: "cuentas-por-pagar",    element: <CuentasPorPagar />, roles: ["ADMIN", "CONTABLE"] },
   { path: "caja-bancos",          element: <CajaBancos />, roles: ["ADMIN", "CONTABLE"] },
+  { path: "libro-mayor",          element: <LibroMayor />, roles: ["ADMIN", "CONTABLE"] },
   { path: "almacen",              element: <Almacen /> },
   { path: "proyectos",            element: <Proyectos /> },
   { path: "outdoor",              element: <OutdoorHome /> },
