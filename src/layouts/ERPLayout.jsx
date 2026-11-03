@@ -22,6 +22,7 @@ const SECTION_LABELS = {
   finanzas:     "Finanzas",
   "cuentas-por-cobrar": "Cuentas por cobrar",
   "cuentas-por-pagar":  "Cuentas por pagar",
+  "caja-bancos":        "Caja y Bancos",
   almacen:      "Almacén",
   proyectos:    "Proyectos",
   perfil:       "Cambiar Contraseña",
@@ -61,6 +62,7 @@ const FINANZAS_CHILDREN = [
   { label: "Facturación",        seg: "facturar" },
   { label: "Cuentas por cobrar", seg: "cuentas-por-cobrar" },
   { label: "Cuentas por pagar",  seg: "cuentas-por-pagar" },
+  { label: "Caja y Bancos",      seg: "caja-bancos" },
 ];
 
 const item  = (label, seg, icon) => ({ label, seg, icon });

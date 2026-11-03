@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { DollarSign, HandCoins, Landmark, Receipt } from "lucide-react";
+import { DollarSign, HandCoins, Landmark, Receipt, Wallet } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import useModulosHabilitados from "../hooks/useModulosHabilitados";
 import styles from "./BTLHome.module.scss";
@@ -27,6 +27,13 @@ const SECCIONES = [
     description: "Facturas de proveedores, cuotas de paneles y pagos",
     icon: Receipt,
     color: "var(--color-violet)",
+  },
+  {
+    id: "caja-bancos",
+    label: "Caja y Bancos",
+    description: "Saldos de tus cuentas y caja con los cobros y pagos de cada una",
+    icon: Wallet,
+    color: "var(--color-info)",
   },
 ];
 

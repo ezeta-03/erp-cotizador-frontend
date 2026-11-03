@@ -5,6 +5,7 @@ import {
   agregarAdjuntoCobro, eliminarAdjuntoCobro, eliminarPagoComprobante, getPagosComprobante, registrarPagoComprobante, urlAdjuntoCobro,
 } from "../api/comprobantes";
 import { AdjuntosPago, ConstanciaInput } from "./ConstanciaPago";
+import CuentaFinancieraField from "./CuentaFinancieraField";
 import { abrirConstancia } from "../utils/abrirConstancia";
 import { monto, soles } from "../utils/formato";
 import { TONO_COBRO } from "../constants/estados";
@@ -17,7 +18,7 @@ const etiquetaMedio = Object.fromEntries(MEDIOS);
 
 const hoy = () => new Date().toLocaleDateString("en-CA");
 const pagoVacio = (tipo = "COBRO") => ({
-  tipo, fecha: hoy(), monto: "", numeroOperacion: "", nota: "",
+  tipo, fecha: hoy(), monto: "", numeroOperacion: "", nota: "", cuentaFinancieraId: "", tipoCambioCuenta: "", banco: "",
   medio: tipo === "DETRACCION" ? "DEPOSITO" : tipo === "RETENCION" ? "OTRO" : "TRANSFERENCIA",
 });
 const ETIQUETA_TIPO = { COBRO: "Cobro", DETRACCION: "Detracción", RETENCION: "Retención" };
@@ -89,6 +90,7 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
     ...(d.monto && { monto: String(d.monto) }),
     ...(d.medio && p.tipo !== "DETRACCION" && { medio: d.medio }),
     ...(d.banco && !p.nota && { nota: d.banco }),
+    ...(d.banco && { banco: d.banco }),
   }));
 
   const enAdjunto = async (accion, mensajeError) => {
@@ -155,7 +157,11 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
                       <td style={{ padding: "0.4rem 0.25rem" }}>{new Date(p.fecha).toLocaleDateString("es-PE", { timeZone: "America/Lima" })}</td>
                       <td>
                         {ETIQUETA_TIPO[p.tipo] || p.tipo} · {etiquetaMedio[p.medio] || p.medio}
-                        {p.numeroOperacion && <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>Op. {p.numeroOperacion}</div>}
+                        {(p.numeroOperacion || p.cuentaFinanciera) && (
+                          <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>
+                            {[p.numeroOperacion && `Op. ${p.numeroOperacion}`, p.cuentaFinanciera?.nombre].filter(Boolean).join(" · ")}
+                          </div>
+                        )}
                         {p.nota && <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>{p.nota}</div>}
                         {adjuntosDe(p)}
                       </td>
@@ -192,11 +198,20 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
                 </Field>
                 <Field label={pago.tipo === "RETENCION" ? "N° de comprobante de retención" : "N° de operación"} value={pago.numeroOperacion} onChange={(e) => setPago((p) => ({ ...p, numeroOperacion: e.target.value }))} />
               </div>
+              {pago.tipo !== "RETENCION" && (
+                <CuentaFinancieraField
+                  label="Cuenta donde entró"
+                  value={pago.cuentaFinancieraId} onChange={(v) => setPago((p) => ({ ...p, cuentaFinancieraId: v }))}
+                  tipoCambio={pago.tipoCambioCuenta} onTipoCambio={(v) => setPago((p) => ({ ...p, tipoCambioCuenta: v }))}
+                  monedaPago={pago.tipo === "DETRACCION" ? "PEN" : moneda} montoPago={pago.monto}
+                  tipoPago={pago.tipo} medio={pago.medio} banco={pago.banco}
+                />
+              )}
               <ConstanciaInput archivo={archivo} onArchivo={setArchivo} onLeido={precargar} />
               <Field label="Nota" value={pago.nota} onChange={(e) => setPago((p) => ({ ...p, nota: e.target.value }))} />
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <Button variant="ghost" size="sm" onClick={() => setPago((p) => ({ ...p, monto: String(pendiente) }))}>Pagar todo lo pendiente</Button>
-                <Button onClick={registrar} loading={guardando} disabled={!(Number(pago.monto) > 0)}>Registrar pago</Button>
+                <Button onClick={registrar} loading={guardando} disabled={!(Number(pago.monto) > 0) || (pago.tipo !== "RETENCION" && !pago.cuentaFinancieraId)}>Registrar pago</Button>
               </div>
             </div>
           )}

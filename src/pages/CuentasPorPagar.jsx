@@ -12,6 +12,7 @@ import Antiguedad from "../coomponents/Antiguedad";
 import { ESTADO_ALMACEN, GRUPO_GASTO_LABEL, TIPO_DOC_LABEL, TRAMOS, nombreCategoria } from "../constants/cuentas";
 import ProveedorCompraDrawer from "../coomponents/ProveedorCompraDrawer";
 import CategoriasGasto from "../coomponents/CategoriasGasto";
+import CuentaFinancieraField from "../coomponents/CuentaFinancieraField";
 import DocumentoPorPagarDrawer from "../coomponents/DocumentoPorPagarDrawer";
 import PagosPorPagarDrawer from "../coomponents/PagosPorPagarDrawer";
 import styles from "./cuentas.module.scss";
@@ -26,6 +27,7 @@ const MEDIOS = [
   ["YAPE_PLIN", "Yape / Plin"], ["CHEQUE", "Cheque"], ["OTRO", "Otro"],
 ];
 const hoy = () => new Date().toLocaleDateString("en-CA");
+const cuotaVacia = () => ({ fecha: hoy(), medio: "TRANSFERENCIA", numeroOperacion: "", cuentaFinancieraId: "", tipoCambioCuenta: "" });
 
 // Filas de la cartera (planas) y documentos del historial (con proveedor anidado).
 const afecta = (f) => f.afectaComercializacion ?? f.proveedor?.afectaComercializacion;
@@ -73,7 +75,7 @@ export default function CuentasPorPagar() {
   const [proveedor, setProveedor] = useState(null);
   const [pagosDe, setPagosDe] = useState(null);
   const [cuotaPanel, setCuotaPanel] = useState(null);
-  const [pagoCuota, setPagoCuota] = useState({ fecha: hoy(), medio: "TRANSFERENCIA", numeroOperacion: "" });
+  const [pagoCuota, setPagoCuota] = useState(cuotaVacia());
   const [ocupado, setOcupado] = useState(false);
   const { show: showToast, ToastNode } = useToast();
 
@@ -179,7 +181,7 @@ export default function CuentasPorPagar() {
     { key: "acciones", label: "", render: (f) => (
       <div className={styles.filaAcciones}>
         {f.origen === "PANEL" ? (
-          <Button size="sm" variant="secondary" icon={Wallet} onClick={() => { setPagoCuota({ fecha: hoy(), medio: "TRANSFERENCIA", numeroOperacion: "" }); setCuotaPanel(f); }}>
+          <Button size="sm" variant="secondary" icon={Wallet} onClick={() => { setPagoCuota(cuotaVacia()); setCuotaPanel(f); }}>
             Pagar
           </Button>
         ) : (
@@ -378,7 +380,7 @@ export default function CuentasPorPagar() {
         footer={
           <>
             <Button variant="ghost" onClick={() => setCuotaPanel(null)}>Cancelar</Button>
-            <Button loading={ocupado} onClick={confirmarPagoCuota}>Registrar pago</Button>
+            <Button loading={ocupado} onClick={confirmarPagoCuota} disabled={!pagoCuota.cuentaFinancieraId}>Registrar pago</Button>
           </>
         }
       >
@@ -394,6 +396,12 @@ export default function CuentasPorPagar() {
               {MEDIOS.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </Field>
             <Field label="N.° de operación" value={pagoCuota.numeroOperacion} onChange={(e) => setPagoCuota({ ...pagoCuota, numeroOperacion: e.target.value })} />
+            <CuentaFinancieraField
+              label="Cuenta de la que sale"
+              value={pagoCuota.cuentaFinancieraId} onChange={(v) => setPagoCuota((p) => ({ ...p, cuentaFinancieraId: v }))}
+              tipoCambio={pagoCuota.tipoCambioCuenta} onTipoCambio={(v) => setPagoCuota((p) => ({ ...p, tipoCambioCuenta: v }))}
+              monedaPago="PEN" montoPago={cuotaPanel.total} tipoPago="PAGO" medio={pagoCuota.medio}
+            />
             <p className={styles.sub} style={{ margin: 0 }}>La cuota queda cancelada también en Outdoor → Proveedores.</p>
           </div>
         )}

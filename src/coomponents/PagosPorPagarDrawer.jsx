@@ -5,6 +5,7 @@ import {
   agregarAdjuntoPago, eliminarAdjuntoPago, eliminarPagoPorPagar, getDocumentoPorPagar, registrarPagoPorPagar, urlAdjuntoPago,
 } from "../api/cuentas";
 import { AdjuntosPago, ConstanciaInput } from "./ConstanciaPago";
+import CuentaFinancieraField from "./CuentaFinancieraField";
 import { abrirConstancia } from "../utils/abrirConstancia";
 import { monto, soles } from "../utils/formato";
 import { TONO_COBRO } from "../constants/estados";
@@ -18,6 +19,7 @@ const etiquetaMedio = Object.fromEntries(MEDIOS);
 const hoy = () => new Date().toLocaleDateString("en-CA");
 const pagoVacio = (tipo = "PAGO") => ({
   tipo, fecha: hoy(), monto: "", numeroOperacion: "", nota: "", medio: tipo === "DETRACCION" ? "DEPOSITO" : "TRANSFERENCIA",
+  cuentaFinancieraId: "", tipoCambioCuenta: "", banco: "",
 });
 
 // Pagos de un documento por pagar: al proveedor (neto) y el depósito de la
@@ -81,6 +83,7 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
     ...(d.monto && { monto: String(d.monto) }),
     ...(d.medio && p.tipo !== "DETRACCION" && { medio: d.medio }),
     ...(d.banco && !p.nota && { nota: d.banco }),
+    ...(d.banco && { banco: d.banco }),
   }));
 
   const enAdjunto = async (accion, mensajeError) => {
@@ -139,7 +142,7 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
                   <div>
                     <strong>{montoPago(p)}</strong> · {p.tipo === "DETRACCION" ? "Detracción" : "Pago"} · {etiquetaMedio[p.medio]}
                     <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>
-                      {new Date(p.fecha).toLocaleDateString("es-PE")}{p.numeroOperacion ? ` · op. ${p.numeroOperacion}` : ""}{p.usuario ? ` · ${p.usuario.nombre}` : ""}
+                      {new Date(p.fecha).toLocaleDateString("es-PE")}{p.numeroOperacion ? ` · op. ${p.numeroOperacion}` : ""}{p.cuentaFinanciera ? ` · ${p.cuentaFinanciera.nombre}` : ""}{p.usuario ? ` · ${p.usuario.nombre}` : ""}
                     </div>
                     {adjuntosDe(p)}
                   </div>
@@ -163,10 +166,17 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
                 {MEDIOS.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </Field>
               <Field label="N.° de operación" value={pago.numeroOperacion} onChange={(e) => setPago({ ...pago, numeroOperacion: e.target.value })} />
+              <CuentaFinancieraField
+                label="Cuenta de la que sale"
+                value={pago.cuentaFinancieraId} onChange={(v) => setPago((p) => ({ ...p, cuentaFinancieraId: v }))}
+                tipoCambio={pago.tipoCambioCuenta} onTipoCambio={(v) => setPago((p) => ({ ...p, tipoCambioCuenta: v }))}
+                monedaPago={pago.tipo === "DETRACCION" ? "PEN" : c.moneda} montoPago={pago.monto}
+                tipoPago={pago.tipo} medio={pago.medio} banco={pago.banco}
+              />
               <ConstanciaInput archivo={archivo} onArchivo={setArchivo} onLeido={precargar} />
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <Button variant="ghost" onClick={() => setPago({ ...pago, monto: String(pendiente) })}>Todo lo pendiente</Button>
-                <Button onClick={registrar} loading={guardando} disabled={!(Number(pago.monto) > 0)}>Registrar</Button>
+                <Button onClick={registrar} loading={guardando} disabled={!(Number(pago.monto) > 0) || !pago.cuentaFinancieraId}>Registrar</Button>
               </div>
             </div>
           )}
