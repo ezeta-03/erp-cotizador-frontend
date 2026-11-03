@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Badge, Button, Drawer, Field } from "../components/ui";
-import { eliminarPagoComprobante, getPagosComprobante, registrarPagoComprobante } from "../api/comprobantes";
+import {
+  agregarAdjuntoCobro, eliminarAdjuntoCobro, eliminarPagoComprobante, getPagosComprobante, registrarPagoComprobante, urlAdjuntoCobro,
+} from "../api/comprobantes";
+import { AdjuntosPago, ConstanciaInput } from "./ConstanciaPago";
+import { abrirConstancia } from "../utils/abrirConstancia";
 import { monto, soles } from "../utils/formato";
 import { TONO_COBRO } from "../constants/estados";
 
@@ -23,6 +27,7 @@ const ETIQUETA_TIPO = { COBRO: "Cobro", DETRACCION: "Detracción", RETENCION: "R
 export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToast }) {
   const [datos, setDatos] = useState(null);
   const [pago, setPago] = useState(pagoVacio());
+  const [archivo, setArchivo] = useState(null);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
 
@@ -30,6 +35,7 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
     if (!comprobanteId) return;
     setDatos(null);
     setPago(pagoVacio());
+    setArchivo(null);
     setError(null);
     getPagosComprobante(comprobanteId)
       .then(setDatos)
@@ -55,8 +61,9 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
     setError(null);
     setGuardando(true);
     try {
-      actualizar(await registrarPagoComprobante(comprobanteId, { ...pago, monto: Number(pago.monto) }));
+      actualizar(await registrarPagoComprobante(comprobanteId, { ...pago, monto: Number(pago.monto) }, archivo));
       setPago(pagoVacio(pago.tipo));
+      setArchivo(null);
       showToast("Pago registrado", "success");
     } catch (err) {
       setError(err.response?.data?.message || "No se pudo registrar el pago");
@@ -73,6 +80,33 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
       setError(err.response?.data?.message || "No se pudo eliminar el pago");
     }
   };
+
+  // Datos leídos de la constancia (OCR): solo pisan lo que se reconoció.
+  const precargar = (d) => setPago((p) => ({
+    ...p,
+    ...(d.numeroOperacion && { numeroOperacion: d.numeroOperacion }),
+    ...(d.fecha && { fecha: d.fecha }),
+    ...(d.monto && { monto: String(d.monto) }),
+    ...(d.medio && p.tipo !== "DETRACCION" && { medio: d.medio }),
+    ...(d.banco && !p.nota && { nota: d.banco }),
+  }));
+
+  const enAdjunto = async (accion, mensajeError) => {
+    setError(null);
+    try {
+      await accion();
+    } catch (err) {
+      setError(err.response?.data?.message || mensajeError);
+    }
+  };
+  const adjuntosDe = (p) => (
+    <AdjuntosPago
+      adjuntos={p.adjuntos}
+      onAbrir={(a) => enAdjunto(() => abrirConstancia(() => urlAdjuntoCobro(comprobanteId, p.id, a.id)), "No se pudo abrir la constancia")}
+      onEliminar={(a) => confirm(`¿Quitar la constancia ${a.nombre}?`) && enAdjunto(async () => actualizar(await eliminarAdjuntoCobro(comprobanteId, p.id, a.id)), "No se pudo quitar la constancia")}
+      onAgregar={(f) => enAdjunto(async () => actualizar(await agregarAdjuntoCobro(comprobanteId, p.id, f)), "No se pudo adjuntar la constancia")}
+    />
+  );
 
   const fila = (label, valor, fuerte) => (
     <div style={{ display: "flex", justifyContent: "space-between", fontWeight: fuerte ? 700 : 400 }}>
@@ -123,6 +157,7 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
                         {ETIQUETA_TIPO[p.tipo] || p.tipo} · {etiquetaMedio[p.medio] || p.medio}
                         {p.numeroOperacion && <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>Op. {p.numeroOperacion}</div>}
                         {p.nota && <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>{p.nota}</div>}
+                        {adjuntosDe(p)}
                       </td>
                       <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>{montoPago(p)}</td>
                       <td style={{ width: 32 }}>
@@ -157,6 +192,7 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
                 </Field>
                 <Field label={pago.tipo === "RETENCION" ? "N° de comprobante de retención" : "N° de operación"} value={pago.numeroOperacion} onChange={(e) => setPago((p) => ({ ...p, numeroOperacion: e.target.value }))} />
               </div>
+              <ConstanciaInput archivo={archivo} onArchivo={setArchivo} onLeido={precargar} />
               <Field label="Nota" value={pago.nota} onChange={(e) => setPago((p) => ({ ...p, nota: e.target.value }))} />
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <Button variant="ghost" size="sm" onClick={() => setPago((p) => ({ ...p, monto: String(pendiente) }))}>Pagar todo lo pendiente</Button>

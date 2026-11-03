@@ -1,5 +1,5 @@
 import api from "./axios";
-import { descargarBlob } from "./comprobantes";
+import { conArchivo, descargarBlob } from "./comprobantes";
 
 // Cuentas por cobrar y por pagar. ADMIN / CONTABLE.
 
@@ -10,9 +10,15 @@ export const getCuentasPorCobrar = async () => {
   return data;
 };
 
-// { vencidos: { cantidad, montos }, porVencer: { cantidad, montos }, urgentes: [...] }
+// { vencidos: { cantidad, montos }, porVencer: { cantidad, montos }, urgentes: [...], detracciones: [...] }
 export const getAlertasCobro = async () => {
   const { data } = await api.get("/cuentas-por-cobrar/alertas");
+  return data;
+};
+
+// Todos los comprobantes con su cobro. estado: PAGADO | POR_COBRAR | VENCIDO | DETRACCION | ANULADO
+export const getHistorialCobros = async (params = {}) => {
+  const { data } = await api.get("/cuentas-por-cobrar/historial", { params });
   return data;
 };
 
@@ -84,8 +90,31 @@ export const anularDocumentoPorPagar = async (id) => {
 };
 
 // pago: { tipo: "PAGO"|"DETRACCION", fecha, monto, medio, numeroOperacion?, nota? }
-export const registrarPagoPorPagar = async (id, pago) => {
-  const { data } = await api.post(`/cuentas-por-pagar/documentos/${id}/pagos`, pago);
+// archivo (opcional): imagen o PDF de la constancia.
+export const registrarPagoPorPagar = async (id, pago, archivo) => {
+  const { data } = await api.post(`/cuentas-por-pagar/documentos/${id}/pagos`, conArchivo(pago, archivo));
+  return data;
+};
+
+export const agregarAdjuntoPago = async (id, pagoId, archivo) => {
+  const { data } = await api.post(`/cuentas-por-pagar/documentos/${id}/pagos/${pagoId}/adjuntos`, conArchivo({}, archivo));
+  return data;
+};
+
+export const eliminarAdjuntoPago = async (id, pagoId, adjuntoId) => {
+  const { data } = await api.delete(`/cuentas-por-pagar/documentos/${id}/pagos/${pagoId}/adjuntos/${adjuntoId}`);
+  return data;
+};
+
+// { url } firmada por 10 minutos
+export const urlAdjuntoPago = async (id, pagoId, adjuntoId) => {
+  const { data } = await api.get(`/cuentas-por-pagar/documentos/${id}/pagos/${pagoId}/adjuntos/${adjuntoId}`);
+  return data;
+};
+
+// { detracciones: [{ id, numero, nombre, saldo, plazo, dias }] } — a depositar a proveedores
+export const getAlertasPago = async () => {
+  const { data } = await api.get("/cuentas-por-pagar/alertas");
   return data;
 };
 

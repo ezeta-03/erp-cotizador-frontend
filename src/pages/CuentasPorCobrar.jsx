@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { FileUp, Mail, ScrollText, Upload, Wallet } from "lucide-react";
+import { FileText, FileUp, Mail, ScrollText, Upload, Wallet } from "lucide-react";
 import { Badge, Button, Table } from "../components/ui";
-import { enviarRecordatorioCobro, getCuentasPorCobrar } from "../api/cuentas";
+import { enviarRecordatorioCobro, getCuentasPorCobrar, getHistorialCobros } from "../api/cuentas";
 import { monto, soles } from "../utils/formato";
 import { TONO_COBRO } from "../constants/estados";
 import { useToast } from "../coomponents/Toast";
@@ -20,6 +20,31 @@ const montos = (obj) => {
   return e.length ? e.map(([m, v]) => monto(v, m)).join(" · ") : soles(0);
 };
 
+const VISTAS = [["CLIENTES", "Por cliente"], ["DOCUMENTOS", "Por comprobante"], ["HISTORIAL", "Historial"]];
+const sumarDias = (n) => {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.toLocaleDateString("en-CA");
+};
+// Filtros de la vista "Por comprobante" (documentos con saldo).
+const FILTROS_PENDIENTES = [
+  ["TODOS", "Todos", () => true],
+  ["VENCIDOS", "Vencidos", (d) => d.diasVencido > 0],
+  ["SEMANA", "Vencen en 7 días", (d) => d.diasVencido === 0 && !!d.vencimiento && d.vencimiento <= sumarDias(7)],
+  ["DETRACCION", "Detracción pendiente", (d) => !!d.detraccion],
+];
+const FILTROS_HISTORIAL = [
+  ["", "Todos"], ["POR_COBRAR", "Por cobrar"], ["PAGADO", "Pagados"], ["VENCIDO", "Vencidos"],
+  ["DETRACCION", "Detracción pendiente"], ["ANULADO", "Anulados"],
+];
+const estadoVisible = (d) => (d.diasVencido > 0 ? "VENCIDO" : d.cobro.estado);
+const chip = (activo) => ({
+  padding: "0.3rem 0.75rem", borderRadius: 999, cursor: "pointer", fontSize: "var(--text-xs)",
+  border: `1px solid ${activo ? "var(--color-accent)" : "var(--color-border)"}`,
+  background: activo ? "var(--color-accent)" : "var(--color-surface)",
+  color: activo ? "var(--color-on-accent)" : "var(--color-text2)",
+});
+
 // Cuentas por cobrar: saldos de facturas y boletas (del ERP y del portal SOL)
 // por cliente y por documento, con antigüedad, estado de cuenta y recordatorios.
 export default function CuentasPorCobrar() {
@@ -27,6 +52,11 @@ export default function CuentasPorCobrar() {
   const [error, setError] = useState(null);
   const [vista, setVista] = useState("CLIENTES");
   const [buscar, setBuscar] = useState("");
+  const [filtro, setFiltro] = useState("TODOS");
+  const [historial, setHistorial] = useState(null);
+  const [filtroHistorial, setFiltroHistorial] = useState("");
+  const [desde, setDesde] = useState("");
+  const [hasta, setHasta] = useState("");
   const [pagosDe, setPagosDe] = useState(null);
   const [estadoDe, setEstadoDe] = useState(null);
   const [externo, setExterno] = useState(false);
@@ -40,6 +70,20 @@ export default function CuentasPorCobrar() {
       .catch((err) => setError(err.response?.data?.message || "No se pudieron cargar las cuentas por cobrar"));
   }, []);
   useEffect(() => { cargar(); }, [cargar]);
+
+  const cargarHistorial = useCallback(() => {
+    if (vista !== "HISTORIAL") return;
+    setHistorial(null);
+    getHistorialCobros({ estado: filtroHistorial || undefined, desde: desde || undefined, hasta: hasta || undefined })
+      .then(setHistorial)
+      .catch(() => setHistorial([]));
+  }, [vista, filtroHistorial, desde, hasta]);
+  useEffect(() => { cargarHistorial(); }, [cargarHistorial]);
+
+  const alCambiarPagos = () => {
+    cargar();
+    cargarHistorial();
+  };
 
   const recordatorio = async (c) => {
     const para = prompt(
@@ -88,6 +132,7 @@ export default function CuentasPorCobrar() {
     ) },
     { key: "acciones", label: "", render: (c) => (
       <div className={styles.filaAcciones}>
+        <Button size="sm" icon={Wallet} onClick={() => { setVista("DOCUMENTOS"); setFiltro("TODOS"); setBuscar(c.numDoc); }}>Cobrar</Button>
         <Button size="sm" variant="secondary" icon={ScrollText} onClick={() => setEstadoDe(c)}>Estado de cuenta</Button>
         <Button size="sm" variant="ghost" icon={Mail} loading={enviando === c.numDoc} onClick={() => recordatorio(c)}>Recordar</Button>
       </div>
@@ -120,16 +165,46 @@ export default function CuentasPorCobrar() {
       <>
         <strong>{monto(d.cobro.saldo, d.moneda)}</strong>
         {d.cobro.saldoDetraccion > 0 && <div className={styles.sub}>+ detracción {soles(d.cobro.saldoDetraccion)}</div>}
+        {d.detraccion && (
+          <div className={d.detraccion.dias < 0 ? styles.vencido : styles.sub}>
+            {d.detraccion.dias < 0 ? "detracción vencida" : "detracción vence"} {fechaCorta(d.detraccion.plazo)}
+          </div>
+        )}
       </>
     ) },
-    { key: "estado", label: "Estado", render: (d) => <Badge tone={TONO_COBRO[d.diasVencido > 0 ? "VENCIDO" : d.cobro.estado]}>{d.diasVencido > 0 ? "VENCIDO" : d.cobro.estado}</Badge> },
+    { key: "estado", label: "Estado", render: (d) => <Badge tone={TONO_COBRO[estadoVisible(d)]}>{estadoVisible(d)}</Badge> },
     { key: "acciones", label: "", render: (d) => (
-      <Button size="sm" variant="secondary" icon={Wallet} onClick={() => setPagosDe(d.id)}>Cobros</Button>
+      <Button size="sm" icon={Wallet} onClick={() => setPagosDe(d.id)}>Cobrar</Button>
+    ) },
+  ];
+
+  const columnasHistorial = [
+    ...columnasDocumentos.slice(0, 3),
+    { key: "total", label: "Total", align: "right", render: (d) => monto(d.total, d.moneda) },
+    { key: "cobrado", label: "Cobrado", align: "right", render: (d) => (
+      <>
+        {monto(d.cobro.cobrado, d.moneda)}
+        {d.ultimoCobro && <div className={styles.sub}>último {fechaCorta(d.ultimoCobro)}</div>}
+      </>
+    ) },
+    { key: "saldo", label: "Saldo", align: "right", render: (d) => (
+      <>
+        {d.cobro.saldo > 0 ? <strong>{monto(d.cobro.saldo, d.moneda)}</strong> : <span className={styles.sub}>—</span>}
+        {d.cobro.saldoDetraccion > 0 && <div className={styles.sub}>+ detracción {soles(d.cobro.saldoDetraccion)}</div>}
+      </>
+    ) },
+    { key: "estado", label: "Estado", render: (d) => <Badge tone={TONO_COBRO[estadoVisible(d)]}>{estadoVisible(d)}</Badge> },
+    { key: "acciones", label: "", render: (d) => (d.abierto
+      ? <Button size="sm" icon={Wallet} onClick={() => setPagosDe(d.id)}>Cobrar</Button>
+      : <Button size="sm" variant="ghost" icon={FileText} onClick={() => setPagosDe(d.id)}>Ver cobros</Button>
     ) },
   ];
 
   const clientes = datos.clientes.filter((c) => coincide(c.nombre, c.numDoc));
-  const documentos = datos.documentos.filter((d) => coincide(d.clienteNombre, d.clienteNumDoc) || d.numero.toLowerCase().includes(q));
+  const porClienteONumero = (d) => coincide(d.clienteNombre, d.clienteNumDoc) || d.numero.toLowerCase().includes(q);
+  const filtrar = FILTROS_PENDIENTES.find(([k]) => k === filtro)[2];
+  const documentos = datos.documentos.filter((d) => porClienteONumero(d) && filtrar(d));
+  const filasHistorial = (historial || []).filter(porClienteONumero);
 
   return (
     <>
@@ -174,18 +249,41 @@ export default function CuentasPorCobrar() {
         <Antiguedad titulo="Antigüedad de la deuda" totales={datos.totales} />
 
         <div className={styles.tabs}>
-          {[["CLIENTES", "Por cliente"], ["DOCUMENTOS", "Por comprobante"]].map(([v, label]) => (
+          {VISTAS.map(([v, label]) => (
             <button key={v} type="button" className={`${styles.tab} ${vista === v ? styles.tabActivo : ""}`} onClick={() => setVista(v)}>{label}</button>
           ))}
+          {vista === "HISTORIAL" && (
+            <>
+              <select className={styles.buscar} style={{ marginLeft: 0, minWidth: 140 }} value={filtroHistorial} onChange={(e) => setFiltroHistorial(e.target.value)}>
+                {FILTROS_HISTORIAL.map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+              </select>
+              <input type="date" className={styles.buscar} style={{ marginLeft: 0, minWidth: 0 }} title="Emitidos desde" aria-label="Emitidos desde"
+                value={desde} max={hasta || undefined} onChange={(e) => setDesde(e.target.value)} />
+              <input type="date" className={styles.buscar} style={{ marginLeft: 0, minWidth: 0 }} title="Emitidos hasta" aria-label="Emitidos hasta"
+                value={hasta} min={desde || undefined} onChange={(e) => setHasta(e.target.value)} />
+            </>
+          )}
           <input className={styles.buscar} placeholder="Buscar cliente, RUC o comprobante..." value={buscar} onChange={(e) => setBuscar(e.target.value)} />
         </div>
 
-        {vista === "CLIENTES"
-          ? <Table columns={columnasClientes} rows={clientes.map((c) => ({ ...c, id: `${c.numDoc}|${c.moneda}` }))} empty="No hay saldos por cobrar" />
-          : <Table columns={columnasDocumentos} rows={documentos} empty="No hay comprobantes con saldo" />}
+        {vista === "DOCUMENTOS" && (
+          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+            {FILTROS_PENDIENTES.map(([k, label]) => (
+              <button key={k} type="button" style={chip(filtro === k)} onClick={() => setFiltro(k)}>{label}</button>
+            ))}
+          </div>
+        )}
+
+        {vista === "CLIENTES" && (
+          <Table columns={columnasClientes} rows={clientes.map((c) => ({ ...c, id: `${c.numDoc}|${c.moneda}` }))} empty="No hay saldos por cobrar" />
+        )}
+        {vista === "DOCUMENTOS" && <Table columns={columnasDocumentos} rows={documentos} empty="No hay comprobantes para este filtro" />}
+        {vista === "HISTORIAL" && (historial === null
+          ? <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}><Spinner size={16} /> Cargando historial...</div>
+          : <Table columns={columnasHistorial} rows={filasHistorial} empty="No hay comprobantes para este filtro" />)}
       </div>
 
-      <PagosDrawer comprobanteId={pagosDe} onClose={() => setPagosDe(null)} onCambio={cargar} showToast={showToast} />
+      <PagosDrawer comprobanteId={pagosDe} onClose={() => setPagosDe(null)} onCambio={alCambiarPagos} showToast={showToast} />
       <EstadoCuentaDrawer cliente={estadoDe} onClose={() => setEstadoDe(null)} onRecordatorio={cargar} showToast={showToast} />
       <ComprobanteExternoDrawer open={externo} onClose={() => setExterno(false)} onRegistrado={cargar} showToast={showToast} />
       <ImportarExternosDrawer open={importar} onClose={() => setImportar(false)} onImportado={cargar} showToast={showToast} />

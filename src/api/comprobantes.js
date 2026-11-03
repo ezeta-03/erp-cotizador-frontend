@@ -89,11 +89,37 @@ export const getPagosComprobante = async (id) => {
   return data;
 };
 
-// pago: { tipo: "COBRO"|"DETRACCION", fecha, monto, medio, numeroOperacion?, nota? }
-export const registrarPagoComprobante = async (id, pago) => {
-  const { data } = await api.post(`/comprobantes/${id}/pagos`, pago);
+// pago: { tipo: "COBRO"|"DETRACCION"|"RETENCION", fecha, monto, medio, numeroOperacion?, nota? }
+// archivo (opcional): imagen o PDF de la constancia.
+export const registrarPagoComprobante = async (id, pago, archivo) => {
+  const { data } = await api.post(`/comprobantes/${id}/pagos`, conArchivo(pago, archivo));
   return data;
 };
+
+export const agregarAdjuntoCobro = async (id, pagoId, archivo) => {
+  const { data } = await api.post(`/comprobantes/${id}/pagos/${pagoId}/adjuntos`, conArchivo({}, archivo));
+  return data;
+};
+
+export const eliminarAdjuntoCobro = async (id, pagoId, adjuntoId) => {
+  const { data } = await api.delete(`/comprobantes/${id}/pagos/${pagoId}/adjuntos/${adjuntoId}`);
+  return data;
+};
+
+// { url } firmada por 10 minutos
+export const urlAdjuntoCobro = async (id, pagoId, adjuntoId) => {
+  const { data } = await api.get(`/comprobantes/${id}/pagos/${pagoId}/adjuntos/${adjuntoId}`);
+  return data;
+};
+
+// Datos + archivo como multipart (o el objeto tal cual si no hay archivo).
+export function conArchivo(datos, archivo) {
+  if (!archivo) return datos;
+  const form = new FormData();
+  for (const [k, v] of Object.entries(datos)) if (v !== undefined && v !== null) form.append(k, v);
+  form.append("archivo", archivo);
+  return form;
+}
 
 export const eliminarPagoComprobante = async (id, pagoId) => {
   const { data } = await api.delete(`/comprobantes/${id}/pagos/${pagoId}`);

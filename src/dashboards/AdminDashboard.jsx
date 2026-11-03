@@ -10,6 +10,7 @@ import { Target, TrendingUp, Users, Edit2, Save, X, RefreshCw, History } from 'l
 import Spinner from '../coomponents/Spinner';
 import SolicitudesMargenPanel from '../coomponents/SolicitudesMargenPanel';
 import AlertasCobro from '../coomponents/AlertasCobro';
+import AlertasDetraccion from '../coomponents/AlertasDetraccion';
 import styles from './AdminDashboard.module.scss';
 import { solesCompacto } from "../utils/formato";
 
@@ -299,6 +300,7 @@ export default function AdminDashboard() {
         <div className={styles.solicitudesWrapper}>
           <SolicitudesMargenPanel />
           <AlertasCobro rol="admin" />
+          <AlertasDetraccion rol="admin" />
         </div>
       </div>
 

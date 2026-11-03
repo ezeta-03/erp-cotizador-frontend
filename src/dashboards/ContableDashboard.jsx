@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import styles from './ContableDashboard.module.scss';
 import AlertasCobro from '../coomponents/AlertasCobro';
+import AlertasDetraccion from '../coomponents/AlertasDetraccion';
 import { soles } from "../utils/formato";
 
 export default function ContableDashboard() {
@@ -188,6 +189,7 @@ export default function ContableDashboard() {
         )}
       </div>
       <AlertasCobro rol="contable" />
+      <AlertasDetraccion rol="contable" />
       </div>
     </div>
   );

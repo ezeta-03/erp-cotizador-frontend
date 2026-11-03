@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Badge, Button, Drawer, Field } from "../components/ui";
-import { eliminarPagoPorPagar, getDocumentoPorPagar, registrarPagoPorPagar } from "../api/cuentas";
+import {
+  agregarAdjuntoPago, eliminarAdjuntoPago, eliminarPagoPorPagar, getDocumentoPorPagar, registrarPagoPorPagar, urlAdjuntoPago,
+} from "../api/cuentas";
+import { AdjuntosPago, ConstanciaInput } from "./ConstanciaPago";
+import { abrirConstancia } from "../utils/abrirConstancia";
 import { monto, soles } from "../utils/formato";
 import { TONO_COBRO } from "../constants/estados";
 import { TIPO_DOC_LABEL } from "../constants/cuentas";
@@ -21,6 +25,7 @@ const pagoVacio = (tipo = "PAGO") => ({
 export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, showToast }) {
   const [c, setC] = useState(null);
   const [pago, setPago] = useState(pagoVacio());
+  const [archivo, setArchivo] = useState(null);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
 
@@ -28,6 +33,7 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
     if (!documentoId) return;
     setC(null);
     setPago(pagoVacio());
+    setArchivo(null);
     setError(null);
     getDocumentoPorPagar(documentoId)
       .then(setC)
@@ -47,8 +53,9 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
     setGuardando(true);
     setError(null);
     try {
-      actualizar(await registrarPagoPorPagar(documentoId, { ...pago, monto: Number(pago.monto) }));
+      actualizar(await registrarPagoPorPagar(documentoId, { ...pago, monto: Number(pago.monto) }, archivo));
       setPago(pagoVacio(pago.tipo));
+      setArchivo(null);
       showToast("Pago registrado", "success");
     } catch (err) {
       setError(err.response?.data?.message || "No se pudo registrar el pago");
@@ -65,6 +72,33 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
       setError(err.response?.data?.message || "No se pudo eliminar el pago");
     }
   };
+
+  // Datos leídos de la constancia (OCR): solo pisan lo que se reconoció.
+  const precargar = (d) => setPago((p) => ({
+    ...p,
+    ...(d.numeroOperacion && { numeroOperacion: d.numeroOperacion }),
+    ...(d.fecha && { fecha: d.fecha }),
+    ...(d.monto && { monto: String(d.monto) }),
+    ...(d.medio && p.tipo !== "DETRACCION" && { medio: d.medio }),
+    ...(d.banco && !p.nota && { nota: d.banco }),
+  }));
+
+  const enAdjunto = async (accion, mensajeError) => {
+    setError(null);
+    try {
+      await accion();
+    } catch (err) {
+      setError(err.response?.data?.message || mensajeError);
+    }
+  };
+  const adjuntosDe = (p) => (
+    <AdjuntosPago
+      adjuntos={p.adjuntos}
+      onAbrir={(a) => enAdjunto(() => abrirConstancia(() => urlAdjuntoPago(documentoId, p.id, a.id)), "No se pudo abrir la constancia")}
+      onEliminar={(a) => confirm(`¿Quitar la constancia ${a.nombre}?`) && enAdjunto(async () => actualizar(await eliminarAdjuntoPago(documentoId, p.id, a.id)), "No se pudo quitar la constancia")}
+      onAgregar={(f) => enAdjunto(async () => actualizar(await agregarAdjuntoPago(documentoId, p.id, f)), "No se pudo adjuntar la constancia")}
+    />
+  );
 
   const fila = (label, valor, fuerte) => (
     <div style={{ display: "flex", justifyContent: "space-between", fontWeight: fuerte ? 700 : 400 }}>
@@ -107,6 +141,7 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
                     <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>
                       {new Date(p.fecha).toLocaleDateString("es-PE")}{p.numeroOperacion ? ` · op. ${p.numeroOperacion}` : ""}{p.usuario ? ` · ${p.usuario.nombre}` : ""}
                     </div>
+                    {adjuntosDe(p)}
                   </div>
                   <Button size="sm" variant="ghost" icon={Trash2} aria-label="Eliminar pago" onClick={() => eliminar(p)} />
                 </div>
@@ -128,6 +163,7 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
                 {MEDIOS.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </Field>
               <Field label="N.° de operación" value={pago.numeroOperacion} onChange={(e) => setPago({ ...pago, numeroOperacion: e.target.value })} />
+              <ConstanciaInput archivo={archivo} onArchivo={setArchivo} onLeido={precargar} />
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <Button variant="ghost" onClick={() => setPago({ ...pago, monto: String(pendiente) })}>Todo lo pendiente</Button>
                 <Button onClick={registrar} loading={guardando} disabled={!(Number(pago.monto) > 0)}>Registrar</Button>
