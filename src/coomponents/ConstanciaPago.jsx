@@ -69,7 +69,7 @@ export function ConstanciaInput({ archivo, onArchivo, onLeido }) {
 }
 
 // Constancias ya guardadas de un pago: abrir (URL firmada), quitar y añadir otra.
-export function AdjuntosPago({ adjuntos = [], onAbrir, onEliminar, onAgregar }) {
+export function AdjuntosPago({ adjuntos = [], onAbrir, onEliminar, onAgregar, etiqueta = "Adjuntar constancia" }) {
   const input = useRef(null);
   const [subiendo, setSubiendo] = useState(false);
 
@@ -100,7 +100,7 @@ export function AdjuntosPago({ adjuntos = [], onAbrir, onEliminar, onAgregar }) 
       ))}
       <input ref={input} type="file" accept={ACEPTA} hidden onChange={elegir} />
       <button type="button" style={chip} onClick={() => input.current.click()} disabled={subiendo}>
-        {subiendo ? <Spinner size={10} /> : <Paperclip size={12} />} {adjuntos.length ? "Otra" : "Adjuntar constancia"}
+        {subiendo ? <Spinner size={10} /> : <Paperclip size={12} />} {adjuntos.length ? "Otro" : etiqueta}
       </button>
     </div>
   );

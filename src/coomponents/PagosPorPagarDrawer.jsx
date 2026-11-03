@@ -116,7 +116,7 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
       {c && (
         <div style={{ display: "grid", gap: "1rem" }}>
           <div style={{ display: "grid", gap: "0.3rem", fontSize: "var(--text-sm)" }}>
-            <div><strong>{c.proveedor.razonSocial}</strong> · RUC {c.proveedor.ruc}</div>
+            <div><strong>{c.proveedor.razonSocial}</strong>{c.proveedor.ruc ? ` · ${c.proveedor.tipoDocIdentidad || "RUC"} ${c.proveedor.ruc}` : ""}</div>
             {(c.proveedor.banco || c.proveedor.numeroCuenta) && (
               <div style={{ color: "var(--color-text3)" }}>
                 {[c.proveedor.banco, c.proveedor.numeroCuenta, c.proveedor.cci && `CCI ${c.proveedor.cci}`].filter(Boolean).join(" · ")}

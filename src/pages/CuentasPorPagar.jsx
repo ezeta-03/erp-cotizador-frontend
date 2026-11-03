@@ -9,8 +9,9 @@ import { TONO_COBRO } from "../constants/estados";
 import { useToast } from "../coomponents/Toast";
 import Spinner from "../coomponents/Spinner";
 import Antiguedad from "../coomponents/Antiguedad";
-import { CATEGORIA_LABEL, TIPO_DOC_LABEL, TRAMOS } from "../constants/cuentas";
+import { ESTADO_ALMACEN, GRUPO_GASTO_LABEL, TIPO_DOC_LABEL, TRAMOS, nombreCategoria } from "../constants/cuentas";
 import ProveedorCompraDrawer from "../coomponents/ProveedorCompraDrawer";
+import CategoriasGasto from "../coomponents/CategoriasGasto";
 import DocumentoPorPagarDrawer from "../coomponents/DocumentoPorPagarDrawer";
 import PagosPorPagarDrawer from "../coomponents/PagosPorPagarDrawer";
 import styles from "./cuentas.module.scss";
@@ -26,12 +27,43 @@ const MEDIOS = [
 ];
 const hoy = () => new Date().toLocaleDateString("en-CA");
 
+// Filas de la cartera (planas) y documentos del historial (con proveedor anidado).
+const afecta = (f) => f.afectaComercializacion ?? f.proveedor?.afectaComercializacion;
+const FILTROS = [
+  ["TODOS", "Todos", () => true],
+  ["COSTO_VENTA", "Costo de venta", (f) => afecta(f) === true],
+  ["GASTO_OPERATIVO", "Gasto operativo", (f) => afecta(f) === false],
+  ["INGRESO_PENDIENTE", "Ingreso pendiente", (f) => f.estadoAlmacen === "INGRESO_PENDIENTE"],
+  ["SALIDA_PENDIENTE", "Salida pendiente", (f) => f.estadoAlmacen === "SALIDA_PENDIENTE"],
+  ["NO_DEDUCIBLE", "No deducible", (f) => f.deducible === false],
+];
+const chip = (activo) => ({
+  padding: "0.3rem 0.75rem", borderRadius: 999, cursor: "pointer", fontSize: "var(--text-xs)",
+  border: `1px solid ${activo ? "var(--color-accent)" : "var(--color-border)"}`,
+  background: activo ? "var(--color-accent)" : "var(--color-surface)",
+  color: activo ? "var(--color-on-accent)" : "var(--color-text2)",
+});
+const docProveedor = (p) => (p.tipoDocIdentidad === "NINGUNO" || !p.ruc ? "Sin documento" : `${p.tipoDocIdentidad || "RUC"} ${p.ruc}`);
+
+// Insignias de un documento: estado de almacén y no deducible.
+function Insignias({ fila }) {
+  const almacen = ESTADO_ALMACEN[fila.estadoAlmacen];
+  if (!almacen && fila.deducible !== false) return null;
+  return (
+    <div style={{ display: "flex", gap: "0.3rem", flexWrap: "wrap", marginTop: "0.2rem" }}>
+      {almacen && <Badge tone={almacen[1]} dot>{almacen[0]}</Badge>}
+      {fila.deducible === false && <Badge tone="gray">No deducible</Badge>}
+    </div>
+  );
+}
+
 // Cuentas por pagar: facturas de proveedores de compras/servicios y cuotas de
 // alquiler de paneles, con antigüedad, pagos y el maestro de proveedores.
 export default function CuentasPorPagar() {
   const [datos, setDatos] = useState(null);
   const [historial, setHistorial] = useState([]);
   const [filtroHistorial, setFiltroHistorial] = useState("");
+  const [filtro, setFiltro] = useState("TODOS");
   const [proveedores, setProveedores] = useState([]);
   const [opciones, setOpciones] = useState(null);
   const [error, setError] = useState(null);
@@ -62,6 +94,7 @@ export default function CuentasPorPagar() {
     cargarProveedores();
     getOpcionesPorPagar().then(setOpciones).catch(() => {});
   }, [cargar, cargarProveedores]);
+  const recargarOpciones = () => getOpcionesPorPagar().then(setOpciones).catch(() => {});
   useEffect(() => { if (vista === "HISTORIAL") cargarHistorial(); }, [vista, cargarHistorial]);
 
   const refrescar = () => {
@@ -123,8 +156,10 @@ export default function CuentasPorPagar() {
     { key: "documento", label: "Documento", render: (f) => (
       <>
         {f.origen === "PANEL" ? <Badge tone="blue">Alquiler</Badge> : TIPO_DOC_LABEL[f.tipoDocumento]} {f.documento}
+        <div className={styles.sub}>{nombreCategoria(f.categoriaGasto)}</div>
         {f.descripcion && <div className={styles.sub}>{f.descripcion}</div>}
         {f.proyecto && <div className={styles.sub}>Proyecto: {f.proyecto.nombre}</div>}
+        <Insignias fila={f} />
       </>
     ) },
     { key: "vencimiento", label: "Vence", render: (f) => (
@@ -178,7 +213,8 @@ export default function CuentasPorPagar() {
     { key: "documento", label: "Documento", render: (c) => (
       <>
         {TIPO_DOC_LABEL[c.tipoDocumento]} {c.documento}
-        <div className={styles.sub}>{CATEGORIA_LABEL[c.categoria]}{c.proyecto ? ` · ${c.proyecto.nombre}` : ""}</div>
+        <div className={styles.sub}>{nombreCategoria(c.categoriaGasto)}{c.proyecto ? ` · ${c.proyecto.nombre}` : ""}</div>
+        <Insignias fila={c} />
       </>
     ) },
     { key: "total", label: "Total", align: "right", render: (c) => monto(c.total, c.moneda) },
@@ -197,7 +233,14 @@ export default function CuentasPorPagar() {
     { key: "razonSocial", label: "Proveedor", render: (p) => (
       <>
         <strong>{p.razonSocial}</strong>
-        <div className={styles.sub}>RUC {p.ruc}{p.nombreComercial ? ` · ${p.nombreComercial}` : ""}</div>
+        <div className={styles.sub}>{docProveedor(p)}{p.nombreComercial ? ` · ${p.nombreComercial}` : ""}</div>
+      </>
+    ) },
+    { key: "tipo", label: "Tipo", render: (p) => (
+      <>
+        <Badge tone={p.tipo === "SERVICIO" ? "blue" : "purple"}>{p.tipo === "SERVICIO" ? "Servicio" : "Producto"}</Badge>
+        <div className={styles.sub}>{p.afectaComercializacion ? "Costo de venta" : "Gasto operativo"}</div>
+        {p.categoriaGasto && <div className={styles.sub}>{p.categoriaGasto.nombre}</div>}
       </>
     ) },
     { key: "contacto", label: "Contacto", render: (p) => [p.contacto, p.telefono, p.email].filter(Boolean).join(" · ") || "—" },
@@ -212,7 +255,14 @@ export default function CuentasPorPagar() {
     ) },
   ];
 
-  const VISTAS = [["PENDIENTES", "Pendientes"], ["PROVEEDORES_SALDO", "Por proveedor"], ["HISTORIAL", "Documentos"], ["MAESTRO", "Proveedores"]];
+  const VISTAS = [
+    ["PENDIENTES", "Pendientes"], ["PROVEEDORES_SALDO", "Por proveedor"], ["HISTORIAL", "Documentos"], ["MAESTRO", "Proveedores"], ["CATEGORIAS", "Categorías"],
+  ];
+  const filtrar = FILTROS.find(([k]) => k === filtro)[2];
+  const pendientes = datos.documentos.filter((f) => coincide(f.proveedorNombre, f.proveedorDoc, f.documento, f.descripcion));
+  const documentos = historial.filter((c) => coincide(c.proveedor.razonSocial, c.proveedor.ruc, c.documento, c.descripcion));
+  const listaFiltrable = vista === "PENDIENTES" ? pendientes : documentos;
+  const cuantos = (fn) => listaFiltrable.filter(fn).length;
 
   return (
     <>
@@ -249,6 +299,11 @@ export default function CuentasPorPagar() {
             <p className={styles.kpiNota}>{datos.alertas.porVencer.cantidad} pendiente{datos.alertas.porVencer.cantidad !== 1 ? "s" : ""}</p>
           </div>
           <div className={styles.kpi}>
+            <p className={styles.kpiLabel}>Costo de venta / gasto operativo</p>
+            <p className={styles.kpiValor} style={{ fontSize: "var(--text-base)" }}>{montos(datos.porGrupo?.costoVenta)}</p>
+            <p className={styles.kpiNota}>Gasto operativo: {montos(datos.porGrupo?.gastoOperativo)}</p>
+          </div>
+          <div className={styles.kpi}>
             <p className={styles.kpiLabel}>Detracciones por depositar</p>
             <p className={styles.kpiValor}>{soles(datos.detraccionPorPagar)}</p>
             <p className={styles.kpiNota}>En las cuentas BN de los proveedores</p>
@@ -269,13 +324,24 @@ export default function CuentasPorPagar() {
               <option value="ANULADOS">Anulados</option>
             </select>
           )}
-          <input className={styles.buscar} placeholder="Buscar proveedor, RUC o documento..." value={buscar} onChange={(e) => setBuscar(e.target.value)} />
+          {vista !== "CATEGORIAS" && (
+            <input className={styles.buscar} placeholder="Buscar proveedor, RUC o documento..." value={buscar} onChange={(e) => setBuscar(e.target.value)} />
+          )}
         </div>
+
+        {(vista === "PENDIENTES" || vista === "HISTORIAL") && (
+          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+            {FILTROS.map(([k, label, fn]) => {
+              const n = k === "TODOS" ? listaFiltrable.length : cuantos(fn);
+              return <button key={k} type="button" style={chip(filtro === k)} onClick={() => setFiltro(k)}>{label}{n ? ` (${n})` : ""}</button>;
+            })}
+          </div>
+        )}
 
         {vista === "PENDIENTES" && (
           <Table columns={columnasPendientes} rowKey="clave"
-            rows={datos.documentos.filter((f) => coincide(f.proveedorNombre, f.proveedorDoc, f.documento, f.descripcion)).map((f) => ({ ...f, clave: `${f.origen}-${f.id}` }))}
-            empty="No hay deudas pendientes" />
+            rows={pendientes.filter(filtrar).map((f) => ({ ...f, clave: `${f.origen}-${f.id}` }))}
+            empty="No hay deudas pendientes para este filtro" />
         )}
         {vista === "PROVEEDORES_SALDO" && (
           <Table columns={columnasProveedores}
@@ -283,18 +349,17 @@ export default function CuentasPorPagar() {
             empty="No hay saldos por pagar" />
         )}
         {vista === "HISTORIAL" && (
-          <Table columns={columnasHistorial}
-            rows={historial.filter((c) => coincide(c.proveedor.razonSocial, c.proveedor.ruc, c.documento, c.descripcion))}
-            empty="No hay documentos registrados" />
+          <Table columns={columnasHistorial} rows={documentos.filter(filtrar)} empty="No hay documentos para este filtro" />
         )}
         {vista === "MAESTRO" && (
           <Table columns={columnasMaestro}
             rows={proveedores.filter((p) => coincide(p.razonSocial, p.ruc, p.nombreComercial))}
             empty="Aún no hay proveedores de compras" />
         )}
+        {vista === "CATEGORIAS" && <CategoriasGasto showToast={showToast} onCambio={recargarOpciones} />}
       </div>
 
-      <ProveedorCompraDrawer proveedor={proveedor} onClose={() => setProveedor(null)} onGuardado={cargarProveedores} showToast={showToast} />
+      <ProveedorCompraDrawer proveedor={proveedor} categorias={opciones?.categorias} onClose={() => setProveedor(null)} onGuardado={cargarProveedores} showToast={showToast} />
       <DocumentoPorPagarDrawer
         documento={documento}
         proveedores={proveedoresActivos}

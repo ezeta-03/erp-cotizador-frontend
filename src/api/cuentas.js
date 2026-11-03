@@ -49,6 +49,40 @@ export const getCuentasPorPagar = async () => {
 };
 
 // { tiposDocumento, categorias, medios, monedas, proyectos, ordenesAlmacen, movimientosAlmacen }
+// Categorías de gasto: árbol [{ id, nombre, grupo, activo, documentos, hijos: [...] }]
+export const getCategoriasGasto = async (todas = false) => {
+  const { data } = await api.get("/cuentas-por-pagar/categorias", { params: todas ? { todas: 1 } : {} });
+  return data;
+};
+
+// { nombre, grupo?, padreId? } → árbol actualizado (con las inactivas)
+export const crearCategoriaGasto = async (categoria) => {
+  const { data } = await api.post("/cuentas-por-pagar/categorias", categoria);
+  return data;
+};
+
+// { nombre?, grupo?, orden?, activo? } → árbol actualizado (con las inactivas)
+export const actualizarCategoriaGasto = async (id, cambios) => {
+  const { data } = await api.put(`/cuentas-por-pagar/categorias/${id}`, cambios);
+  return data;
+};
+
+// Foto o PDF del documento por pagar (p. ej. nota de venta)
+export const agregarAdjuntoDocumento = async (id, archivo) => {
+  const { data } = await api.post(`/cuentas-por-pagar/documentos/${id}/adjuntos`, conArchivo({}, archivo));
+  return data;
+};
+
+export const eliminarAdjuntoDocumento = async (id, adjuntoId) => {
+  const { data } = await api.delete(`/cuentas-por-pagar/documentos/${id}/adjuntos/${adjuntoId}`);
+  return data;
+};
+
+export const urlAdjuntoDocumento = async (id, adjuntoId) => {
+  const { data } = await api.get(`/cuentas-por-pagar/documentos/${id}/adjuntos/${adjuntoId}`);
+  return data;
+};
+
 export const getOpcionesPorPagar = async () => {
   const { data } = await api.get("/cuentas-por-pagar/opciones");
   return data;

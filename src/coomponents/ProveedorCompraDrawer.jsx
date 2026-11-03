@@ -3,16 +3,20 @@ import { Search } from "lucide-react";
 import { Button, Drawer, Field } from "../components/ui";
 import { consultarDocumento } from "../api/comprobantes";
 import { guardarProveedorCompra } from "../api/cuentas";
+import CategoriaGastoSelect from "./CategoriaGastoSelect";
 import styles from "../pages/cuentas.module.scss";
 
 const vacio = {
-  ruc: "", razonSocial: "", nombreComercial: "", direccion: "", contacto: "", telefono: "", email: "",
+  tipoDocIdentidad: "RUC", ruc: "", razonSocial: "", nombreComercial: "", direccion: "", contacto: "", telefono: "", email: "",
   banco: "", numeroCuenta: "", cci: "", condicionPago: "CONTADO", diasCredito: "", activo: true,
+  tipo: "PRODUCTO", afectaComercializacion: true, categoriaGastoId: "",
 };
+const LARGO_DOC = { RUC: 11, DNI: 8 };
 
 // Alta y edición de proveedores de compras y servicios (no arrendadores de paneles).
-// proveedor: null = cerrado, {} = nuevo, { id, ... } = editar.
-export default function ProveedorCompraDrawer({ proveedor, onClose, onGuardado, showToast }) {
+// proveedor: null = cerrado, {} = nuevo, { id, ... } = editar. Sin documento
+// (vendedor informal) solo sirve para notas de venta.
+export default function ProveedorCompraDrawer({ proveedor, categorias, onClose, onGuardado, showToast }) {
   const [f, setF] = useState(vacio);
   const [buscando, setBuscando] = useState(false);
   const [guardando, setGuardando] = useState(false);
@@ -21,6 +25,7 @@ export default function ProveedorCompraDrawer({ proveedor, onClose, onGuardado, 
   useEffect(() => {
     if (!proveedor) return;
     setF(Object.fromEntries(Object.entries(vacio).map(([k, v]) => [k, proveedor[k] ?? v])));
+    if (proveedor.categoriaGastoId) setF((p) => ({ ...p, categoriaGastoId: String(proveedor.categoriaGastoId) }));
     setError(null);
   }, [proveedor]);
 
@@ -44,7 +49,10 @@ export default function ProveedorCompraDrawer({ proveedor, onClose, onGuardado, 
     setError(null);
     try {
       const p = await guardarProveedorCompra(proveedor.id, {
-        ...f, diasCredito: f.condicionPago === "CREDITO" ? Number(f.diasCredito) : null,
+        ...f,
+        ruc: f.tipoDocIdentidad === "NINGUNO" ? null : f.ruc.trim(),
+        diasCredito: f.condicionPago === "CREDITO" ? Number(f.diasCredito) : null,
+        categoriaGastoId: f.categoriaGastoId ? Number(f.categoriaGastoId) : null,
       });
       showToast(`Proveedor ${p.razonSocial} guardado`, "success");
       onGuardado?.(p);
@@ -65,20 +73,56 @@ export default function ProveedorCompraDrawer({ proveedor, onClose, onGuardado, 
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>Cancelar</Button>
-          <Button onClick={guardar} loading={guardando} disabled={!f.ruc || !f.razonSocial}>Guardar</Button>
+          <Button onClick={guardar} loading={guardando} disabled={(f.tipoDocIdentidad !== "NINGUNO" && !f.ruc) || !f.razonSocial}>Guardar</Button>
         </>
       }
     >
       <div style={{ display: "grid", gap: "0.9rem" }}>
-        <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
-          <div style={{ flex: 1 }}>
-            <Field label="RUC (o DNI)" value={f.ruc} onChange={(e) => set("ruc", e.target.value)} required />
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end", flexWrap: "wrap" }}>
+          <div style={{ width: 150 }}>
+            <Field as="select" label="Documento" value={f.tipoDocIdentidad}
+              onChange={(e) => setF((p) => ({ ...p, tipoDocIdentidad: e.target.value, ruc: e.target.value === "NINGUNO" ? "" : p.ruc }))}>
+              <option value="RUC">RUC</option>
+              <option value="DNI">DNI</option>
+              <option value="NINGUNO">Sin documento</option>
+            </Field>
           </div>
-          <Button variant="secondary" icon={Search} loading={buscando} disabled={!/^\d{8}$|^\d{11}$/.test(f.ruc.trim())} onClick={buscar}>Buscar</Button>
+          {f.tipoDocIdentidad !== "NINGUNO" && (
+            <>
+              <div style={{ flex: 1, minWidth: 140 }}>
+                <Field label={`N.° de ${f.tipoDocIdentidad}`} value={f.ruc} inputMode="numeric" maxLength={LARGO_DOC[f.tipoDocIdentidad]}
+                  onChange={(e) => set("ruc", e.target.value.replace(/\D/g, ""))} required />
+              </div>
+              <Button variant="secondary" icon={Search} loading={buscando}
+                disabled={f.ruc.trim().length !== LARGO_DOC[f.tipoDocIdentidad]} onClick={buscar}>Buscar</Button>
+            </>
+          )}
         </div>
-        <Field label="Razón social" value={f.razonSocial} onChange={(e) => set("razonSocial", e.target.value)} required />
+        {f.tipoDocIdentidad === "NINGUNO" && (
+          <p className={styles.sub} style={{ margin: 0 }}>Vendedor informal: solo se le podrán registrar notas de venta (gasto sin comprobante, no deducible).</p>
+        )}
+        <Field label={f.tipoDocIdentidad === "RUC" ? "Razón social" : "Nombre"} value={f.razonSocial} onChange={(e) => set("razonSocial", e.target.value)} required />
         <Field label="Nombre comercial" value={f.nombreComercial} onChange={(e) => set("nombreComercial", e.target.value)} />
         <Field label="Dirección" value={f.direccion} onChange={(e) => set("direccion", e.target.value)} />
+        <div className={styles.grid2}>
+          <Field as="select" label="Tipo de proveedor" value={f.tipo} onChange={(e) => set("tipo", e.target.value)}
+            hint={f.tipo === "PRODUCTO" ? "Sus compras se controlan con el ingreso/salida de almacén" : undefined}>
+            <option value="PRODUCTO">Producto</option>
+            <option value="SERVICIO">Servicio</option>
+          </Field>
+          <CategoriaGastoSelect categorias={categorias} value={f.categoriaGastoId} onChange={(v) => set("categoriaGastoId", v)}
+            actual={proveedor?.categoriaGasto}
+            label="Categoría por defecto" hint="Se precarga al registrar sus documentos" />
+        </div>
+        <label style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", fontSize: "var(--text-sm)" }}>
+          <input type="checkbox" checked={f.afectaComercializacion} onChange={(e) => set("afectaComercializacion", e.target.checked)} style={{ marginTop: 3 }} />
+          <span>
+            Afecta la comercialización
+            <span className={styles.sub} style={{ display: "block" }}>
+              Marcado: su gasto es costo de venta (imprenta, materiales). Sin marcar: gasto operativo (luz, contador, alquiler).
+            </span>
+          </span>
+        </label>
         <div className={styles.grid2}>
           <Field label="Contacto" value={f.contacto} onChange={(e) => set("contacto", e.target.value)} />
           <Field label="Teléfono" value={f.telefono} onChange={(e) => set("telefono", e.target.value)} />
