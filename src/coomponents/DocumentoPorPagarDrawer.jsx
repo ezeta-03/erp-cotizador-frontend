@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { Paperclip, Plus, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
 import { Badge, Button, Drawer, Field } from "../components/ui";
 import {
   agregarAdjuntoDocumento, eliminarAdjuntoDocumento, guardarDocumentoPorPagar, urlAdjuntoDocumento,
@@ -8,7 +8,7 @@ import { IGV_RATE } from "../config/negocio";
 import { monto } from "../utils/formato";
 import { ESTADO_ALMACEN, REQUIEREN_RUC, TIPO_DOC_LABEL } from "../constants/cuentas";
 import { abrirConstancia } from "../utils/abrirConstancia";
-import { AdjuntosPago } from "./ConstanciaPago";
+import { AdjuntosPago, ConstanciaInput } from "./ConstanciaPago";
 import CategoriaGastoSelect from "./CategoriaGastoSelect";
 import styles from "../pages/cuentas.module.scss";
 
@@ -28,7 +28,7 @@ const inputCelda = {
 const vacio = () => ({
   proveedorId: "", tipoDocumento: "FACTURA", serie: "", numero: "", fechaEmision: hoy(), moneda: "PEN", tipoCambio: "",
   total: "", igv: "", igvManual: false, detraccionMonto: "", retencionMonto: "", categoriaGastoId: "", descripcion: "",
-  formaPago: "CONTADO", proyectoId: "", ordenAlmacenId: "", movimientoAlmacenId: "", pasaPorAlmacen: true,
+  formaPago: "CONTADO", proyectoId: "", ordenCompraId: "", ordenAlmacenId: "", movimientoAlmacenId: "", pasaPorAlmacen: true,
 });
 
 // Valores que se precargan al elegir un proveedor: condición de pago, categoría
@@ -49,8 +49,7 @@ export default function DocumentoPorPagarDrawer({ documento, proveedores, opcion
   const [f, setF] = useState(vacio());
   const [cuotas, setCuotas] = useState([]);
   const [adjuntos, setAdjuntos] = useState([]);
-  const [archivo, setArchivo] = useState(null); // foto elegida para un documento nuevo
-  const inputArchivo = useRef(null);
+  const [archivos, setArchivos] = useState([]); // fotos o PDF elegidos para un documento nuevo
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
   const editando = !!documento?.id;
@@ -65,10 +64,15 @@ export default function DocumentoPorPagarDrawer({ documento, proveedores, opcion
         fechaEmision: String(documento.fechaEmision).slice(0, 10),
         igvManual: true,
       });
-      for (const k of ["proveedorId", "proyectoId", "ordenAlmacenId", "movimientoAlmacenId", "total", "igv", "detraccionMonto", "retencionMonto", "tipoCambio", "categoriaGastoId"]) {
+      for (const k of ["proveedorId", "proyectoId", "ordenCompraId", "ordenAlmacenId", "movimientoAlmacenId", "total", "igv", "detraccionMonto", "retencionMonto", "tipoCambio", "categoriaGastoId"]) {
         base[k] = documento[k] == null ? "" : String(documento[k]);
       }
       setCuotas((documento.cuotas || []).map((q) => ({ monto: String(q.monto), fechaVencimiento: q.fechaVencimiento })));
+      // Nota de venta sin número del proveedor: su serie-número es el correlativo interno.
+      if (documento.numeroInterno && `${documento.serie}-${documento.numero}` === documento.numeroInterno) {
+        base.serie = "";
+        base.numero = "";
+      }
     } else {
       if (documento.proveedorId) {
         const p = proveedores.find((x) => x.id === documento.proveedorId);
@@ -79,7 +83,7 @@ export default function DocumentoPorPagarDrawer({ documento, proveedores, opcion
     }
     setF(base);
     setAdjuntos(documento.adjuntos || []);
-    setArchivo(null);
+    setArchivos([]);
     setError(null);
   }, [documento]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -121,14 +125,15 @@ export default function DocumentoPorPagarDrawer({ documento, proveedores, opcion
         cuotas: f.formaPago === "CREDITO" ? cuotas.map((q) => ({ monto: Number(q.monto), fechaVencimiento: q.fechaVencimiento })) : undefined,
         proyectoId: f.proyectoId ? Number(f.proyectoId) : null,
         ordenAlmacenId: f.ordenAlmacenId ? Number(f.ordenAlmacenId) : null,
+        ordenCompraId: f.ordenCompraId ? Number(f.ordenCompraId) : null,
         movimientoAlmacenId: f.movimientoAlmacenId ? Number(f.movimientoAlmacenId) : null,
       });
-      // Foto del documento nuevo: se sube una vez creado; si falla, el documento ya quedó guardado.
-      if (archivo) {
+      // Archivos del documento nuevo: se suben una vez creado; si falla, el documento ya quedó guardado.
+      if (archivos.length) {
         try {
-          c = await agregarAdjuntoDocumento(c.id, archivo);
+          c = await agregarAdjuntoDocumento(c.id, archivos);
         } catch (err) {
-          showToast(`${c.documento} guardado, pero no se pudo subir el archivo: ${err.response?.data?.message || "error"}`);
+          showToast(`${c.documento} guardado, pero no se pudieron subir los archivos: ${err.response?.data?.message || "error"}`);
         }
       }
       showToast(`${c.documento} guardado`, "success");
@@ -190,12 +195,19 @@ export default function DocumentoPorPagarDrawer({ documento, proveedores, opcion
               .filter((t) => !sinRuc || !REQUIEREN_RUC.includes(t))
               .map((t) => <option key={t} value={t}>{TIPO_DOC_LABEL[t]}</option>)}
           </Field>
-          <Field label="Serie" value={f.serie} maxLength={4} disabled={bloqueado} placeholder={notaVenta ? "NV" : undefined}
+          <Field label={notaVenta ? "Serie del proveedor" : "Serie"} value={f.serie} maxLength={4} disabled={bloqueado} placeholder={notaVenta ? "Opcional" : undefined}
             onChange={(e) => set("serie", e.target.value.toUpperCase())} required={!notaVenta} />
-          <Field label="Número" value={f.numero} disabled={bloqueado} placeholder={notaVenta ? "Opcional" : undefined}
+          <Field label={notaVenta ? "Número del proveedor" : "Número"} value={f.numero} disabled={bloqueado} placeholder={notaVenta ? "Opcional" : undefined}
             onChange={(e) => set("numero", e.target.value)} required={!notaVenta} />
           <Field label="Fecha de emisión" type="date" max={hoy()} value={f.fechaEmision} disabled={bloqueado} onChange={(e) => set("fechaEmision", e.target.value)} />
         </div>
+        {notaVenta && (
+          <p className={styles.sub} style={{ margin: "-0.4rem 0 0" }}>
+            {documento?.numeroInterno
+              ? <>Numeración interna: <strong>{documento.numeroInterno}</strong>{documento.referenciaProveedor ? ` (del proveedor: ${documento.referenciaProveedor})` : ""}.</>
+              : "Al guardar se le asigna nuestra numeración (NV-000001, NV-000002…). El número del proveedor es opcional."}
+          </p>
+        )}
 
         <div className={styles.grid2}>
           <Field as="select" label="Moneda" value={f.moneda} disabled={bloqueado} onChange={(e) => set("moneda", e.target.value)}>
@@ -272,6 +284,27 @@ export default function DocumentoPorPagarDrawer({ documento, proveedores, opcion
             {(opciones?.proyectos || []).map((p) => <option key={p.id} value={p.id}>{p.nombre}{p.cliente ? ` — ${p.cliente}` : ""}</option>)}
           </Field>
         </div>
+        {(() => {
+          // Órdenes de compra aprobadas de este proveedor (Compras): al elegir una
+          // se precargan su total y su última entrada de almacén.
+          const ocs = (opciones?.ordenesCompra || []).filter((o) => String(o.proveedorId) === String(f.proveedorId) || String(o.id) === String(f.ordenCompraId));
+          if (!ocs.length) return null;
+          return (
+            <Field as="select" label="Orden de compra (opcional)" value={f.ordenCompraId}
+              hint="La factura queda vinculada a la orden y su pago se ve en Compras"
+              onChange={(e) => {
+                const oc = ocs.find((o) => String(o.id) === e.target.value);
+                setF((p) => ({
+                  ...p, ordenCompraId: e.target.value,
+                  ...(oc && !p.total && !bloqueado && { total: String(oc.total), moneda: oc.moneda }),
+                  ...(oc?.ordenAlmacenId && !p.ordenAlmacenId && { ordenAlmacenId: String(oc.ordenAlmacenId) }),
+                }));
+              }}>
+              <option value="">Ninguna</option>
+              {ocs.map((o) => <option key={o.id} value={o.id}>{o.numero} · {monto(o.total, o.moneda)}</option>)}
+            </Field>
+          );
+        })()}
         <div className={styles.grid2}>
           <Field as="select" label="Orden de entrada de almacén (opcional)" value={f.ordenAlmacenId} onChange={(e) => set("ordenAlmacenId", e.target.value)}>
             <option value="">Ninguna</option>
@@ -301,28 +334,17 @@ export default function DocumentoPorPagarDrawer({ documento, proveedores, opcion
         <Field as="textarea" label="Descripción" rows={2} value={f.descripcion} onChange={(e) => set("descripcion", e.target.value)} />
 
         <div style={{ display: "grid", gap: "0.35rem" }}>
-          <span style={{ fontSize: "var(--text-sm)", fontWeight: 600 }}>Foto o PDF del documento{notaVenta ? " (recomendado en notas de venta)" : ""}</span>
+          <span style={{ fontSize: "var(--text-sm)", fontWeight: 600 }}>Fotos o PDF del documento{notaVenta ? " (recomendado en notas de venta)" : ""}</span>
           {editando ? (
             <AdjuntosPago
               adjuntos={adjuntos}
               etiqueta="Adjuntar archivo"
               onAbrir={(a) => enAdjunto(() => abrirConstancia(() => urlAdjuntoDocumento(documento.id, a.id)), "No se pudo abrir el archivo")}
               onEliminar={(a) => confirm(`¿Quitar ${a.nombre}?`) && enAdjunto(async () => actualizarAdjuntos(await eliminarAdjuntoDocumento(documento.id, a.id)), "No se pudo quitar el archivo")}
-              onAgregar={(file) => enAdjunto(async () => actualizarAdjuntos(await agregarAdjuntoDocumento(documento.id, file)), "No se pudo adjuntar el archivo")}
+              onAgregar={(files) => enAdjunto(async () => actualizarAdjuntos(await agregarAdjuntoDocumento(documento.id, files)), "No se pudo adjuntar el archivo")}
             />
           ) : (
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
-              <input ref={inputArchivo} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" hidden
-                onChange={(e) => { setArchivo(e.target.files?.[0] || null); e.target.value = ""; }} />
-              {archivo ? (
-                <>
-                  <span className={styles.sub}><Paperclip size={12} /> {archivo.name}</span>
-                  <Button size="sm" variant="ghost" icon={X} onClick={() => setArchivo(null)}>Quitar</Button>
-                </>
-              ) : (
-                <Button size="sm" variant="secondary" icon={Paperclip} onClick={() => inputArchivo.current.click()}>Elegir archivo</Button>
-              )}
-            </div>
+            <ConstanciaInput archivos={archivos} onArchivos={setArchivos} leer={false} etiqueta="Elegir archivos" />
           )}
         </div>
         {error && <div className={styles.error}>{error}</div>}

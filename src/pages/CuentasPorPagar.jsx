@@ -12,6 +12,7 @@ import Antiguedad from "../coomponents/Antiguedad";
 import { ESTADO_ALMACEN, GRUPO_GASTO_LABEL, TIPO_DOC_LABEL, TRAMOS, nombreCategoria } from "../constants/cuentas";
 import ProveedorCompraDrawer from "../coomponents/ProveedorCompraDrawer";
 import CategoriasGasto from "../coomponents/CategoriasGasto";
+import LineasNegocio from "../coomponents/LineasNegocio";
 import CuentaFinancieraField from "../coomponents/CuentaFinancieraField";
 import DocumentoPorPagarDrawer from "../coomponents/DocumentoPorPagarDrawer";
 import PagosPorPagarDrawer from "../coomponents/PagosPorPagarDrawer";
@@ -258,7 +259,7 @@ export default function CuentasPorPagar() {
   ];
 
   const VISTAS = [
-    ["PENDIENTES", "Pendientes"], ["PROVEEDORES_SALDO", "Por proveedor"], ["HISTORIAL", "Documentos"], ["MAESTRO", "Proveedores"], ["CATEGORIAS", "Categorías"],
+    ["PENDIENTES", "Pendientes"], ["PROVEEDORES_SALDO", "Por proveedor"], ["HISTORIAL", "Documentos"], ["MAESTRO", "Proveedores"], ["CATEGORIAS", "Categorías"], ["LINEAS", "Líneas de negocio"],
   ];
   const filtrar = FILTROS.find(([k]) => k === filtro)[2];
   const pendientes = datos.documentos.filter((f) => coincide(f.proveedorNombre, f.proveedorDoc, f.documento, f.descripcion));
@@ -326,7 +327,7 @@ export default function CuentasPorPagar() {
               <option value="ANULADOS">Anulados</option>
             </select>
           )}
-          {vista !== "CATEGORIAS" && (
+          {vista !== "CATEGORIAS" && vista !== "LINEAS" && (
             <input className={styles.buscar} placeholder="Buscar proveedor, RUC o documento..." value={buscar} onChange={(e) => setBuscar(e.target.value)} />
           )}
         </div>
@@ -359,6 +360,7 @@ export default function CuentasPorPagar() {
             empty="Aún no hay proveedores de compras" />
         )}
         {vista === "CATEGORIAS" && <CategoriasGasto showToast={showToast} onCambio={recargarOpciones} />}
+        {vista === "LINEAS" && <LineasNegocio showToast={showToast} />}
       </div>
 
       <ProveedorCompraDrawer proveedor={proveedor} categorias={opciones?.categorias} onClose={() => setProveedor(null)} onGuardado={cargarProveedores} showToast={showToast} />

@@ -90,7 +90,7 @@ export const getPagosComprobante = async (id) => {
 };
 
 // pago: { tipo: "COBRO"|"DETRACCION"|"RETENCION", fecha, monto, medio, numeroOperacion?, nota? }
-// archivo (opcional): imagen o PDF de la constancia.
+// archivos (opcional): imágenes o PDF de las constancias (uno o una lista).
 export const registrarPagoComprobante = async (id, pago, archivo) => {
   const { data } = await api.post(`/comprobantes/${id}/pagos`, conArchivo(pago, archivo));
   return data;
@@ -112,12 +112,13 @@ export const urlAdjuntoCobro = async (id, pagoId, adjuntoId) => {
   return data;
 };
 
-// Datos + archivo como multipart (o el objeto tal cual si no hay archivo).
-export function conArchivo(datos, archivo) {
-  if (!archivo) return datos;
+// Datos + uno o varios archivos como multipart (o el objeto tal cual si no hay archivos).
+export function conArchivo(datos, archivos) {
+  const lista = (Array.isArray(archivos) ? archivos : [archivos]).filter(Boolean);
+  if (!lista.length) return datos;
   const form = new FormData();
   for (const [k, v] of Object.entries(datos)) if (v !== undefined && v !== null) form.append(k, v);
-  form.append("archivo", archivo);
+  for (const a of lista) form.append("archivo", a);
   return form;
 }
 

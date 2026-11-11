@@ -5,6 +5,8 @@ import {
   consultarDocumento, emitirComprobanteManual, getBorradorCotizacion, getOpcionesComprobante, getTipoCambio,
 } from "../api/comprobantes";
 import { IGV_RATE } from "../config/negocio";
+import { cuentasSugeridas, getCuentasParaDocumentos } from "../api/cajaBancos";
+import CuentasBancariasPicker from "./CuentasBancariasPicker";
 import { monto, soles } from "../utils/formato";
 
 // Catálogo 03 (unidades de medida) que acepta el backend.
@@ -57,6 +59,10 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
   const [moneda, setMoneda] = useState("PEN");
   const [tipoCambio, setTipoCambio] = useState(null); // { fecha, venta } (solo USD)
   const [agenteRetencion, setAgenteRetencion] = useState(null); // true/false/null (no consultado)
+  // Cuentas para el pago impresas en el comprobante. null = sugeridas (las de la
+  // cotización o las de la moneda, más la de detracciones si aplica).
+  const [cuentasEmpresa, setCuentasEmpresa] = useState(null);
+  const [cuentaIdsElegidas, setCuentaIdsElegidas] = useState(null);
   const [emitiendo, setEmitiendo] = useState(false);
   const [error, setError] = useState(null);
 
@@ -78,16 +84,20 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
     setObservacion("");
     setError(null);
     setCotizacion(null);
+    setCuentaIdsElegidas(null);
 
     let vigente = true;
     setCargando(true);
     Promise.all([
       getOpcionesComprobante(),
       cotizacionId ? getBorradorCotizacion(cotizacionId) : null,
+      getCuentasParaDocumentos().catch(() => null),
     ])
-      .then(([ops, borrador]) => {
+      .then(([ops, borrador, cuentas]) => {
         if (!vigente) return;
         setOpciones(ops);
+        setCuentasEmpresa(cuentas);
+        if (borrador?.cuentaBancariaIds?.length) setCuentaIdsElegidas(borrador.cuentaBancariaIds);
         if (borrador) {
           setCotizacion({ ...borrador.cotizacion, puedeFactura: borrador.puedeFactura });
           setAgenteRetencion(borrador.agenteRetencion);
@@ -123,6 +133,8 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
     return { valorVenta, igv, total, totalSoles, superaMinimo, aplica, detraccion, detraccionSoles, retencion, neto: r2(total - detraccion) };
   }, [items, tipo, opciones, aplicarDetraccion, datosCodigo, moneda, tipoCambio, agenteRetencion]);
   const M = (v) => monto(v, moneda);
+  const cuentaIds = cuentaIdsElegidas
+    ?? (cuentasEmpresa ? cuentasSugeridas(cuentasEmpresa, { moneda, conDetraccion: totales.aplica }) : []);
 
   const cambiarMoneda = async (m) => {
     setMoneda(m);
@@ -211,6 +223,7 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
           : undefined,
         detraccion: tipo === "FACTURA" ? { aplicar: totales.aplica, codigo: codigoElegido } : undefined,
         observacion,
+        cuentaBancariaIds: cuentasEmpresa ? cuentaIds : undefined,
       });
       if (c.estado === "ACEPTADO") showToast(`${c.numero} aceptada por SUNAT`, "success");
       else showToast(`${c.numero}: ${c.estado}. ${c.sunatMensaje || ""}`);
@@ -398,6 +411,8 @@ export default function NuevaFacturaDrawer({ open, onClose, onEmitido, showToast
             )}
           </div>
         )}
+
+        <CuentasBancariasPicker cuentas={cuentasEmpresa} value={cuentaIds} onChange={setCuentaIdsElegidas} />
 
         <Field as="textarea" label="Observación (uso interno)" rows={2} value={observacion} onChange={(e) => setObservacion(e.target.value)} />
 

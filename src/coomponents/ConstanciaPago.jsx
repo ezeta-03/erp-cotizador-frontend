@@ -6,6 +6,7 @@ import { leerConstancia } from "../utils/ocrConstancia";
 
 const ACEPTA = "image/jpeg,image/png,image/webp,application/pdf";
 const MAX = 5 * 1024 * 1024;
+const MAX_ARCHIVOS = 10;
 const kb = (n) => (n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.ceil(n / 1024)} KB`);
 const chip = {
   display: "inline-flex", alignItems: "center", gap: "0.3rem", maxWidth: "100%",
@@ -13,21 +14,27 @@ const chip = {
   background: "var(--badge-gray-bg)", color: "var(--color-text2)", border: 0, cursor: "pointer",
 };
 
-// Archivo de la constancia al registrar un pago: al elegirlo se lee con OCR y
-// los datos reconocidos se pasan a onLeido para precargar el formulario.
-export function ConstanciaInput({ archivo, onArchivo, onLeido }) {
+// Archivos de las constancias al registrar un pago (uno o varios): el primero
+// que se elige se lee con OCR y los datos reconocidos se pasan a onLeido para
+// precargar el formulario.
+export function ConstanciaInput({ archivos = [], onArchivos, onLeido, etiqueta = "Adjuntar constancia y leer datos", leer = true }) {
   const input = useRef(null);
   const [estado, setEstado] = useState(null); // null | "leyendo" | { mensaje, ok }
 
   const elegir = async (e) => {
-    const f = e.target.files?.[0];
+    const elegidos = [...(e.target.files || [])];
     e.target.value = "";
-    if (!f) return;
-    if (f.size > MAX) return setEstado({ mensaje: "El archivo supera los 5 MB", ok: false });
-    onArchivo(f);
+    if (!elegidos.length) return;
+    const grandes = elegidos.filter((f) => f.size > MAX);
+    const validos = elegidos.filter((f) => f.size <= MAX);
+    if (grandes.length) setEstado({ mensaje: `${grandes.map((f) => f.name).join(", ")} supera${grandes.length > 1 ? "n" : ""} los 5 MB`, ok: false });
+    if (!validos.length) return;
+    const eraVacio = archivos.length === 0;
+    onArchivos([...archivos, ...validos].slice(0, MAX_ARCHIVOS));
+    if (!leer || !eraVacio || !onLeido) return;
     setEstado("leyendo");
     try {
-      const datos = await leerConstancia(f);
+      const datos = await leerConstancia(validos[0]);
       const leidos = ["numeroOperacion", "fecha", "monto"].filter((k) => datos[k]);
       onLeido(datos);
       setEstado(leidos.length
@@ -38,24 +45,31 @@ export function ConstanciaInput({ archivo, onArchivo, onLeido }) {
     }
   };
 
-  const quitar = () => {
-    onArchivo(null);
-    setEstado(null);
+  const quitar = (i) => {
+    const resto = archivos.filter((_, j) => j !== i);
+    onArchivos(resto);
+    if (!resto.length) setEstado(null);
   };
 
   return (
     <div style={{ display: "grid", gap: "0.35rem" }}>
-      <input ref={input} type="file" accept={ACEPTA} hidden onChange={elegir} />
-      {archivo ? (
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-          <span style={{ ...chip, cursor: "default" }}><Paperclip size={12} /> {archivo.name} · {kb(archivo.size)}</span>
-          <Button size="sm" variant="ghost" icon={X} onClick={quitar} disabled={estado === "leyendo"}>Quitar</Button>
-        </div>
-      ) : (
-        <div>
-          <Button size="sm" variant="secondary" icon={ScanText} onClick={() => input.current.click()}>Adjuntar constancia y leer datos</Button>
-        </div>
-      )}
+      <input ref={input} type="file" accept={ACEPTA} multiple hidden onChange={elegir} />
+      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
+        {archivos.map((f, i) => (
+          <span key={`${f.name}-${i}`} style={{ ...chip, cursor: "default" }}>
+            <Paperclip size={12} /> <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 180 }}>{f.name}</span> · {kb(f.size)}
+            <button type="button" onClick={() => quitar(i)} disabled={estado === "leyendo"} aria-label={`Quitar ${f.name}`}
+              style={{ all: "unset", cursor: "pointer", display: "inline-flex" }}>
+              <X size={12} />
+            </button>
+          </span>
+        ))}
+        {archivos.length < MAX_ARCHIVOS && (
+          archivos.length
+            ? <Button size="sm" variant="ghost" icon={Paperclip} onClick={() => input.current.click()}>Agregar otro</Button>
+            : <Button size="sm" variant="secondary" icon={leer ? ScanText : Paperclip} onClick={() => input.current.click()}>{etiqueta}</Button>
+        )}
+      </div>
       {estado === "leyendo" && (
         <span style={{ display: "flex", gap: "0.4rem", alignItems: "center", fontSize: "var(--text-xs)", color: "var(--color-text3)" }}>
           <Spinner size={12} /> Leyendo la constancia… (la primera vez tarda más)
@@ -68,18 +82,19 @@ export function ConstanciaInput({ archivo, onArchivo, onLeido }) {
   );
 }
 
-// Constancias ya guardadas de un pago: abrir (URL firmada), quitar y añadir otra.
+// Constancias ya guardadas de un pago: abrir (URL firmada), quitar y añadir
+// otras (onAgregar recibe la lista de archivos elegidos).
 export function AdjuntosPago({ adjuntos = [], onAbrir, onEliminar, onAgregar, etiqueta = "Adjuntar constancia" }) {
   const input = useRef(null);
   const [subiendo, setSubiendo] = useState(false);
 
   const elegir = async (e) => {
-    const f = e.target.files?.[0];
+    const archivos = [...(e.target.files || [])].slice(0, MAX_ARCHIVOS);
     e.target.value = "";
-    if (!f) return;
+    if (!archivos.length) return;
     setSubiendo(true);
     try {
-      await onAgregar(f);
+      await onAgregar(archivos);
     } finally {
       setSubiendo(false);
     }
@@ -98,9 +113,9 @@ export function AdjuntosPago({ adjuntos = [], onAbrir, onEliminar, onAgregar, et
           </button>
         </span>
       ))}
-      <input ref={input} type="file" accept={ACEPTA} hidden onChange={elegir} />
+      <input ref={input} type="file" accept={ACEPTA} multiple hidden onChange={elegir} />
       <button type="button" style={chip} onClick={() => input.current.click()} disabled={subiendo}>
-        {subiendo ? <Spinner size={10} /> : <Paperclip size={12} />} {adjuntos.length ? "Otro" : etiqueta}
+        {subiendo ? <Spinner size={10} /> : <Paperclip size={12} />} {adjuntos.length ? "Otros" : etiqueta}
       </button>
     </div>
   );

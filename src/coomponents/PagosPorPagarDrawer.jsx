@@ -27,7 +27,7 @@ const pagoVacio = (tipo = "PAGO") => ({
 export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, showToast }) {
   const [c, setC] = useState(null);
   const [pago, setPago] = useState(pagoVacio());
-  const [archivo, setArchivo] = useState(null);
+  const [archivos, setArchivos] = useState([]);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
 
@@ -35,7 +35,7 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
     if (!documentoId) return;
     setC(null);
     setPago(pagoVacio());
-    setArchivo(null);
+    setArchivos([]);
     setError(null);
     getDocumentoPorPagar(documentoId)
       .then(setC)
@@ -55,9 +55,9 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
     setGuardando(true);
     setError(null);
     try {
-      actualizar(await registrarPagoPorPagar(documentoId, { ...pago, monto: Number(pago.monto) }, archivo));
+      actualizar(await registrarPagoPorPagar(documentoId, { ...pago, monto: Number(pago.monto) }, archivos));
       setPago(pagoVacio(pago.tipo));
-      setArchivo(null);
+      setArchivos([]);
       showToast("Pago registrado", "success");
     } catch (err) {
       setError(err.response?.data?.message || "No se pudo registrar el pago");
@@ -173,7 +173,7 @@ export default function PagosPorPagarDrawer({ documentoId, onClose, onCambio, sh
                 monedaPago={pago.tipo === "DETRACCION" ? "PEN" : c.moneda} montoPago={pago.monto}
                 tipoPago={pago.tipo} medio={pago.medio} banco={pago.banco}
               />
-              <ConstanciaInput archivo={archivo} onArchivo={setArchivo} onLeido={precargar} />
+              <ConstanciaInput archivos={archivos} onArchivos={setArchivos} onLeido={precargar} />
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <Button variant="ghost" onClick={() => setPago({ ...pago, monto: String(pendiente) })}>Todo lo pendiente</Button>
                 <Button onClick={registrar} loading={guardando} disabled={!(Number(pago.monto) > 0) || !pago.cuentaFinancieraId}>Registrar</Button>

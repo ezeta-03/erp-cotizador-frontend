@@ -3,7 +3,7 @@ import { Outlet, Navigate, useNavigate, useLocation, NavLink } from "react-route
 import {
   LogOut, ChevronDown, Menu, X, Mail, Briefcase, Landmark,
   BarChart3, UserCircle, Users, MapPin, Megaphone, KeyRound,
-  Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package, Boxes,
+  Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package, Boxes, ShoppingCart,
 } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import { moduloDeSegmento } from "../constants/modulos";
@@ -24,7 +24,9 @@ const SECTION_LABELS = {
   "cuentas-por-pagar":  "Cuentas por pagar",
   "caja-bancos":        "Caja y Bancos",
   "libro-mayor":        "Libro Mayor",
+  "flujo-efectivo":     "Flujo de Efectivo",
   almacen:      "Almacén",
+  compras:      "Compras",
   proyectos:    "Proyectos",
   perfil:       "Cambiar Contraseña",
   cotizador:    "Cotizador",
@@ -65,6 +67,7 @@ const FINANZAS_CHILDREN = [
   { label: "Cuentas por pagar",  seg: "cuentas-por-pagar" },
   { label: "Caja y Bancos",      seg: "caja-bancos" },
   { label: "Libro Mayor",        seg: "libro-mayor" },
+  { label: "Flujo de Efectivo",  seg: "flujo-efectivo" },
 ];
 
 const item  = (label, seg, icon) => ({ label, seg, icon });
@@ -79,6 +82,7 @@ function buildMenu(role) {
       item("Usuarios", "usuarios", Users),
       carpeta("Finanzas", Landmark, "finanzas", FINANZAS_CHILDREN),
       item("Almacén", "almacen", Boxes),
+      item("Compras", "compras", ShoppingCart),
       item("Proyectos", "proyectos", Briefcase),
       group("Outdoor", MapPin, "outdoor", OUTDOOR_CHILDREN),
       group("BTL", Megaphone, "btl", BTL_CHILDREN),
@@ -94,6 +98,7 @@ function buildMenu(role) {
       item("Clientes", "clientes", UserCircle),
       ...(role === "contable" ? [carpeta("Finanzas", Landmark, "finanzas", FINANZAS_CHILDREN)] : []),
       item("Almacén", "almacen", Boxes),
+      item("Compras", "compras", ShoppingCart),
       item("Proyectos", "proyectos", Briefcase),
       group("Outdoor", MapPin, "outdoor", OUTDOOR_CHILDREN),
       group("BTL", Megaphone, "btl", BTL_CHILDREN),

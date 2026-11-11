@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import {
   Plus, Minus, RefreshCw, X, Search, ClipboardList, PackageSearch, PackagePlus,
-  FileStack, FileDown, Trash2, Inbox, Check,
+  FileStack, FileDown, Trash2, Inbox, Check, ShoppingCart, Users,
 } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import {
@@ -13,6 +13,15 @@ import {
 import { getClientes } from "../api/clientes";
 import { getProyectos, getProyectosExternos } from "../api/proyectos";
 import styles from "./almacen.module.scss";
+import { useToast } from "../coomponents/Toast";
+import ProveedoresItemDrawer from "../coomponents/ProveedoresItemDrawer";
+import OrdenCompraDrawer from "../coomponents/OrdenCompraDrawer";
+import { ESTADO_OC } from "../constants/compras";
+
+const PROPUESTOS = 3;
+const fmtMonto = (n, moneda) => (moneda === "USD" ? `US$ ${Number(n || 0).toFixed(2)}` : fmtMoney(n));
+// Órdenes de compra todavía en curso (las cerradas o anuladas no cuentan).
+const ocEnCurso = (s) => (s.ordenCompraItems || []).map((x) => x.ordenCompra).filter((o) => !["ANULADA", "RECHAZADA"].includes(o.estado));
 
 const fmtMoney = (n) =>
   `S/ ${Number(n || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -757,6 +766,10 @@ export default function Almacen() {
   const [showSalida, setShowSalida] = useState(false);
   const [showOrden, setShowOrden] = useState(false);
   const [rechazandoId, setRechazandoId] = useState(null);
+  // Compras: proveedores propuestos de un ítem y orden de compra desde una solicitud.
+  const [itemProveedores, setItemProveedores] = useState(null);
+  const [ordenCompra, setOrdenCompra] = useState(null); // { inicial } | { ordenId }
+  const { show: showToast, ToastNode } = useToast();
 
   const cargarTodo = useCallback(async () => {
     setLoading(true);
@@ -998,7 +1011,7 @@ export default function Almacen() {
                     <th className={styles.num} title="Stock mínimo / máximo">Mín / Máx</th>
                     <th className={styles.num}>Costo unit.</th>
                     <th className={styles.num}>Valor</th>
-                    <th>Proveedor</th>
+                    <th title="La regla es proponer 3 proveedores con su precio">Proveedores propuestos</th>
                     <th>Observaciones</th>
                   </tr>
                 </thead>
@@ -1029,7 +1042,18 @@ export default function Almacen() {
                       </td>
                       <td className={styles.num}>{i.costoUnitario ? fmtMoney(i.costoUnitario) : "—"}</td>
                       <td className={styles.num}>{i.costoUnitario ? fmtMoney(i.stockActual * i.costoUnitario) : "—"}</td>
-                      <td>{i.proveedorNombre || "—"}</td>
+                      <td>
+                        <button type="button" className={styles.btnGhost} disabled={!puedeOperar}
+                          title={(i.proveedores || []).map((p) => `${p.proveedor.razonSocial}: ${fmtMonto(p.precio, p.moneda)}`).join("\n") || i.proveedorNombre || "Sin proveedores propuestos"}
+                          onClick={() => setItemProveedores(i)}
+                          style={{ display: "inline-flex", gap: "0.35rem", alignItems: "center", whiteSpace: "nowrap" }}>
+                          <Users size={14} />
+                          <span style={{ color: (i.proveedores?.length || 0) < PROPUESTOS ? "var(--color-warning)" : undefined }}>
+                            {i.proveedores?.length || 0}/{PROPUESTOS}
+                          </span>
+                          {i.proveedores?.length ? <span className={styles.tenue}>desde {fmtMonto(i.proveedores[0].precio, i.proveedores[0].moneda)}</span> : null}
+                        </button>
+                      </td>
                       <td className={styles.observaciones} title={i.observaciones || undefined}>{i.observaciones || "—"}</td>
                     </tr>
                   ))}
@@ -1155,6 +1179,8 @@ export default function Almacen() {
                   <th>Proyecto</th>
                   <th>Ítem</th>
                   <th>Cantidad</th>
+                  <th className={styles.num}>Precio</th>
+                  <th>Proveedores propuestos</th>
                   <th>Solicitante</th>
                   <th>Estado</th>
                   <th>Acciones</th>
@@ -1166,7 +1192,39 @@ export default function Almacen() {
                     <td>{fmtFecha(s.createdAt)}</td>
                     <td>{s.proyecto?.nombre || s.proyectoExternoId}</td>
                     <td>{s.item?.codigo} — {s.item?.nombre}</td>
-                    <td>{s.cantidad} {s.item?.unidad}</td>
+                    <td>
+                      {s.cantidad} {s.item?.unidad}
+                      {s.estado === "PENDIENTE" && s.item && s.item.stockActual < s.cantidad && (
+                        <div className={styles.finCalculado} style={{ color: "var(--color-danger)" }}>Stock: {s.item.stockActual}</div>
+                      )}
+                    </td>
+                    <td className={styles.num}>
+                      {s.item?.costoUnitario ? (
+                        <>
+                          {fmtMoney(s.cantidad * s.item.costoUnitario)}
+                          <div className={styles.finCalculado}>{fmtMoney(s.item.costoUnitario)} c/u</div>
+                        </>
+                      ) : "—"}
+                    </td>
+                    <td>
+                      {(s.item?.proveedores || []).map((p) => (
+                        <div key={p.proveedorId} style={{ fontSize: "var(--text-xs)", whiteSpace: "nowrap" }}>
+                          {p.proveedor.razonSocial} · <strong>{fmtMonto(p.precio, p.moneda)}</strong>
+                        </div>
+                      ))}
+                      {(s.item?.proveedores?.length || 0) < PROPUESTOS && (
+                        <button type="button" className={styles.btnGhost} onClick={() => setItemProveedores(items.find((i) => i.id === s.item.id) || s.item)}
+                          style={{ fontSize: "var(--text-xs)", color: "var(--color-warning)", padding: "0.1rem 0.3rem" }}>
+                          {s.item?.proveedores?.length || 0}/{PROPUESTOS} propuestos · completar
+                        </button>
+                      )}
+                      {ocEnCurso(s).map((o) => (
+                        <button key={o.id} type="button" className={styles.btnGhost} onClick={() => setOrdenCompra({ ordenId: o.id })}
+                          style={{ fontSize: "var(--text-xs)", padding: "0.1rem 0.3rem", display: "block" }}>
+                          {o.numero} · {ESTADO_OC[o.estado]?.[0] || o.estado}
+                        </button>
+                      ))}
+                    </td>
                     <td>{s.solicitanteEmail || "—"}</td>
                     <td>
                       <span className={`${styles.badge} ${
@@ -1189,6 +1247,16 @@ export default function Almacen() {
                           <button className={styles.btnDelete} onClick={() => setRechazandoId(s.id)} title="Rechazar">
                             <X size={15} />
                           </button>
+                          {ocEnCurso(s).length === 0 && (
+                            <button className={styles.btnGhost} title="Generar orden de compra"
+                              onClick={() => setOrdenCompra({ inicial: {
+                                proveedorId: s.item?.proveedores?.[0]?.proveedorId || null,
+                                proyectoId: s.proyecto?.id || null,
+                                items: [{ itemAlmacenId: s.item.id, cantidad: Math.max(s.cantidad - Math.max(s.item.stockActual, 0), 0) || s.cantidad, solicitudAlmacenId: s.id }],
+                              } })}>
+                              <ShoppingCart size={15} />
+                            </button>
+                          )}
                         </div>
                       ) : (
                         <span className={styles.finCalculado}>{s.resueltoPor?.nombre || "—"}</span>
@@ -1235,6 +1303,29 @@ export default function Almacen() {
           onCrearItem={handleCrearItemInline}
         />
       )}
+
+      {ToastNode}
+      <ProveedoresItemDrawer
+        item={itemProveedores}
+        onClose={() => setItemProveedores(null)}
+        showToast={showToast}
+        onGuardado={(itemId, proveedores) => {
+          setItems((lista) => lista.map((i) => (i.id === itemId ? { ...i, proveedores } : i)));
+          setSolicitudes((lista) => lista.map((s) => (s.item?.id === itemId ? { ...s, item: { ...s.item, proveedores } } : s)));
+        }}
+      />
+      <OrdenCompraDrawer
+        open={!!ordenCompra}
+        ordenId={ordenCompra?.ordenId || null}
+        inicial={ordenCompra?.inicial || null}
+        onClose={() => setOrdenCompra(null)}
+        onCambio={(o) => {
+          setOrdenCompra((d) => (d && !d.ordenId ? { ordenId: o.id } : d));
+          getSolicitudes().then(setSolicitudes).catch(() => {});
+          getItemsAlmacen().then(setItems).catch(() => {});
+        }}
+        showToast={showToast}
+      />
 
       {rechazandoId && (
         <RechazarSolicitudModal

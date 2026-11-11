@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BookOpen, DollarSign, HandCoins, Landmark, Receipt, Wallet } from "lucide-react";
+import { ArrowLeftRight, BookOpen, DollarSign, HandCoins, Landmark, Receipt, Wallet } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import useModulosHabilitados from "../hooks/useModulosHabilitados";
 import styles from "./BTLHome.module.scss";
@@ -41,6 +41,13 @@ const SECCIONES = [
     description: "Saldos y movimientos por cuenta, ventas y categoría de gasto; Excel y PDF",
     icon: BookOpen,
     color: "var(--color-warning)",
+  },
+  {
+    id: "flujo-efectivo",
+    label: "Flujo de Efectivo",
+    description: "Cuánto entró y salió cada mes, por categoría y línea de negocio, con porcentajes",
+    icon: ArrowLeftRight,
+    color: "var(--color-success)",
   },
 ];
 

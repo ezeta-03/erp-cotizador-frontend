@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { Button, Drawer, Field } from "../components/ui";
 import { consultarDocumento } from "../api/comprobantes";
-import { guardarProveedorCompra } from "../api/cuentas";
+import { getLineasNegocio, guardarProveedorCompra } from "../api/cuentas";
 import CategoriaGastoSelect from "./CategoriaGastoSelect";
 import styles from "../pages/cuentas.module.scss";
 
@@ -12,12 +12,16 @@ const vacio = {
   tipo: "PRODUCTO", afectaComercializacion: true, categoriaGastoId: "",
 };
 const LARGO_DOC = { RUC: 11, DNI: 8 };
+const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 
 // Alta y edición de proveedores de compras y servicios (no arrendadores de paneles).
 // proveedor: null = cerrado, {} = nuevo, { id, ... } = editar. Sin documento
 // (vendedor informal) solo sirve para notas de venta.
 export default function ProveedorCompraDrawer({ proveedor, categorias, onClose, onGuardado, showToast }) {
   const [f, setF] = useState(vacio);
+  // Reparto entre líneas de negocio: { [lineaNegocioId]: "40" }
+  const [lineas, setLineas] = useState([]);
+  const [reparto, setReparto] = useState({});
   const [buscando, setBuscando] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
@@ -26,8 +30,15 @@ export default function ProveedorCompraDrawer({ proveedor, categorias, onClose, 
     if (!proveedor) return;
     setF(Object.fromEntries(Object.entries(vacio).map(([k, v]) => [k, proveedor[k] ?? v])));
     if (proveedor.categoriaGastoId) setF((p) => ({ ...p, categoriaGastoId: String(proveedor.categoriaGastoId) }));
+    setReparto(Object.fromEntries((proveedor.lineasNegocio || []).map((l) => [l.lineaNegocioId, String(l.porcentaje)])));
     setError(null);
+    getLineasNegocio().then(setLineas).catch(() => setLineas([]));
   }, [proveedor]);
+
+  // Activas, más las inactivas que este proveedor ya usa.
+  const lineasVisibles = lineas.filter((l) => l.activo || reparto[l.id]);
+  const sumaReparto = r2(Object.values(reparto).reduce((a, v) => a + (Number(v) || 0), 0));
+  const repartoValido = sumaReparto === 0 || Math.abs(sumaReparto - 100) < 0.01;
 
   const set = (campo, valor) => setF((p) => ({ ...p, [campo]: valor }));
 
@@ -53,6 +64,9 @@ export default function ProveedorCompraDrawer({ proveedor, categorias, onClose, 
         ruc: f.tipoDocIdentidad === "NINGUNO" ? null : f.ruc.trim(),
         diasCredito: f.condicionPago === "CREDITO" ? Number(f.diasCredito) : null,
         categoriaGastoId: f.categoriaGastoId ? Number(f.categoriaGastoId) : null,
+        lineasNegocio: Object.entries(reparto)
+          .filter(([, v]) => Number(v) > 0)
+          .map(([id, v]) => ({ lineaNegocioId: Number(id), porcentaje: Number(v) })),
       });
       showToast(`Proveedor ${p.razonSocial} guardado`, "success");
       onGuardado?.(p);
@@ -73,7 +87,7 @@ export default function ProveedorCompraDrawer({ proveedor, categorias, onClose, 
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>Cancelar</Button>
-          <Button onClick={guardar} loading={guardando} disabled={(f.tipoDocIdentidad !== "NINGUNO" && !f.ruc) || !f.razonSocial}>Guardar</Button>
+          <Button onClick={guardar} loading={guardando} disabled={(f.tipoDocIdentidad !== "NINGUNO" && !f.ruc) || !f.razonSocial || !repartoValido}>Guardar</Button>
         </>
       }
     >
@@ -123,6 +137,27 @@ export default function ProveedorCompraDrawer({ proveedor, categorias, onClose, 
             </span>
           </span>
         </label>
+        <div style={{ display: "grid", gap: "0.4rem" }}>
+          <span style={{ fontSize: "var(--text-sm)", fontWeight: 600 }}>Reparto por línea de negocio</span>
+          {lineasVisibles.length ? (
+            <>
+              <div className={styles.grid2}>
+                {lineasVisibles.map((l) => (
+                  <Field key={l.id} label={`${l.nombre}${l.activo ? "" : " (inactiva)"} — %`} type="number" min="0" max="100" step="0.01"
+                    value={reparto[l.id] ?? ""} placeholder="0"
+                    onChange={(e) => setReparto((p) => ({ ...p, [l.id]: e.target.value }))} />
+                ))}
+              </div>
+              <span className={styles.sub} style={{ color: repartoValido ? undefined : "var(--color-danger)" }}>
+                {sumaReparto === 0
+                  ? "Sin reparto: sus gastos van a \"Sin línea de negocio\" en el Flujo de Efectivo y el Libro Mayor."
+                  : `Suma ${sumaReparto} %${repartoValido ? "" : " — debe sumar 100 %"}`}
+              </span>
+            </>
+          ) : (
+            <span className={styles.sub}>Aún no hay líneas de negocio. Créalas en Por pagar → Líneas de negocio.</span>
+          )}
+        </div>
         <div className={styles.grid2}>
           <Field label="Contacto" value={f.contacto} onChange={(e) => set("contacto", e.target.value)} />
           <Field label="Teléfono" value={f.telefono} onChange={(e) => set("telefono", e.target.value)} />

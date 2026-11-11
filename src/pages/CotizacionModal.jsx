@@ -6,6 +6,8 @@ import { getMisAprobadas, crearSolicitud } from "../api/solicitudesMargen";
 import styles from "./CotizacionModal.module.scss";
 import { X, ChevronLeft, Eye, FileText, Trash2, Layers } from "lucide-react";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
+import CuentasBancariasPicker from "../coomponents/CuentasBancariasPicker";
+import { cuentasSugeridas, getCuentasParaDocumentos } from "../api/cajaBancos";
 import { MARGEN_MINIMO, IGV_RATE } from "../config/negocio";
 import { soles } from "../utils/formato";
 
@@ -45,7 +47,7 @@ function DecimalInput({ value, onChange, className, disabled, min = 0.01, placeh
   );
 }
 
-export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, initialCondicion, title, saveLabel, modulo, cotizacionId }) {
+export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, initialCondicion, initialCuentaIds = null, title, saveLabel, modulo, cotizacionId }) {
   const mostrarProductos = modulo !== "outdoor";
   const mostrarOutdoor = modulo !== "btl";
 
@@ -76,6 +78,10 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   // Condición de pago: se precarga con la del cliente y se puede cambiar.
   const [condicionPago, setCondicionPago] = useState(initialCondicion?.condicionPago || "CONTADO");
   const [diasCredito, setDiasCredito] = useState(initialCondicion?.diasCredito ?? "");
+  // Cuentas para el pago impresas en el PDF: mientras no se toquen, las sugeridas
+  // (soles y, si el total pasa de S/ 700, la de detracciones).
+  const [cuentasEmpresa, setCuentasEmpresa] = useState(null);
+  const [cuentaIdsElegidas, setCuentaIdsElegidas] = useState(initialCuentaIds);
 
   // Margen
   const [margen, setMargen] = useState(MARGEN_MINIMO);
@@ -91,6 +97,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
 
   useEffect(() => {
     getClientes().then(setClientes);
+    getCuentasParaDocumentos().then(setCuentasEmpresa).catch(() => setCuentasEmpresa(null));
     if (mostrarProductos) getProductos().then(setProductos);
     if (mostrarOutdoor) getPaneles().then((data) => setPaneles(data.filter((p) => p.activo))).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -309,6 +316,8 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   const igvMonto = parseFloat((conIgv ? valorVenta * IGV_RATE : 0).toFixed(2));
   const totalFinal = parseFloat((valorVenta + igvMonto).toFixed(2));
 
+  const cuentaIds = cuentaIdsElegidas ?? (cuentasEmpresa ? cuentasSugeridas(cuentasEmpresa, { moneda: "PEN", conDetraccion: totalFinal > 700 }) : []);
+
   const abrirVistaPrevia = () => {
     if (!clienteId || items.length === 0) {
       alert("Selecciona un cliente y agrega al menos un producto");
@@ -335,7 +344,11 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
       alert("Indica los días de crédito (1 a 365).");
       return;
     }
-    onSave({ clienteId, items, margen, conIgv, borradorId, condicionPago, diasCredito: condicionPago === "CREDITO" ? dias : null });
+    onSave({
+      clienteId, items, margen, conIgv, borradorId, condicionPago, diasCredito: condicionPago === "CREDITO" ? dias : null,
+      // Sin catálogo (no se pudo cargar) no se envía: el backend usa las sugeridas.
+      cuentaBancariaIds: cuentasEmpresa ? cuentaIds : undefined,
+    });
     onClose();
   };
 
@@ -481,6 +494,8 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                 </div>
               )}
             </div>
+
+            <CuentasBancariasPicker cuentas={cuentasEmpresa} value={cuentaIds} onChange={setCuentaIdsElegidas} />
 
             {/* Margen de rentabilidad */}
             <div className={styles.margenRow}>

@@ -25,3 +25,15 @@ export const getTipoCambioHoy = async () => {
   const { data } = await api.get("/comprobantes/tipo-cambio");
   return data;
 };
+
+// Cuentas que se pueden imprimir en cotizaciones y facturas (sin saldos; también Ventas):
+// [{ id, nombre, tipo, banco, numero, cci, moneda }]
+export const getCuentasParaDocumentos = async () => {
+  const { data } = await api.get("/caja-bancos/para-documentos");
+  return data;
+};
+
+// Precarga: las de la moneda del documento y la de detracciones si corresponde
+// (misma regla que el backend).
+export const cuentasSugeridas = (cuentas, { moneda = "PEN", conDetraccion = false } = {}) =>
+  cuentas.filter((c) => (c.tipo === "DETRACCIONES" ? conDetraccion : c.moneda === moneda)).map((c) => c.id);

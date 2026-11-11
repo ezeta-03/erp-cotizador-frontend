@@ -13,6 +13,7 @@ const GRUPOS = [
   ["COSTO_VENTA", "Costo de venta", "purple"],
   ["GASTO_OPERATIVO", "Gasto operativo", "orange"],
 ];
+const esGasto = (c) => c.grupo === "COSTO_VENTA" || c.grupo === "GASTO_OPERATIVO";
 const fechaCorta = (iso) => (iso ? iso.split("-").reverse().join("/") : "—");
 const hoy = () => new Date().toLocaleDateString("en-CA");
 const finDeMes = (mes) => {
@@ -37,6 +38,8 @@ export default function LibroMayor() {
   const [error, setError] = useState(null);
   const [abierta, setAbierta] = useState(null);
   const [descargando, setDescargando] = useState(null);
+  // Filtro de conciliación (gastos): TODOS | NO (sin comprobante adjunto)
+  const [conciliacion, setConciliacion] = useState("TODOS");
   const { show: showToast, ToastNode } = useToast();
 
   const periodo = modo === "MES" ? { desde: `${mes}-01`, hasta: finDeMes(mes) } : rango;
@@ -71,7 +74,10 @@ export default function LibroMayor() {
     { key: "nombre", label: "Cuenta", render: (c) => (
       <>
         <strong>{c.nombre}</strong>
-        <div className={styles.sub}>{c.movimientos.length} movimiento{c.movimientos.length !== 1 ? "s" : ""}{c.moneda === "USD" ? " · dólares" : ""}</div>
+        <div className={styles.sub}>
+          {c.movimientos.length} movimiento{c.movimientos.length !== 1 ? "s" : ""}{c.moneda === "USD" ? " · dólares" : ""}
+          {c.sinConciliar ? <> · <span style={{ color: "var(--color-danger)" }}>{c.sinConciliar} sin conciliar</span></> : null}
+        </div>
       </>
     ) },
     { key: "saldoAnterior", label: "Saldo anterior", align: "right", render: (c) => M(c)(c.saldoAnterior) },
@@ -93,7 +99,15 @@ export default function LibroMayor() {
     { key: "debe", label: "Debe", align: "right", render: (m) => (m.debe ? M(c)(m.debe) : <span className={styles.sub}>—</span>) },
     { key: "haber", label: "Haber", align: "right", render: (m) => (m.haber ? M(c)(m.haber) : <span className={styles.sub}>—</span>) },
     { key: "saldo", label: "Saldo", align: "right", render: (m) => <strong>{M(c)(m.saldo)}</strong> },
+    ...(esGasto(c) ? [{
+      key: "conciliado", label: "Conciliado", render: (m) => (m.conciliado === true ? <Badge tone="green">Sí</Badge>
+        : m.conciliado === false ? <Badge tone="red">No</Badge> : <span className={styles.sub}>—</span>),
+    }] : []),
   ];
+  // Con el filtro "sin conciliar", solo las cuentas de gasto con documentos sin adjunto y esos movimientos.
+  const soloSinConciliar = conciliacion === "NO";
+  const visibles = (datos?.cuentas || []).filter((c) => !soloSinConciliar || (esGasto(c) && c.sinConciliar));
+  const movimientosDe = (c) => (soloSinConciliar ? c.movimientos.filter((m) => m.conciliado === false) : c.movimientos);
 
   return (
     <>
@@ -127,6 +141,11 @@ export default function LibroMayor() {
               <span className={styles.sub}>Dentro de un mismo año</span>
             </>
           )}
+          <select className={styles.buscar} style={{ marginLeft: "auto", minWidth: 0 }} aria-label="Conciliación de gastos"
+            value={conciliacion} onChange={(e) => setConciliacion(e.target.value)}>
+            <option value="TODOS">Todos los movimientos</option>
+            <option value="NO">Gastos sin conciliar</option>
+          </select>
         </div>
 
         {error ? <p className={styles.error}>{error}</p> : !datos ? (
@@ -156,8 +175,21 @@ export default function LibroMayor() {
               </div>
             </div>
 
+            {datos.conciliacion && (
+              <p className={styles.sub} style={{ margin: "0 0 1rem" }}>
+                Conciliación de gastos (documento con su comprobante adjunto): {datos.conciliacion.conciliados} conciliado{datos.conciliacion.conciliados !== 1 ? "s" : ""} ·{" "}
+                <span style={{ color: datos.conciliacion.sinConciliar ? "var(--color-danger)" : undefined, fontWeight: datos.conciliacion.sinConciliar ? 600 : 400 }}>
+                  {datos.conciliacion.sinConciliar} sin conciliar
+                </span>
+                {datos.conciliacion.sinConciliar > 0 && !soloSinConciliar && (
+                  <> · <button type="button" style={{ all: "unset", cursor: "pointer", color: "var(--color-accent-text, var(--color-accent))", textDecoration: "underline" }}
+                    onClick={() => setConciliacion("NO")}>ver solo esos</button></>
+                )}
+              </p>
+            )}
+
             {GRUPOS.map(([grupo, etiqueta, tono]) => {
-              const cuentas = datos.cuentas.filter((c) => c.grupo === grupo);
+              const cuentas = visibles.filter((c) => c.grupo === grupo);
               if (!cuentas.length) return null;
               return (
                 <div key={grupo} style={{ marginBottom: "1.25rem" }}>
@@ -174,13 +206,29 @@ export default function LibroMayor() {
                         <strong>{cuentaAbierta.nombre}</strong> · saldo anterior {M(cuentaAbierta)(cuentaAbierta.saldoAnterior)} · saldo final {M(cuentaAbierta)(cuentaAbierta.saldoFinal)}
                       </p>
                       <Table columns={columnasDetalle(cuentaAbierta)} rowKey="clave"
-                        rows={cuentaAbierta.movimientos.map((m, i) => ({ ...m, clave: i }))} empty="Sin movimientos en el periodo" />
+                        rows={movimientosDe(cuentaAbierta).map((m, i) => ({ ...m, clave: i }))} empty="Sin movimientos en el periodo" />
                     </div>
                   )}
                 </div>
               );
             })}
-            {datos.cuentas.length === 0 && <p className={styles.sub}>No hay movimientos en este periodo.</p>}
+            {visibles.length === 0 && (
+              <p className={styles.sub}>{soloSinConciliar ? "Todos los gastos del periodo tienen su comprobante adjunto." : "No hay movimientos en este periodo."}</p>
+            )}
+
+            {datos.porLinea?.length > 0 && !soloSinConciliar && (
+              <div style={{ marginBottom: "1.25rem" }}>
+                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", margin: "0 0 0.5rem" }}>
+                  <Badge tone="gray">Gasto por línea de negocio</Badge>
+                  <span className={styles.sub}>Gasto del periodo (base sin IGV) repartido según los % de cada proveedor</span>
+                </div>
+                <Table rowKey="clave" rows={datos.porLinea} empty="Sin gastos" columns={[
+                  { key: "nombre", label: "Línea de negocio", render: (l) => <strong>{l.nombre}</strong> },
+                  { key: "monto", label: "Monto", align: "right", render: (l) => soles(l.monto) },
+                  { key: "porcentaje", label: "%", align: "right", render: (l) => `${l.porcentaje.toFixed(1)} %` },
+                ]} />
+              </div>
+            )}
           </>
         )}
       </div>

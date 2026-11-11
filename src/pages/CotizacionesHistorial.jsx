@@ -62,7 +62,7 @@ export default function CotizacionesHistorial({ modulo }) {
     return matchEstado && matchCliente && matchVendedor && matchModulo;
   });
 
-  const guardarCotizacion = async ({ clienteId, items, margen, conIgv, borradorId, condicionPago, diasCredito }) => {
+  const guardarCotizacion = async ({ clienteId, items, margen, conIgv, borradorId, condicionPago, diasCredito, cuentaBancariaIds }) => {
     const data = {
       clienteId,
       margen,
@@ -70,6 +70,7 @@ export default function CotizacionesHistorial({ modulo }) {
       borradorId,
       condicionPago,
       diasCredito,
+      cuentaBancariaIds,
       items: items.map((i) => ({
         productoId: i.productoId,
         panelId: i.panelId || null,
@@ -146,13 +147,14 @@ export default function CotizacionesHistorial({ modulo }) {
       };
     });
 
-  const guardarRenegociacion = async ({ items, conIgv, margen, condicionPago, diasCredito }) => {
+  const guardarRenegociacion = async ({ items, conIgv, margen, condicionPago, diasCredito, cuentaBancariaIds }) => {
     if (!cotizacionARenegociar) return;
     const payload = {
       conIgv,
       margen,
       condicionPago,
       diasCredito,
+      cuentaBancariaIds,
       items: items.map((i) => ({
         productoId: i.productoId,
         panelId: i.panelId || null,
@@ -391,6 +393,7 @@ export default function CotizacionesHistorial({ modulo }) {
           initialClienteId={String(cotizacionARenegociar.clienteId)}
           initialItems={buildModalItems(cotizacionARenegociar)}
           initialCondicion={{ condicionPago: cotizacionARenegociar.condicionPago, diasCredito: cotizacionARenegociar.diasCredito }}
+          initialCuentaIds={Array.isArray(cotizacionARenegociar.cuentasBancarias) ? cotizacionARenegociar.cuentasBancarias.map((c) => c.id) : null}
           cotizacionId={cotizacionARenegociar.id}
           title="Re-enviar Cotización"
           saveLabel="Re-enviar Cotización"

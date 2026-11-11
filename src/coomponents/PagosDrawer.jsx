@@ -28,7 +28,7 @@ const ETIQUETA_TIPO = { COBRO: "Cobro", DETRACCION: "Detracción", RETENCION: "R
 export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToast }) {
   const [datos, setDatos] = useState(null);
   const [pago, setPago] = useState(pagoVacio());
-  const [archivo, setArchivo] = useState(null);
+  const [archivos, setArchivos] = useState([]);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
 
@@ -36,7 +36,7 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
     if (!comprobanteId) return;
     setDatos(null);
     setPago(pagoVacio());
-    setArchivo(null);
+    setArchivos([]);
     setError(null);
     getPagosComprobante(comprobanteId)
       .then(setDatos)
@@ -62,9 +62,9 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
     setError(null);
     setGuardando(true);
     try {
-      actualizar(await registrarPagoComprobante(comprobanteId, { ...pago, monto: Number(pago.monto) }, archivo));
+      actualizar(await registrarPagoComprobante(comprobanteId, { ...pago, monto: Number(pago.monto) }, archivos));
       setPago(pagoVacio(pago.tipo));
-      setArchivo(null);
+      setArchivos([]);
       showToast("Pago registrado", "success");
     } catch (err) {
       setError(err.response?.data?.message || "No se pudo registrar el pago");
@@ -207,7 +207,7 @@ export default function PagosDrawer({ comprobanteId, onClose, onCambio, showToas
                   tipoPago={pago.tipo} medio={pago.medio} banco={pago.banco}
                 />
               )}
-              <ConstanciaInput archivo={archivo} onArchivo={setArchivo} onLeido={precargar} />
+              <ConstanciaInput archivos={archivos} onArchivos={setArchivos} onLeido={precargar} />
               <Field label="Nota" value={pago.nota} onChange={(e) => setPago((p) => ({ ...p, nota: e.target.value }))} />
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <Button variant="ghost" size="sm" onClick={() => setPago((p) => ({ ...p, monto: String(pendiente) }))}>Pagar todo lo pendiente</Button>

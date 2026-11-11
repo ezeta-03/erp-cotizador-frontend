@@ -67,9 +67,24 @@ export const actualizarCategoriaGasto = async (id, cambios) => {
   return data;
 };
 
-// Foto o PDF del documento por pagar (p. ej. nota de venta)
-export const agregarAdjuntoDocumento = async (id, archivo) => {
-  const { data } = await api.post(`/cuentas-por-pagar/documentos/${id}/adjuntos`, conArchivo({}, archivo));
+/* ── Líneas de negocio (reparto de gastos de proveedores) ── */
+// [{ id, nombre, orden, activo, _count: { proveedores } }]
+export const getLineasNegocio = async () => {
+  const { data } = await api.get("/cuentas-por-pagar/lineas-negocio");
+  return data;
+};
+
+// Crea (sin id) o actualiza { nombre?, orden?, activo? } → lista actualizada
+export const guardarLineaNegocio = async (id, linea) => {
+  const { data } = id
+    ? await api.put(`/cuentas-por-pagar/lineas-negocio/${id}`, linea)
+    : await api.post("/cuentas-por-pagar/lineas-negocio", linea);
+  return data;
+};
+
+// Fotos o PDF del documento por pagar (p. ej. nota de venta): uno o una lista
+export const agregarAdjuntoDocumento = async (id, archivos) => {
+  const { data } = await api.post(`/cuentas-por-pagar/documentos/${id}/adjuntos`, conArchivo({}, archivos));
   return data;
 };
 
@@ -124,7 +139,7 @@ export const anularDocumentoPorPagar = async (id) => {
 };
 
 // pago: { tipo: "PAGO"|"DETRACCION", fecha, monto, medio, numeroOperacion?, nota? }
-// archivo (opcional): imagen o PDF de la constancia.
+// archivos (opcional): imágenes o PDF de las constancias (uno o una lista).
 export const registrarPagoPorPagar = async (id, pago, archivo) => {
   const { data } = await api.post(`/cuentas-por-pagar/documentos/${id}/pagos`, conArchivo(pago, archivo));
   return data;
