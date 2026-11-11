@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { getClientes } from "../api/clientes";
 import { getProductos } from "../api/productos";
+import { getServiciosNetwise } from "../api/serviciosNetwise";
+import { UNIDADES_SERVICIO } from "../constants/netwise";
 import { getPaneles } from "../api/paneles";
 import { getMisAprobadas, crearSolicitud } from "../api/solicitudesMargen";
 import styles from "./CotizacionModal.module.scss";
@@ -48,8 +50,12 @@ function DecimalInput({ value, onChange, className, disabled, min = 0.01, placeh
 }
 
 export default function CotizacionModal({ onClose, onSave, initialClienteId, initialItems, initialCondicion, initialCuentaIds = null, title, saveLabel, modulo, cotizacionId }) {
+  // Netwise: servicios del catálogo Netwise a precio de lista (sin margen,
+  // medidas ni adicionales).
+  const esNetwise = modulo === "netwise";
   const mostrarProductos = modulo !== "outdoor";
-  const mostrarOutdoor = modulo !== "btl";
+  const mostrarOutdoor = modulo !== "btl" && !esNetwise;
+  const etiqueta = esNetwise ? "servicio" : "producto";
 
   // Identifica esta cotización para las aprobaciones de margen: si ya existe
   // (renegociación) se usa su id real; si es nueva, se genera un token de
@@ -84,8 +90,8 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   const [cuentaIdsElegidas, setCuentaIdsElegidas] = useState(initialCuentaIds);
 
   // Margen
-  const [margen, setMargen] = useState(MARGEN_MINIMO);
-  const margenBajoMinimo = margen < MARGEN_MINIMO;
+  const [margen, setMargen] = useState(esNetwise ? 0 : MARGEN_MINIMO);
+  const margenBajoMinimo = !esNetwise && margen < MARGEN_MINIMO;
 
   // Solicitud de margen reducido
   const [aprobaciones, setAprobaciones] = useState([]);
@@ -98,7 +104,19 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   useEffect(() => {
     getClientes().then(setClientes);
     getCuentasParaDocumentos().then(setCuentasEmpresa).catch(() => setCuentasEmpresa(null));
-    if (mostrarProductos) getProductos().then(setProductos);
+    if (esNetwise) {
+      getServiciosNetwise().then((lista) => setProductos(lista.map((sv) => ({
+        id: sv.id,
+        nombre: sv.nombre,
+        categoria: sv.categoria,
+        precio_final: sv.precio,
+        unidad: UNIDADES_SERVICIO[sv.unidad] ?? sv.unidad,
+        tipoMedida: "UNIDAD",
+        adicionales: [],
+        descripcion: sv.descripcion || "",
+        esServicio: true,
+      })))).catch(() => setProductos([]));
+    } else if (mostrarProductos) getProductos().then(setProductos);
     if (mostrarOutdoor) getPaneles().then((data) => setPaneles(data.filter((p) => p.activo))).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -107,8 +125,9 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
   // borradorId) — se recargan si cambia el cliente, para que la aprobación
   // de una cotización no se aplique por error a otra.
   useEffect(() => {
+    if (esNetwise) return;
     getMisAprobadas({ clienteId, cotizacionId, borradorId }).then(setAprobaciones).catch(() => setAprobaciones([]));
-  }, [clienteId, cotizacionId, borradorId]);
+  }, [clienteId, cotizacionId, borradorId, esNetwise]);
 
   const margenAprobado = aprobaciones.length > 0
     ? Math.min(...aprobaciones.map((s) => s.margenSolicitado))
@@ -185,18 +204,19 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
     setItems((prev) => [
       ...prev,
       {
-        productoId: producto.id,
+        productoId: producto.esServicio ? null : producto.id,
+        servicioNetwiseId: producto.esServicio ? producto.id : null,
         nombre: nombreProducto(producto),
         precio_final: producto.precio_final,
         unidad: producto.unidad || "",
         tipoMedida,
         medida,
-        medidaAncho,
-        medidaAlto,
+        medidaAncho: producto.esServicio ? null : medidaAncho,
+        medidaAlto: producto.esServicio ? null : medidaAlto,
         precioBase,
         precio,
         cantidad: 1,
-        descripcion: "",
+        descripcion: producto.descripcion || "",
         subtotalBase: precioBase,
         subtotal: precio,
         adicionales:
@@ -320,7 +340,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
 
   const abrirVistaPrevia = () => {
     if (!clienteId || items.length === 0) {
-      alert("Selecciona un cliente y agrega al menos un producto");
+      alert(`Selecciona un cliente y agrega al menos un ${etiqueta}`);
       return;
     }
     setShowPreview(true);
@@ -332,7 +352,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
       return;
     }
     if (items.length === 0) {
-      alert("Agrega al menos un producto.");
+      alert(`Agrega al menos un ${etiqueta}.`);
       return;
     }
     if (margen < 0) {
@@ -497,7 +517,8 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
 
             <CuentasBancariasPicker cuentas={cuentasEmpresa} value={cuentaIds} onChange={setCuentaIdsElegidas} />
 
-            {/* Margen de rentabilidad */}
+            {/* Margen de rentabilidad (Netwise cotiza a precio de lista) */}
+            {!esNetwise && (
             <div className={styles.margenRow}>
               <label style={{ margin: 0, fontWeight: 600, fontSize: "var(--text-base)", color: "var(--color-text2)" }}>
                 Margen de rentabilidad
@@ -521,6 +542,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                 )}
               </div>
             </div>
+            )}
 
             {/* Banner de margen bajo (no aprobado) */}
             {margenBajoMinimo && !margenPermitido && (
@@ -669,14 +691,14 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
             {mostrarProductos && (
               <div className={styles.productosSelectorHeader}>
                 <label style={{ fontWeight: 600, fontSize: "var(--text-base)", color: "var(--color-text2)" }}>
-                  Agregar producto
+                  Agregar {etiqueta}
                 </label>
                 <button
                   type="button"
                   className={styles.buscadorButton}
                   onClick={() => setMostrarModalProductos(true)}
                 >
-                  Buscar productos
+                  {esNetwise ? "Buscar servicios" : "Buscar productos"}
                 </button>
               </div>
             )}
@@ -688,7 +710,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
               >
                 <div className={styles.productosModal}>
                   <div className={styles.productosModalHeader}>
-                    <h3>Seleccionar producto</h3>
+                    <h3>Seleccionar {etiqueta}</h3>
                     <button className={styles.btnClose} onClick={() => setMostrarModalProductos(false)} type="button" title="Cerrar">
                       <X size={20} />
                     </button>
@@ -715,7 +737,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                       <span className={styles.buscadorIcon}>⌕</span>
                       <input
                         className={styles.buscadorInput}
-                        placeholder={`Buscar${categoriaFiltro !== "TODOS" ? ` en ${categoriaFiltro}` : " producto"}…`}
+                        placeholder={`Buscar${categoriaFiltro !== "TODOS" ? ` en ${categoriaFiltro}` : ` ${etiqueta}`}…`}
                         value={busquedaProducto}
                         onChange={(e) => setBusquedaProducto(e.target.value)}
                       />
@@ -735,7 +757,9 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                         </p>
                       ) : (
                         productosFiltrados.slice(0, 12).map((p) => {
-                          const unidadLabel = (!p.tipoMedida || p.tipoMedida === "UNIDAD")
+                          const unidadLabel = p.esServicio
+                            ? (p.unidad || "servicio").toLowerCase()
+                            : (!p.tipoMedida || p.tipoMedida === "UNIDAD")
                             ? "pza"
                             : p.unidad || (p.tipoMedida === "AREA" ? "m²" : p.tipoMedida.toLowerCase());
                           const precioConMargen = parseFloat((Number(p.precio_final) * (1 + margen / 100)).toFixed(2));
@@ -783,23 +807,25 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                   <thead>
                     <tr>
                       <th>
-                        Producto
-                        <div className={styles.thHint}>nombre · notas</div>
+                        {esNetwise ? "Servicio" : "Producto"}
+                        <div className={styles.thHint}>{esNetwise ? "nombre · detalle" : "nombre · notas"}</div>
                       </th>
-                      <th>
-                        Dimensiones
-                        <div className={styles.thHint}>tamaño de cada pieza</div>
-                      </th>
+                      {!esNetwise && (
+                        <th>
+                          Dimensiones
+                          <div className={styles.thHint}>tamaño de cada pieza</div>
+                        </th>
+                      )}
                       <th>
                         Cant.
-                        <div className={styles.thHint}>piezas</div>
+                        <div className={styles.thHint}>{esNetwise ? "unidades" : "piezas"}</div>
                       </th>
                       <th>
                         Precio
-                        <div className={styles.thHint}>base / pieza</div>
+                        <div className={styles.thHint}>{esNetwise ? "por unidad" : "base / pieza"}</div>
                       </th>
                       <th>Subtotal</th>
-                      <th>Adicionales</th>
+                      {!esNetwise && <th>Adicionales</th>}
                       <th></th>
                     </tr>
                   </thead>
@@ -812,13 +838,13 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                             <input
                               type="text"
                               className={styles.inputDescripcion}
-                              placeholder="Notas (opcional)…"
+                              placeholder={esNetwise ? "Detalle del servicio (opcional)…" : "Notas (opcional)…"}
                               value={item.descripcion || ""}
                               onChange={(e) => actualizarDescripcion(idx, e.target.value)}
                             />
                           </div>
                         </td>
-                        <td>{renderMedidaCell(item, idx)}</td>
+                        {!esNetwise && <td>{renderMedidaCell(item, idx)}</td>}
                         <td>
                           <DecimalInput
                             value={item.cantidad}
@@ -828,7 +854,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                         </td>
                         <td>{fmt(item.precioBase)}</td>
                         <td>{fmt(item.subtotalBase)}</td>
-                        <td>
+                        {!esNetwise && <td>
                           {item.adicionales.map((a, j) => (
                             <label key={a.id} className={styles.checkbox}>
                               <input
@@ -839,7 +865,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                               {a.nombre} (+{fmt(a.precio)})
                             </label>
                           ))}
-                        </td>
+                        </td>}
                         <td>
                           <button className={styles.btnDelete} onClick={() => eliminarProducto(idx)} title="Quitar">
                             <Trash2 size={14} />
@@ -855,10 +881,12 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                     <span>Subtotal base</span>
                     <span>{fmt(totalBase)}</span>
                   </div>
-                  <div className={`${styles.resumenFila} ${styles.resumenMargen}`}>
-                    <span>Rentabilidad ({margen}%)</span>
-                    <span>+ {fmt(margenMonto)}</span>
-                  </div>
+                  {!esNetwise && (
+                    <div className={`${styles.resumenFila} ${styles.resumenMargen}`}>
+                      <span>Rentabilidad ({margen}%)</span>
+                      <span>+ {fmt(margenMonto)}</span>
+                    </div>
+                  )}
                   {conIgv && (
                     <>
                       <div className={`${styles.resumenFila} ${styles.resumenValorVenta}`}>
@@ -911,6 +939,7 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
           return (
             <>
               <CotizacionPDFPreview
+                marca={esNetwise ? "NETWISE" : undefined}
                 numero={null}
                 fecha={fechaFmt}
                 estado={null}

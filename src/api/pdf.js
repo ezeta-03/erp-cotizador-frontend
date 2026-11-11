@@ -59,16 +59,17 @@ export const generarPDFCliente = async (cotizacion) => {
 
   let y = 18;
 
-  // ── Brand ──
+  // ── Brand (Netwise: cotizaciones del módulo Netwise) ──
+  const esNetwise = cotizacion.marca === "NETWISE";
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
-  doc.setTextColor(...BLACK);
-  doc.text("ZAAZMAGO", ML, y);
+  doc.setTextColor(...(esNetwise ? [124, 58, 237] : BLACK));
+  doc.text(esNetwise ? "netwise" : "ZAAZMAGO", ML, y);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(...GRAY);
-  doc.text("PUBLICIDAD & DISEÑO", ML, y + 5);
+  doc.text(esNetwise ? "AGENCIA DIGITAL" : "PUBLICIDAD & DISEÑO", ML, y + 5);
 
   // Doc info (right)
   doc.setFont("helvetica", "bold");
@@ -255,7 +256,7 @@ export const generarPDFCliente = async (cotizacion) => {
 
   doc.setFont("helvetica", "bold");
   doc.setTextColor(...LGRAY);
-  doc.text("ZAAZMAGO", PW - MR, PH - 12, { align: "right" });
+  doc.text(esNetwise ? "NETWISE" : "ZAAZMAGO", PW - MR, PH - 12, { align: "right" });
 
   doc.save(cotizacion.numero ? `${cotizacion.numero}.pdf` : `COT-${cotizacion.id || "NUEVA"}.pdf`);
 };

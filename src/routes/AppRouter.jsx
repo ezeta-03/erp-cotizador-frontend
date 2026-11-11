@@ -29,7 +29,16 @@ import CajaBancos from "../pages/CajaBancos";
 import LibroMayor from "../pages/LibroMayor";
 import FlujoEfectivo from "../pages/FlujoEfectivo";
 import Compras from "../pages/Compras";
+import NetwiseHome from "../pages/NetwiseHome";
+import ServiciosNetwise from "../pages/ServiciosNetwise";
 import useModulosHabilitados from "../hooks/useModulosHabilitados";
+import { veModuloNetwise } from "../constants/netwise";
+
+// Módulo Netwise: solo usuarios con marca NETWISE y Administradores.
+function SoloNetwise({ children }) {
+  const { user } = useAuth();
+  return veModuloNetwise(user) ? children : <Navigate to={`/erp/${user?.role?.toLowerCase() ?? ""}`} replace />;
+}
 
 // No hay pantalla de Inicio: al entrar se va directo al primer módulo
 // habilitado del rol (en el orden del menú; normalmente el Dashboard), o a
@@ -70,6 +79,9 @@ const PANTALLAS = [
   { path: "btl",                  element: <BTLHome /> },
   { path: "btl/cotizador",        element: <CotizacionesHistorial modulo="btl" /> },
   { path: "btl/productos",        element: <Productos /> },
+  { path: "netwise",              element: <SoloNetwise><NetwiseHome /></SoloNetwise> },
+  { path: "netwise/cotizador",    element: <SoloNetwise><CotizacionesHistorial modulo="netwise" /></SoloNetwise> },
+  { path: "netwise/servicios",    element: <SoloNetwise><ServiciosNetwise /></SoloNetwise> },
   { path: "perfil",               element: <CambiarContrasena /> },
 ];
 

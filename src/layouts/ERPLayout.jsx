@@ -3,10 +3,11 @@ import { Outlet, Navigate, useNavigate, useLocation, NavLink } from "react-route
 import {
   LogOut, ChevronDown, Menu, X, Mail, Briefcase, Landmark,
   BarChart3, UserCircle, Users, MapPin, Megaphone, KeyRound,
-  Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package, Boxes, ShoppingCart,
+  Layers, Monitor, Truck, CalendarDays, TrendingUp, FileText, Package, Boxes, ShoppingCart, Globe, Sparkles,
 } from "lucide-react";
 import useAuth from "../auth/useAuth";
 import { moduloDeSegmento } from "../constants/modulos";
+import { veModuloNetwise } from "../constants/netwise";
 import useModulosHabilitados from "../hooks/useModulosHabilitados";
 import styles from "./ERPLayout.module.scss";
 
@@ -36,6 +37,8 @@ const SECTION_LABELS = {
   proveedores:  "Proveedores",
   ocupacion:    "Ocupación",
   rentabilidad: "Rentabilidad",
+  netwise:      "Netwise",
+  servicios:    "Servicios",
 };
 
 const OUTDOOR_CHILDREN = [
@@ -50,6 +53,11 @@ const OUTDOOR_CHILDREN = [
 const BTL_CHILDREN = [
   { label: "Cotizador", seg: "cotizador", icon: FileText },
   { label: "Productos", seg: "productos", icon: Package },
+];
+
+const NETWISE_CHILDREN = [
+  { label: "Cotizador", seg: "cotizador", icon: FileText },
+  { label: "Servicios", seg: "servicios", icon: Sparkles },
 ];
 
 const ROLE_LABELS = {
@@ -74,7 +82,17 @@ const item  = (label, seg, icon) => ({ label, seg, icon });
 const group = (label, icon, base, children) => ({ label, icon, base, children });
 const carpeta = (label, icon, base, children) => ({ label, icon, base, children, plano: true });
 
-function buildMenu(role) {
+function buildMenu(role, conNetwise) {
+  const menu = buildMenuRol(role);
+  if (!conNetwise) return menu;
+  // Netwise: primero para sus usuarios; para el Admin, después de BTL.
+  const netwise = group("Netwise", Globe, "netwise", NETWISE_CHILDREN);
+  if (role !== "admin") return [netwise, ...menu];
+  const i = menu.findIndex((m) => m.base === "btl");
+  return [...menu.slice(0, i + 1), netwise, ...menu.slice(i + 1)];
+}
+
+function buildMenuRol(role) {
   if (role === "admin") {
     return [
       item("Dashboard", "dashboard", BarChart3),
@@ -131,14 +149,15 @@ export default function ERPLayout() {
 
   const outdoorLink = (isOutdoor && segment !== "outdoor") ? `/erp/${role}/outdoor` : null;
   const btlLink     = (isBtl && segment !== "btl") ? `/erp/${role}/btl` : null;
+  const netwiseLink = (segments.includes("netwise") && segment !== "netwise") ? `/erp/${role}/netwise` : null;
 
   // Ventas y Contable ven solo los módulos que el Admin dejó habilitados
   // para su rol (Usuarios → Módulos por rol). Contraseña siempre queda.
   const { habilitados } = useModulosHabilitados();
   const permitido = (mod) => !habilitados || habilitados.has(mod);
-  const menu = buildMenu(role)
+  const menu = buildMenu(role, role !== "cliente" && veModuloNetwise(user))
     .map((m) => (m.plano ? { ...m, children: m.children.filter((c) => permitido(c.seg)) } : m))
-    .filter((m) => m.seg === "perfil" || (m.plano ? m.children.length > 0 : permitido(m.seg ?? m.base)));
+    .filter((m) => m.seg === "perfil" || m.base === "netwise" || (m.plano ? m.children.length > 0 : permitido(m.seg ?? m.base)));
   // Grupo activo: el de la URL (Outdoor/BTL por su base; Finanzas también por sus hijos).
   const grupoActivo = (m) => segments.includes(m.base) || (m.plano && m.children.some((c) => c.seg === segment));
   const finanzasLink = FINANZAS_CHILDREN.some((c) => c.seg === segment) ? `/erp/${role}/finanzas` : null;
@@ -167,7 +186,7 @@ export default function ERPLayout() {
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           {esNetwise
-            ? <span className={styles.wordmark} aria-label="Netwise">netw<span>i</span>se</span>
+            ? <img src="/netwise_logo.png" alt="Netwise" className={styles.logoNetwise} />
             : <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.logo} />}
           <span className={styles.erpLabel}>ERP</span>
         </div>
@@ -190,7 +209,7 @@ export default function ERPLayout() {
         <aside className={`${styles.sidebar} ${menuOpen ? styles.sidebarOpen : ""}`}>
           <div className={styles.sidebarHeader}>
             {esNetwise
-              ? <span className={`${styles.wordmark} ${styles.wordmarkLight}`} aria-label="Netwise">netw<span>i</span>se</span>
+              ? <img src="/netwise_logo.png" alt="Netwise" className={`${styles.logoNetwise} ${styles.logoNetwiseLight}`} />
               : <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.sidebarLogo} />}
           </div>
 
@@ -220,7 +239,7 @@ export default function ERPLayout() {
                     {isOpen && (
                       <div className={styles.navChildren}>
                         {m.children.map((c) => (
-                          <div key={c.seg} className={`${styles.navChildRow} ${segment === c.seg ? styles.navChildActive : ""}`}>
+                          <div key={c.seg} className={`${styles.navChildRow} ${isActiveGroup && segment === c.seg ? styles.navChildActive : ""}`}>
                             <NavLink
                               to={m.plano ? `/erp/${role}/${c.seg}` : `${base}/${c.seg}`}
                               onClick={closeMobileMenu}
@@ -290,6 +309,14 @@ export default function ERPLayout() {
               <>
                 <button className={styles.btnBack} onClick={() => navigate(btlLink)}>
                   BTL
+                </button>
+                <span className={styles.breadcrumbSep}>/</span>
+              </>
+            )}
+            {netwiseLink && (
+              <>
+                <button className={styles.btnBack} onClick={() => navigate(netwiseLink)}>
+                  Netwise
                 </button>
                 <span className={styles.breadcrumbSep}>/</span>
               </>

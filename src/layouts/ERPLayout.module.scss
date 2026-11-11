@@ -118,21 +118,17 @@
   }
 }
 
-/* Logo de texto para Netwise (hasta tener el archivo oficial) */
-.wordmark {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  color: var(--color-text1);
-
-  span { color: var(--color-accent); }
+/* Logo de Netwise: morado sobre el header claro; blanco sobre la barra oscura */
+.logoNetwise {
+  height: 1.75rem;
+  width: auto;
+  object-fit: contain;
+  object-position: left;
 }
 
-.wordmarkLight {
-  font-size: 1.35rem;
-  color: var(--sidebar-text-strong);
+.logoNetwiseLight {
+  height: 1.5rem;
+  filter: brightness(0) invert(1);
 }
 
 /* ── Shell: sidebar + contenido ── */

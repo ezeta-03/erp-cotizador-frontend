@@ -3,7 +3,7 @@ import styles from "./CotizacionPDFPreview.module.scss";
 const S = (v) => `S/ ${(v || 0).toFixed(2)}`;
 
 export default function CotizacionPDFPreview({
-  numero, fecha, estado, cliente, conIgv,
+  marca, numero, fecha, estado, cliente, conIgv,
   items = [], valorVenta, igvMonto, total,
 }) {
   return (
@@ -11,10 +11,16 @@ export default function CotizacionPDFPreview({
 
       {/* ── Header ── */}
       <div className={styles.header}>
-        <div className={styles.brand}>
-          <span className={styles.brandName}>ZAAZMAGO</span>
-          <span className={styles.brandTagline}>PUBLICIDAD &amp; DISEÑO</span>
-        </div>
+        {marca === "NETWISE" ? (
+          <div className={styles.brand}>
+            <img src="/netwise_logo.png" alt="Netwise" style={{ height: 34, width: "auto", display: "block" }} />
+          </div>
+        ) : (
+          <div className={styles.brand}>
+            <span className={styles.brandName}>ZAAZMAGO</span>
+            <span className={styles.brandTagline}>PUBLICIDAD &amp; DISEÑO</span>
+          </div>
+        )}
         <div className={styles.docInfo}>
           <span className={styles.docNumero}>Cotización {numero || "NUEVA"}</span>
           <span className={styles.docFecha}>{fecha}</span>
@@ -113,7 +119,7 @@ export default function CotizacionPDFPreview({
       {/* ── Footer ── */}
       <div className={styles.footer}>
         <span>Cotización válida por 15 días hábiles desde la fecha de emisión.</span>
-        <span className={styles.footerBrand}>ZAAZMAGO</span>
+        <span className={styles.footerBrand}>{marca === "NETWISE" ? "NETWISE" : "ZAAZMAGO"}</span>
       </div>
     </div>
   );

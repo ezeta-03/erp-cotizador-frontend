@@ -24,6 +24,7 @@ const fmt = (v) =>
 const SUBTITULOS = {
   outdoor: "Historial de cotizaciones outdoor (paneles y mupis)",
   btl: "Historial de cotizaciones BTL (productos)",
+  netwise: "Historial de cotizaciones Netwise (servicios de agencia)",
 };
 
 export default function CotizacionesHistorial({ modulo }) {
@@ -58,13 +59,19 @@ export default function CotizacionesHistorial({ modulo }) {
     const matchEstado = filtroEstado === "TODAS" || c.estado === filtroEstado;
     const matchCliente = !filtroCliente || c.cliente.nombreComercial.toLowerCase().includes(filtroCliente.toLowerCase());
     const matchVendedor = !filtroVendedor || c.usuario?.nombre.toLowerCase().includes(filtroVendedor.toLowerCase());
-    const matchModulo = !modulo || (modulo === "outdoor" ? esCotizacionOutdoor(c) : !esCotizacionOutdoor(c));
+    const esNetwise = c.marca === "NETWISE";
+    const matchModulo = !modulo || (
+      modulo === "netwise" ? esNetwise
+        : modulo === "outdoor" ? !esNetwise && esCotizacionOutdoor(c)
+        : !esNetwise && !esCotizacionOutdoor(c)
+    );
     return matchEstado && matchCliente && matchVendedor && matchModulo;
   });
 
   const guardarCotizacion = async ({ clienteId, items, margen, conIgv, borradorId, condicionPago, diasCredito, cuentaBancariaIds }) => {
     const data = {
       clienteId,
+      marca: modulo === "netwise" ? "NETWISE" : undefined,
       margen,
       conIgv,
       borradorId,
@@ -74,6 +81,7 @@ export default function CotizacionesHistorial({ modulo }) {
       items: items.map((i) => ({
         productoId: i.productoId,
         panelId: i.panelId || null,
+        servicioNetwiseId: i.servicioNetwiseId || null,
         nombre: i.nombre || null,
         descripcion: i.descripcion || "",
         cantidad: i.cantidad,
@@ -105,13 +113,13 @@ export default function CotizacionesHistorial({ modulo }) {
       const panel = item.panel;
       const tipoMedida = p?.tipoMedida || "UNIDAD";
       const medida = item.medida || 1;
-      const medidaAncho = item.medidaAncho || 1;
-      const medidaAlto = item.medidaAlto || 1;
+      const medidaAncho = item.servicioNetwiseId ? null : item.medidaAncho || 1;
+      const medidaAlto = item.servicioNetwiseId ? null : item.medidaAlto || 1;
       const sumaAdicionales = (item.adicionales || [])
         .filter((a) => a.seleccionado)
         .reduce((acc, a) => acc + Number(a.precio), 0);
 
-      let precioFinalBase = p?.precio_final || 0;
+      let precioFinalBase = p?.precio_final || item.servicioNetwise?.precio || 0;
       if (!p && panel) {
         const nombre = item.nombre || "";
         if (nombre.startsWith("Producción")) precioFinalBase = panel.costoProduccion || 0;
@@ -123,9 +131,10 @@ export default function CotizacionesHistorial({ modulo }) {
       return {
         productoId: p?.id,
         panelId: item.panelId || null,
+        servicioNetwiseId: item.servicioNetwiseId || null,
         nombre: nombreItem(item),
         precio_final: precioFinalBase,
-        unidad: p?.unidad || "",
+        unidad: p?.unidad || item.servicioNetwise?.unidad || "",
         tipoMedida,
         medida,
         medidaAncho,
@@ -158,6 +167,7 @@ export default function CotizacionesHistorial({ modulo }) {
       items: items.map((i) => ({
         productoId: i.productoId,
         panelId: i.panelId || null,
+        servicioNetwiseId: i.servicioNetwiseId || null,
         nombre: i.nombre || null,
         cantidad: i.cantidad,
         medida: i.medida || 1,
@@ -411,7 +421,7 @@ export default function CotizacionesHistorial({ modulo }) {
           medidaAncho: item.medidaAncho,
           medidaAlto: item.medidaAlto,
           medida: item.medida,
-          unidad: item.producto?.unidad,
+          unidad: item.producto?.unidad || item.servicioNetwise?.unidad,
           cantidad: item.cantidad,
           precio: item.precio,
           subtotal: item.subtotal,
@@ -477,6 +487,7 @@ export default function CotizacionesHistorial({ modulo }) {
               )}
 
               <CotizacionPDFPreview
+                marca={cot.marca}
                 numero={cot.numero}
                 fecha={fecha}
                 estado={cot.estado}
