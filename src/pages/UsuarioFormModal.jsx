@@ -51,6 +51,17 @@ export default function UsuarioFormModal({ form, setForm, editId, onSubmit, onCa
             </select>
           </div>
 
+          <div className={styles.formField}>
+            <label>Apariencia (marca)</label>
+            <select
+              value={form.marca ?? "ZAAZMAGO"}
+              onChange={(e) => setForm({ ...form, marca: e.target.value })}
+            >
+              <option value="ZAAZMAGO">Zaazmago</option>
+              <option value="NETWISE">Netwise</option>
+            </select>
+          </div>
+
           {editId && (
             <div className={styles.formField}>
               <label>Nueva contraseña</label>

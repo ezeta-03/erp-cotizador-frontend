@@ -118,6 +118,23 @@
   }
 }
 
+/* Logo de texto para Netwise (hasta tener el archivo oficial) */
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--color-text1);
+
+  span { color: var(--color-accent); }
+}
+
+.wordmarkLight {
+  font-size: 1.35rem;
+  color: var(--sidebar-text-strong);
+}
+
 /* ── Shell: sidebar + contenido ── */
 .shell {
   flex: 1;
@@ -133,8 +150,8 @@
 .sidebar {
   width: 224px;
   flex-shrink: 0;
-  background: var(--color-surface2);
-  border-right: 1px solid var(--color-border);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
 }
@@ -143,7 +160,7 @@
   display: none;
   flex-shrink: 0;
   padding: 1rem 1rem 0.85rem;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--sidebar-border);
   margin-bottom: 0.6rem;
 }
 
@@ -173,23 +190,23 @@
   display: flex;
   align-items: center;
   border-radius: var(--radius-md);
-  color: var(--color-text2);
+  color: var(--sidebar-text);
   transition: $transition-fast;
 
   &:hover {
-    background: var(--color-hover);
-    color: var(--color-text1);
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text-strong);
   }
 }
 
 .navItemActive {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-text);
   font-weight: 700;
 
   &:hover {
-    background: var(--color-accent-light);
-    color: var(--color-accent);
+    background: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
   }
 }
 
@@ -234,7 +251,7 @@
   }
 
   &:hover {
-    background: var(--color-hover);
+    background: var(--sidebar-hover);
   }
 }
 
@@ -254,12 +271,12 @@
   display: flex;
   align-items: center;
   border-radius: var(--radius-sm);
-  color: var(--color-text3);
+  color: var(--sidebar-text-muted);
   transition: $transition-fast;
 
   &:hover {
-    color: var(--color-text1);
-    background: var(--color-hover);
+    color: var(--sidebar-text-strong);
+    background: var(--sidebar-hover);
   }
 }
 
@@ -276,13 +293,13 @@
 }
 
 .navChildActive {
-  color: var(--color-accent);
+  color: var(--sidebar-active-text);
   font-weight: 700;
-  background: var(--color-accent-light);
+  background: var(--sidebar-active-bg);
 
   &:hover {
-    color: var(--color-accent);
-    background: var(--color-accent-light);
+    color: var(--sidebar-active-text);
+    background: var(--sidebar-active-bg);
   }
 }
 
@@ -323,7 +340,7 @@
   gap: 0.7rem;
   padding: 0.9rem 1rem;
   margin-top: 0.6rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--sidebar-border);
 }
 
 .sidebarAvatar {
@@ -352,7 +369,7 @@
   margin: 0;
   font-size: var(--text-sm);
   font-weight: 700;
-  color: var(--color-text1);
+  color: var(--sidebar-text-strong);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -363,7 +380,7 @@
   align-items: center;
   gap: 0.35rem;
   font-size: var(--text-2xs);
-  color: var(--color-text3);
+  color: var(--sidebar-text-muted);
   overflow: hidden;
 
   svg {

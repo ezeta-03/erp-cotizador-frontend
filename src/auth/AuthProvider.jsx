@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
 
@@ -9,6 +9,16 @@ export default function AuthProvider({ children }) {
     const token = localStorage.getItem("token");
     return token ? JSON.parse(atob(token.split(".")[1])) : null;
   });
+
+  // Marca de la interfaz (solo apariencia): <html data-marca="netwise"> activa
+  // los tokens de Netwise en _theme.scss. Sin sesión, vuelve a Zaazmago.
+  useEffect(() => {
+    const root = document.documentElement;
+    const esNetwise = user?.marca === "NETWISE";
+    if (esNetwise) root.dataset.marca = "netwise";
+    else delete root.dataset.marca;
+    document.title = esNetwise ? "ERP | NETWISE" : "ERP | ZAAZMAGO";
+  }, [user?.marca]);
 
   const login = (token, user) => {
     localStorage.setItem("token", token);

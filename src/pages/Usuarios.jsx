@@ -49,7 +49,7 @@ export default function Usuarios() {
   const { user } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
   const [vista, setVista] = useState("tabla");
-  const [form, setForm] = useState({ nombre: "", email: "", password: "", role: "VENTAS" });
+  const [form, setForm] = useState({ nombre: "", email: "", password: "", role: "VENTAS", marca: "ZAAZMAGO" });
   const [editId, setEditId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [logUsuario, setLogUsuario] = useState(null);
@@ -71,21 +71,27 @@ export default function Usuarios() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = { nombre: form.nombre, email: form.email, role: form.role };
-    if (editId) {
-      if (form.password) payload.password = form.password;
-      await updateUsuario(editId, payload);
-    } else {
-      await createUsuario(payload);
+    const payload = { nombre: form.nombre, email: form.email, role: form.role, marca: form.marca };
+    try {
+      if (editId) {
+        if (form.password) payload.password = form.password;
+        await updateUsuario(editId, payload);
+      } else {
+        await createUsuario(payload);
+      }
+    } catch (err) {
+      // Ej. "Ya existe un usuario con ese email": se avisa y el modal queda abierto.
+      alert(err.response?.data?.message ?? "No se pudo guardar el usuario");
+      return;
     }
-    setForm({ nombre: "", email: "", password: "", role: "VENTAS" });
+    setForm({ nombre: "", email: "", password: "", role: "VENTAS", marca: "ZAAZMAGO" });
     setEditId(null);
     setShowModal(false);
     cargarUsuarios();
   };
 
   const handleEdit = (u) => {
-    setForm({ nombre: u.nombre, email: u.email, password: "", role: u.role });
+    setForm({ nombre: u.nombre, email: u.email, password: "", role: u.role, marca: u.marca ?? "ZAAZMAGO" });
     setEditId(u.id);
     setShowModal(true);
   };
@@ -100,8 +106,12 @@ export default function Usuarios() {
   const handleReinvitar = async (u) => {
     const email = prompt(`Reinvitar a ${u.nombre}. Email:`, u.email || "");
     if (!email) return;
-    await reinvitarUsuario(u.id, email);
-    alert("Invitación reenviada correctamente");
+    try {
+      await reinvitarUsuario(u.id, email);
+      alert("Invitación reenviada correctamente");
+    } catch (err) {
+      alert(err.response?.data?.message ?? "No se pudo reenviar la invitación");
+    }
   };
 
   const handleVerLog = async (u) => {
@@ -139,7 +149,7 @@ export default function Usuarios() {
             {vista === "cards" ? <List size={18} /> : <LayoutGrid size={18} />}
             {vista === "cards" ? "Tabla" : "Tarjetas"}
           </button>
-          <button className={styles.btnPrimary} onClick={() => { setEditId(null); setForm({ nombre: "", email: "", password: "", role: "VENTAS" }); setShowModal(true); }}>
+          <button className={styles.btnPrimary} onClick={() => { setEditId(null); setForm({ nombre: "", email: "", password: "", role: "VENTAS", marca: "ZAAZMAGO" }); setShowModal(true); }}>
             <Plus size={18} /> Invitar usuario
           </button>
         </div>

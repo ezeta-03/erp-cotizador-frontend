@@ -118,8 +118,9 @@ export function DonutChart({ meta, avance, titulo = 'Meta Mensual' }) {
 
 // ── Paleta compartida ──────────────────────────────────────────────────────
 // Serie categórica fija (canvas no lee var(--x)); arranca con los tokens de marca y semánticos.
+// El primer color es el acento de la marca activa (Zaazmago / Netwise).
 const PALETTE = [
-  '#ff6600','#2563eb','#059669','#6366f1','#dc2626',
+  'accent','#2563eb','#059669','#6366f1','#dc2626',
   '#0d9488','#d97706','#db2777','#65a30d','#7c3aed',
 ];
 
@@ -144,7 +145,7 @@ export function ProveedoresChart({ data, anio }) {
     const labels = data.meses.map(m => m.label);
 
     const datasets = rawDatasets.map((ds, i) => {
-      const color = PALETTE[i % PALETTE.length];
+      const color = i % PALETTE.length === 0 ? token('--color-accent') : PALETTE[i % PALETTE.length];
       return {
         label:            ds.codigo,
         data:             ds.data,

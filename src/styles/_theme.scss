@@ -4,7 +4,7 @@
    No escribir colores hex sueltos: si falta uno, se agrega acá.
    ============================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@500;600;700;800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@500;600;700;800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Poppins:wght@400;500;600;700;800&display=swap');
 
 :root {
   color-scheme: light;
@@ -99,7 +99,66 @@
   /* ── Hover: tinte naranja suave, coherente con el acento ── */
   --color-hover:        rgba(255, 102, 0, 0.06);
   --color-hover-border: rgba(255, 102, 0, 0.28);
+  --color-focus-ring:   var(--color-focus-ring);
+
+  /* ── Barra lateral (Zaazmago: clara, sigue al contenido) ── */
+  --sidebar-bg:          var(--color-surface2);
+  --sidebar-border:      var(--color-border);
+  --sidebar-text:        var(--color-text2);
+  --sidebar-text-muted:  var(--color-text3);
+  --sidebar-text-strong: var(--color-text1);
+  --sidebar-hover:       var(--color-hover);
+  --sidebar-active-bg:   var(--color-accent-light);
+  --sidebar-active-text: var(--color-accent);
 
   --theme-transition: background-color 0.2s ease, color 0.2s ease,
                       border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* =============================================
+   MARCA NETWISE — solo apariencia, mismas funciones.
+   Se activa con <html data-marca="netwise"> (usuario con marca NETWISE).
+   Morado eléctrico como acento, barra lateral azul-noche, Poppins.
+   ============================================= */
+:root[data-marca="netwise"] {
+  --font-display: "Poppins", system-ui, sans-serif;
+  --font-body:    "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-bg:       #f7f7fb;
+  --color-surface:  #ffffff;
+  --color-surface2: #f2f1f8;
+  --color-surface3: #e6e4f0;
+  --color-border:   #e8e6f0;
+  --color-border2:  #f2f1f8;
+
+  --color-text1: #16132b;
+  --color-text2: #4a4760;
+  --color-text3: #6e6a85;
+  --color-input-border: #d3d0e0;
+
+  --color-accent:       #7c3aed;
+  --color-accent-hover: #6d28d9;
+  --color-accent-light: #f1eafe;
+  --color-accent-text:  #6d28d9;
+
+  --badge-orange-bg:   #f1eafe;
+  --badge-orange-text: #5b21b6;
+
+  --shadow-soft:  0 1px 2px rgba(22,19,43,0.04), 0 4px 16px -6px rgba(22,19,43,0.08);
+  --shadow-hover: 0 2px 4px rgba(22,19,43,0.05), 0 12px 28px -10px rgba(22,19,43,0.18);
+  --shadow-modal: 0 24px 60px -16px rgba(22,19,43,0.32);
+  --color-overlay: rgba(22,19,43,0.5);
+
+  --color-hover:        rgba(124, 58, 237, 0.06);
+  --color-hover-border: rgba(124, 58, 237, 0.3);
+  --color-focus-ring:   rgba(124, 58, 237, 0.18);
+
+  --sidebar-bg:          #1b1830;
+  --sidebar-border:      rgba(255, 255, 255, 0.08);
+  --sidebar-text:        #d6d3e6;
+  --sidebar-text-muted:  #9a96b3;
+  --sidebar-text-strong: #ffffff;
+  --sidebar-hover:       rgba(255, 255, 255, 0.06);
+  --sidebar-active-bg:   #7c3aed;
+  --sidebar-active-text: #ffffff;
 }

@@ -145,7 +145,7 @@
   box-sizing: border-box;
   font-family: inherit;
   transition: $transition-smooth;
-  &:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15); }
+  &:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-focus-ring); }
   &::placeholder { color: $text-slate-400; }
 }
 
@@ -249,7 +249,7 @@
 
   &:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
   }
 }
 

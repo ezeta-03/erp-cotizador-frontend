@@ -120,6 +120,7 @@ export default function ERPLayout() {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const role = user?.role?.toLowerCase() ?? "";
+  const esNetwise = user?.marca === "NETWISE";
 
   const segments = pathname.split("/").filter(Boolean);
   const segment = segments[segments.length - 1];
@@ -165,7 +166,9 @@ export default function ERPLayout() {
           <button className={styles.hamburger} onClick={() => setMenuOpen((o) => !o)} aria-label="Abrir menú">
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.logo} />
+          {esNetwise
+            ? <span className={styles.wordmark} aria-label="Netwise">netw<span>i</span>se</span>
+            : <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.logo} />}
           <span className={styles.erpLabel}>ERP</span>
         </div>
         <div className={styles.headerRight}>
@@ -186,7 +189,9 @@ export default function ERPLayout() {
         {/* Sidebar de navegación */}
         <aside className={`${styles.sidebar} ${menuOpen ? styles.sidebarOpen : ""}`}>
           <div className={styles.sidebarHeader}>
-            <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.sidebarLogo} />
+            {esNetwise
+              ? <span className={`${styles.wordmark} ${styles.wordmarkLight}`} aria-label="Netwise">netw<span>i</span>se</span>
+              : <img src="/zaazmago_holding.png" alt="Zaazmago" className={styles.sidebarLogo} />}
           </div>
 
           <nav className={styles.nav}>
