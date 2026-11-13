@@ -26,6 +26,7 @@ const SECTION_LABELS = {
   "caja-bancos":        "Caja y Bancos",
   "libro-mayor":        "Libro Mayor",
   "flujo-efectivo":     "Flujo de Efectivo",
+  reportes:             "Reportes",
   almacen:      "Almacén",
   compras:      "Compras",
   proyectos:    "Proyectos",
@@ -76,6 +77,7 @@ const FINANZAS_CHILDREN = [
   { label: "Caja y Bancos",      seg: "caja-bancos" },
   { label: "Libro Mayor",        seg: "libro-mayor" },
   { label: "Flujo de Efectivo",  seg: "flujo-efectivo" },
+  { label: "Reportes",           seg: "reportes" },
 ];
 
 const item  = (label, seg, icon) => ({ label, seg, icon });

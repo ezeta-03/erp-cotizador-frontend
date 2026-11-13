@@ -28,6 +28,7 @@ import FinanzasHome from "../pages/FinanzasHome";
 import CajaBancos from "../pages/CajaBancos";
 import LibroMayor from "../pages/LibroMayor";
 import FlujoEfectivo from "../pages/FlujoEfectivo";
+import Reportes from "../pages/Reportes";
 import Compras from "../pages/Compras";
 import NetwiseHome from "../pages/NetwiseHome";
 import ServiciosNetwise from "../pages/ServiciosNetwise";
@@ -66,6 +67,7 @@ const PANTALLAS = [
   { path: "caja-bancos",          element: <CajaBancos />, roles: ["ADMIN", "CONTABLE"] },
   { path: "libro-mayor",          element: <LibroMayor />, roles: ["ADMIN", "CONTABLE"] },
   { path: "flujo-efectivo",       element: <FlujoEfectivo />, roles: ["ADMIN", "CONTABLE"] },
+  { path: "reportes",             element: <Reportes />, roles: ["ADMIN", "CONTABLE"] },
   { path: "almacen",              element: <Almacen /> },
   { path: "compras",              element: <Compras />, roles: ["ADMIN", "VENTAS", "CONTABLE"] },
   { path: "proyectos",            element: <Proyectos /> },
