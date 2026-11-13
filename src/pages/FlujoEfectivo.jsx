@@ -2,10 +2,12 @@ import { Fragment, useEffect, useState } from "react";
 import { ChevronDown, ChevronRight, FileSpreadsheet, FileText } from "lucide-react";
 import { Button } from "../components/ui";
 import { descargarFlujoEfectivo, getFlujoEfectivo } from "../api/flujoEfectivo";
-import { soles } from "../utils/formato";
 import { useToast } from "../coomponents/Toast";
 import Spinner from "../coomponents/Spinner";
 import styles from "./cuentas.module.scss";
+
+const MONEDAS = ["PEN", "USD"];
+const ETIQUETA_MONEDA = { PEN: "Soles (PEN)", USD: "Dólares (USD)" };
 
 const hoy = () => new Date().toLocaleDateString("en-CA");
 const fechaCorta = (iso) => (iso ? iso.split("-").reverse().join("/") : "—");
@@ -20,6 +22,8 @@ const restarMeses = (mes, n) => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 };
 const num = (v) => (v ? Number(v).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—");
+// Saldos: null = en blanco (cuenta sin saldo inicial a esa fecha); 0 se muestra como 0.00.
+const saldo = (v) => (v === null || v === undefined ? "" : Number(v).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const pct = (v) => `${Number(v || 0).toFixed(1)} %`;
 const chip = (activo) => ({
   padding: "0.3rem 0.75rem", borderRadius: 999, cursor: "pointer", fontSize: "var(--text-xs)",
@@ -34,7 +38,7 @@ const primera = { ...celda, position: "sticky", left: 0, background: "var(--colo
 
 // Tabla de un bloque (entradas, salidas o líneas): una columna por mes, total y %.
 // Las filas con detalle (cliente o proveedor) se despliegan con un clic.
-function TablaFlujo({ datos, meses, titulo, color, conDetalle = true, pie }) {
+function TablaFlujo({ datos, meses, titulo, color, conDetalle = true }) {
   const [abiertas, setAbiertas] = useState(() => new Set());
   const alternar = (clave) => setAbiertas((s) => {
     const n = new Set(s);
@@ -94,7 +98,51 @@ function TablaFlujo({ datos, meses, titulo, color, conDetalle = true, pie }) {
             <td style={{ ...numerica, fontWeight: 700 }}>{num(datos.totales.total)}</td>
             <td style={numerica}>{datos.totales.total ? "100 %" : ""}</td>
           </tr>
-          {pie}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Resumen de una moneda, con la forma de la captura de referencia:
+// saldo inicial del mes arriba, luego entradas, salidas, flujo neto y saldo final acumulado.
+function ResumenMoneda({ moneda, datos, meses }) {
+  const fila = ({ etiqueta, valores, total, negrita = false, linea = false, color }) => (
+    <tr style={linea ? { borderTop: "2px solid var(--color-text)" } : undefined}>
+      <td style={{ ...primera, fontWeight: negrita ? 700 : 500, color }}>{etiqueta}</td>
+      {meses.map((m) => {
+        const v = valores[m.clave];
+        return (
+          <td key={m.clave} style={{ ...numerica, fontWeight: negrita ? 700 : 500, color: v < 0 ? "var(--color-danger)" : color }}>
+            {saldo(v)}
+          </td>
+        );
+      })}
+      <td style={{ ...numerica, fontWeight: 700 }}>{total === null || total === undefined ? "" : saldo(total)}</td>
+    </tr>
+  );
+
+  const primerMes = meses[0]?.clave;
+  const ultimoMes = meses[meses.length - 1]?.clave;
+
+  return (
+    <div style={{ border: "1px solid var(--color-border)", borderRadius: 10, overflowX: "auto", background: "var(--color-surface)", marginBottom: "1.25rem" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            <th style={{ ...primera, fontSize: "var(--text-xs)", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text3)" }}>
+              {ETIQUETA_MONEDA[moneda]}
+            </th>
+            {meses.map((m) => <th key={m.clave} style={{ ...numerica, fontSize: "var(--text-xs)", color: "var(--color-text3)", fontWeight: 600 }}>{m.etiqueta}</th>)}
+            <th style={{ ...numerica, fontSize: "var(--text-xs)", color: "var(--color-text3)", fontWeight: 600 }}>Periodo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {fila({ etiqueta: "Saldo inicial del mes", valores: datos.saldoInicial, total: primerMes ? datos.saldoInicial[primerMes] : null })}
+          {fila({ etiqueta: "Entradas", valores: datos.entradas.totales.meses, total: datos.entradas.totales.total, color: "var(--color-success)" })}
+          {fila({ etiqueta: "Salidas", valores: datos.salidas.totales.meses, total: datos.salidas.totales.total, color: "var(--color-danger)" })}
+          {fila({ etiqueta: "Flujo neto del mes", valores: datos.neto.meses, total: datos.neto.total, negrita: true, linea: true })}
+          {fila({ etiqueta: "Saldo final acumulado", valores: datos.saldoFinal, total: ultimoMes ? datos.saldoFinal[ultimoMes] : null, negrita: true })}
         </tbody>
       </table>
     </div>
@@ -102,8 +150,8 @@ function TablaFlujo({ datos, meses, titulo, color, conDetalle = true, pie }) {
 }
 
 // Estado de Flujo de Efectivo: dinero que entró y salió por mes (por la fecha
-// del cobro o pago), con detalle por cliente/proveedor, % y reparto de las
-// salidas por línea de negocio.
+// del cobro o pago), en soles y en dólares por separado, con saldo inicial y
+// acumulado de cada moneda (desde el saldo de Caja y Bancos).
 export default function FlujoEfectivo() {
   const mesActual = hoy().slice(0, 7);
   const [modo, setModo] = useState("ANIO");
@@ -138,18 +186,6 @@ export default function FlujoEfectivo() {
   };
 
   const meses = datos?.meses || [];
-  const filaResumen = (etiqueta, valores, total, estilo = {}) => (
-    <tr>
-      <td style={{ ...primera, fontWeight: 700, ...estilo }}>{etiqueta}</td>
-      {meses.map((m) => (
-        <td key={m.clave} style={{ ...numerica, fontWeight: 700, color: valores[m.clave] < 0 ? "var(--color-danger)" : undefined, ...estilo }}>
-          {num(valores[m.clave]) === "—" ? "0.00" : num(valores[m.clave])}
-        </td>
-      ))}
-      <td style={{ ...numerica, fontWeight: 700, color: total < 0 ? "var(--color-danger)" : undefined, ...estilo }}>{total === null ? "" : num(total) === "—" ? "0.00" : num(total)}</td>
-      <td style={{ ...numerica, ...estilo }} />
-    </tr>
-  );
 
   return (
     <>
@@ -159,7 +195,7 @@ export default function FlujoEfectivo() {
           <div>
             <h2 className={styles.heading}>Flujo de Efectivo</h2>
             <p className={styles.subtitle}>
-              Dinero que entró y salió, por la fecha del cobro o pago · del {fechaCorta(periodo.desde)} al {fechaCorta(periodo.hasta)} · en soles
+              Dinero que entró y salió, por la fecha del cobro o pago · del {fechaCorta(periodo.desde)} al {fechaCorta(periodo.hasta)} · soles y dólares por separado
             </p>
           </div>
           <div className={styles.acciones}>
@@ -187,45 +223,31 @@ export default function FlujoEfectivo() {
           <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}><Spinner size={18} /> Calculando el flujo...</div>
         ) : (
           <>
-            <div className={styles.kpis}>
-              <div className={styles.kpi}>
-                <p className={styles.kpiLabel}>Entró</p>
-                <p className={styles.kpiValor} style={{ color: "var(--color-success)" }}>{soles(datos.entradas.totales.total)}</p>
-                <p className={styles.kpiNota}>Cobros a clientes y detracciones recibidas</p>
-              </div>
-              <div className={styles.kpi}>
-                <p className={styles.kpiLabel}>Salió</p>
-                <p className={styles.kpiValor} style={{ color: "var(--color-danger)" }}>{soles(datos.salidas.totales.total)}</p>
-                <p className={styles.kpiNota}>
-                  {datos.entradas.totales.total
-                    ? `${pct((datos.salidas.totales.total / datos.entradas.totales.total) * 100)} de lo que entró`
-                    : "Pagos a proveedores y cuotas de paneles"}
-                </p>
-              </div>
-              <div className={`${styles.kpi} ${datos.neto.total < 0 ? styles.kpiAlerta : ""}`}>
-                <p className={styles.kpiLabel}>Flujo neto</p>
-                <p className={styles.kpiValor}>{soles(datos.neto.total)}</p>
-                <p className={styles.kpiNota}>Entradas − salidas del periodo</p>
-              </div>
-            </div>
+            {MONEDAS.map((mon) => {
+              const b = datos.monedas?.[mon];
+              if (!b) return null;
+              return (
+                <section key={mon} style={{ marginBottom: "2rem" }}>
+                  {b.cuentas === 0 && (
+                    <p className={styles.sub} style={{ margin: "0 0 0.75rem" }}>
+                      No hay cuentas en {mon === "USD" ? "dólares" : "soles"} en Caja y Bancos: el saldo inicial y el acumulado no se pueden calcular.
+                    </p>
+                  )}
+                  <ResumenMoneda moneda={mon} datos={b} meses={meses} />
+                  <TablaFlujo datos={b.entradas} meses={meses} titulo="Entradas" color="var(--color-success)" />
+                  <TablaFlujo datos={b.salidas} meses={meses} titulo="Salidas" color="var(--color-danger)" />
+                  <TablaFlujo datos={b.salidasPorLinea} meses={meses} titulo="Salidas por línea de negocio" color="var(--color-text)" conDetalle={false} />
+                </section>
+              );
+            })}
 
-            <TablaFlujo datos={datos.entradas} meses={meses} titulo="Entradas" color="var(--color-success)" />
-            <TablaFlujo datos={datos.salidas} meses={meses} titulo="Salidas" color="var(--color-danger)"
-              pie={(
-                <>
-                  {filaResumen("Flujo neto", datos.neto.meses, datos.neto.total, { borderTop: "2px solid var(--color-text)" })}
-                  {filaResumen("Acumulado", datos.acumulado, null, { fontWeight: 500, color: "var(--color-text2)" })}
-                </>
-              )} />
-            <p className={styles.sub} style={{ margin: "-0.75rem 0 1.25rem" }}>
-              Clic en una fila para ver el detalle por cliente o proveedor. Montos en dólares convertidos a soles.
-              {datos.retencionesExcluidas > 0 && ` No incluye retenciones de clientes (${soles(datos.retencionesExcluidas)}): no son dinero que entra.`}
-            </p>
-
-            <TablaFlujo datos={datos.salidasPorLinea} meses={meses} titulo="Salidas por línea de negocio" color="var(--color-text)" conDetalle={false} />
             <p className={styles.sub} style={{ margin: "-0.75rem 0 0" }}>
-              Lo pagado a cada proveedor se reparte según sus % por línea de negocio (Por pagar → Proveedores).
-              Sin reparto, o cuotas de paneles, va a &quot;Sin línea de negocio&quot;.
+              Clic en una fila para ver el detalle por cliente o proveedor. Cada moneda usa el monto de la cuenta donde entró o salió el dinero.
+              Saldo inicial del mes = saldo de las cuentas de esa moneda al cierre del mes anterior; en blanco si alguna cuenta aún no tiene saldo inicial a esa fecha.
+              {datos.retencionesExcluidas > 0 && ` No incluye retenciones de clientes (S/ ${num(datos.retencionesExcluidas)}): no son dinero que entra.`}
+            </p>
+            <p className={styles.sub} style={{ margin: "0.5rem 0 0" }}>
+              Excel y PDF siguen mostrando el consolidado en soles.
             </p>
           </>
         )}

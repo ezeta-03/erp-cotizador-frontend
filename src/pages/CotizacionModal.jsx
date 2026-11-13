@@ -9,6 +9,7 @@ import styles from "./CotizacionModal.module.scss";
 import { X, ChevronLeft, Eye, FileText, Trash2, Layers } from "lucide-react";
 import CotizacionPDFPreview from "../coomponents/CotizacionPDFPreview";
 import CuentasBancariasPicker from "../coomponents/CuentasBancariasPicker";
+import SelectBuscable from "../coomponents/SelectBuscable";
 import { cuentasSugeridas, getCuentasParaDocumentos } from "../api/cajaBancos";
 import { MARGEN_MINIMO, IGV_RATE } from "../config/negocio";
 import { soles } from "../utils/formato";
@@ -632,18 +633,19 @@ export default function CotizacionModal({ onClose, onSave, initialClienteId, ini
                   <span>Agregar panel outdoor</span>
                 </div>
                 <div className={styles.outdoorForm}>
-                  <select
+                  <SelectBuscable
                     className={styles.outdoorSelect}
                     value={panelSelId}
-                    onChange={(e) => setPanelSelId(e.target.value)}
-                  >
-                    <option value="">Selecciona panel…</option>
-                    {paneles.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.codigo} — {p.nombre} ({p.ancho}×{p.alto}m · {fmt(p.precioMes)}/mes)
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(v) => setPanelSelId(v == null ? "" : String(v))}
+                    emptyLabel="Selecciona panel…"
+                    placeholder="Escribe código o nombre del panel…"
+                    ariaLabel="Panel outdoor"
+                    options={paneles.map((p) => ({
+                      value: p.id,
+                      label: `${p.codigo} — ${p.nombre} (${p.ancho}×${p.alto}m · ${fmt(p.precioMes)}/mes)`,
+                      searchText: `${p.codigo} ${p.nombre}`,
+                    }))}
+                  />
 
                   <div className={styles.outdoorMeses}>
                     <label>Meses</label>

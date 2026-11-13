@@ -3,6 +3,7 @@ import { X, Plus, Trash2, Link2 } from "lucide-react";
 import { getPartidasPresupuesto, guardarPartidasPresupuesto } from "../api/proyectos";
 import { getItemsAlmacen } from "../api/almacen";
 import { CATEGORIAS_PRESUPUESTO, UNIDADES_PRESUPUESTO } from "../constants/presupuesto";
+import SelectBuscable from "../coomponents/SelectBuscable";
 import styles from "./catalogoPartidas.module.scss";
 
 let siguienteKey = 1;
@@ -161,21 +162,18 @@ function Seccion({ titulo, filas, itemPorId, itemsPorCategoria, onCampo, onQuita
               )}
             </td>
             <td>
-              <select
+              <SelectBuscable
                 value={p.itemAlmacenId ?? ""}
-                onChange={(e) => onCampo(p._key, "itemAlmacenId", e.target.value ? Number(e.target.value) : null)}
-              >
-                <option value="">Sin enlace (precio manual)</option>
-                {itemsPorCategoria.map(([categoria, items]) => (
-                  <optgroup key={categoria} label={categoria}>
-                    {items.map((i) => (
-                      <option key={i.id} value={i.id}>
-                        {i.codigo} · {i.nombre} — S/ {fmtNum(i.costoUnitario)} / {i.unidad}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+                onChange={(v) => onCampo(p._key, "itemAlmacenId", v == null ? null : Number(v))}
+                emptyLabel="Sin enlace (precio manual)"
+                placeholder="Escribe código o nombre del ítem…"
+                ariaLabel="Ítem de Almacén"
+                options={itemsPorCategoria.flatMap(([, items]) => items).map((i) => ({
+                  value: i.id,
+                  label: `${i.codigo} · ${i.nombre} — S/ ${fmtNum(i.costoUnitario)} / ${i.unidad}`,
+                  searchText: `${i.categoria ?? ""} ${i.codigo ?? ""} ${i.nombre ?? ""}`,
+                }))}
+              />
             </td>
             <td className={styles.centro}>
               <input type="checkbox" checked={p.activo} onChange={(e) => onCampo(p._key, "activo", e.target.checked)} />
