@@ -243,7 +243,7 @@ export default function FlujoEfectivo() {
 
             <p className={styles.sub} style={{ margin: "-0.75rem 0 0" }}>
               Clic en una fila para ver el detalle por cliente o proveedor. Cada moneda usa el monto de la cuenta donde entró o salió el dinero.
-              Saldo inicial del mes = saldo de las cuentas de esa moneda al cierre del mes anterior; en blanco si alguna cuenta aún no tiene saldo inicial a esa fecha.
+              Saldo inicial del mes = saldo de las cuentas de esa moneda al 1 de ese mes; en blanco si alguna cuenta aún no tiene saldo inicial a esa fecha.
               {datos.retencionesExcluidas > 0 && ` No incluye retenciones de clientes (S/ ${num(datos.retencionesExcluidas)}): no son dinero que entra.`}
             </p>
             <p className={styles.sub} style={{ margin: "0.5rem 0 0" }}>
